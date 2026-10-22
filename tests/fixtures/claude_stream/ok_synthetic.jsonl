@@ -1,0 +1,11 @@
+{"type":"system","subtype":"init","model":"claude-haiku-4-5-20251001","tools":[],"apiKeySource":"none"}
+{"type":"system","subtype":"status","status":"requesting"}
+{"type":"stream_event","event":{"type":"message_start","message":{"id":"msg_1","role":"assistant"}}}
+{"type":"stream_event","event":{"type":"content_block_start","index":0,"content_block":{"type":"thinking","thinking":""}}}
+{"type":"stream_event","event":{"type":"content_block_delta","index":0,"delta":{"type":"thinking_delta","thinking":"pensando"}}}
+{"type":"stream_event","event":{"type":"content_block_start","index":1,"content_block":{"type":"text","text":""}}}
+{"type":"stream_event","event":{"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"hola "}}}
+{"type":"stream_event","event":{"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"mundo · ñ"}}}
+{"type":"stream_event","event":{"type":"content_block_stop","index":1}}
+{"type":"assistant","message":{"model":"claude-haiku-4-5-20251001","role":"assistant","content":[{"type":"text","text":"hola mundo · ñ"}]}}
+{"type":"result","subtype":"success","is_error":false,"result":"hola mundo · ñ","duration_ms":1830,"num_turns":1,"total_cost_usd":0.0123,"usage":{"input_tokens":9800,"output_tokens":12}}

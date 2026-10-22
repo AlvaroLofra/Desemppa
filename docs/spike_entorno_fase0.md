@@ -58,3 +58,26 @@ Aplicada con `sqlite3.executescript` del venv sobre una base de datos temporal:
 1. Llamada real a `claude -p` con un prompt de más de 40.000 caracteres por stdin y captura del evento `result` (`usage`, `total_cost_usd`).
 2. Texto exacto del error de "usage limit" para el circuit breaker.
 3. Modelos y límites reales del free tier de la Gemini API (`GEMINI_API_KEY` sin configurar todavía).
+
+---
+
+# Sprint 1 — Resultados de los spikes en vivo (2026-10-22)
+
+## Gemini API (clave tomada de la variable de entorno `GEMINI_API_KEY` del sistema)
+- **Modelos con la clave:** `gemini-3.8-flash`, `gemini-3.7-flash`, `gemini-3.6-flash`, `gemini-3.5-flash`, `gemini-4-argon`, `gemini-embedding-001`/`-2` y otros (salida de `scripts/spike_gemini_live.py`).
+- `gemini-2.5-flash` devuelve **404** ("no longer available to new users") → retirado de `models.toml`.
+- `gemini-3.8-flash` y `gemini-3.7-flash` devolvían **503 UNAVAILABLE** (saturación) de forma sostenida durante la prueba; `gemini-3.5-flash` respondió. Cadena configurada: `3.8-flash → 3.7-flash → 3.5-flash`.
+- `gemini-4-argon` existe en la API pero devuelve **429 RESOURCE_EXHAUSTED** (sin cuota en el free tier) → el modo Auditoría degradará a `claude_opus`.
+- `thinking_level` (LOW/MEDIUM/HIGH) aceptado por `gemini-3.5-flash`. Primer token ≈ 3,2 s en el spike y < 3 s en el test en vivo `test_gemini_first_token_under_3s` (objetivo < 3 s: **cumplido, pero al límite**).
+- El SDK `google-genai` reintenta por su cuenta (tenacity); se desactiva (`HttpRetryOptions(attempts=1)`) para que el backoff y la degradación los controle `GeminiClient`/`ModelRouter`.
+
+## Claude CLI
+- `claude -p` lanzado desde una terminal normal responde **"Not logged in · Please run /login"**: el CLI no tiene sesión propia en este equipo (la app de escritorio no la comparte con el CLI). No hay `~/.claude/.credentials.json`.
+- La cadena completa sí está verificada hasta ese punto: prompt de ~40.000 caracteres por stdin, `--system-prompt-file`, cwd sandbox, `FileLock`, parser `stream-json` y clasificación del error como `NotAuthenticated` (degradable → el router cae a Gemini).
+- Formato real del error guardado en `tests/fixtures/claude_stream/error_not_logged_in.jsonl`: evento `assistant` con modelo `<synthetic>` + `result` con `is_error: true`, `subtype: "success"`, `terminal_reason: "api_error"`.
+- Salida UTF-8 correcta (el `·` llega como `c2 b7`).
+
+## Pendiente (requiere acción del usuario)
+1. Iniciar sesión en el CLI una vez: ejecutar `claude` en una terminal y escribir `/login`.
+2. Después: `uv run python scripts/spike_claude_live.py --record` (graba `ok_haiku.jsonl` real), `... --repeat 20` (estabilidad en Windows) y `uv run pytest -m live` (primer token de Sonnet < 10 s).
+3. Revisar los patrones de `UsageLimitReached` en `core/stream_json.py` la primera vez que aparezca el mensaje real de límite de uso.

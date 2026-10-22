@@ -17,6 +17,7 @@ dependencies = [
     "lxml",
     "pdfplumber",
     "filelock",
+    "pydantic-settings>=2.16.1",
 ]
 
 [dependency-groups]

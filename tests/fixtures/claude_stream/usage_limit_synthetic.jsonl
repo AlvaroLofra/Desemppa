@@ -1,0 +1,3 @@
+{"type":"system","subtype":"init","model":"claude-sonnet-4-5","tools":[]}
+{"type":"assistant","message":{"model":"<synthetic>","role":"assistant","content":[{"type":"text","text":"Claude usage limit reached. Your limit will reset at 3pm"}]}}
+{"type":"result","subtype":"success","is_error":true,"result":"Claude usage limit reached. Your limit will reset at 3pm","terminal_reason":"api_error","total_cost_usd":0,"usage":{"input_tokens":0,"output_tokens":0}}

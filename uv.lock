@@ -697,6 +697,7 @@ dependencies = [
     { name = "pdfplumber" },
     { name = "pyarrow" },
     { name = "pydantic" },
+    { name = "pydantic-settings" },
     { name = "rapidfuzz" },
     { name = "sse-starlette" },
     { name = "uvicorn", extra = ["standard"] },
@@ -721,6 +722,7 @@ requires-dist = [
     { name = "pdfplumber" },
     { name = "pyarrow" },
     { name = "pydantic", specifier = ">=2.0" },
+    { name = "pydantic-settings", specifier = ">=2.16.1" },
     { name = "rapidfuzz" },
     { name = "sse-starlette" },
     { name = "uvicorn", extras = ["standard"] },
@@ -1658,6 +1660,21 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/e8/7b/e3ef76b269cfe4a5bd3bdcf5d7124cf05e5a8909d443b91639307116bdae/pydantic_core-2.50.1-pp311-pypy311_pp73-musllinux_1_1_armv7l.whl", hash = "sha256:48569b0ade9edfbe065cad1d700175546592aebbb42f02adcebcc26e75b896fe", size = 2466001 },
     { url = "https://files.pythonhosted.org/packages/8f/7a/ea0947aadc1d9f72d4be00d2e19939611ec17363bcb5e6eb9ec7d8221c34/pydantic_core-2.50.1-pp311-pypy311_pp73-musllinux_1_1_x86_64.whl", hash = "sha256:5f3cae32fc46121f787cb2486de9cf95a8bf72aec5cc78f64c606fa1735a6ef5", size = 2481777 },
     { url = "https://files.pythonhosted.org/packages/24/f3/d15bc0b1fb0c4f1e07b3326ffb7489f7ae70da2b56a0884d22641b0eb47c/pydantic_core-2.50.1-pp311-pypy311_pp73-win_amd64.whl", hash = "sha256:7f476456ac2bb0d937f75191494a09c83a30765fea4f70f3b404942fe25f6cdf", size = 2336787 },
+]
+
+[[package]]
+name = "pydantic-settings"
+version = "2.16.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pydantic" },
+    { name = "python-dotenv" },
+    { name = "typing-extensions" },
+    { name = "typing-inspection" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/05/ca/7817b4bf0c4b15c6a6ab8cdf4cb96c268335a8ca2f525de93b6ebe4c7d28/pydantic_settings-2.16.1.tar.gz", hash = "sha256:aff602a1886338c2df3d1e958e2193a8dc33cec75b91f202e83fd98484b4b0da", size = 303436 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/3c/74/fdf926afe145d8629c4b2ff57f4ea1d64ed7abc4d84d97463b2517a2547e/pydantic_settings-2.16.1-py3-none-any.whl", hash = "sha256:30f5313340da4e8f1b440d1910b92a5bc3ccbb6b4ba70ec2b8395bc921f418f5", size = 80771 },
 ]
 
 [[package]]
