@@ -1,0 +1,47 @@
+# Asignación de roles por modo (dossier §1.1.1). model = alias de config/models.toml.
+# Regla de familia cruzada: el NLI usa siempre una familia distinta a la del Magistrado
+# (en Eco el Magistrado es Gemini → el NLI debería ser claude_haiku; ver nli_cross_family).
+
+[profiles.eco]
+label = "Eco"
+claude_calls_per_query = 0
+nli_cross_family = "claude_haiku"
+triaje      = { model = "gemini_flash", effort = "low" }
+cribado     = { model = "gemini_flash", effort = "low" }
+defensa     = { model = "gemini_flash", effort = "medium" }
+contraparte = { model = "gemini_flash", effort = "medium" }
+magistrado  = { model = "gemini_flash", effort = "high" }
+nli         = { model = "gemini_flash", effort = "low" }
+
+[profiles.equilibrado]
+label = "Equilibrado"
+default = true
+claude_calls_per_query = 1
+triaje      = { model = "gemini_flash", effort = "low" }
+cribado     = { model = "gemini_flash", effort = "low" }
+defensa     = { model = "gemini_flash", effort = "medium" }
+contraparte = { model = "gemini_flash", effort = "medium" }
+magistrado  = { model = "claude_sonnet", effort = "medium" }
+nli         = { model = "gemini_flash", effort = "low" }
+
+[profiles.pro]
+label = "Pro"
+claude_calls_per_query = 3
+triaje      = { model = "gemini_flash", effort = "low" }
+cribado     = { model = "gemini_flash", effort = "medium" }
+defensa     = { model = "claude_sonnet", effort = "medium" }
+contraparte = { model = "claude_sonnet", effort = "medium" }
+magistrado  = { model = "claude_opus", effort = "high" }
+nli         = { model = "gemini_flash", effort = "low" }
+
+[profiles.auditoria]
+label = "Auditoría cruzada"
+optional = true
+claude_calls_per_query = 3
+triaje      = { model = "gemini_flash", effort = "low" }
+cribado     = { model = "gemini_flash", effort = "medium" }
+defensa     = { model = "claude_sonnet", effort = "medium" }
+contraparte = { model = "claude_sonnet", effort = "medium" }
+magistrado  = { model = "claude_opus", effort = "high" }
+auditor     = { model = "gemini_top", effort = "high" }
+nli         = { model = "gemini_flash", effort = "low" }

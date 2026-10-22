@@ -1,0 +1,66 @@
+# Catálogo de modelos por alias lógico (dossier §1.1, condición C4 y riesgo R8).
+# Los IDs reales son configurables: verificar disponibilidad en la Gemini API / `claude --help` en el Sprint 1.
+# rpm/rpd = límites del free tier de Gemini: valores PROVISIONALES, consultar AI Studio (cambian).
+
+[models.gemini_flash]
+provider = "gemini"
+model_id = "gemini-3.8-flash"
+efforts = ["low", "medium", "high"]
+rpm = 10
+rpd = 500
+timeout_s = 60
+fallbacks = ["gemini_flash_alt"]
+
+[models.gemini_flash_alt]
+provider = "gemini"
+model_id = "gemini-2.5-flash"
+efforts = ["low", "medium", "high"]
+rpm = 10
+rpd = 250
+timeout_s = 60
+fallbacks = []
+
+[models.gemini_top]
+# "Gemini 4 Argon": solo si existe en la Gemini API; si no, el router degrada a claude_opus.
+provider = "gemini"
+model_id = "gemini-4-argon"
+efforts = ["low", "medium", "high"]
+rpm = 5
+rpd = 100
+timeout_s = 300
+fallbacks = ["claude_opus"]
+
+[models.gemini_embedding]
+provider = "gemini"
+model_id = "gemini-embedding-001"
+output_dimensionality = 768
+rpm = 100
+rpd = 1000
+timeout_s = 30
+fallbacks = []
+
+[models.claude_haiku]
+provider = "claude"
+cli_model = "haiku"
+efforts = ["low", "medium", "high"]
+timeout_s = 60
+fallbacks = ["gemini_flash"]
+
+[models.claude_sonnet]
+provider = "claude"
+cli_model = "sonnet"
+efforts = ["low", "medium", "high"]
+timeout_s = 120
+fallbacks = ["gemini_flash"]
+
+[models.claude_opus]
+provider = "claude"
+cli_model = "opus"
+efforts = ["low", "medium", "high"]
+timeout_s = 300
+fallbacks = ["claude_sonnet", "gemini_flash"]
+
+[circuit_breaker]
+# Tras un "usage limit" de Claude: abierto hasta reset_at informado o este valor por defecto.
+default_open_minutes = 60
+gemini_max_retries = 3

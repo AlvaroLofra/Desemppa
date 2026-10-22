@@ -1,0 +1,47 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# Herramientas
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Secretos
+.env
+.env.*
+!.env.example
+
+# Datos locales (SQLite, LanceDB, adjuntos)
+*.db
+*.db-wal
+*.db-shm
+*.sqlite3
+storage/lancedb_store/
+*.lance/
+data/local/
+uploads/
+
+# Temporales y logs
+tmp/
+temp/
+logs/
+*.log
+
+# Frontend
+web/node_modules/
+web/dist/
+
+# Windows / editores
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+.vscode/
+.idea/
