@@ -1,52 +1,74 @@
-# Catálogo de modelos por alias lógico (dossier §1.1, condición C4 y riesgo R8).
-# Los IDs reales son configurables: verificar disponibilidad en la Gemini API / `claude --help` en el Sprint 1.
-# rpm/rpd = límites del free tier de Gemini. Solo el de gemini-3.8-flash está confirmado (20 RPD, mensaje 429 del
-# 2026-10-23); el resto son provisionales. Si se agotan, GeminiClient lo detecta por el 429 y salta ese modelo
-# hasta la hora de reinicio que indica la API.
+# Catálogo de modelos por alias lógico. Cada alias = proveedor (config/providers.toml) + id de modelo.
+# model_id puede llevar {effort} (Antigravity codifica el razonamiento en el nombre: gemini-3.8-flash-medium).
+# fallbacks: cadena ordenada si el modelo falla, no tiene sesión o agota cuota; puede cruzar proveedores.
 #
-# Medición del 2026-10-23 (prompt de ~3.000 tokens): gemini-3.5-flash 4–6 s; gemini-3.8-flash 128 s (cola del
-# free tier) y 503 frecuentes. Por eso el Flash principal es 3.5 y el 3.8 queda como último recurso.
+# Mediciones del 2026-10-23 (docs/spike_antigravity.md y docs/spike_entorno_fase0.md):
+#   3.8 Flash vía Antigravity: 4–13 s (low/medium), 48 s con 32 KB en medium; high con prompts grandes > 240 s.
+#   3.8 Flash vía API gratuita: 128 s y 20 peticiones/día.  3.5 Flash vía API: 4–6 s.
 
+# ---------- Google AI Pro vía Antigravity (preferente para 3.8 Flash) ----------
+[models.agy_gemini_flash]
+etiqueta = "Gemini 3.8 Flash (Antigravity)"
+provider = "antigravity_cli"
+model_id = "gemini-3.8-flash-{effort}"
+efforts = ["low", "medium"]   # high se cuelga con prompts grandes (spike)
+timeout_s = 240
+fallbacks = ["gemini_flash_38_api", "gemini_flash"]
+
+[models.agy_claude_sonnet]
+etiqueta = "Claude Sonnet 4.6 (Antigravity)"
+provider = "antigravity_cli"
+model_id = "claude-sonnet-4-6"
+timeout_s = 240
+fallbacks = ["agy_gemini_flash"]
+
+[models.agy_claude_opus]
+etiqueta = "Claude Opus 4.6 thinking (Antigravity)"
+provider = "antigravity_cli"
+model_id = "claude-opus-4-6-thinking"
+timeout_s = 300
+fallbacks = ["agy_claude_sonnet"]
+
+# ---------- Gemini API (AI Studio, plan gratuito) ----------
 [models.gemini_flash]
-provider = "gemini"
+etiqueta = "Gemini 3.5 Flash (API)"
+provider = "gemini_api"
 model_id = "gemini-3.5-flash"
-efforts = ["low", "medium", "high"]
 rpm = 10
 rpd = 250
 timeout_s = 90
 fallbacks = ["gemini_flash_lite"]
 
 [models.gemini_flash_lite]
-provider = "gemini"
+etiqueta = "Gemini 3.5 Flash-Lite (API)"
+provider = "gemini_api"
 model_id = "gemini-3.5-flash-lite"
-efforts = ["low", "medium", "high"]
 rpm = 15
 rpd = 500
 timeout_s = 90
-fallbacks = ["gemini_flash_38"]
+fallbacks = []
 
-[models.gemini_flash_38]
-# Modelo indicado en el dossier; lento y con solo 20 peticiones/día en el free tier.
-provider = "gemini"
+[models.gemini_flash_38_api]
+etiqueta = "Gemini 3.8 Flash (API, 20/día)"
+provider = "gemini_api"
 model_id = "gemini-3.8-flash"
-efforts = ["low", "medium", "high"]
 rpm = 5
 rpd = 20
 timeout_s = 240
 fallbacks = []
 
 [models.gemini_top]
-# "Gemini 4 Argon": solo si existe en la Gemini API; si no, el router degrada a claude_opus.
-provider = "gemini"
+etiqueta = "Gemini 4 Argon (API; sin cuota en el plan gratuito)"
+provider = "gemini_api"
 model_id = "gemini-4-argon"
-efforts = ["low", "medium", "high"]
 rpm = 5
 rpd = 100
 timeout_s = 300
 fallbacks = ["claude_opus"]
 
 [models.gemini_embedding]
-provider = "gemini"
+etiqueta = "Gemini Embedding"
+provider = "gemini_api"
 model_id = "gemini-embedding-001"
 output_dimensionality = 768
 rpm = 100
@@ -54,28 +76,37 @@ rpd = 1000
 timeout_s = 30
 fallbacks = []
 
+# ---------- Claude Pro vía Claude Code ----------
 [models.claude_haiku]
-provider = "claude"
-cli_model = "haiku"
-efforts = ["low", "medium", "high"]
-timeout_s = 60
-fallbacks = ["gemini_flash"]
+etiqueta = "Claude Haiku (Claude Code)"
+provider = "claude_cli"
+model_id = "haiku"
+timeout_s = 90
+fallbacks = ["agy_gemini_flash"]
 
 [models.claude_sonnet]
-provider = "claude"
-cli_model = "sonnet"
-efforts = ["low", "medium", "high"]
-timeout_s = 120
-fallbacks = ["gemini_flash"]
+etiqueta = "Claude Sonnet (Claude Code)"
+provider = "claude_cli"
+model_id = "sonnet"
+timeout_s = 180
+fallbacks = ["agy_claude_sonnet", "agy_gemini_flash"]
 
 [models.claude_opus]
-provider = "claude"
-cli_model = "opus"
-efforts = ["low", "medium", "high"]
+etiqueta = "Claude Opus (Claude Code)"
+provider = "claude_cli"
+model_id = "opus"
 timeout_s = 300
-fallbacks = ["claude_sonnet", "gemini_flash"]
+fallbacks = ["agy_claude_opus", "claude_sonnet"]
+
+# ---------- ChatGPT vía Codex (desactivado hasta instalarlo) ----------
+[models.codex_default]
+etiqueta = "Codex (ChatGPT)"
+provider = "codex_cli"
+model_id = "gpt-5-codex"
+timeout_s = 300
+fallbacks = ["agy_gemini_flash"]
 
 [circuit_breaker]
-# Tras un "usage limit" de Claude: abierto hasta reset_at informado o este valor por defecto.
+# Tras un "usage limit" de una suscripción: abierto hasta reset_at informado o este valor por defecto.
 default_open_minutes = 60
 gemini_max_retries = 3

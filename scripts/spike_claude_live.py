@@ -1,9 +1,9 @@
-"""Spike en vivo de `claude -p` a través de ClaudeWorker.
+"""Spike en vivo de un proveedor CLI (Claude Code, Antigravity, Codex…) a través de su adaptador.
 
-Uso:  uv run python scripts/spike_claude_live.py [--model haiku] [--repeat 1] [--record]
-  --record   guarda la salida cruda stream-json en tests/fixtures/claude_stream/ok_<model>.jsonl
-Requisito: el CLI debe tener sesión iniciada (ejecutar `claude` y `/login` una vez en una terminal).
-Consume una cantidad mínima de la cuota de Claude Pro.
+Uso:  uv run python scripts/spike_claude_live.py [--alias claude_haiku] [--repeat 1] [--record]
+  --alias   alias de config/models.toml (p. ej. claude_haiku, agy_gemini_flash)
+  --record  guarda la salida cruda en tests/fixtures/<proveedor>_stream/ok_<alias>.jsonl
+Requisito: el CLI debe tener sesión iniciada. Consume una cantidad mínima de la cuota de la suscripción.
 """
 
 from __future__ import annotations
@@ -18,71 +18,74 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from config.settings import get_settings  # noqa: E402
-from core.claude_worker import ClaudeWorker, build_args  # noqa: E402
+from config.settings import ModelSpec, get_catalog, get_settings  # noqa: E402
+from core.gemini_client import GeminiClient  # noqa: E402
 from core.llm_types import LLMRequest, LLMResult  # noqa: E402
+from core.providers.cli_adapter import CliAdapter  # noqa: E402
+from core.providers.registry import build_registry  # noqa: E402
 
 SYSTEM = "Eres un asistente conciso. Responde en español."
 PROMPT = "Contexto de relleno para probar stdin largo. " * 900 + "\nResponde solo: hola mundo"  # ~40k car.
 
 
-def record_raw(model: str) -> Path:
-    settings = get_settings()
-    assert settings.claude_sandbox_dir is not None
-    settings.claude_sandbox_dir.mkdir(parents=True, exist_ok=True)
-    sys_file = settings.claude_sandbox_dir / "spike_system.md"
-    sys_file.write_text(SYSTEM, encoding="utf-8")
-    exe = settings.claude_exe or "claude"
-    out = subprocess.run(
-        build_args(exe, model, "low", sys_file),
-        input=PROMPT.encode("utf-8"),
-        capture_output=True,
-        cwd=settings.claude_sandbox_dir,
-        timeout=180,
+def adapter_for(alias: str) -> tuple[CliAdapter, ModelSpec]:
+    settings, catalog = get_settings(), get_catalog()
+    spec = catalog.models[alias]
+    registry = build_registry(
+        catalog, settings, gemini=GeminiClient(None), exe_overrides={"claude_cli": settings.claude_exe}
     )
-    target = ROOT / "tests" / "fixtures" / "claude_stream" / f"ok_{model}.jsonl"
+    adapter = registry[spec.provider]
+    if not isinstance(adapter, CliAdapter):
+        raise SystemExit(f"{alias} no usa un proveedor CLI")
+    return adapter, spec
+
+
+def record_raw(alias: str) -> Path:
+    adapter, spec = adapter_for(alias)
+    request = LLMRequest(system=SYSTEM, prompt=PROMPT, effort="low")
+    args, stdin, temps = adapter.build_call(spec.resolved_id("low"), request, spec.timeout_s)
+    out = subprocess.run(args, input=stdin.encode("utf-8"), capture_output=True, timeout=300, cwd=adapter._sandbox)  # noqa: SLF001
+    for t in temps:
+        t.unlink(missing_ok=True)
+    carpeta = {"claude_cli": "claude_stream", "antigravity_cli": "agy_stream"}.get(adapter.id, f"{adapter.id}_stream")
+    target = ROOT / "tests" / "fixtures" / carpeta / f"ok_{alias}.jsonl"
+    target.parent.mkdir(parents=True, exist_ok=True)
     target.write_bytes(out.stdout)
     return target
 
 
-async def run(model: str, repeat: int) -> None:
-    settings = get_settings()
-    assert settings.claude_sandbox_dir is not None
-    worker = ClaudeWorker(
-        sandbox_dir=settings.claude_sandbox_dir, lock_path=settings.claude_lock_path, exe=settings.claude_exe
-    )
+async def run(alias: str, repeat: int) -> None:
+    adapter, spec = adapter_for(alias)
     request = LLMRequest(system=SYSTEM, prompt=PROMPT, effort="low")
     failures = 0
     for i in range(repeat):
         t0 = time.monotonic()
         first: float | None = None
         try:
-            async for item in worker.stream(alias=f"claude_{model}", cli_model=model, request=request, timeout_s=180):
+            async for item in adapter.stream(alias=alias, spec=spec, request=request):
                 if isinstance(item, LLMResult):
                     print(
-                        f"[{i + 1}] modelo={item.model} uso={item.usage}"
-                        f" coste_eq={item.coste_equivalente_usd} total={item.latencia_ms} ms"
-                        f" primer_token={first and round(first, 2)} s"
-                        f" texto={item.text[:60]!r}"
+                        f"[{i + 1}] modelo={item.model} uso={item.usage} total={item.latencia_ms} ms "
+                        f"primer_token={first and round(first, 2)} s texto={item.text[:60]!r}"
                     )
                 elif first is None:
                     first = time.monotonic() - t0
         except Exception as exc:  # noqa: BLE001 — el spike informa y sigue
             failures += 1
             print(f"[{i + 1}] {type(exc).__name__}: {exc}")
-    worker.stop()
+    adapter.stop()
     print(f"llamadas={repeat} fallos={failures}")
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model", default="haiku")
+    parser.add_argument("--alias", default="claude_haiku")
     parser.add_argument("--repeat", type=int, default=1)
     parser.add_argument("--record", action="store_true")
     args = parser.parse_args()
     if args.record:
-        print("fixture:", record_raw(args.model))
-    asyncio.run(run(args.model, args.repeat))
+        print("fixture:", record_raw(args.alias))
+    asyncio.run(run(args.alias, args.repeat))
 
 
 if __name__ == "__main__":

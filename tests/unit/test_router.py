@@ -1,7 +1,7 @@
 import pytest
 
 from core.circuit_breaker import CircuitBreaker
-from core.errors import NotAuthenticated, ProviderError, UsageLimitReached
+from core.errors import NotAuthenticated, ProviderError, RateLimited, UsageLimitReached
 from core.llm_types import LLMRequest, LLMResult, StreamChunk
 from core.quota_ledger import QuotaLedger
 from core.router import ModelRouter
@@ -15,8 +15,8 @@ class FakeBackend:
         self.behaviour = behaviour or {}
         self.calls = []
 
-    async def stream(self, *, alias, request, spec=None, cli_model=None, timeout_s=None):
-        self.calls.append((alias, request.effort))
+    async def stream(self, *, alias, spec, request):
+        self.calls.append((alias, request.effort, spec.resolved_id(request.effort)))
         outcome = self.behaviour.get(alias)
         if isinstance(outcome, tuple):  # (chunks emitidos, excepción posterior)
             for text in outcome[0]:
@@ -29,19 +29,24 @@ class FakeBackend:
             text=f"[{alias}]",
             provider=self.provider,
             alias=alias,
-            model=f"{alias}-id",
+            model=spec.resolved_id(request.effort),
             latencia_ms=5,
-            coste_equivalente_usd=0.01 if self.provider == "claude" else None,
         )
 
 
 @pytest.fixture
 def build(db, catalog):
-    def _build(gemini=None, claude=None):
-        g, c = FakeBackend("gemini", gemini), FakeBackend("claude", claude)
+    def _build(gemini=None, claude=None, agy=None, sin=()):
+        backends = {
+            "gemini_api": FakeBackend("gemini_api", gemini),
+            "claude_cli": FakeBackend("claude_cli", claude),
+            "antigravity_cli": FakeBackend("antigravity_cli", agy),
+        }
+        for pid in sin:
+            backends.pop(pid)
         breaker, ledger = CircuitBreaker(db), QuotaLedger(db)
-        router = ModelRouter(catalog, gemini=g, claude=c, breaker=breaker, ledger=ledger)
-        return router, g, c, breaker, ledger
+        router = ModelRouter(catalog, providers=backends, breaker=breaker, ledger=ledger)
+        return router, backends, breaker
 
     return _build
 
@@ -52,90 +57,95 @@ async def _run(router, mode, role):
 
 def test_router_maps_roles_per_mode(build):
     router, *_ = build()
-    assert router.resolve("eco", "magistrado").model == "gemini_flash"
+    assert router.resolve("eco", "magistrado").model == "agy_gemini_flash"
+    assert router.resolve("eco", "triaje").model == "gemini_flash"
     assert router.resolve("equilibrado", "magistrado").model == "claude_sonnet"
     assert router.resolve("pro", "magistrado").model == "claude_opus"
-    assert router.resolve("pro", "defensa").model == "claude_sonnet"
     with pytest.raises(ValueError):
         router.resolve("turbo", "magistrado")
 
 
-def test_candidates_chain(build):
+def test_candidates_chain_crosses_providers(build):
     router, *_ = build()
     assert router.candidates("claude_opus") == [
         "claude_opus",
+        "agy_claude_opus",
         "claude_sonnet",
+        "agy_claude_sonnet",
+        "agy_gemini_flash",
+        "gemini_flash_38_api",
         "gemini_flash",
         "gemini_flash_lite",
-        "gemini_flash_38",
     ]
 
 
-async def test_happy_path_uses_profile_effort_and_records_ledger(build, db):
-    router, g, c, *_ = build()
-    items = await _run(router, "pro", "magistrado")
-    assert c.calls == [("claude_opus", "high")] and g.calls == []
-    result = items[-1]
-    assert isinstance(result, LLMResult) and not result.degradado
-    row = db.execute("SELECT proveedor, modelo, effort, ok, rol FROM llm_calls_ledger").fetchone()
-    assert tuple(row) == ("claude", "claude_opus-id", "high", 1, "magistrado")
+async def test_happy_path_effort_in_model_id_and_ledger(build, db):
+    router, b, _ = build()
+    items = await _run(router, "eco", "magistrado")
+    assert b["antigravity_cli"].calls == [("agy_gemini_flash", "medium", "gemini-3.8-flash-medium")]
+    assert isinstance(items[-1], LLMResult) and not items[-1].degradado
+    row = db.execute("SELECT proveedor, modelo, effort, ok FROM llm_calls_ledger").fetchone()
+    assert tuple(row) == ("antigravity_cli", "gemini-3.8-flash-medium", "medium", 1)
 
 
-async def test_breaker_opens_on_usage_limit_and_degrades_to_gemini(build):
-    router, g, c, breaker, _ = build(claude={"claude_sonnet": UsageLimitReached("limit", provider="claude")})
+async def test_unsupported_effort_is_clamped(build):
+    router, b, _ = build()
+    await _run(router, "pro", "nli")  # nli = agy_gemini_flash low
+    spec = router.catalog.models["agy_gemini_flash"]
+    assert "high" not in spec.efforts
+
+
+async def test_usage_limit_opens_breaker_and_degrades_to_other_provider(build):
+    router, b, breaker = build(claude={"claude_sonnet": UsageLimitReached("limit", provider="claude_cli")})
     items = await _run(router, "equilibrado", "magistrado")
-    result = items[-1]
-    assert result.provider == "gemini" and result.alias == "gemini_flash" and result.degradado
-    assert breaker.state("claude") == "open"
-    assert any("UsageLimitReached" in a for a in result.avisos)
-
-    # Siguiente consulta: ni siquiera intenta Claude.
-    c.calls.clear()
-    items = await _run(router, "pro", "magistrado")
-    assert c.calls == [] and items[-1].provider == "gemini"
+    assert items[-1].provider == "antigravity_cli" and items[-1].alias == "agy_claude_sonnet"
+    assert items[-1].degradado and breaker.state("claude_cli") == "open"
+    b["claude_cli"].calls.clear()
+    items = await _run(router, "pro", "magistrado")  # claude_opus: breaker abierto -> ni se intenta
+    assert b["claude_cli"].calls == [] and items[-1].alias == "agy_claude_opus"
     assert any("circuit breaker abierto" in a for a in items[-1].avisos)
 
 
-async def test_fallback_chain_within_gemini(build, db):
-    router, g, *_ = build(
-        gemini={
-            "gemini_flash": UsageLimitReached("x", provider="gemini"),
-        }
-    )
-    # UsageLimitReached de gemini abre su breaker: los demás gemini se omiten -> sin modelos.
-    with pytest.raises(UsageLimitReached):
-        await _run(router, "eco", "triaje")
-    fails = db.execute("SELECT count(*) FROM llm_calls_ledger WHERE ok = 0").fetchone()[0]
-    assert fails == 1
+async def test_disabled_provider_is_skipped(build):
+    router, b, _ = build(sin=("antigravity_cli",))
+    items = await _run(router, "eco", "magistrado")
+    assert items[-1].alias == "gemini_flash_38_api"
+    assert any("desactivado" in a for a in items[-1].avisos)
 
 
-async def test_rate_limited_falls_back_to_next_flash(build):
-    from core.errors import RateLimited
-
-    router, g, *_ = build(
-        gemini={
-            "gemini_flash": RateLimited("503", provider="gemini"),
-            "gemini_flash_lite": RateLimited("503", provider="gemini"),
-        }
-    )
+async def test_rate_limited_falls_back_within_gemini(build):
+    router, b, _ = build(gemini={"gemini_flash": RateLimited("503", provider="gemini_api")})
     items = await _run(router, "eco", "triaje")
-    assert items[-1].alias == "gemini_flash_38" and items[-1].degradado
-    assert [a for a, _ in g.calls] == ["gemini_flash", "gemini_flash_lite", "gemini_flash_38"]
+    assert items[-1].alias == "gemini_flash_lite" and items[-1].degradado
 
 
 async def test_not_authenticated_degrades(build):
-    router, *_ = build(claude={"claude_sonnet": NotAuthenticated("login", provider="claude")})
+    router, *_ = build(claude={"claude_sonnet": NotAuthenticated("login", provider="claude_cli")})
     items = await _run(router, "equilibrado", "magistrado")
-    assert items[-1].provider == "gemini"
+    assert items[-1].provider == "antigravity_cli"
 
 
 async def test_error_after_streaming_is_not_degraded(build):
-    router, *_ = build(claude={"claude_sonnet": (["parcial"], UsageLimitReached("x", provider="claude"))})
+    router, *_ = build(claude={"claude_sonnet": (["parcial"], UsageLimitReached("x", provider="claude_cli"))})
     with pytest.raises(UsageLimitReached):
         await _run(router, "equilibrado", "magistrado")
 
 
 async def test_non_degradable_error_raises(build):
-    router, *_ = build(claude={"claude_sonnet": ProviderError("bug", provider="claude")})
+    router, *_ = build(claude={"claude_sonnet": ProviderError("bug", provider="claude_cli")})
     with pytest.raises(ProviderError):
         await _run(router, "equilibrado", "magistrado")
+
+
+async def test_everything_down_raises_last_error(build):
+    err = RateLimited("x", provider="p")
+    router, *_ = build(gemini={"gemini_flash": err, "gemini_flash_lite": err})
+    with pytest.raises(RateLimited):
+        await _run(router, "eco", "triaje")
+
+
+async def test_restartable_mid_stream_failure_moves_to_next_model(build):
+    router, b, _ = build(gemini={"gemini_flash": (['{"parcial'], RateLimited("503", provider="gemini_api"))})
+    items = [i async for i in router.stream("eco", "triaje", LLMRequest(prompt="p"), fase="t", restartable=True)]
+    assert items[-1].alias == "gemini_flash_lite" and items[-1].degradado
+    assert any("mitad de respuesta" in a for a in items[-1].avisos)

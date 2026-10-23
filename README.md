@@ -12,9 +12,12 @@ Estado de la implementación: [docs/estado_implementacion.md](docs/estado_implem
 
 ## Arranque rápido (Windows)
 
-Requisitos: Python 3.12 (vía `uv`), Node 18+, y al menos un proveedor de modelos:
-- **Gemini**: variable de entorno o `.env` con `GEMINI_API_KEY` (ver `.env.example`).
-- **Claude Pro** (opcional, modos Equilibrado/Pro): el CLI `claude` con sesión iniciada (`claude` → `/login`).
+Requisitos: Python 3.12 (vía `uv`), Node 18+ y al menos un proveedor de modelos. Los proveedores se declaran en
+`config/providers.toml` y se gestionan desde la página **Modelos** de la app:
+- **Antigravity** (suscripción Google AI Pro): CLI `agy` con sesión iniciada. Da Gemini 3.8 Flash y Claude 4.6.
+- **Gemini API**: `GEMINI_API_KEY` en `.env` (ver `.env.example`). Plan gratuito con cuota diaria muy baja.
+- **Claude Code** (suscripción Claude Pro): CLI `claude` con sesión iniciada (`claude` → `/login`).
+- **Codex** (suscripción ChatGPT, opcional): instalar el CLI, activarlo en `config/providers.toml` y pulsar «Detectar».
 
 ```bash
 uv sync
@@ -27,16 +30,26 @@ powershell -ExecutionPolicy Bypass -File scripts/start.ps1
 Se abre `http://127.0.0.1:8000`. Desde Edge/Chrome puedes instalarla como aplicación (icono de instalar en la
 barra de direcciones).
 
-## Modos
+## Modos y modelos
 
-| Modo | Triaje / cribado | Defensa / Contraparte | Magistrado | Llamadas a Claude |
-|---|---|---|---|---|
-| Eco | Gemini Flash | Gemini Flash | Gemini Flash (high) | 0 |
-| Equilibrado | Gemini Flash | Gemini Flash | Claude Sonnet | 1 |
-| Pro | Gemini Flash | Claude Sonnet | Claude Opus (high) | 3 |
+Asignación por defecto (`config/profiles.toml`); cámbiala desde la página **Modelos** (se guarda en
+`config/user_profiles.toml`):
 
-Si un proveedor falla o agota la cuota, el router pasa al siguiente modelo de la cadena (`config/models.toml`) y
-la interfaz lo avisa.
+| Modo | Triaje / cribado / NLI | Defensa / Contraparte | Magistrado |
+|---|---|---|---|
+| Eco | Gemini 3.5 Flash (API) | Gemini 3.8 Flash (Antigravity) | Gemini 3.8 Flash (Antigravity) |
+| Equilibrado | Gemini 3.5 Flash (API) | Gemini 3.8 Flash (Antigravity) | Claude Sonnet (Claude Code) |
+| Pro | Gemini 3.5 Flash (API) / 3.8 (NLI) | Claude Sonnet | Claude Opus |
+
+Si un modelo falla, se queda sin cuota o su CLI no tiene sesión, el router pasa a la siguiente alternativa
+(`fallbacks` en `config/models.toml`, que puede cruzar proveedores: p. ej. Claude Code → Claude vía Antigravity →
+Gemini 3.8) y la interfaz lo avisa.
+
+### Añadir un proveedor nuevo
+1. Instala su CLI e inicia sesión.
+2. Añade (o activa) su bloque en `config/providers.toml`: ejecutable, plantilla de argumentos y parser de salida.
+3. Añade sus modelos en `config/models.toml` (`provider = "<id>"`, `model_id = "..."`).
+4. En la app: **Modelos → Detectar → Probar**, y asígnalo a las tareas que quieras.
 
 ## Desarrollo
 

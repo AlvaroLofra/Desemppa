@@ -89,7 +89,9 @@ class GeminiClient:
         client: Any | None = None,
         sleep: Callable[[float], Awaitable[None]] = asyncio.sleep,
         clock: Callable[[], float] = time.monotonic,
+        provider_id: str = "gemini_api",
     ) -> None:
+        self.provider_id = provider_id
         self._api_key = api_key
         self._client = client
         self._daily_count = daily_count
@@ -175,7 +177,9 @@ class GeminiClient:
             except TimeoutError as exc:
                 raise ProviderTimeout(f"{spec.model_id} superó {spec.timeout_s:.0f} s", provider=PROVIDER) from exc
             except genai_errors.APIError as exc:
-                if parts:  # ya se emitió texto: no se puede reintentar de forma transparente
+                if parts:  # ya se emitió texto: no se reintenta aquí; el router decide si repite con otro modelo
+                    if (exc.code or 0) in _RETRYABLE:
+                        raise RateLimited(f"stream de Gemini interrumpido: {exc}", provider=PROVIDER) from exc
                     raise ProviderError(f"stream de Gemini interrumpido: {exc}", provider=PROVIDER) from exc
                 code = exc.code or 0
                 message = str(exc)
@@ -204,7 +208,7 @@ class GeminiClient:
                 raise ProviderError(f"{spec.model_id}: {message}", provider=PROVIDER) from exc
             yield LLMResult(
                 text="".join(parts),
-                provider="gemini",
+                provider=self.provider_id,
                 alias=alias,
                 model=spec.model_id,
                 usage=usage,

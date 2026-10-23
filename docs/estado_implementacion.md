@@ -24,12 +24,23 @@ Referencia: [IURIS_IA_Dossier_Planificacion_v3.md](IURIS_IA_Dossier_Planificacio
 - **Jurisprudencia**: corpus local vacío salvo lo que importe el usuario (`POST /api/jurisprudencia/importar`).
 - **Convenios**: lista candidata de 30 en `data/convenios_seed.yaml`, **sin códigos REGCON ni textos**.
 
+## Proveedores configurables (Fase A del plan de continuación)
+
+- `config/providers.toml` declara cada proveedor (Gemini API, Claude Code, Antigravity y Codex desactivado);
+  `core/providers/` tiene el adaptador CLI genérico (cola y FileLock por proveedor, prompt por stdin, cwd vacío),
+  los parsers (`claude_stream_json`, `agy_stream_json`, `codex_jsonl` experimental) y el registro.
+- `config/models.toml`: cada alias es proveedor + modelo, con cadenas de fallback entre proveedores.
+- Página **Modelos** en la app: estado de cada proveedor, «Detectar» modelos, «Probar» con una llamada mínima y
+  matriz modo × tarea guardada en `config/user_profiles.toml` (validada; si es inválida no se guarda).
+- Verificado en vivo: Gemini API, Gemini 3.8 Flash y Claude Sonnet 4.6 vía Antigravity (`pytest -m live`).
+
 ## Desviaciones respecto al dossier (decididas con evidencia)
 
-1. **Flash principal = `gemini-3.5-flash`, no 3.8.** Medición del 23-10-2026: 3.8-flash tardó 128 s con un prompt de
-   ~3.000 tokens y daba 503; el free tier le asigna **20 peticiones/día** (mensaje 429 de la API). Una consulta Eco
-   gasta 6–7 llamadas, así que con 3.8 solo caben ~3 consultas al día. 3.5-flash respondió en 4–6 s. El 3.8 queda
-   como último recurso de la cadena (`config/models.toml`).
+1. **Gemini 3.8 Flash se usa vía Antigravity, no vía API.** Por la API gratuita el 3.8 solo admite 20 peticiones/día
+   y tardó 128 s; vía el CLI de Antigravity (suscripción Google AI Pro) responde en 4–13 s (low/medium). Por eso los
+   roles de razonamiento usan `agy_gemini_flash` y la API queda para tareas de volumen (triaje, cribado, NLI). El
+   nivel `high` vía Antigravity no se usa: con prompts grandes no termina en 4 min (docs/spike_antigravity.md).
+   La API gratuita de 3.5 Flash también agota su cuota diaria con unas pocas consultas: cae a 3.5 Flash-Lite.
 2. **`gemini-4-argon` sin cuota en el free tier** (429): el modo Auditoría degrada a Opus.
 3. **NLI "no literal" no lleva a "disparidad de criterio".** El dossier decía "baja un nivel"; en el primer caso real eso
    mostró "Disparidad de criterio entre tribunales" sin ninguna sentencia de por medio. Ahora solo rebaja

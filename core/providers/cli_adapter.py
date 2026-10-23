@@ -1,15 +1,16 @@
-"""Cola serializada de `claude -p` (dossier §1.1.3).
+"""Adaptador genérico para CLIs con modo no interactivo (Claude Code, Antigravity, Codex…), dossier §1.1.3.
 
-- Un único hilo trabajador: nunca hay dos procesos `claude` vivos desde este backend.
-- FileLock inter-proceso: tampoco con otra instancia del backend o con el benchmark.
-- El prompt va por stdin (argv en Windows está limitado a 32.767 caracteres) y el system
-  prompt por fichero (`--system-prompt-file`).
+- Un único hilo trabajador y un FileLock por proveedor: nunca hay dos procesos del mismo CLI vivos a la vez
+  (ni desde otra instancia del backend o el benchmark). CLIs distintos sí pueden trabajar en paralelo.
+- El prompt va por stdin (argv en Windows está limitado a 32.767 caracteres).
+- cwd = directorio vacío propio de cada proveedor: el CLI no ve el proyecto ni sus ficheros.
 - Independiente del tipo de event loop: los tokens vuelven con `call_soon_threadsafe`.
 """
 
 from __future__ import annotations
 
 import asyncio
+import json
 import queue
 import shutil
 import subprocess
@@ -24,11 +25,13 @@ from typing import IO, Any, Protocol
 
 from filelock import FileLock
 
-from core.errors import ModelUnavailable, ProviderError, ProviderTimeout
+from config.settings import ModelSpec, ProviderSpec
+from core.errors import ModelUnavailable, ProviderTimeout
 from core.llm_types import LLMRequest, LLMResult, StreamChunk
-from core.stream_json import ClaudeFinal, StreamJsonParser
+from core.providers.parsers import CliFinal, make_parser
 
 _CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
+_DONE = object()
 
 
 class _Proc(Protocol):
@@ -51,43 +54,34 @@ class _Job:
     timeout_s: float
     loop: asyncio.AbstractEventLoop
     out: asyncio.Queue[Any]
+    temp_files: list[Path] = field(default_factory=list)
     cancelled: threading.Event = field(default_factory=threading.Event)
     proc: _Proc | None = None
 
 
-_DONE = object()
+def _fill(template: list[str], values: dict[str, str]) -> list[str]:
+    out = []
+    for arg in template:
+        for key, value in values.items():
+            arg = arg.replace("{" + key + "}", value)
+        out.append(arg)
+    return out
 
 
-def build_args(exe: str, cli_model: str, effort: str, system_prompt_file: Path | None) -> list[str]:
-    args = [
-        exe,
-        "-p",
-        "--model",
-        cli_model,
-        "--effort",
-        effort,
-        "--output-format",
-        "stream-json",
-        "--verbose",
-        "--include-partial-messages",
-        "--tools",
-        "",
-        "--no-session-persistence",
-    ]
-    if system_prompt_file is not None:
-        args += ["--system-prompt-file", str(system_prompt_file)]
-    return args
-
-
-class ClaudeWorker:
+class CliAdapter:
     def __init__(
         self,
+        provider_id: str,
+        spec: ProviderSpec,
         *,
         sandbox_dir: Path,
         lock_path: Path,
         exe: str | None = None,
         popen: PopenFactory = subprocess.Popen,
     ) -> None:
+        assert spec.tipo == "cli" and spec.parser and spec.ejecutable
+        self.id = provider_id
+        self.spec = spec
         self._sandbox = sandbox_dir
         self._lock = FileLock(str(lock_path))
         self._exe = exe
@@ -97,16 +91,42 @@ class ClaudeWorker:
         lock_path.parent.mkdir(parents=True, exist_ok=True)
         sandbox_dir.mkdir(parents=True, exist_ok=True)
 
-    # ---------- ciclo de vida ----------
+    # ---------- estado y descubrimiento ----------
     def resolve_exe(self) -> str:
-        exe = self._exe or shutil.which("claude")
+        exe = self._exe or shutil.which(self.spec.ejecutable or "")
         if not exe:
-            raise ModelUnavailable("No se encuentra el ejecutable `claude` en el PATH", provider="claude")
+            raise ModelUnavailable(f"No se encuentra el ejecutable `{self.spec.ejecutable}`", provider=self.id)
         return exe
 
+    def installed(self) -> bool:
+        try:
+            self.resolve_exe()
+        except ModelUnavailable:
+            return False
+        return True
+
+    def discover_models(self, timeout_s: float = 60) -> list[str]:
+        """Modelos que ofrece el CLI (`descubrir`) o, si no tiene esa orden, los `modelos_conocidos`."""
+        if not self.spec.descubrir:
+            return list(self.spec.modelos_conocidos)
+        out = subprocess.run(
+            [self.resolve_exe(), *self.spec.descubrir],
+            capture_output=True,
+            timeout=timeout_s,
+            cwd=str(self._sandbox),
+            creationflags=_CREATE_NO_WINDOW,
+        )
+        models = []
+        for line in out.stdout.decode("utf-8", errors="replace").splitlines():
+            first = line.split("\t")[0].strip()
+            if first and " " not in first and not first.endswith("..."):
+                models.append(first)
+        return models or list(self.spec.modelos_conocidos)
+
+    # ---------- ciclo de vida ----------
     def start(self) -> None:
         if self._thread is None or not self._thread.is_alive():
-            self._thread = threading.Thread(target=self._run, name="claude-worker", daemon=True)
+            self._thread = threading.Thread(target=self._run, name=f"{self.id}-worker", daemon=True)
             self._thread.start()
 
     def stop(self) -> None:
@@ -115,19 +135,52 @@ class ClaudeWorker:
             self._thread.join(timeout=5)
             self._thread = None
 
+    # ---------- construcción de la llamada ----------
+    def _temp(self, text: str, suffix: str) -> Path:
+        with tempfile.NamedTemporaryFile(
+            "w", encoding="utf-8", suffix=suffix, prefix="tmp_", dir=self._sandbox, delete=False
+        ) as fh:
+            fh.write(text)
+            return Path(fh.name)
+
+    def build_call(self, model: str, request: LLMRequest, timeout_s: float) -> tuple[list[str], str, list[Path]]:
+        """Devuelve (argv, texto para stdin, ficheros temporales a borrar)."""
+        values = {"model": model, "effort": request.effort, "timeout_inner": str(max(10, int(timeout_s) - 10))}
+        args = [self.resolve_exe(), *_fill(self.spec.args, values)]
+        temps: list[Path] = []
+        prompt = request.prompt
+        if request.system:
+            if self.spec.system_prompt == "file" and self.spec.system_prompt_args:
+                path = self._temp(request.system, ".md")
+                temps.append(path)
+                args += _fill(self.spec.system_prompt_args, {"system_file": str(path)})
+            else:
+                prompt = f"{request.system}\n\n---\n\n{prompt}"
+        if request.response_schema and self.spec.json_schema_args:
+            path = self._temp(json.dumps(request.response_schema, ensure_ascii=False), ".json")
+            temps.append(path)
+            args += _fill(self.spec.json_schema_args, {"schema_file": str(path)})
+        if self.spec.stdin == "agy_ndjson":
+            stdin = json.dumps({"event": "user", "message": {"role": "user", "content": prompt}}, ensure_ascii=False)
+            stdin += "\n"
+        else:
+            stdin = prompt
+        return args, stdin, temps
+
     # ---------- API asíncrona ----------
     async def stream(
-        self, *, alias: str, cli_model: str, request: LLMRequest, timeout_s: float
+        self, *, alias: str, spec: ModelSpec, request: LLMRequest
     ) -> AsyncIterator[StreamChunk | LLMResult]:
         self.start()
-        exe = self.resolve_exe()
-        system_file = self._write_system_prompt(request.system) if request.system else None
+        model = spec.resolved_id(request.effort)
+        args, stdin, temps = self.build_call(model, request, spec.timeout_s)
         job = _Job(
-            args=build_args(exe, cli_model, request.effort, system_file),
-            stdin_text=request.prompt,
-            timeout_s=timeout_s,
+            args=args,
+            stdin_text=stdin,
+            timeout_s=spec.timeout_s,
             loop=asyncio.get_running_loop(),
             out=asyncio.Queue(),
+            temp_files=temps,
         )
         started = time.monotonic()
         self._jobs.put(job)
@@ -141,15 +194,17 @@ class ClaudeWorker:
                 if isinstance(item, BaseException):
                     finished = True
                     raise item
-                if isinstance(item, ClaudeFinal):
+                if isinstance(item, tuple):  # (CliFinal, avisos)
+                    final, avisos = item
                     yield LLMResult(
-                        text=item.text,
-                        provider="claude",
+                        text=final.text,
+                        provider=self.id,
                         alias=alias,
-                        model=item.model or cli_model,
-                        usage=item.usage,
-                        coste_equivalente_usd=item.total_cost_usd,
+                        model=final.model or model,
+                        usage=final.usage,
+                        coste_equivalente_usd=final.total_cost_usd,
                         latencia_ms=int((time.monotonic() - started) * 1000),
+                        avisos=[f"{self.id}: {a}" for a in avisos],
                     )
                 else:
                     yield item
@@ -158,15 +213,8 @@ class ClaudeWorker:
                 job.cancelled.set()
                 if job.proc is not None and job.proc.poll() is None:
                     job.proc.kill()
-            if system_file is not None:
-                system_file.unlink(missing_ok=True)
-
-    def _write_system_prompt(self, text: str) -> Path:
-        with tempfile.NamedTemporaryFile(
-            "w", encoding="utf-8", suffix=".md", prefix="sys_", dir=self._sandbox, delete=False
-        ) as fh:
-            fh.write(text)
-            return Path(fh.name)
+            for path in temps:
+                path.unlink(missing_ok=True)
 
     # ---------- hilo trabajador ----------
     def _run(self) -> None:
@@ -212,7 +260,7 @@ class ClaudeWorker:
         timer.start()
         for t in threads:
             t.start()
-        parser = StreamJsonParser()
+        parser = make_parser(self.spec.parser or "", self.id)
         try:
             assert proc.stdout is not None
             for raw in proc.stdout:
@@ -222,7 +270,7 @@ class ClaudeWorker:
                 chunk = parser.feed(raw.decode("utf-8", errors="replace"))
                 if chunk is not None:
                     self._post(job, chunk)
-            code = proc.wait()
+            proc.wait()
         finally:
             timer.cancel()
             if proc.poll() is None:  # salida anticipada por error en el parser
@@ -231,13 +279,13 @@ class ClaudeWorker:
             for t in threads:
                 t.join(timeout=2)
         if timed_out.is_set():
-            raise ProviderTimeout(f"claude -p superó {job.timeout_s:.0f} s", provider="claude")
+            raise ProviderTimeout(f"{self.id} superó {job.timeout_s:.0f} s", provider=self.id)
         if job.cancelled.is_set():
             return
-        if parser.final is None:
-            err = b"".join(stderr_buf).decode("utf-8", errors="replace").strip()
-            raise ProviderError(f"claude -p terminó (código {code}) sin evento result: {err[:500]}", provider="claude")
-        self._post(job, parser.final)
+        parser.finish(b"".join(stderr_buf).decode("utf-8", errors="replace").strip())
+        assert parser.final is not None
+        final: CliFinal = parser.final
+        self._post(job, (final, list(parser.avisos)))
 
 
 def _write_stdin(proc: _Proc, text: str) -> None:

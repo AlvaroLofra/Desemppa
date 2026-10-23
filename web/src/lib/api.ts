@@ -31,6 +31,18 @@ async function request<T>(path: string, init: RequestInit = {}, auth = false): P
 
 export const api = {
   estado: () => request<Record<string, any>>("/api/estado"),
+  proveedores: () => request<Record<string, Proveedor>>("/api/proveedores"),
+  detectar: (pid: string) =>
+    request<{ instalado: boolean; modelos: string[] }>(`/api/proveedores/${pid}/detectar`, { method: "POST" }, true),
+  probar: (alias: string) =>
+    request<{ ok: boolean; latencia_ms: number; respuesta: string; error: string | null }>(
+      `/api/modelos/${alias}/probar`, { method: "POST" }, true),
+  perfiles: () => request<Perfiles>("/api/ajustes/perfiles"),
+  guardarPerfiles: (modos: Perfiles["modos"]) =>
+    request("/api/ajustes/perfiles", {
+      method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(modos),
+    }, true),
+  restablecerPerfiles: () => request("/api/ajustes/perfiles", { method: "DELETE" }, true),
   consultas: () => request<{ consulta_id: string; creado_en: string; modo: string; estado: string; titulo: string; banda: string | null }[]>("/api/consultas"),
   consulta: (id: string) => request<Record<string, any>>(`/api/consultas/${id}`),
   crear: (body: { texto: string; modo: string; municipio_ine?: string | null; adjuntos: string[] }) =>
@@ -61,4 +73,25 @@ export const api = {
 
 export async function streamUrl(id: string, after = 0): Promise<string> {
   return `/api/consultar/stream/${id}?token=${encodeURIComponent(await token())}&after=${after}`;
+}
+
+export interface Proveedor {
+  etiqueta: string;
+  tipo: string;
+  habilitado: boolean;
+  instalado: boolean;
+  version: string | null;
+  ultima_llamada: { ok: boolean; error_tipo: string | null; creado_en: string; modelo: string } | null;
+  breaker: { estado: string; abierto_hasta: string | null; motivo: string | null };
+  uso_ultimas_5h: { llamadas: number; input_tokens: number; output_tokens: number };
+  login: string;
+  modelos: string[];
+}
+
+export type Asignacion = { model: string; effort: "low" | "medium" | "high" };
+
+export interface Perfiles {
+  modos: Record<string, Record<string, Asignacion>>;
+  por_defecto: Record<string, Record<string, Asignacion>>;
+  modelos: Record<string, { etiqueta: string; proveedor: string; efforts: string[]; disponible: boolean }>;
 }

@@ -74,7 +74,8 @@ async def main(modo: str, directorio: Path, permutar_casos: bool) -> Path:
     services = build_services()
     assert services.pipeline is not None
     filas = await ejecutar(services.pipeline, cargar_casos(directorio), modo, permutar_casos)
-    services.claude.stop()
+    for adapter in services.providers.values():
+        adapter.stop()
     out_dir = HERE / "reports"
     out_dir.mkdir(exist_ok=True)
     out = out_dir / f"{datetime.now():%Y%m%d_%H%M}_{modo}.json"

@@ -1,20 +1,23 @@
 import { useEffect, useState } from "react";
-import { Cpu, Gauge, Scale, Sparkles, Zap } from "lucide-react";
-import { api } from "../lib/api";
+import { Gauge, Scale, SlidersHorizontal, Sparkles, Zap } from "lucide-react";
+import { api, type Proveedor } from "../lib/api";
 import type { Modo } from "../lib/types";
 
 const MODOS: { id: Modo; label: string; icon: typeof Zap; desc: string }[] = [
-  { id: "eco", label: "Eco", icon: Zap, desc: "Solo Gemini · 0 llamadas a Claude" },
-  { id: "equilibrado", label: "Equilibrado", icon: Gauge, desc: "Gemini + Magistrado Sonnet · 1 llamada a Claude" },
-  { id: "pro", label: "Pro", icon: Sparkles, desc: "Sonnet + Magistrado Opus · 3 llamadas a Claude" },
+  { id: "eco", label: "Eco", icon: Zap, desc: "Sin Claude: Gemini 3.5 (API) y Gemini 3.8 Flash (Antigravity)" },
+  { id: "equilibrado", label: "Equilibrado", icon: Gauge, desc: "Gemini para el volumen + Magistrado Claude Sonnet" },
+  { id: "pro", label: "Pro", icon: Sparkles, desc: "Defensa y Contraparte Sonnet + Magistrado Opus" },
 ];
+const NOMBRE_CORTO: Record<string, string> = {
+  gemini_api: "Gemini API", claude_cli: "Claude", antigravity_cli: "Antigravity", codex_cli: "Codex",
+};
 
 type Nivel = "ok" | "desconocido" | "aviso" | "error";
 const COLOR: Record<Nivel, string> = {
   ok: "bg-emerald-400", desconocido: "bg-slate-500", aviso: "bg-amber-400", error: "bg-rose-500",
 };
 const ERRORES: Record<string, string> = {
-  NotAuthenticated: "sin sesión: ejecuta `claude` y `/login` en una terminal",
+  NotAuthenticated: "sin sesión iniciada",
   UsageLimitReached: "cuota agotada",
   RateLimited: "límite de peticiones alcanzado",
   ModelUnavailable: "modelo no disponible",
@@ -22,33 +25,27 @@ const ERRORES: Record<string, string> = {
 };
 
 /** Verde solo si la última llamada real funcionó; gris si aún no se ha usado. */
-function proveedor(
-  instalado: boolean, breaker: string | undefined, ultima: { ok: boolean; error_tipo: string | null } | null | undefined,
-  faltaTexto: string,
-): { nivel: Nivel; texto: string } {
-  if (!instalado) return { nivel: "error", texto: faltaTexto };
-  if (breaker === "open") return { nivel: "aviso", texto: "cuota agotada: se usa otro modelo hasta que se restablezca" };
-  if (!ultima) return { nivel: "desconocido", texto: "aún no se ha usado en esta instalación" };
-  if (ultima.ok) return { nivel: "ok", texto: "última llamada correcta" };
-  return { nivel: "error", texto: ERRORES[ultima.error_tipo ?? ""] ?? `último error: ${ultima.error_tipo}` };
+function nivel(p: Proveedor): { nivel: Nivel; texto: string } {
+  if (!p.instalado) return { nivel: "error", texto: "no instalado o sin configurar" };
+  if (p.breaker.estado === "open") return { nivel: "aviso", texto: "cuota agotada: se usa otro modelo" };
+  if (!p.ultima_llamada) return { nivel: "desconocido", texto: "aún no se ha usado" };
+  if (p.ultima_llamada.ok) return { nivel: "ok", texto: "última llamada correcta" };
+  return { nivel: "error", texto: ERRORES[p.ultima_llamada.error_tipo ?? ""] ?? `último error: ${p.ultima_llamada.error_tipo}` };
 }
 
-export function Header({ modo, onModo }: { modo: Modo; onModo: (m: Modo) => void }) {
-  const [estado, setEstado] = useState<Record<string, any> | null>(null);
+export function Header({ modo, onModo, onModelos, enModelos }: {
+  modo: Modo;
+  onModo: (m: Modo) => void;
+  onModelos: () => void;
+  enModelos: boolean;
+}) {
+  const [proveedores, setProveedores] = useState<Record<string, Proveedor> | null>(null);
   useEffect(() => {
-    const load = () => api.estado().then(setEstado).catch(() => setEstado(null));
+    const load = () => api.proveedores().then(setProveedores).catch(() => setProveedores(null));
     load();
     const t = setInterval(load, 30_000);
     return () => clearInterval(t);
   }, []);
-  const claude = proveedor(
-    Boolean(estado?.claude_cli?.version), estado?.circuit_breakers?.claude?.estado, estado?.claude_cli?.ultima_llamada,
-    "CLI de Claude no encontrado",
-  );
-  const gemini = proveedor(
-    Boolean(estado?.gemini?.api_key_configurada), estado?.circuit_breakers?.gemini?.estado,
-    estado?.gemini?.ultima_llamada, "Falta GEMINI_API_KEY",
-  );
 
   return (
     <header className="flex flex-wrap items-center gap-3 border-b border-slate-800 bg-slate-950/80 px-4 py-3 backdrop-blur">
@@ -74,13 +71,19 @@ export function Header({ modo, onModo }: { modo: Modo; onModo: (m: Modo) => void
         ))}
       </nav>
       <div className="flex items-center gap-3 text-xs">
-        {([["Gemini", gemini], ["Claude", claude]] as const).map(([nombre, st]) => (
-          <span key={nombre} className="flex items-center gap-1.5" title={st.texto}>
-            <span className={`h-2 w-2 rounded-full ${COLOR[st.nivel]}`} />{nombre}
-            <span className="sr-only">: {st.texto}</span>
-          </span>
-        ))}
-        <Cpu className="h-3.5 w-3.5 text-slate-600" aria-hidden />
+        {proveedores && Object.entries(proveedores).filter(([, p]) => p.habilitado).map(([pid, p]) => {
+          const st = nivel(p);
+          return (
+            <span key={pid} className="flex items-center gap-1.5" title={`${p.etiqueta}: ${st.texto}`}>
+              <span className={`h-2 w-2 rounded-full ${COLOR[st.nivel]}`} />{NOMBRE_CORTO[pid] ?? pid}
+              <span className="sr-only">: {st.texto}</span>
+            </span>
+          );
+        })}
+        <button onClick={onModelos} aria-pressed={enModelos}
+                className={`btn-ghost px-2 py-1 text-xs ${enModelos ? "text-amber-300" : ""}`} title="Modelos y proveedores">
+          <SlidersHorizontal className="h-3.5 w-3.5" />Modelos
+        </button>
       </div>
     </header>
   );

@@ -129,6 +129,7 @@ class Orchestrator:
                 LLMRequest(system=system, prompt=full_prompt, json_mode=True),
                 fase=role,
                 consulta_id=run.consulta_id,
+                restartable=True,  # solo se usa el JSON final: un corte a mitad puede repetirse en otro modelo
             ):
                 if isinstance(item, LLMResult):
                     text = item.text

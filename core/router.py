@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import time
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Mapping
 from typing import Protocol
 
 from config.settings import Catalog, ModelSpec, RoleAssignment
@@ -13,14 +13,8 @@ from core.llm_types import LLMRequest, LLMResult, StreamChunk
 from core.quota_ledger import QuotaLedger
 
 
-class GeminiBackend(Protocol):
+class Backend(Protocol):
     def stream(self, *, alias: str, spec: ModelSpec, request: LLMRequest) -> AsyncIterator[StreamChunk | LLMResult]: ...
-
-
-class ClaudeBackend(Protocol):
-    def stream(
-        self, *, alias: str, cli_model: str, request: LLMRequest, timeout_s: float
-    ) -> AsyncIterator[StreamChunk | LLMResult]: ...
 
 
 class ModelRouter:
@@ -28,14 +22,12 @@ class ModelRouter:
         self,
         catalog: Catalog,
         *,
-        gemini: GeminiBackend,
-        claude: ClaudeBackend,
+        providers: Mapping[str, Backend],
         breaker: CircuitBreaker,
         ledger: QuotaLedger,
     ) -> None:
         self.catalog = catalog
-        self._gemini = gemini
-        self._claude = claude
+        self.providers = providers
         self._breaker = breaker
         self._ledger = ledger
 
@@ -61,10 +53,7 @@ class ModelRouter:
         return order
 
     def _call(self, alias: str, spec: ModelSpec, request: LLMRequest) -> AsyncIterator[StreamChunk | LLMResult]:
-        if spec.provider == "gemini":
-            return self._gemini.stream(alias=alias, spec=spec, request=request)
-        assert spec.cli_model is not None
-        return self._claude.stream(alias=alias, cli_model=spec.cli_model, request=request, timeout_s=spec.timeout_s)
+        return self.providers[spec.provider].stream(alias=alias, spec=spec, request=request)
 
     async def stream(
         self,
@@ -74,13 +63,19 @@ class ModelRouter:
         *,
         fase: str | None = None,
         consulta_id: str | None = None,
+        restartable: bool = False,
     ) -> AsyncIterator[StreamChunk | LLMResult]:
+        """`restartable=True`: el llamante solo usa el resultado final (p. ej. JSON), así que un fallo a mitad
+        de respuesta también puede pasar al siguiente modelo (el texto parcial ya emitido se descarta)."""
         assignment = self.resolve(profile, role)
         primary = assignment.model
         avisos: list[str] = []
         last_error: ProviderError | None = None
         for alias in self.candidates(primary):
             spec = self.catalog.models[alias]
+            if spec.provider not in self.providers:
+                avisos.append(f"{alias}: proveedor '{spec.provider}' desactivado o no configurado")
+                continue
             if not self._breaker.allow(spec.provider):
                 avisos.append(f"{spec.provider}: circuit breaker abierto, se omite {alias}")
                 continue
@@ -115,7 +110,7 @@ class ModelRouter:
                     fase=fase or role,
                     rol=role,
                     proveedor=spec.provider,
-                    modelo=spec.model_id or spec.cli_model or alias,
+                    modelo=spec.resolved_id(effort),
                     effort=effort,
                     latencia_ms=int((time.monotonic() - started) * 1000),
                     ok=False,
@@ -125,8 +120,11 @@ class ModelRouter:
                     self._breaker.trip(spec.provider, reset_at=exc.reset_at, motivo=str(exc)[:200])
                 else:
                     self._breaker.record_failure(spec.provider)
-                if emitted or not exc.degradable:
+                if (emitted and not restartable) or not exc.degradable:
                     raise
-                avisos.append(f"{alias} no disponible ({type(exc).__name__}); se degrada al siguiente modelo")
+                if emitted:
+                    avisos.append(f"{alias} falló a mitad de respuesta ({type(exc).__name__}); se repite con otro")
+                else:
+                    avisos.append(f"{alias} no disponible ({type(exc).__name__}); se degrada al siguiente modelo")
                 last_error = exc
         raise last_error or ModelUnavailable(f"ningún modelo disponible para {profile}/{role}: " + "; ".join(avisos))

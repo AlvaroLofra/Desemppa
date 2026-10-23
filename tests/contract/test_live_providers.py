@@ -1,49 +1,50 @@
-"""Pruebas en vivo (uv run pytest -m live). Llaman a servicios reales con prompts sintéticos."""
+"""Pruebas en vivo (uv run pytest -m live). Llaman a servicios reales con prompts sintéticos.
+Cada prueba se omite si su proveedor no está instalado o configurado."""
 
 import time
 
 import pytest
 
 from config.settings import get_catalog, get_settings
-from core.claude_worker import ClaudeWorker
+from core.errors import NotAuthenticated
 from core.gemini_client import GeminiClient
 from core.llm_types import LLMRequest, LLMResult
+from core.providers.registry import build_registry
 
 pytestmark = pytest.mark.live
 REQUEST = LLMRequest(system="Responde en español, en una frase.", prompt="Di solo: hola", effort="low")
+# alias -> segundos máximos hasta el primer token
+OBJETIVOS = {"gemini_flash": 3.0, "agy_gemini_flash": 15.0, "claude_sonnet": 10.0, "agy_claude_sonnet": 30.0}
 
 
-async def _first_token_and_result(stream):
-    t0, first, result = time.monotonic(), None, None
-    async for item in stream:
-        if isinstance(item, LLMResult):
-            result = item
-        elif first is None:
-            first = time.monotonic() - t0
-    return first, result
-
-
-async def test_gemini_first_token_under_3s():
-    settings = get_settings()
-    if not settings.gemini_api_key:
-        pytest.skip("GEMINI_API_KEY no configurada")
-    alias = "gemini_flash"
-    client = GeminiClient(settings.gemini_api_key)
-    first, result = await _first_token_and_result(
-        client.stream(alias=alias, spec=get_catalog().models[alias], request=REQUEST)
+@pytest.fixture(scope="module")
+def registry():
+    settings, catalog = get_settings(), get_catalog()
+    reg = build_registry(
+        catalog,
+        settings,
+        gemini=GeminiClient(settings.gemini_api_key),
+        exe_overrides={"claude_cli": settings.claude_exe},
     )
-    assert result is not None and result.text
-    assert first is not None and first < 3.0
+    yield reg
+    for adapter in reg.values():
+        adapter.stop()
 
 
-async def test_claude_sonnet_first_token_under_10s(tmp_path):
-    settings = get_settings()
-    worker = ClaudeWorker(sandbox_dir=tmp_path / "sb", lock_path=settings.claude_lock_path, exe=settings.claude_exe)
+@pytest.mark.parametrize("alias", list(OBJETIVOS))
+async def test_first_token_latency(registry, alias):
+    spec = get_catalog().models[alias]
+    adapter = registry.get(spec.provider)
+    if adapter is None or not adapter.installed():
+        pytest.skip(f"{spec.provider} no disponible")
+    t0, first, result = time.monotonic(), None, None
     try:
-        first, result = await _first_token_and_result(
-            worker.stream(alias="claude_sonnet", cli_model="sonnet", request=REQUEST, timeout_s=120)
-        )
-    finally:
-        worker.stop()
+        async for item in adapter.stream(alias=alias, spec=spec, request=REQUEST):
+            if isinstance(item, LLMResult):
+                result = item
+            elif first is None:
+                first = time.monotonic() - t0
+    except NotAuthenticated:
+        pytest.skip(f"{spec.provider} sin sesión iniciada")
     assert result is not None and result.text
-    assert first is not None and first < 10.0
+    assert first is not None and first < OBJETIVOS[alias], f"primer token en {first:.1f} s"

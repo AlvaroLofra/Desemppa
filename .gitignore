@@ -45,3 +45,6 @@ desktop.ini
 $RECYCLE.BIN/
 .vscode/
 .idea/
+
+# Asignación de modelos del usuario (página «Modelos»)
+config/user_profiles.toml

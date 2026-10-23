@@ -5,6 +5,7 @@ import { Header } from "./components/Header";
 import {
   ClarificationForm, DebateTabs, FinalView, PhaseStepper, SourcesList, TriageCard, type AbrirFuente,
 } from "./components/Results";
+import { ModelsPage } from "./components/ModelsPage";
 import { Sidebar } from "./components/Sidebar";
 import { SourceViewer, type FuenteAbierta } from "./components/SourceViewer";
 import type { Modo } from "./lib/types";
@@ -20,6 +21,7 @@ function leerModo(): Modo {
 
 export default function App() {
   const [modo, setModo] = useState<Modo>(leerModo);
+  const [vista, setVista] = useState<"consulta" | "modelos">("consulta");
   const [fuente, setFuente] = useState<FuenteAbierta | null>(null);
   const [refresco, setRefresco] = useState(0);
   const { state, nueva, abrir, responder, limpiar } = useConsulta();
@@ -37,11 +39,14 @@ export default function App() {
 
   return (
     <div className="flex h-full flex-col">
-      <Header modo={modo} onModo={cambiarModo} />
+      <Header modo={modo} onModo={cambiarModo} enModelos={vista === "modelos"}
+              onModelos={() => setVista((v) => (v === "modelos" ? "consulta" : "modelos"))} />
       <div className="flex min-h-0 flex-1">
         <Sidebar actual={state.id} refresco={refresco + (state.final ? 1 : 0)}
-                 onAbrir={(id) => { setFuente(null); void abrir(id); }} onNueva={() => { setFuente(null); limpiar(); }} />
+                 onAbrir={(id) => { setVista("consulta"); setFuente(null); void abrir(id); }}
+                 onNueva={() => { setVista("consulta"); setFuente(null); limpiar(); }} />
         <main className="min-w-0 flex-1 overflow-auto scroll-thin">
+          {vista === "modelos" ? <ModelsPage /> : (
           <div className="mx-auto max-w-3xl space-y-4 px-4 py-6">
             {!state.id && (
               <div className="pb-2 pt-8 text-center">
@@ -75,6 +80,7 @@ export default function App() {
               <Composer onEnviar={enviar} ocupado={state.streaming} />
             )}
           </div>
+          )}
         </main>
         <SourceViewer abierta={fuente} consultaId={state.id} onClose={() => setFuente(null)} />
       </div>

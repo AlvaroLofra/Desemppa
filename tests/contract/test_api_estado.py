@@ -10,7 +10,7 @@ def _factory(tmp_path):
 
     def factory():
         services = build_services(Settings(IURIS_DATA_DIR=str(tmp_path), GEMINI_API_KEY=""), load_catalog())
-        services.claude_version = lambda: "2.1.291 (Claude Code)"
+        services.cli_version = lambda exe: "2.1.291 (Claude Code)"
         holder["s"] = services
         return services
 
@@ -26,10 +26,12 @@ def test_estado(tmp_path):
     client, _ = _client(tmp_path)
     with client:
         body = client.get("/api/estado").json()
-    assert body["claude_cli"]["version"].startswith("2.1")
-    assert body["gemini"]["api_key_configurada"] is False
-    assert body["circuit_breakers"]["claude"]["estado"] == "closed"
-    assert body["uso_ultimas_5h"]["claude"]["llamadas"] == 0
+    prov = body["proveedores"]
+    assert prov["gemini_api"]["instalado"] is False  # sin clave
+    assert prov["claude_cli"]["breaker"]["estado"] == "closed"
+    assert prov["claude_cli"]["uso_ultimas_5h"]["llamadas"] == 0
+    assert prov["codex_cli"]["habilitado"] is False and prov["codex_cli"]["instalado"] is False
+    assert "login" in prov["antigravity_cli"]
     assert body["modo_por_defecto"] == "equilibrado"
     assert body["modos"]["pro"]["roles"]["magistrado"] == {"model": "claude_opus", "effort": "high"}
     assert body["corpus"]["municipios"] > 8000 and 2026 in body["corpus"]["anios_festivos"]
@@ -100,3 +102,36 @@ def test_upload_txt_and_sse_replay(tmp_path):
         det = client.get(f"/api/consultas/{cid}").json()
         assert det["adjuntos"][0]["tipo"] == "carta_despido" and "Texto de una consulta" in det["texto"]
         assert client.get("/api/consultas").json()[0]["consulta_id"] == cid
+
+
+def test_ajustes_perfiles_roundtrip(tmp_path, monkeypatch):
+    import shutil
+
+    import config.settings as cs
+
+    cfg = tmp_path / "cfg"
+    cfg.mkdir()
+    for name in ("models.toml", "providers.toml", "profiles.toml"):
+        shutil.copy(cs.CONFIG_DIR / name, cfg / name)
+    monkeypatch.setattr(cs, "CONFIG_DIR", cfg)
+    import api.main as am
+
+    monkeypatch.setattr(am, "CONFIG_DIR", cfg)
+    monkeypatch.setattr(am, "save_user_profiles", lambda body: cs.save_user_profiles(body, cfg))
+    monkeypatch.setattr(am, "reset_user_profiles", lambda: cs.reset_user_profiles(cfg))
+    monkeypatch.setattr(am, "load_catalog", lambda *a, **k: cs.load_catalog(cfg, **k))
+    client, holder = _client(tmp_path)
+    with client:
+        token = {"X-Iuris-Token": holder["s"].token}
+        data = client.get("/api/ajustes/perfiles").json()
+        assert data["modos"]["eco"]["magistrado"]["model"] == "agy_gemini_flash"
+        assert data["modelos"]["claude_opus"]["proveedor"] == "claude_cli"
+        nuevo = {"eco": {"magistrado": {"model": "claude_opus", "effort": "high"}}}
+        assert client.put("/api/ajustes/perfiles", json=nuevo).status_code == 403
+        assert client.put("/api/ajustes/perfiles", json=nuevo, headers=token).status_code == 200
+        assert holder["s"].router.resolve("eco", "magistrado").model == "claude_opus"
+        malo = {"eco": {"magistrado": {"model": "fantasma", "effort": "low"}}}
+        assert client.put("/api/ajustes/perfiles", json=malo, headers=token).status_code == 422
+        assert client.delete("/api/ajustes/perfiles", headers=token).status_code == 200
+        assert holder["s"].router.resolve("eco", "magistrado").model == "agy_gemini_flash"
+        assert client.post("/api/proveedores/nope/detectar", headers=token).status_code == 404

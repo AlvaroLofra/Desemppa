@@ -28,7 +28,7 @@ class Usage(BaseModel):
 
 class LLMResult(BaseModel):
     text: str
-    provider: Literal["gemini", "claude"]
+    provider: str  # id de config/providers.toml
     alias: str
     model: str  # id efectivo informado por el proveedor
     usage: Usage = Field(default_factory=Usage)

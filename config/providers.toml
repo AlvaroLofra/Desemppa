@@ -1,0 +1,61 @@
+# Proveedores de modelos. Añadir uno = añadir un bloque (y, si su salida es nueva, un parser en core/providers/parsers.py).
+#
+# tipo:
+#   "cli"         programa local con modo no interactivo (suscripciones: Claude Pro, Google AI Pro vía Antigravity, Codex…)
+#   "api_gemini"  Gemini API (AI Studio) con GEMINI_API_KEY
+#
+# Para "cli":
+#   args             plantilla de argumentos; marcadores: {model} {effort} {timeout_inner}
+#   system_prompt    "file" (se pasa en un fichero con system_prompt_args, marcador {system_file}) o "inline"
+#                    (se antepone al prompt)
+#   stdin            "text" (prompt en crudo) o "agy_ndjson" (una línea {"event":"user","message":{...}})
+#   parser           formato de la salida: claude_stream_json | agy_stream_json | codex_jsonl
+#   json_schema_args argumentos para forzar salida JSON con esquema (marcador {schema_file}); opcional
+#   descubrir        argumentos que listan modelos (una línea "id<TAB>nombre" por modelo); vacío = modelos_conocidos
+#   login            instrucciones que la interfaz muestra si el CLI no tiene sesión
+#
+# Todos los CLI se ejecutan de uno en uno (cola + FileLock propio), con cwd en un directorio vacío y el prompt por stdin.
+
+[providers.gemini_api]
+tipo = "api_gemini"
+etiqueta = "Gemini API (AI Studio, plan gratuito)"
+login = "Define GEMINI_API_KEY en el fichero .env (clave de https://aistudio.google.com)."
+
+[providers.claude_cli]
+tipo = "cli"
+etiqueta = "Claude Code (suscripción Claude Pro)"
+ejecutable = "claude"
+args = ["-p", "--model", "{model}", "--effort", "{effort}", "--output-format", "stream-json", "--verbose",
+        "--include-partial-messages", "--tools", "", "--no-session-persistence"]
+system_prompt = "file"
+system_prompt_args = ["--system-prompt-file", "{system_file}"]
+stdin = "text"
+parser = "claude_stream_json"
+modelos_conocidos = ["haiku", "sonnet", "opus"]
+login = "Abre una terminal, ejecuta `claude` y escribe /login."
+
+[providers.antigravity_cli]
+tipo = "cli"
+etiqueta = "Antigravity (suscripción Google AI Pro)"
+ejecutable = "agy"
+args = ["--model", "{model}", "--input-format", "stream-json", "--output-format", "stream-json",
+        "--disable-slash-commands", "--print-timeout", "{timeout_inner}s", "-p="]
+system_prompt = "inline"
+stdin = "agy_ndjson"
+parser = "agy_stream_json"
+json_schema_args = ["--json-schema", "{schema_file}"]
+descubrir = ["models"]
+login = "Abre Antigravity o ejecuta `agy` en una terminal e inicia sesión con tu cuenta de Google AI Pro."
+
+[providers.codex_cli]
+# EXPERIMENTAL: preparado para el plan de ChatGPT/Codex; flags pendientes de verificar cuando el CLI esté instalado.
+tipo = "cli"
+etiqueta = "Codex CLI (suscripción ChatGPT)"
+habilitado = false
+ejecutable = "codex"
+args = ["exec", "--json", "--model", "{model}", "--skip-git-repo-check", "--sandbox", "read-only", "-"]
+system_prompt = "inline"
+stdin = "text"
+parser = "codex_jsonl"
+modelos_conocidos = ["gpt-5-codex"]
+login = "Instala el CLI (`npm i -g @openai/codex`), ejecuta `codex` e inicia sesión con tu cuenta de ChatGPT."

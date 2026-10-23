@@ -7,6 +7,7 @@ import hashlib
 import json
 import secrets
 import subprocess
+import time
 from collections.abc import AsyncIterator, Callable
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
@@ -22,7 +23,16 @@ from pydantic import BaseModel, Field
 from sse_starlette.sse import EventSourceResponse
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
-from config.settings import Catalog, Settings, get_catalog, get_settings
+from config.settings import (
+    CONFIG_DIR,
+    Catalog,
+    Settings,
+    get_catalog,
+    get_settings,
+    load_catalog,
+    reset_user_profiles,
+    save_user_profiles,
+)
 from connectors.boe_client import BOEClient, BOERepository
 from connectors.cendoj_fetcher import CendojRepository
 from connectors.convenios_db import ConveniosRepository
@@ -31,12 +41,14 @@ from connectors.pdf_extractor import extract_pdf
 from connectors.retriever import HybridRetriever
 from core.calendar_engine import CalendarEngine, CalendarioFestivos, PlazoError
 from core.circuit_breaker import CircuitBreaker
-from core.claude_worker import ClaudeWorker
-from core.errors import ModelUnavailable
+from core.errors import ModelUnavailable, ProviderError
 from core.gemini_client import GeminiClient
+from core.llm_types import LLMRequest, LLMResult
 from core.normalize import fold
 from core.orchestrator import Orchestrator
 from core.orchestrator import Services as PipelineServices
+from core.providers.cli_adapter import CliAdapter
+from core.providers.registry import ProviderAdapter, build_registry
 from core.quota_ledger import QuotaLedger
 from core.router import ModelRouter
 from core.state import TERMINALES, ConsultaStore, Estado, EventBus
@@ -54,20 +66,20 @@ class Services:
     catalog: Catalog
     breaker: CircuitBreaker
     ledger: QuotaLedger
-    claude: ClaudeWorker
     gemini: GeminiClient
     router: ModelRouter
-    claude_version: Callable[[], str | None]
+    providers: dict[str, ProviderAdapter]
+    cli_version: Callable[[str], str | None]
     pipeline: PipelineServices | None = None
     tasks: dict[str, asyncio.Task[None]] = field(default_factory=dict)
     token: str = field(default_factory=lambda: secrets.token_urlsafe(24))
 
 
-@lru_cache(maxsize=1)
-def _claude_version(exe: str | None) -> str | None:
+@lru_cache(maxsize=16)
+def _cli_version(exe: str) -> str | None:
     try:
-        out = subprocess.run([exe or "claude", "--version"], capture_output=True, text=True, timeout=15, check=True)
-        return out.stdout.strip() or None
+        out = subprocess.run([exe, "--version"], capture_output=True, text=True, timeout=15, check=True)
+        return out.stdout.strip().splitlines()[0] if out.stdout.strip() else None
     except (OSError, subprocess.SubprocessError):
         return None
 
@@ -80,15 +92,13 @@ def build_services(settings: Settings | None = None, catalog: Catalog | None = N
     con = open_database(settings.sqlite_path)
     breaker = CircuitBreaker(con, default_open_minutes=catalog.circuit_breaker.default_open_minutes)
     ledger = QuotaLedger(con)
-    claude = ClaudeWorker(
-        sandbox_dir=settings.claude_sandbox_dir, lock_path=settings.claude_lock_path, exe=settings.claude_exe
-    )
     gemini = GeminiClient(
         settings.gemini_api_key,
         daily_count=ledger.daily_count,
         max_retries=catalog.circuit_breaker.gemini_max_retries,
     )
-    router = ModelRouter(catalog, gemini=gemini, claude=claude, breaker=breaker, ledger=ledger)
+    providers = build_registry(catalog, settings, gemini=gemini, exe_overrides={"claude_cli": settings.claude_exe})
+    router = ModelRouter(catalog, providers=providers, breaker=breaker, ledger=ledger)
     embedder: Embedder | None = None
     store: JurisprudenciaStore | None = None
     emb_spec = catalog.models.get("gemini_embedding")
@@ -116,10 +126,10 @@ def build_services(settings: Settings | None = None, catalog: Catalog | None = N
         catalog=catalog,
         breaker=breaker,
         ledger=ledger,
-        claude=claude,
         gemini=gemini,
         router=router,
-        claude_version=lambda: _claude_version(settings.claude_exe),
+        providers=providers,
+        cli_version=_cli_version,
         pipeline=pipeline,
     )
 
@@ -142,6 +152,27 @@ class Aclaraciones(BaseModel):
     respuestas: list[Respuesta] = Field(min_length=1, max_length=8)
 
 
+def _estado_proveedor(s: Services, pid: str) -> dict[str, Any]:
+    spec = s.catalog.providers[pid]
+    adapter = s.providers.get(pid)
+    instalado = adapter.installed() if adapter is not None else False
+    version = None
+    if instalado and isinstance(adapter, CliAdapter):
+        version = s.cli_version(adapter.resolve_exe())
+    return {
+        "etiqueta": spec.etiqueta,
+        "tipo": spec.tipo,
+        "habilitado": spec.habilitado,
+        "instalado": instalado,
+        "version": version,
+        "ultima_llamada": s.ledger.last_call(pid),
+        "breaker": s.breaker.snapshot(pid),
+        "uso_ultimas_5h": s.ledger.window_usage(pid),
+        "login": spec.login,
+        "modelos": [a for a, m in s.catalog.models.items() if m.provider == pid],
+    }
+
+
 def create_app(services_factory: Callable[[], Services] = build_services) -> FastAPI:
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
@@ -154,7 +185,8 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
         finally:
             for task in services.tasks.values():
                 task.cancel()
-            services.claude.stop()
+            for adapter in services.providers.values():
+                adapter.stop()
 
     app = FastAPI(title="Iuris-IA", version="0.2.0", lifespan=lifespan)
     # Protección frente a DNS rebinding: solo se aceptan peticiones dirigidas a loopback (dossier §2.5).
@@ -196,10 +228,7 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
                 "anios_festivos": sorted(s.pipeline.calendar.festivos.years_nacional),
             }
         return {
-            "claude_cli": {"version": s.claude_version(), "ultima_llamada": s.ledger.last_call("claude")},
-            "gemini": {"api_key_configurada": s.gemini.configured, "ultima_llamada": s.ledger.last_call("gemini")},
-            "circuit_breakers": {p: s.breaker.snapshot(p) for p in ("claude", "gemini")},
-            "uso_ultimas_5h": {p: s.ledger.window_usage(p) for p in ("claude", "gemini")},
+            "proveedores": {pid: _estado_proveedor(s, pid) for pid in s.catalog.providers},
             "modo_por_defecto": s.catalog.default_profile(),
             "modos": {
                 name: {
@@ -210,11 +239,98 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
                 for name, p in s.catalog.profiles.items()
             },
             "modelos": {
-                alias: {"proveedor": m.provider, "id": m.model_id or m.cli_model}
+                alias: {"proveedor": m.provider, "id": m.model_id, "etiqueta": m.etiqueta}
                 for alias, m in s.catalog.models.items()
             },
             "corpus": corpus,
         }
+
+    # ---------- proveedores y asignación de modelos ----------
+    @app.get("/api/proveedores")
+    def proveedores(request: Request) -> dict[str, Any]:
+        s = svc(request)
+        return {pid: _estado_proveedor(s, pid) for pid in s.catalog.providers}
+
+    @app.post("/api/proveedores/{pid}/detectar", dependencies=[Depends(require_token)])
+    async def detectar(pid: str, request: Request) -> dict[str, Any]:
+        s = svc(request)
+        adapter = s.providers.get(pid)
+        if adapter is None:
+            raise HTTPException(404, "proveedor desactivado o desconocido")
+        if not adapter.installed():
+            return {"instalado": False, "modelos": []}
+        try:
+            modelos = await asyncio.to_thread(adapter.discover_models)
+        except (OSError, subprocess.SubprocessError) as exc:
+            raise HTTPException(502, f"no se pudieron listar los modelos: {exc}") from exc
+        return {"instalado": True, "modelos": modelos}
+
+    @app.post("/api/modelos/{alias}/probar", dependencies=[Depends(require_token)])
+    async def probar(alias: str, request: Request) -> dict[str, Any]:
+        s = svc(request)
+        spec = s.catalog.models.get(alias)
+        if spec is None:
+            raise HTTPException(404, "modelo desconocido")
+        adapter = s.providers.get(spec.provider)
+        if adapter is None:
+            raise HTTPException(409, f"el proveedor {spec.provider} está desactivado")
+        req = LLMRequest(prompt="Responde exactamente con la palabra: OK", effort=spec.efforts[0])
+        started = time.monotonic()
+        texto, ok, error = "", True, None
+        try:
+            async for item in adapter.stream(alias=alias, spec=spec, request=req):
+                if isinstance(item, LLMResult):
+                    texto = item.text
+        except ProviderError as exc:
+            ok, error = False, f"{type(exc).__name__}: {str(exc)[:300]}"
+        ms = int((time.monotonic() - started) * 1000)
+        s.ledger.record(
+            fase="prueba",
+            proveedor=spec.provider,
+            modelo=spec.resolved_id(req.effort),
+            latencia_ms=ms,
+            ok=ok,
+            error_tipo=error.split(":")[0] if error else None,
+        )
+        return {"ok": ok, "latencia_ms": ms, "respuesta": texto[:200], "error": error}
+
+    @app.get("/api/ajustes/perfiles")
+    def perfiles(request: Request) -> dict[str, Any]:
+        s = svc(request)
+        defecto = load_catalog(CONFIG_DIR, user_overrides=False)
+        return {
+            "modos": {n: {r: a.model_dump() for r, a in p.roles.items()} for n, p in s.catalog.profiles.items()},
+            "por_defecto": {n: {r: a.model_dump() for r, a in p.roles.items()} for n, p in defecto.profiles.items()},
+            "modelos": {
+                alias: {
+                    "etiqueta": m.etiqueta or alias,
+                    "proveedor": m.provider,
+                    "efforts": m.efforts,
+                    "disponible": m.provider in s.providers and s.providers[m.provider].installed(),
+                }
+                for alias, m in s.catalog.models.items()
+                if alias != "gemini_embedding"
+            },
+        }
+
+    @app.put("/api/ajustes/perfiles", dependencies=[Depends(require_token)])
+    def guardar_perfiles(body: dict[str, dict[str, dict[str, str]]], request: Request) -> dict[str, str]:
+        s = svc(request)
+        try:
+            nuevo = save_user_profiles(body)
+        except ValueError as exc:
+            raise HTTPException(422, str(exc)) from exc
+        s.catalog = nuevo
+        s.router.catalog = nuevo
+        return {"estado": "guardado"}
+
+    @app.delete("/api/ajustes/perfiles", dependencies=[Depends(require_token)])
+    def restablecer_perfiles(request: Request) -> dict[str, str]:
+        s = svc(request)
+        reset_user_profiles()
+        s.catalog = load_catalog()
+        s.router.catalog = s.catalog
+        return {"estado": "restablecido"}
 
     # ---------- consultas ----------
     @app.post("/api/consultas", status_code=201, dependencies=[Depends(require_token)])

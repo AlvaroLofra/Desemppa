@@ -1,0 +1,31 @@
+{
+  "resumen": {
+    "modo": "equilibrado",
+    "ejecuciones": 2,
+    "outcome_match": 0.5,
+    "total_medio": 58.6,
+    "certificadas": 1
+  },
+  "filas": [
+    {
+      "variante": "original",
+      "caso": "SYN-001",
+      "outcome": 0.0,
+      "recall": 0.0,
+      "doctrina": null,
+      "alucinacion": 15.0,
+      "estado": "ERROR",
+      "total": 20.0
+    },
+    {
+      "variante": "original",
+      "caso": "SYN-002",
+      "outcome": 30.0,
+      "recall": 30.0,
+      "doctrina": null,
+      "alucinacion": 12.9,
+      "estado": "CERTIFICADA",
+      "total": 97.2
+    }
+  ]
+}
