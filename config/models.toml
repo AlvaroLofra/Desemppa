@@ -1,33 +1,38 @@
 # Catálogo de modelos por alias lógico (dossier §1.1, condición C4 y riesgo R8).
 # Los IDs reales son configurables: verificar disponibilidad en la Gemini API / `claude --help` en el Sprint 1.
-# rpm/rpd = límites del free tier de Gemini: valores PROVISIONALES, consultar AI Studio (cambian).
+# rpm/rpd = límites del free tier de Gemini. Solo el de gemini-3.8-flash está confirmado (20 RPD, mensaje 429 del
+# 2026-10-23); el resto son provisionales. Si se agotan, GeminiClient lo detecta por el 429 y salta ese modelo
+# hasta la hora de reinicio que indica la API.
+#
+# Medición del 2026-10-23 (prompt de ~3.000 tokens): gemini-3.5-flash 4–6 s; gemini-3.8-flash 128 s (cola del
+# free tier) y 503 frecuentes. Por eso el Flash principal es 3.5 y el 3.8 queda como último recurso.
 
 [models.gemini_flash]
-provider = "gemini"
-model_id = "gemini-3.8-flash"
-efforts = ["low", "medium", "high"]
-rpm = 10
-rpd = 500
-timeout_s = 60
-fallbacks = ["gemini_flash_alt"]
-
-[models.gemini_flash_alt]
-provider = "gemini"
-model_id = "gemini-3.7-flash"   # gemini-2.5-flash ya no está disponible para cuentas nuevas (404)
-efforts = ["low", "medium", "high"]
-rpm = 10
-rpd = 250
-timeout_s = 60
-fallbacks = ["gemini_flash_stable"]
-
-[models.gemini_flash_stable]
-# Único Flash que respondió en el spike del Sprint 1 (3.8 y 3.7 daban 503 por saturación).
 provider = "gemini"
 model_id = "gemini-3.5-flash"
 efforts = ["low", "medium", "high"]
 rpm = 10
 rpd = 250
-timeout_s = 60
+timeout_s = 90
+fallbacks = ["gemini_flash_lite"]
+
+[models.gemini_flash_lite]
+provider = "gemini"
+model_id = "gemini-3.5-flash-lite"
+efforts = ["low", "medium", "high"]
+rpm = 15
+rpd = 500
+timeout_s = 90
+fallbacks = ["gemini_flash_38"]
+
+[models.gemini_flash_38]
+# Modelo indicado en el dossier; lento y con solo 20 peticiones/día en el free tier.
+provider = "gemini"
+model_id = "gemini-3.8-flash"
+efforts = ["low", "medium", "high"]
+rpm = 5
+rpd = 20
+timeout_s = 240
 fallbacks = []
 
 [models.gemini_top]

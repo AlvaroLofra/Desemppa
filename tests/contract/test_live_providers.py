@@ -27,7 +27,7 @@ async def test_gemini_first_token_under_3s():
     settings = get_settings()
     if not settings.gemini_api_key:
         pytest.skip("GEMINI_API_KEY no configurada")
-    alias = "gemini_flash_stable"
+    alias = "gemini_flash"
     client = GeminiClient(settings.gemini_api_key)
     first, result = await _first_token_and_result(
         client.stream(alias=alias, spec=get_catalog().models[alias], request=REQUEST)
@@ -38,9 +38,7 @@ async def test_gemini_first_token_under_3s():
 
 async def test_claude_sonnet_first_token_under_10s(tmp_path):
     settings = get_settings()
-    worker = ClaudeWorker(
-        sandbox_dir=tmp_path / "sb", lock_path=settings.claude_lock_path, exe=settings.claude_exe
-    )
+    worker = ClaudeWorker(sandbox_dir=tmp_path / "sb", lock_path=settings.claude_lock_path, exe=settings.claude_exe)
     try:
         first, result = await _first_token_and_result(
             worker.stream(alias="claude_sonnet", cli_model="sonnet", request=REQUEST, timeout_s=120)

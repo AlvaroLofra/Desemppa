@@ -81,3 +81,17 @@ Aplicada con `sqlite3.executescript` del venv sobre una base de datos temporal:
 1. Iniciar sesión en el CLI una vez: ejecutar `claude` en una terminal y escribir `/login`.
 2. Después: `uv run python scripts/spike_claude_live.py --record` (graba `ok_haiku.jsonl` real), `... --repeat 20` (estabilidad en Windows) y `uv run pytest -m live` (primer token de Sonnet < 10 s).
 3. Revisar los patrones de `UsageLimitReached` en `core/stream_json.py` la primera vez que aparezca el mensaje real de límite de uso.
+
+---
+
+# Sprints 2–5 — Hallazgos en vivo (2026-10-23)
+
+- **Cuota free tier `gemini-3.8-flash`: 20 peticiones/día por modelo** (429 `GenerateRequestsPerDayPerProjectPerModel-FreeTier`,
+  `quotaValue: 20`). Latencia observada 80–210 s por llamada en el pipeline y 128 s en una prueba aislada.
+- `gemini-3.5-flash`: 4,1 s (thinking LOW) y 6,2 s (HIGH) con ~3.100 tokens de entrada. Pasa a ser el Flash principal.
+- `gemini-3.5-flash-lite` disponible y respondiendo; `gemini-4-argon` sin cuota (429).
+- `GeminiClient` ahora lee el `retryDelay`/"retry in 7h42m" del 429 y salta el modelo agotado sin reintentar.
+- BOE: los ids de bloque varían por norma (`a36`, `art1561`, `a2-8`, `anoveno`); hay versiones con la misma fecha de
+  vigencia (correcciones): prevalece la última publicada.
+- Primer dictamen real (caso sintético de fianza, modo Eco, 3.8-flash): CERTIFICADO, 2 citas literales del BOE verificadas,
+  plazos y postulación correctos; ~12 min de extremo a extremo por la latencia de 3.8-flash.

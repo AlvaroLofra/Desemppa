@@ -1,0 +1,83 @@
+# Reglas de postulación (dossier §1.3.2). PENDIENTE DE VALIDACIÓN JURÍDICA.
+# Se evalúan en orden; gana la primera regla cuyo "si" se cumple.
+# Campos de entrada: jurisdiccion, procedimiento, fase, cuantia_eur, funcionario_personal (bool).
+umbral_eur: 2000
+
+reglas:
+  - id: CIV_MONITORIO_INICIAL
+    si: {jurisdiccion: civil, procedimiento: monitorio, fase: inicial}
+    abogado: false
+    procurador: false
+    bloquea_escritos: false
+    base_legal: "Art. 814.2 LEC"
+    texto: "La petición inicial de un monitorio puede presentarse sin abogado ni procurador, sea cual sea la cuantía. Si la otra parte se opone y la deuda supera 2.000 €, necesitarás abogado y procurador."
+  - id: CIV_HASTA_UMBRAL
+    si: {jurisdiccion: civil, cuantia_max: 2000}
+    abogado: false
+    procurador: false
+    bloquea_escritos: false
+    base_legal: "Arts. 23.2.1º y 31.2.1º LEC"
+    texto: "En asuntos civiles de hasta 2.000 € puedes actuar por ti mismo, sin abogado ni procurador."
+  - id: CIV_SOBRE_UMBRAL
+    si: {jurisdiccion: civil, cuantia_min_exclusiva: 2000}
+    abogado: true
+    procurador: true
+    bloquea_escritos: true
+    base_legal: "Arts. 23 y 31 LEC"
+    texto: "Este asunto supera los 2.000 €: la ley exige abogado y procurador. La herramienta te informa, pero no redactará escritos para el juzgado."
+  - id: CIV_CUANTIA_DESCONOCIDA
+    si: {jurisdiccion: civil}
+    abogado: true
+    procurador: true
+    bloquea_escritos: true
+    base_legal: "Arts. 23 y 31 LEC"
+    texto: "Sin cuantía conocida, se asume que puede superar 2.000 € y exigir abogado y procurador."
+  - id: SOC_RECURSO
+    si: {jurisdiccion: social, fase: recurso}
+    abogado: true
+    procurador: false
+    bloquea_escritos: true
+    base_legal: "Art. 21 LRJS"
+    texto: "Para recurrir en suplicación o casación necesitas abogado (o graduado social en suplicación)."
+  - id: SOC_INSTANCIA
+    si: {jurisdiccion: social}
+    abogado: false
+    procurador: false
+    bloquea_escritos: false
+    base_legal: "Arts. 18 y 21 LRJS"
+    texto: "En la primera instancia social puedes comparecer por ti mismo, aunque es muy recomendable contar con abogado, graduado social o sindicato. Antes de la demanda es obligatoria la papeleta de conciliación (SMAC)."
+  - id: ADM_VIA_ADMINISTRATIVA
+    si: {jurisdiccion: administrativa_previa}
+    abogado: false
+    procurador: false
+    bloquea_escritos: false
+    base_legal: "Ley 39/2015"
+    texto: "Las alegaciones y los recursos administrativos (reposición, alzada) no requieren abogado."
+  - id: CA_FUNCIONARIO_PERSONAL
+    si: {jurisdiccion: contencioso, funcionario_personal: true}
+    abogado: false
+    procurador: false
+    bloquea_escritos: false
+    base_legal: "Art. 23.3 LJCA"
+    texto: "Como funcionario en una cuestión de personal que no implica separación, puedes comparecer por ti mismo."
+  - id: CA_GENERAL
+    si: {jurisdiccion: contencioso}
+    abogado: true
+    procurador: false
+    bloquea_escritos: true
+    base_legal: "Art. 23 LJCA"
+    texto: "El recurso contencioso-administrativo exige con carácter general abogado (y procurador ante órganos colegiados)."
+  - id: PENAL
+    si: {jurisdiccion: penal}
+    abogado: true
+    procurador: false
+    bloquea_escritos: true
+    base_legal: "LECrim"
+    texto: "Los asuntos penales están fuera del alcance de esta herramienta: consulta a un abogado."
+  - id: POR_DEFECTO
+    si: {}
+    abogado: true
+    procurador: false
+    bloquea_escritos: true
+    base_legal: "—"
+    texto: "No se ha podido determinar si necesitas abogado: consúltalo antes de presentar nada."

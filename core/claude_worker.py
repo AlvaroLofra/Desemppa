@@ -60,13 +60,18 @@ _DONE = object()
 
 def build_args(exe: str, cli_model: str, effort: str, system_prompt_file: Path | None) -> list[str]:
     args = [
-        exe, "-p",
-        "--model", cli_model,
-        "--effort", effort,
-        "--output-format", "stream-json",
+        exe,
+        "-p",
+        "--model",
+        cli_model,
+        "--effort",
+        effort,
+        "--output-format",
+        "stream-json",
         "--verbose",
         "--include-partial-messages",
-        "--tools", "",
+        "--tools",
+        "",
         "--no-session-persistence",
     ]
     if system_prompt_file is not None:
@@ -231,8 +236,7 @@ class ClaudeWorker:
             return
         if parser.final is None:
             err = b"".join(stderr_buf).decode("utf-8", errors="replace").strip()
-            raise ProviderError(f"claude -p terminó (código {code}) sin evento result: {err[:500]}",
-                                provider="claude")
+            raise ProviderError(f"claude -p terminó (código {code}) sin evento result: {err[:500]}", provider="claude")
         self._post(job, parser.final)
 
 

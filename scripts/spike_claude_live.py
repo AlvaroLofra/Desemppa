@@ -34,8 +34,11 @@ def record_raw(model: str) -> Path:
     sys_file.write_text(SYSTEM, encoding="utf-8")
     exe = settings.claude_exe or "claude"
     out = subprocess.run(
-        build_args(exe, model, "low", sys_file), input=PROMPT.encode("utf-8"), capture_output=True,
-        cwd=settings.claude_sandbox_dir, timeout=180,
+        build_args(exe, model, "low", sys_file),
+        input=PROMPT.encode("utf-8"),
+        capture_output=True,
+        cwd=settings.claude_sandbox_dir,
+        timeout=180,
     )
     target = ROOT / "tests" / "fixtures" / "claude_stream" / f"ok_{model}.jsonl"
     target.write_bytes(out.stdout)
@@ -54,13 +57,14 @@ async def run(model: str, repeat: int) -> None:
         t0 = time.monotonic()
         first: float | None = None
         try:
-            async for item in worker.stream(alias=f"claude_{model}", cli_model=model, request=request,
-                                            timeout_s=180):
+            async for item in worker.stream(alias=f"claude_{model}", cli_model=model, request=request, timeout_s=180):
                 if isinstance(item, LLMResult):
-                    print(f"[{i + 1}] modelo={item.model} uso={item.usage}"
-                          f" coste_eq={item.coste_equivalente_usd} total={item.latencia_ms} ms"
-                          f" primer_token={first and round(first, 2)} s"
-                          f" texto={item.text[:60]!r}")
+                    print(
+                        f"[{i + 1}] modelo={item.model} uso={item.usage}"
+                        f" coste_eq={item.coste_equivalente_usd} total={item.latencia_ms} ms"
+                        f" primer_token={first and round(first, 2)} s"
+                        f" texto={item.text[:60]!r}"
+                    )
                 elif first is None:
                     first = time.monotonic() - t0
         except Exception as exc:  # noqa: BLE001 — el spike informa y sigue

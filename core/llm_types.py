@@ -14,6 +14,7 @@ class LLMRequest(BaseModel):
     prompt: str
     effort: Effort = "medium"
     response_schema: dict[str, Any] | None = None  # JSON Schema para salida estructurada (Gemini)
+    json_mode: bool = False  # pide JSON sin imponer esquema (Gemini: mime application/json)
 
 
 class StreamChunk(BaseModel):

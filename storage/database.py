@@ -23,9 +23,7 @@ def connect(path: Path | str) -> sqlite3.Connection:
 
 
 def _applied(con: sqlite3.Connection) -> set[int]:
-    exists = con.execute(
-        "SELECT 1 FROM sqlite_master WHERE type='table' AND name='schema_migrations'"
-    ).fetchone()
+    exists = con.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='schema_migrations'").fetchone()
     if not exists:
         return set()
     return {row[0] for row in con.execute("SELECT version FROM schema_migrations")}

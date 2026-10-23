@@ -1,0 +1,31 @@
+{
+  "resumen": {
+    "modo": "eco",
+    "ejecuciones": 2,
+    "outcome_match": 1.0,
+    "total_medio": 95.0,
+    "certificadas": 2
+  },
+  "filas": [
+    {
+      "variante": "original",
+      "caso": "SYN-001",
+      "outcome": 30.0,
+      "recall": 30.0,
+      "doctrina": null,
+      "alucinacion": 7.5,
+      "estado": "CERTIFICADA",
+      "total": 90.0
+    },
+    {
+      "variante": "original",
+      "caso": "SYN-002",
+      "outcome": 30.0,
+      "recall": 30.0,
+      "doctrina": null,
+      "alucinacion": 15.0,
+      "estado": "CERTIFICADA",
+      "total": 100.0
+    }
+  ]
+}

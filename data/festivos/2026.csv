@@ -1,0 +1,84 @@
+fecha,ambito,ccaa,descripcion,fuente,fuente_ref
+2026-01-01,nacional,,Año Nuevo,boe,BOE-A-2025-21667
+2026-01-06,nacional,,Epifanía del Señor,boe,BOE-A-2025-21667
+2026-02-28,autonomico,AN,Día de Andalucía,boe,BOE-A-2025-21667
+2026-03-02,autonomico,IB,Lunes siguiente al Día de les Illes Balears,boe,BOE-A-2025-21667
+2026-03-19,autonomico,GA,San José,boe,BOE-A-2025-21667
+2026-03-19,autonomico,MC,San José,boe,BOE-A-2025-21667
+2026-03-19,autonomico,NC,San José,boe,BOE-A-2025-21667
+2026-03-19,autonomico,PV,San José,boe,BOE-A-2025-21667
+2026-03-19,autonomico,VC,San José,boe,BOE-A-2025-21667
+2026-03-20,autonomico,ML,Fiesta del Eid Fitr,boe,BOE-A-2025-21667
+2026-04-02,autonomico,AN,Jueves Santo,boe,BOE-A-2025-21667
+2026-04-02,autonomico,AR,Jueves Santo,boe,BOE-A-2025-21667
+2026-04-02,autonomico,AS,Jueves Santo,boe,BOE-A-2025-21667
+2026-04-02,autonomico,IB,Jueves Santo,boe,BOE-A-2025-21667
+2026-04-02,autonomico,CN,Jueves Santo,boe,BOE-A-2025-21667
+2026-04-02,autonomico,CB,Jueves Santo,boe,BOE-A-2025-21667
+2026-04-02,autonomico,CM,Jueves Santo,boe,BOE-A-2025-21667
+2026-04-02,autonomico,CL,Jueves Santo,boe,BOE-A-2025-21667
+2026-04-02,autonomico,EX,Jueves Santo,boe,BOE-A-2025-21667
+2026-04-02,autonomico,GA,Jueves Santo,boe,BOE-A-2025-21667
+2026-04-02,autonomico,MD,Jueves Santo,boe,BOE-A-2025-21667
+2026-04-02,autonomico,MC,Jueves Santo,boe,BOE-A-2025-21667
+2026-04-02,autonomico,NC,Jueves Santo,boe,BOE-A-2025-21667
+2026-04-02,autonomico,PV,Jueves Santo,boe,BOE-A-2025-21667
+2026-04-02,autonomico,RI,Jueves Santo,boe,BOE-A-2025-21667
+2026-04-02,autonomico,CE,Jueves Santo,boe,BOE-A-2025-21667
+2026-04-02,autonomico,ML,Jueves Santo,boe,BOE-A-2025-21667
+2026-04-03,nacional,,Viernes Santo,boe,BOE-A-2025-21667
+2026-04-06,autonomico,IB,Lunes de Pascua,boe,BOE-A-2025-21667
+2026-04-06,autonomico,CM,Lunes de Pascua,boe,BOE-A-2025-21667
+2026-04-06,autonomico,CT,Lunes de Pascua,boe,BOE-A-2025-21667
+2026-04-06,autonomico,NC,Lunes de Pascua,boe,BOE-A-2025-21667
+2026-04-06,autonomico,PV,Lunes de Pascua,boe,BOE-A-2025-21667
+2026-04-06,autonomico,RI,Lunes de Pascua,boe,BOE-A-2025-21667
+2026-04-06,autonomico,VC,Lunes de Pascua,boe,BOE-A-2025-21667
+2026-04-23,autonomico,AR,San Jorge/Día de Aragón,boe,BOE-A-2025-21667
+2026-04-23,autonomico,CL,Fiesta de Castilla y León,boe,BOE-A-2025-21667
+2026-05-01,nacional,,Fiesta del Trabajo,boe,BOE-A-2025-21667
+2026-05-02,autonomico,MD,Fiesta de la Comunidad de Madrid,boe,BOE-A-2025-21667
+2026-05-27,autonomico,CE,Fiesta Sacrificio-Eidul Adha,boe,BOE-A-2025-21667
+2026-05-27,autonomico,ML,Fiesta Sacrificio-Aid al Adha,boe,BOE-A-2025-21667
+2026-05-30,autonomico,CN,Día de Canarias,boe,BOE-A-2025-21667
+2026-06-04,autonomico,CM,Corpus Christi,boe,BOE-A-2025-21667
+2026-06-09,autonomico,MC,Día de la Región de Murcia,boe,BOE-A-2025-21667
+2026-06-09,autonomico,RI,Día de la Rioja,boe,BOE-A-2025-21667
+2026-06-24,autonomico,CT,San Juan,boe,BOE-A-2025-21667
+2026-06-24,autonomico,GA,San Juan,boe,BOE-A-2025-21667
+2026-06-24,autonomico,VC,San Juan,boe,BOE-A-2025-21667
+2026-07-25,autonomico,GA,Santiago Apóstol/Día Nacional de Galicia,boe,BOE-A-2025-21667
+2026-07-25,autonomico,PV,Santiago Apóstol/Día Nacional de Galicia,boe,BOE-A-2025-21667
+2026-07-28,autonomico,CB,Día de las Instituciones de Cantabria,boe,BOE-A-2025-21667
+2026-08-05,autonomico,CE,Nuestra Señora de África,boe,BOE-A-2025-21667
+2026-08-15,nacional,,Asunción de la Virgen,boe,BOE-A-2025-21667
+2026-09-02,autonomico,CE,Día de Ceuta,boe,BOE-A-2025-21667
+2026-09-08,autonomico,AS,Día de Asturias,boe,BOE-A-2025-21667
+2026-09-08,autonomico,EX,Día de Extremadura,boe,BOE-A-2025-21667
+2026-09-11,autonomico,CT,Fiesta Nacional de Cataluña,boe,BOE-A-2025-21667
+2026-09-15,autonomico,CB,La Bien Aparecida,boe,BOE-A-2025-21667
+2026-10-09,autonomico,VC,Día de la Comunitat Valenciana,boe,BOE-A-2025-21667
+2026-10-12,nacional,,Fiesta Nacional de España,boe,BOE-A-2025-21667
+2026-11-02,autonomico,AN,Día siguiente a Todos los Santos,boe,BOE-A-2025-21667
+2026-11-02,autonomico,AR,Día siguiente a Todos los Santos,boe,BOE-A-2025-21667
+2026-11-02,autonomico,AS,Día siguiente a Todos los Santos,boe,BOE-A-2025-21667
+2026-11-02,autonomico,CN,Día siguiente a Todos los Santos,boe,BOE-A-2025-21667
+2026-11-02,autonomico,CM,Día siguiente a Todos los Santos,boe,BOE-A-2025-21667
+2026-11-02,autonomico,CL,Día siguiente a Todos los Santos,boe,BOE-A-2025-21667
+2026-11-02,autonomico,EX,Día siguiente a Todos los Santos,boe,BOE-A-2025-21667
+2026-11-02,autonomico,MD,Día siguiente a Todos los Santos,boe,BOE-A-2025-21667
+2026-11-02,autonomico,NC,Día siguiente a Todos los Santos,boe,BOE-A-2025-21667
+2026-12-07,autonomico,AN,Lunes siguiente al Día de la Constitución Española,boe,BOE-A-2025-21667
+2026-12-07,autonomico,AR,Lunes siguiente al Día de la Constitución Española,boe,BOE-A-2025-21667
+2026-12-07,autonomico,AS,Lunes siguiente al Día de la Constitución Española,boe,BOE-A-2025-21667
+2026-12-07,autonomico,CB,Lunes siguiente al Día de la Constitución Española,boe,BOE-A-2025-21667
+2026-12-07,autonomico,CL,Lunes siguiente al Día de la Constitución Española,boe,BOE-A-2025-21667
+2026-12-07,autonomico,EX,Lunes siguiente al Día de la Constitución Española,boe,BOE-A-2025-21667
+2026-12-07,autonomico,MD,Lunes siguiente al Día de la Constitución Española,boe,BOE-A-2025-21667
+2026-12-07,autonomico,MC,Lunes siguiente al Día de la Constitución Española,boe,BOE-A-2025-21667
+2026-12-07,autonomico,RI,Lunes siguiente al Día de la Constitución Española,boe,BOE-A-2025-21667
+2026-12-07,autonomico,ML,Lunes siguiente al Día de la Constitución Española,boe,BOE-A-2025-21667
+2026-12-08,nacional,,Inmaculada Concepción,boe,BOE-A-2025-21667
+2026-12-25,nacional,,Natividad del Señor,boe,BOE-A-2025-21667
+2026-12-26,autonomico,IB,San Esteban,boe,BOE-A-2025-21667
+2026-12-26,autonomico,CT,San Esteban,boe,BOE-A-2025-21667

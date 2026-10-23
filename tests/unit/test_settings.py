@@ -70,10 +70,7 @@ def test_unknown_alias_in_profile_fails(tmp_path):
 
 
 def test_missing_role_fails(tmp_path):
-    bad = (
-        '[profiles.x]\nlabel = "X"\nclaude_calls_per_query = 0\n'
-        'triaje = { model = "gemini_flash", effort = "low" }\n'
-    )
+    bad = '[profiles.x]\nlabel = "X"\nclaude_calls_per_query = 0\ntriaje = { model = "gemini_flash", effort = "low" }\n'
     with pytest.raises(ValueError, match="sin roles"):
         load_catalog(_write_config(tmp_path, bad))
 

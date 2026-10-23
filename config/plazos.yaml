@@ -1,0 +1,191 @@
+# Tabla maestra de plazos (dossier §4.2). PENDIENTE DE VALIDACIÓN JURÍDICA: ninguna regla se marca como
+# validada hasta la revisión con un profesional (prerrequisito del Sprint 3).
+#
+# computo:
+#   habiles_procesal          excluye sáb., dom., 24 y 31-dic, festivos (nac., aut. y locales de la sede) y agosto
+#   habiles_social_caducidad  excluye sáb., dom. y festivos; agosto hábil (art. 43.4 LRJS)
+#   habiles_administrativo    excluye sáb., dom. y festivos; agosto hábil; sin 24/31-dic (art. 30.2 Ley 39/2015)
+#   naturales                 todos los días cuentan
+#   meses_fecha_a_fecha / anios_fecha_a_fecha
+# prorroga_inhabil_final: si el último día es inhábil, el plazo pasa al siguiente hábil.
+# dias_dudosos: días cuyo carácter inhábil es discutido; se cuentan como HÁBILES (cómputo más corto) y se avisa.
+# doctrina_cambiante: marca 🔎 del dossier.
+# titular: usuario (por defecto) o contraparte (plazo que corre contra la otra parte; su vencimiento te favorece).
+
+plazos:
+  SOC_DESPIDO_CADUCIDAD:
+    descripcion: "Accionar contra el despido (papeleta de conciliación / demanda)"
+    duracion: 20
+    computo: habiles_social_caducidad
+    naturaleza: caducidad
+    agosto_habil: true
+    dia_gracia: false
+    prorroga_inhabil_final: true
+    dias_dudosos: ["24-12", "31-12"]
+    admite_suspension: true
+    base_legal: "Art. 59.3 ET; arts. 103 y 65 LRJS"
+    notas: "La papeleta de conciliación suspende el plazo, que se reanuda al día siguiente del intento de conciliación o a los 15 días hábiles sin celebrarse (art. 65 LRJS)."
+    doctrina_cambiante: true
+  SOC_SANCION_20H:
+    descripcion: "Impugnar una sanción laboral"
+    duracion: 20
+    computo: habiles_social_caducidad
+    naturaleza: caducidad
+    agosto_habil: true
+    dia_gracia: false
+    prorroga_inhabil_final: true
+    dias_dudosos: ["24-12", "31-12", "agosto"]
+    admite_suspension: true
+    base_legal: "Art. 114 LRJS"
+    doctrina_cambiante: true
+  SOC_VACACIONES_20H:
+    descripcion: "Impugnar la fecha de disfrute de vacaciones"
+    duracion: 20
+    computo: habiles_social_caducidad
+    naturaleza: caducidad
+    agosto_habil: true
+    dia_gracia: false
+    prorroga_inhabil_final: true
+    dias_dudosos: ["24-12", "31-12"]
+    base_legal: "Art. 125 LRJS"
+  SOC_CANTIDAD_1A:
+    descripcion: "Reclamar salarios u otras cantidades del contrato de trabajo"
+    duracion: 1
+    computo: anios_fecha_a_fecha
+    naturaleza: prescripcion
+    prorroga_inhabil_final: false
+    base_legal: "Art. 59.1 y 59.2 ET"
+    notas: "Desde que la cantidad fue exigible. Se interrumpe con reclamación fehaciente o papeleta."
+  CIV_EXTRACONTRACTUAL_1A:
+    descripcion: "Reclamar daños extracontractuales (derecho común)"
+    duracion: 1
+    computo: anios_fecha_a_fecha
+    naturaleza: prescripcion
+    prorroga_inhabil_final: false
+    base_legal: "Art. 1968.2 CC"
+    foral: {CT: {duracion: 3, base_legal: "Art. 121-21 CCCat"}}
+  CIV_CONTRACTUAL_5A:
+    descripcion: "Acciones personales sin plazo especial (contratos)"
+    duracion: 5
+    computo: anios_fecha_a_fecha
+    naturaleza: prescripcion
+    prorroga_inhabil_final: false
+    base_legal: "Art. 1964.2 CC (Ley 42/2015)"
+    foral: {CT: {duracion: 10, base_legal: "Art. 121-20 CCCat"}}
+    doctrina_cambiante: true
+    notas: "Régimen transitorio para obligaciones nacidas antes del 7-10-2015."
+  CIV_EJECUCION_5A:
+    descripcion: "Ejecutar una sentencia"
+    duracion: 5
+    computo: anios_fecha_a_fecha
+    naturaleza: caducidad
+    prorroga_inhabil_final: false
+    base_legal: "Art. 518 LEC"
+  CIV_LPH_IMPUGNA_3M:
+    descripcion: "Impugnar un acuerdo de la comunidad de propietarios"
+    duracion: 3
+    computo: meses_fecha_a_fecha
+    naturaleza: caducidad
+    prorroga_inhabil_final: false
+    base_legal: "Art. 18.3 LPH"
+    notas: "1 año si el acuerdo es contrario a la ley o a los estatutos (CIV_LPH_IMPUGNA_1A)."
+  CIV_LPH_IMPUGNA_1A:
+    descripcion: "Impugnar un acuerdo comunitario contrario a la ley o los estatutos"
+    duracion: 1
+    computo: anios_fecha_a_fecha
+    naturaleza: caducidad
+    prorroga_inhabil_final: false
+    base_legal: "Art. 18.3 LPH"
+  CIV_CONTESTACION_VERBAL_10H:
+    descripcion: "Contestar una demanda de juicio verbal"
+    duracion: 10
+    computo: habiles_procesal
+    naturaleza: procesal
+    agosto_habil: false
+    dia_gracia: true
+    prorroga_inhabil_final: true
+    base_legal: "Art. 438 LEC"
+  CIV_CONTESTACION_ORDINARIO_20H:
+    descripcion: "Contestar una demanda de juicio ordinario"
+    duracion: 20
+    computo: habiles_procesal
+    naturaleza: procesal
+    agosto_habil: false
+    dia_gracia: true
+    prorroga_inhabil_final: true
+    base_legal: "Art. 404 LEC"
+  CIV_OPOSICION_MONITORIO_20H:
+    descripcion: "Oponerse a un requerimiento de pago (monitorio)"
+    duracion: 20
+    computo: habiles_procesal
+    naturaleza: procesal
+    agosto_habil: false
+    dia_gracia: true
+    prorroga_inhabil_final: true
+    base_legal: "Art. 815 LEC"
+  CIV_APELACION_20H:
+    descripcion: "Recurrir en apelación una sentencia civil"
+    duracion: 20
+    computo: habiles_procesal
+    naturaleza: procesal
+    agosto_habil: false
+    dia_gracia: true
+    prorroga_inhabil_final: true
+    base_legal: "Art. 458 LEC"
+  ADM_ALEGACIONES_10H:
+    descripcion: "Alegaciones al acuerdo de inicio de un procedimiento sancionador"
+    duracion: 10
+    computo: habiles_administrativo
+    naturaleza: administrativo
+    agosto_habil: true
+    dia_gracia: false
+    prorroga_inhabil_final: true
+    base_legal: "Arts. 82 y 89 Ley 39/2015"
+    notas: "Comprobar el plazo concreto que indica la notificación (entre 10 y 15 días)."
+  ADM_REPOSICION_1M:
+    descripcion: "Recurso potestativo de reposición"
+    duracion: 1
+    computo: meses_fecha_a_fecha
+    naturaleza: administrativo
+    agosto_habil: true
+    dia_gracia: false
+    prorroga_inhabil_final: true
+    base_legal: "Art. 124 Ley 39/2015; art. 30.4 y 30.5"
+  ADM_ALZADA_1M:
+    descripcion: "Recurso de alzada"
+    duracion: 1
+    computo: meses_fecha_a_fecha
+    naturaleza: administrativo
+    agosto_habil: true
+    dia_gracia: false
+    prorroga_inhabil_final: true
+    base_legal: "Art. 122 Ley 39/2015; art. 30.4 y 30.5"
+  ADM_TRAFICO_ALEGACIONES_20N:
+    descripcion: "Alegaciones o pronto pago (50 %) de una multa de tráfico"
+    duracion: 20
+    computo: naturales
+    naturaleza: administrativo
+    agosto_habil: true
+    dia_gracia: false
+    prorroga_inhabil_final: true
+    base_legal: "Arts. 93 y 95 RDLeg 6/2015 (Ley de Tráfico)"
+  CA_RECURSO_2M:
+    descripcion: "Recurso contencioso-administrativo"
+    duracion: 2
+    computo: meses_fecha_a_fecha
+    naturaleza: procesal
+    agosto_habil: false
+    dia_gracia: true
+    prorroga_inhabil_final: true
+    base_legal: "Arts. 46 y 128.2 LJCA"
+    doctrina_cambiante: true
+    notas: "6 meses frente a la desestimación por silencio."
+  CIV_FIANZA_DEVOLUCION_1M:
+    descripcion: "Plazo del arrendador para devolver la fianza (desde la entrega de llaves)"
+    duracion: 1
+    computo: meses_fecha_a_fecha
+    naturaleza: sustantivo
+    titular: contraparte
+    prorroga_inhabil_final: false
+    base_legal: "Art. 36.4 LAU"
+    notas: "Transcurrido el mes, el saldo devenga el interés legal."

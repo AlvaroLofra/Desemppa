@@ -34,8 +34,9 @@ async def one_call(alias: str) -> None:
     settings, catalog = get_settings(), get_catalog()
     spec = catalog.models[alias]
     client = GeminiClient(settings.gemini_api_key)
-    request = LLMRequest(system="Responde en español, en una frase.", prompt="¿Qué es un plazo de caducidad?",
-                         effort="low")
+    request = LLMRequest(
+        system="Responde en español, en una frase.", prompt="¿Qué es un plazo de caducidad?", effort="low"
+    )
     t0 = time.monotonic()
     first: float | None = None
     async for item in client.stream(alias=alias, spec=spec, request=request):

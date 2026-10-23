@@ -18,6 +18,8 @@ dependencies = [
     "pdfplumber",
     "filelock",
     "pydantic-settings>=2.16.1",
+    "pyyaml>=6.0.3",
+    "python-multipart>=0.0.32",
 ]
 
 [dependency-groups]
@@ -26,6 +28,8 @@ dev = [
     "pytest-asyncio",
     "ruff",
     "mypy",
+    "types-pyyaml>=6.0.12.20260906",
+    "openpyxl>=3.1.5",
 ]
 
 [tool.uv]
@@ -33,8 +37,8 @@ package = false
 
 [tool.ruff]
 target-version = "py311"
-line-length = 110
-extend-exclude = ["generate_unified_master_pdf.py", "web"]
+line-length = 120
+extend-exclude = ["generate_unified_master_pdf.py", "web", "docs", "*.md"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP", "B"]
@@ -44,6 +48,10 @@ python_version = "3.11"
 files = ["core", "connectors"]
 strict = true
 
+[[tool.mypy.overrides]]
+module = ["lxml.*", "pyarrow.*", "lancedb.*", "pdfplumber.*"]
+ignore_missing_imports = true
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
@@ -51,3 +59,6 @@ markers = [
     "live: llama a servicios reales (red, Gemini, Claude CLI); ejecución manual",
 ]
 addopts = "-m 'not live'"
+
+[tool.ruff.lint.per-file-ignores]
+"api/main.py" = ["B008"]  # File()/Query()/Header() en defaults es el patrón estándar de FastAPI

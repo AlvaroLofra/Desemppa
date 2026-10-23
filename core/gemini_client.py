@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import random
+import re
 import time
 from collections.abc import AsyncIterator, Awaitable, Callable
 from typing import Any
@@ -13,7 +14,7 @@ from google.genai import errors as genai_errors
 from google.genai import types
 
 from config.settings import ModelSpec
-from core.errors import ModelUnavailable, ProviderError, RateLimited
+from core.errors import ModelUnavailable, ProviderError, ProviderTimeout, RateLimited
 from core.llm_types import Effort, LLMRequest, LLMResult, StreamChunk, Usage
 
 PROVIDER = "gemini"
@@ -24,6 +25,21 @@ _THINKING_LEVEL: dict[Effort, types.ThinkingLevel] = {
     "high": types.ThinkingLevel.HIGH,
 }
 _THINKING_BUDGET: dict[Effort, int] = {"low": 1024, "medium": 8192, "high": 24576}
+
+
+_RETRY_IN_RE = re.compile(r"retry in (?:(\d+)h)?(?:(\d+)m)?(?:([\d.]+)s)?", re.I)
+_RETRY_DELAY_RE = re.compile(r"'retryDelay': '(\d+)s'")
+
+
+def quota_retry_seconds(message: str) -> float | None:
+    """Segundos hasta que la API vuelve a aceptar peticiones según el 429 ("Please retry in 7h42m39s")."""
+    if m := _RETRY_DELAY_RE.search(message):
+        return float(m.group(1))
+    m = _RETRY_IN_RE.search(message)
+    if not m or not any(m.groups()):
+        return None
+    h, mi, s = (float(g) if g else 0.0 for g in m.groups())
+    return h * 3600 + mi * 60 + s
 
 
 class TokenBucket:
@@ -81,6 +97,7 @@ class GeminiClient:
         self._sleep = sleep
         self._clock = clock
         self._buckets: dict[str, TokenBucket] = {}
+        self._exhausted: dict[str, float] = {}  # model_id -> instante (clock) en que vuelve a haber cuota
 
     @property
     def configured(self) -> bool:
@@ -114,7 +131,7 @@ class GeminiClient:
         return types.GenerateContentConfig(
             system_instruction=request.system or None,
             thinking_config=thinking,
-            response_mime_type="application/json" if request.response_schema else None,
+            response_mime_type="application/json" if request.response_schema or request.json_mode else None,
             response_json_schema=request.response_schema,
         )
 
@@ -123,6 +140,9 @@ class GeminiClient:
     ) -> AsyncIterator[StreamChunk | LLMResult]:
         assert spec.model_id is not None
         client = self._get_client()
+        until = self._exhausted.get(spec.model_id)
+        if until is not None and self._clock() < until:
+            raise RateLimited(f"{spec.model_id}: cuota diaria agotada", provider=PROVIDER)
         if spec.rpd and self._daily_count(spec.model_id) >= spec.rpd:
             raise RateLimited(f"límite diario local ({spec.rpd} RPD) de {spec.model_id}", provider=PROVIDER)
         bucket = self._bucket(alias, spec)
@@ -135,23 +155,25 @@ class GeminiClient:
             parts: list[str] = []
             usage = Usage()
             try:
-                response = await client.aio.models.generate_content_stream(
-                    model=spec.model_id,
-                    contents=request.prompt,
-                    config=self.build_config(request, use_budget=use_budget),
-                )
-                async for piece in response:
-                    text = piece.text or ""
-                    if text:
-                        parts.append(text)
-                        yield StreamChunk(text=text)
-                    meta = piece.usage_metadata
-                    if meta is not None:
-                        usage = Usage(
-                            input_tokens=meta.prompt_token_count,
-                            output_tokens=(meta.candidates_token_count or 0)
-                            + (meta.thoughts_token_count or 0),
-                        )
+                async with asyncio.timeout(spec.timeout_s):
+                    response = await client.aio.models.generate_content_stream(
+                        model=spec.model_id,
+                        contents=request.prompt,
+                        config=self.build_config(request, use_budget=use_budget),
+                    )
+                    async for piece in response:
+                        text = piece.text or ""
+                        if text:
+                            parts.append(text)
+                            yield StreamChunk(text=text)
+                        meta = piece.usage_metadata
+                        if meta is not None:
+                            usage = Usage(
+                                input_tokens=meta.prompt_token_count,
+                                output_tokens=(meta.candidates_token_count or 0) + (meta.thoughts_token_count or 0),
+                            )
+            except TimeoutError as exc:
+                raise ProviderTimeout(f"{spec.model_id} superó {spec.timeout_s:.0f} s", provider=PROVIDER) from exc
             except genai_errors.APIError as exc:
                 if parts:  # ya se emitió texto: no se puede reintentar de forma transparente
                     raise ProviderError(f"stream de Gemini interrumpido: {exc}", provider=PROVIDER) from exc
@@ -164,6 +186,15 @@ class GeminiClient:
                     raise ModelUnavailable(f"{spec.model_id}: {message}", provider=PROVIDER) from exc
                 if code in (401, 403):
                     raise ModelUnavailable(f"clave Gemini rechazada: {message}", provider=PROVIDER) from exc
+                retry_s = quota_retry_seconds(message)
+                if code == 429 and retry_s is not None and retry_s > 60:
+                    # Cuota diaria del modelo agotada: no se reintenta; se salta el modelo hasta el reinicio.
+                    self._exhausted[spec.model_id] = self._clock() + retry_s
+                    raise RateLimited(
+                        f"{spec.model_id}: cuota diaria agotada (reinicio en {retry_s / 3600:.1f} h)",
+                        provider=PROVIDER,
+                        retry_after=retry_s,
+                    ) from exc
                 if code in _RETRYABLE and attempt < self._max_retries:
                     attempt += 1
                     await self._sleep(min(30.0, 2**attempt) + random.uniform(0, 1))

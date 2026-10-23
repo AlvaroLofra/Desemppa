@@ -1,0 +1,42 @@
+# Casos golden del motor de plazos (dossier Sprint 3). Calculados A MANO sobre el calendario 2026 y la
+# resolución BOE-A-2025-21667 (festivos nacionales y autonómicos). PENDIENTES DE VALIDACIÓN JURÍDICA.
+# Municipios: 28079 Madrid (MD), 08019 Barcelona (CT), 41091 Sevilla (AN). Festivos locales NO cargados.
+# suspensiones: intervalos [desde, hasta] en que el plazo no corre (el llamante decide si el día de la
+# papeleta cuenta; en G05 se cuenta, que es lo prudente).
+casos:
+  - {id: G01, plazo: SOC_DESPIDO_CADUCIDAD, inicio: 2026-03-27, ine: "28079", limite: 2026-04-28, nota: "Semana Santa MD (2 y 3-abr)"}
+  - {id: G02, plazo: SOC_DESPIDO_CADUCIDAD, inicio: 2026-03-27, ine: "08019", limite: 2026-04-28, nota: "CT: 3 y 6-abr festivos, 2-abr hábil"}
+  - {id: G03, plazo: SOC_DESPIDO_CADUCIDAD, inicio: 2026-07-24, ine: "28079", limite: 2026-08-21, nota: "agosto hábil (art. 43.4 LRJS)"}
+  - {id: G04, plazo: SOC_DESPIDO_CADUCIDAD, inicio: 2026-12-11, ine: "28079", limite: 2027-01-12, aviso: "2027", nota: "24 y 31-dic contados como hábiles (dudosos); 2027 sin calendario: 6-ene contado hábil"}
+  - {id: G05, plazo: SOC_DESPIDO_CADUCIDAD, inicio: 2026-03-02, ine: "28079", suspensiones: [[2026-03-11, 2026-03-20]], limite: 2026-04-13, nota: "papeleta el 10-mar (cuenta), conciliación el 20-mar"}
+  - {id: G06, plazo: CIV_CONTESTACION_VERBAL_10H, inicio: 2026-07-24, ine: "28079", limite: 2026-09-07, gracia: 2026-09-08, nota: "agosto inhábil procesal"}
+  - {id: G07, plazo: CIV_CONTESTACION_ORDINARIO_20H, inicio: 2026-11-20, ine: "28079", limite: 2026-12-22, gracia: 2026-12-23, nota: "7 y 8-dic festivos MD"}
+  - {id: G08, plazo: CIV_APELACION_20H, inicio: 2026-06-30, ine: "08019", limite: 2026-07-28, gracia: 2026-07-29}
+  - {id: G09, plazo: CIV_APELACION_20H, inicio: 2026-07-15, ine: "28079", limite: 2026-09-10, gracia: 2026-09-11, nota: "agosto inhábil"}
+  - {id: G10, plazo: CIV_OPOSICION_MONITORIO_20H, inicio: 2026-03-27, ine: "08019", limite: 2026-04-28, gracia: 2026-04-29}
+  - {id: G11, plazo: CIV_CONTESTACION_VERBAL_10H, inicio: 2026-04-24, ine: "28079", limite: 2026-05-11, gracia: 2026-05-12, nota: "1-may festivo; 15-may (San Isidro, local) no cargado"}
+  - {id: G12, plazo: ADM_ALEGACIONES_10H, inicio: 2026-04-01, ine: "28079", limite: 2026-04-17}
+  - {id: G13, plazo: ADM_ALEGACIONES_10H, inicio: 2026-07-31, ine: "41091", limite: 2026-08-14, nota: "agosto hábil en vía administrativa"}
+  - {id: G14, plazo: ADM_ALEGACIONES_10H, inicio: 2026-12-16, ine: "28079", limite: 2026-12-31, nota: "24 y 31-dic hábiles en vía administrativa"}
+  - {id: G15, plazo: ADM_REPOSICION_1M, inicio: 2026-01-31, ine: "08019", limite: 2026-03-02, nota: "28-feb sábado -> lunes"}
+  - {id: G16, plazo: ADM_REPOSICION_1M, inicio: 2026-03-15, ine: "28079", limite: 2026-04-15}
+  - {id: G17, plazo: ADM_ALZADA_1M, inicio: 2026-02-28, ine: "41091", limite: 2026-03-30, nota: "28-mar sábado"}
+  - {id: G18, plazo: ADM_REPOSICION_1M, inicio: 2026-11-07, ine: "28079", limite: 2026-12-09, nota: "7 y 8-dic festivos MD"}
+  - {id: G19, plazo: ADM_TRAFICO_ALEGACIONES_20N, inicio: 2026-11-30, limite: 2026-12-21, nota: "sin municipio; 20-dic domingo"}
+  - {id: G20, plazo: ADM_TRAFICO_ALEGACIONES_20N, inicio: 2026-07-27, ine: "28079", limite: 2026-08-17}
+  - {id: G21, plazo: ADM_TRAFICO_ALEGACIONES_20N, inicio: 2026-03-14, ine: "28079", limite: 2026-04-06}
+  - {id: G22, plazo: ADM_TRAFICO_ALEGACIONES_20N, inicio: 2026-03-14, ine: "08019", limite: 2026-04-07, nota: "CT: 6-abr festivo"}
+  - {id: G23, plazo: CA_RECURSO_2M, inicio: 2026-06-15, ine: "28079", limite: 2026-09-15, gracia: 2026-09-16, nota: "agosto no computa"}
+  - {id: G24, plazo: CA_RECURSO_2M, inicio: 2026-04-10, ine: "28079", limite: 2026-06-10, gracia: 2026-06-11}
+  - {id: G25, plazo: CA_RECURSO_2M, inicio: 2026-07-10, ine: "28079", limite: 2026-10-13, gracia: 2026-10-14, nota: "10-oct sábado, 12-oct festivo"}
+  - {id: G26, plazo: CIV_EXTRACONTRACTUAL_1A, inicio: 2026-02-10, limite: 2027-02-10}
+  - {id: G27, plazo: CIV_EXTRACONTRACTUAL_1A, inicio: 2026-02-10, foral: CT, limite: 2029-02-10, nota: "art. 121-21 CCCat"}
+  - {id: G28, plazo: CIV_CONTRACTUAL_5A, inicio: 2026-05-20, limite: 2031-05-20}
+  - {id: G29, plazo: CIV_CONTRACTUAL_5A, inicio: 2026-05-20, foral: CT, limite: 2036-05-20}
+  - {id: G30, plazo: SOC_CANTIDAD_1A, inicio: 2026-02-28, limite: 2027-02-28}
+  - {id: G31, plazo: CIV_LPH_IMPUGNA_3M, inicio: 2026-11-30, limite: 2027-02-28, nota: "febrero sin día 30"}
+  - {id: G32, plazo: CIV_FIANZA_DEVOLUCION_1M, inicio: 2026-01-31, limite: 2026-02-28}
+  - {id: G33, plazo: SOC_SANCION_20H, inicio: 2026-11-27, ine: "28079", limite: 2026-12-30}
+  - {id: G34, plazo: SOC_VACACIONES_20H, inicio: 2026-06-19, ine: "08019", limite: 2026-07-20, nota: "24-jun festivo CT"}
+  - {id: G35, plazo: SOC_DESPIDO_CADUCIDAD, inicio: 2026-02-20, ine: "41091", limite: 2026-03-20}
+  - {id: G36, plazo: CIV_CONTESTACION_VERBAL_10H, inicio: 2026-12-18, ine: "28079", limite: 2027-01-07, gracia: 2027-01-08, aviso: "2027", nota: "2027 sin calendario: 6-ene contado hábil (cómputo prudente)"}

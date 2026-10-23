@@ -88,9 +88,7 @@ def make_worker(tmp_path, claude_fixture):
 async def _collect(worker, prompt="hola", system="sistema", timeout_s=30):
     items = []
     req = LLMRequest(system=system, prompt=prompt, effort="low")
-    async for item in worker.stream(
-        alias="claude_haiku", cli_model="haiku", request=req, timeout_s=timeout_s
-    ):
+    async for item in worker.stream(alias="claude_haiku", cli_model="haiku", request=req, timeout_s=timeout_s):
         items.append(item)
     return items
 

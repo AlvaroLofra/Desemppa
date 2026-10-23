@@ -1,0 +1,13 @@
+{
+  "id": "SYN-002",
+  "origen": "sintetico",
+  "nota": "Caso SINTÉTICO para probar el arnés.",
+  "consulta": "Trabajo como camarero en Sevilla desde hace tres años. El viernes 20 de febrero de 2026 me entregaron una carta de despido disciplinario por bajo rendimiento, sin concretar hechos ni fechas. Quiero saber si puedo reclamar y hasta cuándo.",
+  "municipio_ine": "41091",
+  "aclaraciones": [{"pregunta": "fecha", "respuesta": "20 de febrero de 2026, Sevilla"}],
+  "esperado": {
+    "estimacion_principal": "DEFENSA",
+    "articulos_gold": ["BOE-A-2015-11430:a55"],
+    "doctrina": "La carta de despido debe expresar los hechos que lo motivan y su fecha de efectos; una carta genérica puede llevar a la improcedencia."
+  }
+}

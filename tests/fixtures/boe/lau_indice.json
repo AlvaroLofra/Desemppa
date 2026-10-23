@@ -1,0 +1,552 @@
+{
+    "status": {
+        "code": "200",
+        "text": "ok"
+    },
+    "data": [
+        {
+            "bloque": [
+                {
+                    "id": "preambulo",
+                    "titulo": "",
+                    "fecha_actualizacion": "19941125",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/preambulo"
+                },
+                {
+                    "id": "ti",
+                    "titulo": "T\u00cdTULO I",
+                    "fecha_actualizacion": "19941125",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/ti"
+                },
+                {
+                    "id": "a1",
+                    "titulo": "Art\u00edculo 1",
+                    "fecha_actualizacion": "19941125",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a1"
+                },
+                {
+                    "id": "a2",
+                    "titulo": "Art\u00edculo 2",
+                    "fecha_actualizacion": "20261007",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a2"
+                },
+                {
+                    "id": "a3",
+                    "titulo": "Art\u00edculo 3",
+                    "fecha_actualizacion": "20261007",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a3"
+                },
+                {
+                    "id": "a4",
+                    "titulo": "Art\u00edculo 4",
+                    "fecha_actualizacion": "20261007",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a4"
+                },
+                {
+                    "id": "a5",
+                    "titulo": "Art\u00edculo 5",
+                    "fecha_actualizacion": "20261007",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a5"
+                },
+                {
+                    "id": "tii",
+                    "titulo": "T\u00cdTULO II",
+                    "fecha_actualizacion": "19941125",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/tii"
+                },
+                {
+                    "id": "ci",
+                    "titulo": "CAP\u00cdTULO I",
+                    "fecha_actualizacion": "19941125",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/ci"
+                },
+                {
+                    "id": "a6",
+                    "titulo": "Art\u00edculo 6",
+                    "fecha_actualizacion": "19941125",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a6"
+                },
+                {
+                    "id": "a7",
+                    "titulo": "Art\u00edculo 7",
+                    "fecha_actualizacion": "20261007",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a7"
+                },
+                {
+                    "id": "a8",
+                    "titulo": "Art\u00edculo 8",
+                    "fecha_actualizacion": "19941125",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a8"
+                },
+                {
+                    "id": "cii",
+                    "titulo": "CAP\u00cdTULO II",
+                    "fecha_actualizacion": "19941125",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/cii"
+                },
+                {
+                    "id": "a9",
+                    "titulo": "Art\u00edculo 9",
+                    "fecha_actualizacion": "20261007",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a9"
+                },
+                {
+                    "id": "a9-2",
+                    "titulo": "Art\u00edculo 9 bis",
+                    "fecha_actualizacion": "20261007",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a9-2"
+                },
+                {
+                    "id": "a10",
+                    "titulo": "Art\u00edculo 10",
+                    "fecha_actualizacion": "20261007",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a10"
+                },
+                {
+                    "id": "a11",
+                    "titulo": "Art\u00edculo 11",
+                    "fecha_actualizacion": "20261007",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a11"
+                },
+                {
+                    "id": "a12",
+                    "titulo": "Art\u00edculo 12",
+                    "fecha_actualizacion": "19941125",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a12"
+                },
+                {
+                    "id": "a13",
+                    "titulo": "Art\u00edculo 13",
+                    "fecha_actualizacion": "20190305",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a13"
+                },
+                {
+                    "id": "a14",
+                    "titulo": "Art\u00edculo 14",
+                    "fecha_actualizacion": "20190305",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a14"
+                },
+                {
+                    "id": "a15",
+                    "titulo": "Art\u00edculo 15",
+                    "fecha_actualizacion": "20130605",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a15"
+                },
+                {
+                    "id": "a16",
+                    "titulo": "Art\u00edculo 16",
+                    "fecha_actualizacion": "20190305",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a16"
+                },
+                {
+                    "id": "ciii",
+                    "titulo": "CAP\u00cdTULO III",
+                    "fecha_actualizacion": "19941125",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/ciii"
+                },
+                {
+                    "id": "a17",
+                    "titulo": "Art\u00edculo 17",
+                    "fecha_actualizacion": "20261007",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a17"
+                },
+                {
+                    "id": "a18",
+                    "titulo": "Art\u00edculo 18",
+                    "fecha_actualizacion": "20261007",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a18"
+                },
+                {
+                    "id": "a19",
+                    "titulo": "Art\u00edculo 19",
+                    "fecha_actualizacion": "20190305",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a19"
+                },
+                {
+                    "id": "a20",
+                    "titulo": "Art\u00edculo 20",
+                    "fecha_actualizacion": "20261007",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a20"
+                },
+                {
+                    "id": "civ",
+                    "titulo": "CAP\u00cdTULO IV",
+                    "fecha_actualizacion": "19941125",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/civ"
+                },
+                {
+                    "id": "a21",
+                    "titulo": "Art\u00edculo 21",
+                    "fecha_actualizacion": "20261007",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a21"
+                },
+                {
+                    "id": "a2-2",
+                    "titulo": "Art\u00edculo 21 bis",
+                    "fecha_actualizacion": "20261007",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a2-2"
+                },
+                {
+                    "id": "a22",
+                    "titulo": "Art\u00edculo 22",
+                    "fecha_actualizacion": "19941125",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a22"
+                },
+                {
+                    "id": "a23",
+                    "titulo": "Art\u00edculo 23",
+                    "fecha_actualizacion": "20130605",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a23"
+                },
+                {
+                    "id": "a24",
+                    "titulo": "Art\u00edculo 24",
+                    "fecha_actualizacion": "20130605",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a24"
+                },
+                {
+                    "id": "a25",
+                    "titulo": "Art\u00edculo 25",
+                    "fecha_actualizacion": "20261007",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a25"
+                },
+                {
+                    "id": "cv",
+                    "titulo": "CAP\u00cdTULO V",
+                    "fecha_actualizacion": "19941125",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/cv"
+                },
+                {
+                    "id": "a26",
+                    "titulo": "Art\u00edculo 26",
+                    "fecha_actualizacion": "19941125",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a26"
+                },
+                {
+                    "id": "a27",
+                    "titulo": "Art\u00edculo 27",
+                    "fecha_actualizacion": "20261007",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a27"
+                },
+                {
+                    "id": "a28",
+                    "titulo": "Art\u00edculo 28",
+                    "fecha_actualizacion": "19941125",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a28"
+                },
+                {
+                    "id": "tiii",
+                    "titulo": "T\u00cdTULO III",
+                    "fecha_actualizacion": "19941125",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/tiii"
+                },
+                {
+                    "id": "a29",
+                    "titulo": "Art\u00edculo 29",
+                    "fecha_actualizacion": "19941125",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a29"
+                },
+                {
+                    "id": "a30",
+                    "titulo": "Art\u00edculo 30",
+                    "fecha_actualizacion": "19941125",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a30"
+                },
+                {
+                    "id": "a31",
+                    "titulo": "Art\u00edculo 31",
+                    "fecha_actualizacion": "19941125",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a31"
+                },
+                {
+                    "id": "a32",
+                    "titulo": "Art\u00edculo 32",
+                    "fecha_actualizacion": "19941125",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a32"
+                },
+                {
+                    "id": "a33",
+                    "titulo": "Art\u00edculo 33",
+                    "fecha_actualizacion": "19941125",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a33"
+                },
+                {
+                    "id": "a34",
+                    "titulo": "Art\u00edculo 34",
+                    "fecha_actualizacion": "19941125",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a34"
+                },
+                {
+                    "id": "a35",
+                    "titulo": "Art\u00edculo 35",
+                    "fecha_actualizacion": "20130605",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a35"
+                },
+                {
+                    "id": "tiv",
+                    "titulo": "T\u00cdTULO IV",
+                    "fecha_actualizacion": "19941125",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/tiv"
+                },
+                {
+                    "id": "a36",
+                    "titulo": "Art\u00edculo 36",
+                    "fecha_actualizacion": "20261007",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a36"
+                },
+                {
+                    "id": "a37",
+                    "titulo": "Art\u00edculo 37",
+                    "fecha_actualizacion": "20261007",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a37"
+                },
+                {
+                    "id": "tv",
+                    "titulo": "T\u00cdTULO V",
+                    "fecha_actualizacion": "20261007",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/tv"
+                },
+                {
+                    "id": "a38",
+                    "titulo": "Art\u00edculo 38",
+                    "fecha_actualizacion": "20261007",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a38"
+                },
+                {
+                    "id": "a39",
+                    "titulo": "Art\u00edculo 39",
+                    "fecha_actualizacion": "20261007",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a39"
+                },
+                {
+                    "id": "a40",
+                    "titulo": "Art\u00edculo 40",
+                    "fecha_actualizacion": "20261007",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a40"
+                },
+                {
+                    "id": "a4-2",
+                    "titulo": "Art\u00edculo 41",
+                    "fecha_actualizacion": "20261007",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a4-2"
+                },
+                {
+                    "id": "a4-3",
+                    "titulo": "Art\u00edculo 42",
+                    "fecha_actualizacion": "20261007",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a4-3"
+                },
+                {
+                    "id": "a4-4",
+                    "titulo": "Art\u00edculo 43",
+                    "fecha_actualizacion": "20261007",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a4-4"
+                },
+                {
+                    "id": "a4-5",
+                    "titulo": "Art\u00edculo 44",
+                    "fecha_actualizacion": "20261007",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a4-5"
+                },
+                {
+                    "id": "a4-6",
+                    "titulo": "Art\u00edculo 45",
+                    "fecha_actualizacion": "20261007",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a4-6"
+                },
+                {
+                    "id": "a4-7",
+                    "titulo": "Art\u00edculo 46",
+                    "fecha_actualizacion": "20261007",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a4-7"
+                },
+                {
+                    "id": "a4-8",
+                    "titulo": "Art\u00edculo 47",
+                    "fecha_actualizacion": "20261007",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a4-8"
+                },
+                {
+                    "id": "a4-9",
+                    "titulo": "Art\u00edculo 48",
+                    "fecha_actualizacion": "20261007",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a4-9"
+                },
+                {
+                    "id": "a4-10",
+                    "titulo": "Art\u00edculo 49",
+                    "fecha_actualizacion": "20261007",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a4-10"
+                },
+                {
+                    "id": "a5-2",
+                    "titulo": "Art\u00edculo 50",
+                    "fecha_actualizacion": "20261007",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a5-2"
+                },
+                {
+                    "id": "a5-3",
+                    "titulo": "Art\u00edculo 51",
+                    "fecha_actualizacion": "20261007",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/a5-3"
+                },
+                {
+                    "id": "daprimera",
+                    "titulo": "Disposici\u00f3n adicional primera",
+                    "fecha_actualizacion": "20150331",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/daprimera"
+                },
+                {
+                    "id": "dasegunda",
+                    "titulo": "Disposici\u00f3n adicional segunda",
+                    "fecha_actualizacion": "19941125",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/dasegunda"
+                },
+                {
+                    "id": "datercera",
+                    "titulo": "Disposici\u00f3n adicional tercera",
+                    "fecha_actualizacion": "20190305",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/datercera"
+                },
+                {
+                    "id": "dacuaa",
+                    "titulo": "Disposici\u00f3n adicional cuarta",
+                    "fecha_actualizacion": "19941125",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/dacuaa"
+                },
+                {
+                    "id": "daquinta",
+                    "titulo": "Disposici\u00f3n adicional quinta",
+                    "fecha_actualizacion": "19981231",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/daquinta"
+                },
+                {
+                    "id": "dasexta",
+                    "titulo": "Disposici\u00f3n adicional sexta",
+                    "fecha_actualizacion": "19941125",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/dasexta"
+                },
+                {
+                    "id": "daseptima",
+                    "titulo": "Disposici\u00f3n adicional s\u00e9ptima",
+                    "fecha_actualizacion": "19941125",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/daseptima"
+                },
+                {
+                    "id": "daoctava",
+                    "titulo": "Disposici\u00f3n adicional octava",
+                    "fecha_actualizacion": "19941125",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/daoctava"
+                },
+                {
+                    "id": "danovena",
+                    "titulo": "Disposici\u00f3n adicional novena",
+                    "fecha_actualizacion": "19941125",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/danovena"
+                },
+                {
+                    "id": "dadecima",
+                    "titulo": "Disposici\u00f3n adicional d\u00e9cima",
+                    "fecha_actualizacion": "19941125",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/dadecima"
+                },
+                {
+                    "id": "da",
+                    "titulo": "Disposici\u00f3n adicional und\u00e9cima",
+                    "fecha_actualizacion": "20230525",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/da"
+                },
+                {
+                    "id": "da-2",
+                    "titulo": "Disposici\u00f3n adicional duod\u00e9cima",
+                    "fecha_actualizacion": "20261007",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/da-2"
+                },
+                {
+                    "id": "dtprimera",
+                    "titulo": "Disposici\u00f3n transitoria primera",
+                    "fecha_actualizacion": "19941125",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/dtprimera"
+                },
+                {
+                    "id": "dtsegunda",
+                    "titulo": "Disposici\u00f3n transitoria segunda",
+                    "fecha_actualizacion": "19941125",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/dtsegunda"
+                },
+                {
+                    "id": "dttercera",
+                    "titulo": "Disposici\u00f3n transitoria tercera",
+                    "fecha_actualizacion": "19991230",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/dttercera"
+                },
+                {
+                    "id": "dtcuaa",
+                    "titulo": "Disposici\u00f3n transitoria cuarta",
+                    "fecha_actualizacion": "19941125",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/dtcuaa"
+                },
+                {
+                    "id": "dtquinta",
+                    "titulo": "Disposici\u00f3n transitoria quinta",
+                    "fecha_actualizacion": "19941125",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/dtquinta"
+                },
+                {
+                    "id": "dtsexta",
+                    "titulo": "Disposici\u00f3n transitoria sexta",
+                    "fecha_actualizacion": "19941125",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/dtsexta"
+                },
+                {
+                    "id": "dt",
+                    "titulo": "Disposici\u00f3n transitoria s\u00e9ptima",
+                    "fecha_actualizacion": "20230525",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/dt"
+                },
+                {
+                    "id": "dt-2",
+                    "titulo": "Disposici\u00f3n transitoria octava",
+                    "fecha_actualizacion": "20261007",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/dt-2"
+                },
+                {
+                    "id": "ddunica",
+                    "titulo": "Disposici\u00f3n derogatoria \u00fanica",
+                    "fecha_actualizacion": "19941125",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/ddunica"
+                },
+                {
+                    "id": "dfprimera",
+                    "titulo": "Disposici\u00f3n final primera",
+                    "fecha_actualizacion": "19941125",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/dfprimera"
+                },
+                {
+                    "id": "dfsegunda",
+                    "titulo": "Disposici\u00f3n final segunda",
+                    "fecha_actualizacion": "19941125",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/dfsegunda"
+                },
+                {
+                    "id": "dftercera",
+                    "titulo": "Disposici\u00f3n final tercera",
+                    "fecha_actualizacion": "19941125",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/dftercera"
+                },
+                {
+                    "id": "dfcuaa",
+                    "titulo": "Disposici\u00f3n final cuarta",
+                    "fecha_actualizacion": "19941125",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/dfcuaa"
+                },
+                {
+                    "id": "firma",
+                    "titulo": "",
+                    "fecha_actualizacion": "19941125",
+                    "url": "https:\/\/www.boe.es\/datosabiertos\/api\/legislacion-consolidada\/id\/BOE-A-1994-26003\/texto\/bloque\/firma"
+                }
+            ]
+        }
+    ]
+}

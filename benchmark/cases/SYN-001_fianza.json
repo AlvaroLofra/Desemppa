@@ -1,0 +1,13 @@
+{
+  "id": "SYN-001",
+  "origen": "sintetico",
+  "nota": "Caso SINTÉTICO para probar el arnés. Los 25 casos reales (15 TS + 10 AP) se construyen con benchmark/purge.py a partir de sentencias importadas.",
+  "consulta": "Alquilé un piso en Madrid durante cuatro años. Entregué las llaves el 1 de junio de 2026 y el casero no me devuelve la fianza de 900 euros porque dice que tiene que pintar toda la vivienda. Las paredes solo tienen el desgaste normal del uso.",
+  "municipio_ine": "28079",
+  "aclaraciones": [{"pregunta": "entrega de llaves", "respuesta": "El 1 de junio de 2026, en Madrid"}],
+  "esperado": {
+    "estimacion_principal": "DEFENSA",
+    "articulos_gold": ["BOE-A-1994-26003:a36"],
+    "doctrina": "El desgaste por el uso ordinario no es imputable al arrendatario; procede devolver la fianza con interés legal pasado un mes desde la entrega de llaves."
+  }
+}

@@ -1,0 +1,166 @@
+# Catálogo cerrado de submaterias (dossier §4.1). El triaje SOLO puede elegir claves de aquí; las normas
+# y plazos los añade el código de forma determinista. PENDIENTE DE VALIDACIÓN JURÍDICA.
+# normas: alias de config/catalogo_normas.json + artículos (número tal como aparece en la ley).
+submaterias:
+  CIV_LAU_FIANZA:
+    descripcion: "El casero no devuelve la fianza (por pintar, limpieza, desperfectos)"
+    jurisdiccion: civil
+    procedimiento: verbal
+    normas: [{norma: LAU, articulos: ["36", "21", "27"]}, {norma: CC, articulos: ["1561", "1562", "1563", "1564"]}]
+    campos_criticos: ["fecha de entrega de llaves", "importe de la fianza", "estado de la vivienda a la entrada (fotos o inventario)"]
+    plazos: [CIV_FIANZA_DEVOLUCION_1M, CIV_CONTRACTUAL_5A]
+    terminos_cendoj: ["devolución fianza", "desgaste uso ordinario", "pintura vivienda arrendada"]
+    cji: true
+  SOC_DESPIDO_IT:
+    descripcion: "Me despiden estando de baja médica"
+    jurisdiccion: social
+    procedimiento: despido
+    normas: [{norma: ET, articulos: ["55", "56", "54"]}, {norma: L15_2022, articulos: ["2", "26"]}, {norma: LRJS, articulos: ["103", "108"]}]
+    campos_criticos: ["fecha de notificación del despido", "¿estabas de baja al ser despedido?", "antigüedad", "salario bruto"]
+    plazos: [SOC_DESPIDO_CADUCIDAD]
+    terminos_cendoj: ["despido incapacidad temporal nulidad", "Ley 15/2022 enfermedad discriminación"]
+    doctrina_cambiante: true
+  SOC_DESPIDO_DISC:
+    descripcion: "Me han despedido (disciplinario u objetivo) y no estoy de acuerdo"
+    jurisdiccion: social
+    procedimiento: despido
+    normas: [{norma: ET, articulos: ["54", "55", "56", "53"]}, {norma: LRJS, articulos: ["103", "63", "65"]}]
+    campos_criticos: ["fecha de notificación del despido", "motivos de la carta", "antigüedad", "salario bruto"]
+    plazos: [SOC_DESPIDO_CADUCIDAD]
+    terminos_cendoj: ["despido disciplinario improcedente", "carta de despido insuficiente"]
+  SOC_FALSO_AUTONOMO:
+    descripcion: "Trabajo como autónomo pero para una sola empresa, con su horario y medios"
+    jurisdiccion: social
+    procedimiento: cantidad
+    normas: [{norma: ET, articulos: ["1", "8"]}, {norma: LETA, articulos: ["1", "11"]}]
+    campos_criticos: ["¿quién fija el horario?", "¿con qué medios trabajas?", "% de facturación a ese cliente", "¿te han dado de baja o despedido?"]
+    plazos: [SOC_DESPIDO_CADUCIDAD, SOC_CANTIDAD_1A]
+    terminos_cendoj: ["laboralidad falso autónomo dependencia ajenidad"]
+    ambigua: true
+  SOC_RECLAMACION_CANTIDAD:
+    descripcion: "Me deben nóminas, horas extra o finiquito"
+    jurisdiccion: social
+    procedimiento: cantidad
+    normas: [{norma: ET, articulos: ["26", "29", "35", "49"]}]
+    campos_criticos: ["meses o conceptos adeudados", "convenio colectivo aplicable", "categoría profesional"]
+    plazos: [SOC_CANTIDAD_1A]
+    terminos_cendoj: ["reclamación de cantidad salarios adeudados"]
+  SOC_SANCION:
+    descripcion: "Me han sancionado en el trabajo (suspensión de empleo y sueldo, amonestación)"
+    jurisdiccion: social
+    procedimiento: sancion
+    normas: [{norma: ET, articulos: ["58"]}, {norma: LRJS, articulos: ["114", "115"]}]
+    campos_criticos: ["fecha de comunicación de la sanción", "falta imputada", "convenio colectivo aplicable"]
+    plazos: [SOC_SANCION_20H]
+    terminos_cendoj: ["impugnación sanción falta grave convenio"]
+  SOC_VACACIONES:
+    descripcion: "La empresa no me da las vacaciones o me las cambia"
+    jurisdiccion: social
+    procedimiento: vacaciones
+    normas: [{norma: ET, articulos: ["38"]}, {norma: LRJS, articulos: ["125", "126"]}]
+    campos_criticos: ["fecha en que conociste el calendario de vacaciones"]
+    plazos: [SOC_VACACIONES_20H]
+    terminos_cendoj: ["vacaciones fecha disfrute"]
+  CIV_LAU_PRORROGA:
+    descripcion: "Me suben el alquiler o no me renuevan el contrato"
+    jurisdiccion: civil
+    procedimiento: verbal
+    normas: [{norma: LAU, articulos: ["9", "10", "18"]}, {norma: LVIVIENDA, articulos: ["17"]}]
+    campos_criticos: ["fecha del contrato", "¿es tu vivienda habitual?", "¿el casero es persona física o empresa?", "municipio"]
+    plazos: []
+    terminos_cendoj: ["prórroga obligatoria arrendamiento vivienda"]
+  CIV_DANOS_VECINO:
+    descripcion: "Un vecino me ha causado daños (inundación, filtraciones)"
+    jurisdiccion: civil
+    procedimiento: verbal
+    normas: [{norma: CC, articulos: ["1902", "1907", "1910"]}, {norma: LPH, articulos: ["9"]}]
+    campos_criticos: ["fecha del daño", "origen (elemento privativo o común)", "importe de la reparación"]
+    plazos: [CIV_EXTRACONTRACTUAL_1A]
+    terminos_cendoj: ["daños por agua vecino responsabilidad extracontractual"]
+  CIV_LPH_IMPUGNACION:
+    descripcion: "La comunidad de propietarios aprobó un acuerdo o derrama con el que no estoy de acuerdo"
+    jurisdiccion: civil
+    procedimiento: ordinario
+    normas: [{norma: LPH, articulos: ["17", "18"]}]
+    campos_criticos: ["fecha del acuerdo o de su notificación", "¿estás al corriente de pago?", "¿es contrario a la ley o los estatutos?"]
+    plazos: [CIV_LPH_IMPUGNA_3M, CIV_LPH_IMPUGNA_1A]
+    terminos_cendoj: ["impugnación acuerdo junta propietarios"]
+  CIV_CONSUMO_BANCARIO:
+    descripcion: "El banco me cobra comisiones abusivas o tengo cláusula suelo/gastos hipotecarios"
+    jurisdiccion: civil
+    procedimiento: ordinario
+    normas: [{norma: TRLGDCU, articulos: ["82", "83"]}, {norma: LCGC, articulos: ["5", "7", "8"]}, {norma: LCCI, articulos: ["14"]}]
+    campos_criticos: ["tipo de producto", "fecha de firma", "¿has reclamado antes al banco?"]
+    plazos: [CIV_CONTRACTUAL_5A]
+    terminos_cendoj: ["cláusula abusiva comisiones consumidor"]
+    doctrina_cambiante: true
+  CIV_CONSUMO_GARANTIA:
+    descripcion: "Compré algo defectuoso y no me lo reparan ni cambian"
+    jurisdiccion: civil
+    procedimiento: verbal
+    normas: [{norma: TRLGDCU, articulos: ["114", "117", "118", "119", "120"]}]
+    campos_criticos: ["fecha de compra o entrega", "¿se lo compraste a un comercio o a un particular?"]
+    plazos: [CIV_CONTRACTUAL_5A]
+    terminos_cendoj: ["falta de conformidad garantía consumidor"]
+  ADM_TRAFICO_ORA:
+    descripcion: "Multa de tráfico o de zona azul/ORA"
+    jurisdiccion: administrativa_previa
+    procedimiento: multa_trafico
+    normas: [{norma: LSV, articulos: ["93", "94", "95"]}, {norma: LPAC, articulos: ["30", "124"]}]
+    campos_criticos: ["fecha de notificación", "municipio", "¿te la entregaron en mano o por correo?", "¿ya está pagada?"]
+    plazos: [ADM_TRAFICO_ALEGACIONES_20N, ADM_REPOSICION_1M]
+    terminos_cendoj: ["sanción tráfico estacionamiento regulado notificación"]
+    competencia_local: true
+  ADM_SANCION_MUNICIPAL:
+    descripcion: "Multa municipal por ordenanza (ruidos, botellón, terrazas)"
+    jurisdiccion: administrativa_previa
+    procedimiento: sancion_municipal
+    normas: [{norma: LPAC, articulos: ["30", "82", "89", "124"]}, {norma: LRJSP, articulos: ["25", "26", "27", "28"]}]
+    campos_criticos: ["fecha de notificación", "municipio", "fase (inicio o resolución)"]
+    plazos: [ADM_ALEGACIONES_10H, ADM_REPOSICION_1M]
+    terminos_cendoj: ["sanción ordenanza municipal tipicidad"]
+    competencia_local: true
+  ADM_TRIBUTARIO_LIQUIDACION:
+    descripcion: "Hacienda me ha enviado una liquidación o paralela"
+    jurisdiccion: administrativa_previa
+    procedimiento: reposicion
+    normas: [{norma: LGT, articulos: ["101", "223", "235"]}]
+    campos_criticos: ["fecha de notificación", "territorio (común, País Vasco o Navarra)"]
+    plazos: [ADM_REPOSICION_1M]
+    terminos_cendoj: ["liquidación provisional comprobación limitada"]
+  ADM_PLUSVALIA:
+    descripcion: "Me han cobrado la plusvalía municipal al vender o heredar"
+    jurisdiccion: administrativa_previa
+    procedimiento: reposicion
+    normas: [{norma: TRLRHL, articulos: ["104", "107", "110"]}]
+    campos_criticos: ["fechas y valores de compra y venta", "¿autoliquidación o liquidación del ayuntamiento?"]
+    plazos: [ADM_REPOSICION_1M]
+    terminos_cendoj: ["IIVTNU inexistencia incremento valor"]
+    doctrina_cambiante: true
+  CIV_FAMILIA_ALIMENTOS:
+    descripcion: "Mi ex no paga la pensión de alimentos de los hijos"
+    jurisdiccion: civil
+    procedimiento: ejecucion
+    normas: [{norma: LEC, articulos: ["776", "517", "549"]}, {norma: CC, articulos: ["142", "146"]}]
+    campos_criticos: ["resolución que fija la pensión", "meses impagados"]
+    plazos: [CIV_EJECUCION_5A]
+    terminos_cendoj: ["ejecución pensión alimentos impago"]
+    foral_relevante: true
+  CIV_CONSUMO_AEREO:
+    descripcion: "La aerolínea canceló o retrasó mi vuelo"
+    jurisdiccion: civil
+    procedimiento: verbal
+    normas: [{norma: TRLGDCU, articulos: ["21"]}]
+    campos_criticos: ["número de vuelo y fecha", "horas de retraso o aviso de cancelación", "causa alegada"]
+    plazos: [CIV_CONTRACTUAL_5A]
+    terminos_cendoj: ["Reglamento 261/2004 compensación cancelación"]
+    doctrina_cambiante: true
+    notas: "El Reglamento (CE) 261/2004 no está en el BOE: su texto no se cita literalmente."
+  FUERA_PENAL:
+    descripcion: "Delitos, denuncias penales, impago de pensiones como delito"
+    jurisdiccion: penal
+    procedimiento: penal
+    normas: []
+    campos_criticos: []
+    plazos: []
+    fuera_alcance: true

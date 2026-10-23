@@ -66,8 +66,8 @@ def test_candidates_chain(build):
         "claude_opus",
         "claude_sonnet",
         "gemini_flash",
-        "gemini_flash_alt",
-        "gemini_flash_stable",
+        "gemini_flash_lite",
+        "gemini_flash_38",
     ]
 
 
@@ -115,12 +115,12 @@ async def test_rate_limited_falls_back_to_next_flash(build):
     router, g, *_ = build(
         gemini={
             "gemini_flash": RateLimited("503", provider="gemini"),
-            "gemini_flash_alt": RateLimited("503", provider="gemini"),
+            "gemini_flash_lite": RateLimited("503", provider="gemini"),
         }
     )
     items = await _run(router, "eco", "triaje")
-    assert items[-1].alias == "gemini_flash_stable" and items[-1].degradado
-    assert [a for a, _ in g.calls] == ["gemini_flash", "gemini_flash_alt", "gemini_flash_stable"]
+    assert items[-1].alias == "gemini_flash_38" and items[-1].degradado
+    assert [a for a, _ in g.calls] == ["gemini_flash", "gemini_flash_lite", "gemini_flash_38"]
 
 
 async def test_not_authenticated_degrades(build):

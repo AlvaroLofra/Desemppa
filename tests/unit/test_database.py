@@ -10,6 +10,7 @@ def test_sqlite_wal_enabled(tmp_path):
 
 def test_migrations_idempotent(tmp_path):
     con = connect(tmp_path / "x.db")
-    assert migrate(con) == [1]
+    applied = migrate(con)
+    assert applied[:2] == [1, 2] and applied == sorted(applied)
     assert migrate(con) == []
-    assert con.execute("SELECT count(*) FROM schema_migrations").fetchone()[0] == 1
+    assert con.execute("SELECT count(*) FROM schema_migrations").fetchone()[0] == len(applied)

@@ -114,9 +114,7 @@ async def test_404_is_model_unavailable(catalog):
 
 
 async def test_thinking_level_rejected_falls_back_to_budget(catalog):
-    client, models = _client(
-        [_api_error(400, "thinking_level is not supported"), [_piece("ok")]], FakeClock()
-    )
+    client, models = _client([_api_error(400, "thinking_level is not supported"), [_piece("ok")]], FakeClock())
     await _collect(client, catalog, effort="medium")
     assert models.calls[1][2].thinking_config.thinking_budget == 8192
 
@@ -141,3 +139,40 @@ async def test_no_key_is_model_unavailable(catalog):
     assert not client.configured
     with pytest.raises(ModelUnavailable):
         await _collect(client, catalog)
+
+
+def test_quota_retry_seconds():
+    from core.gemini_client import quota_retry_seconds
+
+    assert quota_retry_seconds("Please retry in 7h42m39.33s.") == pytest.approx(27759.33)
+    assert quota_retry_seconds("{'retryDelay': '27759s'}") == 27759
+    assert quota_retry_seconds("Please retry in 12.5s") == 12.5
+    assert quota_retry_seconds("otra cosa") is None
+
+
+async def test_daily_quota_429_is_not_retried_and_model_is_skipped(catalog):
+    clock = FakeClock()
+    err = _api_error(429, "Quota exceeded for metric: free_tier_requests, limit: 20. Please retry in 7h42m39s.")
+    client, models = _client([err], clock)
+    with pytest.raises(RateLimited, match="cuota diaria"):
+        await _collect(client, catalog)
+    assert clock.sleeps == [] and len(models.calls) == 1
+    with pytest.raises(RateLimited, match="cuota diaria"):  # siguiente llamada: ni se intenta
+        await _collect(client, catalog)
+    assert len(models.calls) == 1
+
+
+async def test_timeout_raises_provider_timeout(catalog):
+    import asyncio
+
+    from core.errors import ProviderTimeout
+
+    class SlowModels:
+        async def generate_content_stream(self, **kw):
+            await asyncio.sleep(5)
+
+    client = GeminiClient(None, client=SimpleNamespace(aio=SimpleNamespace(models=SlowModels())))
+    spec = catalog.models["gemini_flash"].model_copy(update={"timeout_s": 0.05, "rpm": None})
+    req = LLMRequest(prompt="p")
+    with pytest.raises(ProviderTimeout):
+        [i async for i in client.stream(alias="gemini_flash", spec=spec, request=req)]

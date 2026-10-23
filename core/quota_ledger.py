@@ -34,8 +34,18 @@ class QuotaLedger:
                        input_tokens, output_tokens, coste_equivalente_usd, latencia_ms, ok, error_tipo)
                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                 (
-                    consulta_id, fase, rol, proveedor, modelo, effort, input_tokens, output_tokens,
-                    coste_equivalente_usd, latencia_ms, int(ok), error_tipo,
+                    consulta_id,
+                    fase,
+                    rol,
+                    proveedor,
+                    modelo,
+                    effort,
+                    input_tokens,
+                    output_tokens,
+                    coste_equivalente_usd,
+                    latencia_ms,
+                    int(ok),
+                    error_tipo,
                 ),
             )
 
@@ -53,6 +63,17 @@ class QuotaLedger:
             "output_tokens": row[2],
             "coste_equivalente_usd": round(row[3], 4),
         }
+
+    def last_call(self, proveedor: str) -> dict[str, Any] | None:
+        """Última llamada registrada del proveedor (para saber, p. ej., si el CLI de Claude tiene sesión)."""
+        row = self._con.execute(
+            """SELECT ok, error_tipo, creado_en, modelo FROM llm_calls_ledger WHERE proveedor = ?
+               ORDER BY id DESC LIMIT 1""",
+            (proveedor,),
+        ).fetchone()
+        if row is None:
+            return None
+        return {"ok": bool(row[0]), "error_tipo": row[1], "creado_en": row[2], "modelo": row[3]}
 
     def daily_count(self, modelo: str) -> int:
         """Llamadas a un modelo desde la medianoche UTC (los RPD de Gemini se reinician a diario)."""

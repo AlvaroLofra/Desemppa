@@ -14,9 +14,7 @@ from core.quota_ledger import QuotaLedger
 
 
 class GeminiBackend(Protocol):
-    def stream(
-        self, *, alias: str, spec: ModelSpec, request: LLMRequest
-    ) -> AsyncIterator[StreamChunk | LLMResult]: ...
+    def stream(self, *, alias: str, spec: ModelSpec, request: LLMRequest) -> AsyncIterator[StreamChunk | LLMResult]: ...
 
 
 class ClaudeBackend(Protocol):
@@ -62,15 +60,11 @@ class ModelRouter:
             pending.extend(self.catalog.models[current].fallbacks)
         return order
 
-    def _call(
-        self, alias: str, spec: ModelSpec, request: LLMRequest
-    ) -> AsyncIterator[StreamChunk | LLMResult]:
+    def _call(self, alias: str, spec: ModelSpec, request: LLMRequest) -> AsyncIterator[StreamChunk | LLMResult]:
         if spec.provider == "gemini":
             return self._gemini.stream(alias=alias, spec=spec, request=request)
         assert spec.cli_model is not None
-        return self._claude.stream(
-            alias=alias, cli_model=spec.cli_model, request=request, timeout_s=spec.timeout_s
-        )
+        return self._claude.stream(alias=alias, cli_model=spec.cli_model, request=request, timeout_s=spec.timeout_s)
 
     async def stream(
         self,
@@ -99,23 +93,32 @@ class ModelRouter:
                     if isinstance(item, LLMResult):
                         self._breaker.record_success(spec.provider)
                         self._ledger.record(
-                            consulta_id=consulta_id, fase=fase or role, rol=role, proveedor=spec.provider,
-                            modelo=item.model, effort=effort, input_tokens=item.usage.input_tokens,
+                            consulta_id=consulta_id,
+                            fase=fase or role,
+                            rol=role,
+                            proveedor=spec.provider,
+                            modelo=item.model,
+                            effort=effort,
+                            input_tokens=item.usage.input_tokens,
                             output_tokens=item.usage.output_tokens,
                             coste_equivalente_usd=item.coste_equivalente_usd,
-                            latencia_ms=item.latencia_ms, ok=True,
+                            latencia_ms=item.latencia_ms,
+                            ok=True,
                         )
-                        yield item.model_copy(
-                            update={"degradado": alias != primary, "avisos": avisos + item.avisos}
-                        )
+                        yield item.model_copy(update={"degradado": alias != primary, "avisos": avisos + item.avisos})
                         return
                     emitted = True
                     yield item
             except ProviderError as exc:
                 self._ledger.record(
-                    consulta_id=consulta_id, fase=fase or role, rol=role, proveedor=spec.provider,
-                    modelo=spec.model_id or spec.cli_model or alias, effort=effort,
-                    latencia_ms=int((time.monotonic() - started) * 1000), ok=False,
+                    consulta_id=consulta_id,
+                    fase=fase or role,
+                    rol=role,
+                    proveedor=spec.provider,
+                    modelo=spec.model_id or spec.cli_model or alias,
+                    effort=effort,
+                    latencia_ms=int((time.monotonic() - started) * 1000),
+                    ok=False,
                     error_tipo=type(exc).__name__,
                 )
                 if isinstance(exc, UsageLimitReached):
@@ -126,6 +129,4 @@ class ModelRouter:
                     raise
                 avisos.append(f"{alias} no disponible ({type(exc).__name__}); se degrada al siguiente modelo")
                 last_error = exc
-        raise last_error or ModelUnavailable(
-            f"ningún modelo disponible para {profile}/{role}: " + "; ".join(avisos)
-        )
+        raise last_error or ModelUnavailable(f"ningún modelo disponible para {profile}/{role}: " + "; ".join(avisos))

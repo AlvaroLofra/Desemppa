@@ -1,0 +1,27 @@
+# Casos golden de postulación (dossier §1.3.2). PENDIENTES DE VALIDACIÓN JURÍDICA.
+casos:
+  - {id: P01, caso: {jurisdiccion: civil, cuantia_eur: 2000.00}, abogado: false, procurador: false, bloquea: false}
+  - {id: P02, caso: {jurisdiccion: civil, cuantia_eur: 2000.01}, abogado: true, procurador: true, bloquea: true}
+  - {id: P03, caso: {jurisdiccion: civil, cuantia_eur: 900}, abogado: false, procurador: false, bloquea: false}
+  - {id: P04, caso: {jurisdiccion: civil, cuantia_eur: 0}, abogado: false, procurador: false, bloquea: false}
+  - {id: P05, caso: {jurisdiccion: civil, cuantia_eur: 15000}, abogado: true, procurador: true, bloquea: true}
+  - {id: P06, caso: {jurisdiccion: civil}, abogado: true, procurador: true, bloquea: true}
+  - {id: P07, caso: {jurisdiccion: civil, procedimiento: monitorio, fase: inicial, cuantia_eur: 50000}, abogado: false, procurador: false, bloquea: false}
+  - {id: P08, caso: {jurisdiccion: civil, procedimiento: monitorio, fase: inicial, cuantia_eur: 300}, abogado: false, procurador: false, bloquea: false}
+  - {id: P09, caso: {jurisdiccion: civil, procedimiento: monitorio, fase: instancia, cuantia_eur: 5000}, abogado: true, procurador: true, bloquea: true}
+  - {id: P10, caso: {jurisdiccion: civil, procedimiento: monitorio, fase: instancia, cuantia_eur: 1500}, abogado: false, procurador: false, bloquea: false}
+  - {id: P11, caso: {jurisdiccion: social, procedimiento: despido, cuantia_eur: 40000}, abogado: false, procurador: false, bloquea: false}
+  - {id: P12, caso: {jurisdiccion: social, procedimiento: cantidad, fase: instancia}, abogado: false, procurador: false, bloquea: false}
+  - {id: P13, caso: {jurisdiccion: social, procedimiento: despido, fase: recurso}, abogado: true, procurador: false, bloquea: true}
+  - {id: P14, caso: {jurisdiccion: social, procedimiento: sancion}, abogado: false, procurador: false, bloquea: false}
+  - {id: P15, caso: {jurisdiccion: administrativa_previa, procedimiento: reposicion}, abogado: false, procurador: false, bloquea: false}
+  - {id: P16, caso: {jurisdiccion: administrativa_previa, procedimiento: multa_trafico, cuantia_eur: 200}, abogado: false, procurador: false, bloquea: false}
+  - {id: P17, caso: {jurisdiccion: administrativa_previa, procedimiento: alzada, cuantia_eur: 90000}, abogado: false, procurador: false, bloquea: false}
+  - {id: P18, caso: {jurisdiccion: contencioso, cuantia_eur: 500}, abogado: true, procurador: false, bloquea: true}
+  - {id: P19, caso: {jurisdiccion: contencioso, funcionario_personal: true}, abogado: false, procurador: false, bloquea: false}
+  - {id: P20, caso: {jurisdiccion: contencioso, funcionario_personal: false, cuantia_eur: 30000}, abogado: true, procurador: false, bloquea: true}
+  - {id: P21, caso: {jurisdiccion: penal}, abogado: true, procurador: false, bloquea: true}
+  - {id: P22, caso: {jurisdiccion: fuera_alcance}, abogado: true, procurador: false, bloquea: true}
+  - {id: P23, caso: {jurisdiccion: civil, procedimiento: verbal, cuantia_eur: 1999.99}, abogado: false, procurador: false, bloquea: false}
+  - {id: P24, caso: {jurisdiccion: civil, procedimiento: verbal, fase: recurso, cuantia_eur: 1000}, abogado: false, procurador: false, bloquea: false, nota: "🔎 apelación de verbal ≤2.000: revisar con jurista"}
+  - {id: P25, caso: {jurisdiccion: civil, procedimiento: ordinario, cuantia_eur: 7000}, abogado: true, procurador: true, bloquea: true}

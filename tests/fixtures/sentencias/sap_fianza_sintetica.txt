@@ -1,0 +1,37 @@
+Roj: SAP M 9999/2024 - ECLI:ES:APM:2024:9999
+Id Cendoj: 28079370122024100999
+Órgano: Audiencia Provincial. Sección: 12
+Sede: Madrid
+Fecha: 14/03/2024
+Nº de Recurso: 123/2023
+Ponente: MAGISTRADA PONENTE DE PRUEBA
+Tipo de Resolución: Sentencia
+(TEXTO SINTÉTICO PARA TESTS — NO ES UNA SENTENCIA REAL)
+
+ANTECEDENTES DE HECHO
+
+PRIMERO.- La parte actora, arrendataria de una vivienda, entregó las llaves el 1 de junio de 2022 y reclamó la devolución de la fianza de 900 euros, que el arrendador retuvo alegando la necesidad de pintar la vivienda.
+
+SEGUNDO.- El Juzgado de Primera Instancia número 99 de Madrid dictó sentencia cuyo fallo estimaba íntegramente la demanda.
+
+TERCERO.- Contra dicha sentencia se interpuso recurso de apelación por la parte demandada.
+
+FUNDAMENTOS DE DERECHO
+
+PRIMERO.- El artículo 36.4 de la LAU dispone que el saldo de la fianza en metálico que deba ser restituido al arrendatario al final del arriendo devengará el interés legal transcurrido un mes desde la entrega de las llaves.
+
+SEGUNDO.- El deterioro derivado del uso ordinario de la vivienda, como la necesidad de repintar tras varios años de ocupación, no es imputable al arrendatario conforme al artículo 1561 del Código Civil, que exceptúa lo que hubiese perecido o se hubiera menoscabado por el tiempo.
+
+TERCERO.- No habiéndose acreditado daños distintos del desgaste normal, procede la devolución íntegra de la fianza.
+
+FALLO
+
+Desestimamos el recurso de apelación y confirmamos la sentencia recurrida, con imposición de costas a la parte apelante.
+
+VOTO PARTICULAR
+
+Que formula el magistrado discrepante. Entiendo que la pintura completa de la vivienda excede del desgaste ordinario y debió descontarse de la fianza.
+
+FALLO
+
+Estimaría parcialmente el recurso.
