@@ -1,5 +1,7 @@
 # Spike de entorno — Fase 0 (Windows)
 
+> Documento histórico (Fase 0–Sprint 5). Desde entonces `core/claude_worker.py` y `core/stream_json.py` se sustituyeron por `core/providers/` (adaptador CLI genérico y parsers) y los datos pasaron a `data/local/`. Configuración vigente: [proveedores_y_modelos.md](proveedores_y_modelos.md).
+
 Fecha: 2026-10-22 · Equipo: Windows 10 Pro 10.0.19045
 
 ## Versiones detectadas

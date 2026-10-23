@@ -7,10 +7,24 @@ el BOE o la jurisprudencia del corpus local y calcula los plazos con un motor de
 > Herramienta de información y apoyo a la autodefensa. **No es asesoramiento profesional.** Las reglas de
 > plazos y postulación están pendientes de validación por un profesional del derecho (ver `docs/`).
 
-Especificación completa: [docs/IURIS_IA_Dossier_Planificacion_v3.md](docs/IURIS_IA_Dossier_Planificacion_v3.md) ·
-Estado de la implementación: [docs/estado_implementacion.md](docs/estado_implementacion.md)
+## Documentación
+
+| Documento | Para qué |
+|---|---|
+| [docs/README.md](docs/README.md) | Índice y mapa del repositorio |
+| [docs/operacion.md](docs/operacion.md) | Arrancar, usar y diagnosticar problemas |
+| [docs/estado_implementacion.md](docs/estado_implementacion.md) | Qué está hecho y verificado |
+| [docs/hoja_de_ruta.md](docs/hoja_de_ruta.md) | Qué queda, cómo hacerlo y qué te toca a ti |
+| [docs/arquitectura.md](docs/arquitectura.md) | Cómo funciona por dentro |
+| [docs/guia_desarrollo.md](docs/guia_desarrollo.md) | Pautas, tests, convenciones y "cómo añadir X" |
+| [docs/api.md](docs/api.md) | API local REST + SSE |
+| [docs/proveedores_y_modelos.md](docs/proveedores_y_modelos.md) | Gemini, Claude, Antigravity, Codex: configuración y APIs |
+| [docs/datos_y_fuentes.md](docs/datos_y_fuentes.md) | BOE, CENDOJ, INE, convenios, festivos y base de datos |
 
 ## Arranque rápido (Windows)
+
+**Doble clic en `INICIAR_IURIS_IA.bat`** (migra datos antiguos, compila la interfaz si falta y abre el navegador).
+Detalle y alternativas en [docs/operacion.md](docs/operacion.md).
 
 Requisitos: Python 3.12 (vía `uv`), Node 18+ y al menos un proveedor de modelos. Los proveedores se declaran en
 `config/providers.toml` y se gestionan desde la página **Modelos** de la app:
@@ -54,27 +68,27 @@ Gemini 3.8) y la interfaz lo avisa.
 ## Desarrollo
 
 ```bash
+uv sync
+```
+
+```bash
 uv run pytest
+```
+
+```bash
+uv run pytest -m e2e
 ```
 
 ```bash
 uv run ruff check . && uv run mypy
 ```
 
-```bash
-cd web && npm run dev
-```
-
-Utilidades:
-- `uv run python scripts/verificar_catalogo.py` — comprueba contra el BOE que existen todos los artículos del catálogo.
-- `uv run python scripts/build_calendar_data.py festivos 2027 BOE-A-AAAA-NNNNN` — carga el calendario oficial de un año.
-- `uv run python -m benchmark.blind_judge --modo eco` — benchmark ciego (consume cuota).
-- `uv run python scripts/spike_claude_live.py --record` — prueba real del CLI de Claude.
+Pautas, capas de pruebas, "cómo añadir X" y checklist de terminado: [docs/guia_desarrollo.md](docs/guia_desarrollo.md).
 
 ## Privacidad
 
 - Los datos personales detectados (DNI/NIE, teléfonos, emails, IBAN, matrículas y nombres tras fórmulas como
   "me llamo", "D.", "Sra.") se sustituyen por seudónimos antes de enviarse a un modelo.
-- El texto original, el mapa de seudónimos y los adjuntos se guardan cifrados con DPAPI de Windows.
+- El texto original, el mapa de seudónimos y los adjuntos se guardan cifrados con DPAPI de Windows en `data/local/`.
 - El contenido de los adjuntos solo se envía a los modelos si lo autorizas al subirlos.
-- El servidor solo escucha en `127.0.0.1` y exige un token local por arranque para cualquier operación de escritura.
+- El servidor solo escucha en `127.0.0.1` y exige un token local para cualquier operación de escritura.
