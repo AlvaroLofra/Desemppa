@@ -104,3 +104,21 @@ def test_settings_paths_and_loopback(tmp_path):
     assert s.sqlite_path == tmp_path / "local_cache.db"
     with pytest.raises(ValueError, match="loopback"):
         Settings(IURIS_DATA_DIR=str(tmp_path), IURIS_HOST="0.0.0.0")
+
+
+def test_default_data_dir_is_inside_project(monkeypatch):
+    monkeypatch.delenv("IURIS_DATA_DIR", raising=False)
+    s = Settings()
+    assert s.data_dir == Path(__file__).resolve().parents[2] / "data" / "local"
+
+
+def test_dangerous_cli_flags_are_rejected(tmp_path):
+    cfg = _config_copy(tmp_path)
+    text = (
+        (cfg / "providers.toml")
+        .read_text(encoding="utf-8")
+        .replace('"--disable-slash-commands",', '"--disable-slash-commands", "--dangerously-skip-permissions",', 1)
+    )
+    (cfg / "providers.toml").write_text(text, encoding="utf-8")
+    with pytest.raises(ValueError, match="no permitidos"):
+        load_catalog(cfg)

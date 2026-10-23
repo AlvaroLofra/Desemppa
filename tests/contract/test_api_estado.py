@@ -135,3 +135,58 @@ def test_ajustes_perfiles_roundtrip(tmp_path, monkeypatch):
         assert client.delete("/api/ajustes/perfiles", headers=token).status_code == 200
         assert holder["s"].router.resolve("eco", "magistrado").model == "agy_gemini_flash"
         assert client.post("/api/proveedores/nope/detectar", headers=token).status_code == 404
+
+
+def test_version_and_html_without_token(tmp_path, monkeypatch):
+    import api.main as am
+
+    dist = tmp_path / "dist"
+    (dist / "assets").mkdir(parents=True)
+    (dist / "index.html").write_text("<html><head></head><body>app</body></html>", encoding="utf-8")
+    (dist / "version.json").write_text('{"build": "abc123"}', encoding="utf-8")
+    (dist / "sw.js").write_text("// sw", encoding="utf-8")
+    monkeypatch.setattr(am, "WEB_DIST", dist)
+    factory, holder = _factory(tmp_path)
+    with TestClient(create_app(factory), base_url="http://127.0.0.1:8000") as client:
+        assert client.get("/api/version").json() == {"build": "abc123"}
+        r = client.get("/")
+        assert holder["s"].token not in r.text and "no-store" in r.headers["cache-control"]
+        assert "no-store" in client.get("/sw.js").headers["cache-control"]
+        assert client.get("/cualquier/ruta").text == r.text  # SPA fallback, también sin token
+
+
+def test_rejected_token_is_logged(tmp_path):
+    client, holder = _client(tmp_path)
+    with client:
+        r = client.post(
+            "/api/consultas",
+            headers={"X-Iuris-Token": "viejo"},
+            json={"texto": "El casero no me devuelve la fianza", "modo": "eco"},
+        )
+        assert r.status_code == 403 and "distinto del actual" in r.json()["detail"]
+    log = (tmp_path / "logs" / "iuris.log").read_text(encoding="utf-8")
+    assert "403 token distinto del actual en POST /api/consultas" in log
+
+
+def test_crear_consulta_valida_arranca_el_analisis(tmp_path):
+    """Regresión: crear() era síncrono y asyncio.create_task fallaba con 'no running event loop' (500)."""
+    from tests.e2e.fake_server import FakeRouter
+
+    def factory():
+        s = build_services(Settings(IURIS_DATA_DIR=str(tmp_path), GEMINI_API_KEY=""), load_catalog())
+        s.cli_version = lambda exe: None
+        s.pipeline.router = FakeRouter(s.catalog)
+        return s
+
+    with TestClient(create_app(factory), base_url="http://127.0.0.1:8000") as client:
+        s = client.app.state.services
+        r = client.post(
+            "/api/consultas",
+            headers={"X-Iuris-Token": s.token},
+            json={"texto": "El casero no me devuelve la fianza de 900 euros", "modo": "eco"},
+        )
+        assert r.status_code == 201, r.text
+        cid = r.json()["consulta_id"]
+        with client.stream("GET", f"/api/consultar/stream/{cid}", params={"token": s.token}) as stream:
+            body = "".join(stream.iter_text())
+        assert "event: triage" in body and ("event: final" in body or "event: error" in body)

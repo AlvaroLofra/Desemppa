@@ -5,6 +5,8 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import json
+import logging
+import os
 import secrets
 import subprocess
 import time
@@ -56,8 +58,36 @@ from storage.database import open_database
 from storage.lance_schema import JurisprudenciaStore
 
 ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
-WEB_DIST = Path(__file__).resolve().parents[1] / "web" / "dist"
+# IURIS_WEB_DIST permite servir otra copia del build (lo usan los tests E2E).
+WEB_DIST = Path(os.environ.get("IURIS_WEB_DIST") or Path(__file__).resolve().parents[1] / "web" / "dist")
 MAX_UPLOAD = 20 * 1024 * 1024
+NO_CACHE = {"Cache-Control": "no-cache, no-store, must-revalidate"}
+log = logging.getLogger("iuris")
+
+
+def build_id() -> str | None:
+    """Identificador del build de web/dist (lo escribe vite.config.ts en version.json)."""
+    try:
+        return str(json.loads((WEB_DIST / "version.json").read_text(encoding="utf-8"))["build"])
+    except (OSError, ValueError, KeyError):
+        return None
+
+
+def configure_logging(data_dir: Path) -> Path:
+    """Log de diagnóstico en <data_dir>/logs/iuris.log (403, errores de consulta, proveedores)."""
+    path = data_dir / "logs" / "iuris.log"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    handler: logging.Handler | None = None
+    for name in ("iuris", "core", "connectors"):  # la app y el pipeline; no el ruido de librerías
+        logger = logging.getLogger(name)
+        if any(isinstance(h, logging.FileHandler) and Path(h.baseFilename) == path for h in logger.handlers):
+            continue
+        if handler is None:
+            handler = logging.FileHandler(path, encoding="utf-8")
+            handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s"))
+        logger.addHandler(handler)
+        logger.setLevel(logging.INFO)
+    return path
 
 
 @dataclass
@@ -82,6 +112,26 @@ def _cli_version(exe: str) -> str | None:
         return out.stdout.strip().splitlines()[0] if out.stdout.strip() else None
     except (OSError, subprocess.SubprocessError):
         return None
+
+
+def _load_or_create_token(settings: Settings) -> str:
+    if settings.sqlite_path is None:
+        return secrets.token_urlsafe(24)
+    token_file = Path(settings.sqlite_path).parent / "local_token.txt"
+    try:
+        if token_file.is_file():
+            t = token_file.read_text(encoding="utf-8").strip()
+            if len(t) >= 16:
+                return t
+    except OSError:
+        pass
+    new_token = secrets.token_urlsafe(24)
+    try:
+        token_file.parent.mkdir(parents=True, exist_ok=True)
+        token_file.write_text(new_token, encoding="utf-8")
+    except OSError:
+        pass
+    return new_token
 
 
 def build_services(settings: Settings | None = None, catalog: Catalog | None = None) -> Services:
@@ -121,6 +171,7 @@ def build_services(settings: Settings | None = None, catalog: Catalog | None = N
         store=ConsultaStore(con),
         bus=EventBus(con),
     )
+    local_token = _load_or_create_token(settings)
     return Services(
         settings=settings,
         catalog=catalog,
@@ -131,6 +182,7 @@ def build_services(settings: Settings | None = None, catalog: Catalog | None = N
         providers=providers,
         cli_version=_cli_version,
         pipeline=pipeline,
+        token=local_token,
     )
 
 
@@ -177,6 +229,8 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         services = services_factory()
+        configure_logging(services.settings.data_dir)
+        log.info("Iuris-IA arrancada; datos en %s; build %s", services.settings.data_dir, build_id())
         if services.pipeline is not None:
             services.pipeline.store.recover_interrupted()
         app.state.services = services
@@ -203,7 +257,15 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
 
     def require_token(request: Request, x_iuris_token: str | None = Header(default=None)) -> None:
         if not secrets.compare_digest(x_iuris_token or "", svc(request).token):
-            raise HTTPException(403, "token local inválido")
+            motivo = "ausente" if not x_iuris_token else "distinto del actual"
+            log.warning(
+                "403 token %s en %s %s (navegador: %s)",
+                motivo,
+                request.method,
+                request.url.path,
+                request.headers.get("user-agent", "?")[:80],
+            )
+            raise HTTPException(403, f"token local inválido ({motivo}); recarga la página")
 
     def _launch(s: Services, consulta_id: str) -> None:
         assert s.pipeline is not None
@@ -211,6 +273,12 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
         if running and not running.done():
             raise HTTPException(409, "la consulta ya se está procesando")
         s.tasks[consulta_id] = asyncio.create_task(Orchestrator(s.pipeline).run(consulta_id))
+
+    @app.get("/api/version")
+    def version() -> dict[str, str | None]:
+        """Identificador del build de la interfaz servido; el frontend lo compara con el suyo para detectar
+        una copia antigua cacheada por el service worker."""
+        return {"build": build_id()}
 
     @app.get("/api/token")
     def token(request: Request) -> dict[str, str]:
@@ -334,7 +402,7 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
 
     # ---------- consultas ----------
     @app.post("/api/consultas", status_code=201, dependencies=[Depends(require_token)])
-    def crear(body: NuevaConsulta, request: Request) -> dict[str, str]:
+    async def crear(body: NuevaConsulta, request: Request) -> dict[str, str]:
         s = svc(request)
         p = pipe(request)
         if body.modo not in s.catalog.profiles:
@@ -344,7 +412,7 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
         return {"consulta_id": consulta_id}
 
     @app.post("/api/consultas/{consulta_id}/aclaraciones", dependencies=[Depends(require_token)])
-    def aclarar(consulta_id: str, body: Aclaraciones, request: Request) -> dict[str, str]:
+    async def aclarar(consulta_id: str, body: Aclaraciones, request: Request) -> dict[str, str]:
         s, p = svc(request), pipe(request)
         try:
             c = p.store.get(consulta_id)
@@ -535,20 +603,22 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
         app.mount("/assets", StaticFiles(directory=WEB_DIST / "assets"), name="assets")
 
         @app.get("/", response_class=HTMLResponse)
-        def index(request: Request) -> str:
-            html = (WEB_DIST / "index.html").read_text(encoding="utf-8")
-            return html.replace("__IURIS_TOKEN__", svc(request).token)
+        def index() -> HTMLResponse:
+            # El HTML no lleva el token (el frontend lo pide a /api/token) y nunca se cachea: así una copia
+            # antigua no puede dejar a la app con un token caducado.
+            return HTMLResponse((WEB_DIST / "index.html").read_text(encoding="utf-8"), headers=NO_CACHE)
 
         @app.get("/{path:path}", response_model=None)
-        def static_files(path: str, request: Request) -> FileResponse | HTMLResponse:
+        def static_files(path: str) -> FileResponse | HTMLResponse:
             target = (WEB_DIST / path).resolve()
             if path.startswith("api/"):
                 raise HTTPException(404)
             if path == "index.html":
-                return HTMLResponse(index(request))
+                return index()
             if target.is_file() and WEB_DIST.resolve() in target.parents:
-                return FileResponse(target)
-            return HTMLResponse(index(request))
+                headers = NO_CACHE if target.name in ("sw.js", "version.json", "manifest.webmanifest") else None
+                return FileResponse(target, headers=headers)
+            return index()
 
     return app
 

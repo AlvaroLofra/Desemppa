@@ -78,3 +78,22 @@ uv run python -m benchmark.blind_judge --modo eco --sin-permutar
 ```bash
 powershell -ExecutionPolicy Bypass -File scripts/start.ps1
 ```
+
+## Incidencia «token local inválido» (2026-10-23) — causas y arreglo
+
+Desde el navegador ninguna consulta funcionaba. Los tests anteriores (incluido `scripts/test_live_fianza_beta.py`, ya
+retirado) llamaban al orquestador directamente en Python y no pasaban por HTTP, token, service worker ni SSE.
+
+1. **500 «no running event loop»**: `POST /api/consultas` y `/aclaraciones` eran funciones síncronas; FastAPI las
+   ejecuta en un hilo sin bucle de eventos y `asyncio.create_task` fallaba. Ahora son `async`. Test de regresión:
+   `test_crear_consulta_valida_arranca_el_analisis` (falla con el código antiguo).
+2. **403 «token local inválido»**: el service worker precacheaba `index.html` con el token del arranque en que se
+   instaló. Ahora el HTML no lleva token ni se cachea, el token se pide a `/api/token`, un 403 se reintenta con token
+   nuevo (también en el SSE) y una copia antigua de la interfaz se detecta (`/api/version`) y se autorrepara.
+3. **Dos bases de datos**: `%LOCALAPPDATA%` está virtualizado para los procesos lanzados desde la app de Claude. Los
+   datos pasan a `data/local/` del proyecto; `INICIAR_IURIS_IA.bat` migra los antiguos la primera vez.
+4. Se quitó `--dangerously-skip-permissions` de Antigravity y la configuración ahora rechaza ese tipo de flags.
+5. Diagnóstico: `data/local/logs/iuris.log` registra cada 403 (motivo y ruta) y los errores de consulta; la interfaz
+   muestra «HTTP código · método ruta».
+
+Prueba de la ruta real: `uv run pytest -m e2e` (Chromium + service worker + servidor real con LLM simulado).

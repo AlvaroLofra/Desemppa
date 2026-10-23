@@ -30,6 +30,8 @@ dev = [
     "mypy",
     "types-pyyaml>=6.0.12.20260906",
     "openpyxl>=3.1.5",
+    "playwright>=1.64.1",
+    "pytest-timeout>=2.4.0",
 ]
 
 [tool.uv]
@@ -57,8 +59,9 @@ testpaths = ["tests"]
 asyncio_mode = "auto"
 markers = [
     "live: llama a servicios reales (red, Gemini, Claude CLI); ejecución manual",
+    "e2e: navegador real (Playwright/Chromium) contra el servidor con LLM simulado",
 ]
-addopts = "-m 'not live'"
+addopts = "-m 'not live and not e2e'"
 
 [tool.ruff.lint.per-file-ignores]
 "api/main.py" = ["B008"]  # File()/Query()/Header() en defaults es el patrón estándar de FastAPI

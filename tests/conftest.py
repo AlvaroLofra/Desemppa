@@ -18,7 +18,7 @@ FIXTURES = ROOT / "tests" / "fixtures"
 
 @pytest.fixture(scope="session")
 def catalog() -> Catalog:
-    return load_catalog()
+    return load_catalog(user_overrides=False)
 
 
 @pytest.fixture

@@ -20,7 +20,10 @@ CORE_ROLES: tuple[Role, ...] = ("triaje", "cribado", "defensa", "contraparte", "
 
 
 def _default_data_dir() -> Path:
-    return Path(os.environ.get("LOCALAPPDATA", Path.home())) / "iuris"
+    # Dentro del proyecto (ignorado por git) y no en %LOCALAPPDATA%: Windows redirige %LOCALAPPDATA% para los
+    # procesos lanzados desde apps empaquetadas (MSIX) y la app acababa con dos bases de datos distintas según
+    # cómo se arrancara.
+    return ROOT / "data" / "local"
 
 
 class Settings(BaseSettings):
@@ -75,6 +78,10 @@ class ProviderSpec(BaseModel):
     def _cli_completo(self) -> ProviderSpec:
         if self.tipo == "cli" and not (self.ejecutable and self.args and self.parser):
             raise ValueError("un proveedor 'cli' necesita ejecutable, args y parser")
+        peligrosos = [a for a in self.args if "dangerously" in a.lower() or "skip-permissions" in a.lower()]
+        if peligrosos:
+            # Autoaprobar herramientas dejaría al modelo escribir ficheros o ejecutar comandos en el equipo.
+            raise ValueError(f"flags no permitidos en un proveedor: {peligrosos}")
         return self
 
 

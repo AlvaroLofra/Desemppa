@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
-import { api, streamUrl } from "./api";
+import { api, resetToken, streamUrl } from "./api";
 import { createDeltaBuffer } from "./deltaBuffer";
 import type { Alegato, Estado, FinalPayload, Fuente, Guardrail, Plazo, Pregunta, Resolucion, Triage } from "./types";
 
@@ -99,15 +99,19 @@ export function useConsulta() {
     esRef.current = null;
   }, []);
 
-  const escuchar = useCallback(async (id: string, desdeCero = true) => {
+  const escuchar = useCallback(async (id: string, desdeCero = true, intento = 0) => {
     cerrar();
     if (desdeCero) lastSeq.current = 0;
     dispatch({ t: "streaming", v: true });
+    let recibido = false;
     const es = new EventSource(await streamUrl(id, lastSeq.current));
     esRef.current = es;
     for (const tipo of EVENTOS) {
       es.addEventListener(tipo, (ev) => {
-        const msg = ev as MessageEvent;
+        // El evento "error" de EventSource también se dispara al fallar la conexión (sin datos): se ignora aquí.
+        if (!(ev instanceof MessageEvent) || typeof ev.data !== "string") return;
+        recibido = true;
+        const msg = ev;
         const seq = Number(msg.lastEventId);
         if (Number.isFinite(seq) && seq > lastSeq.current) lastSeq.current = seq;
         const data = JSON.parse(msg.data);
@@ -120,8 +124,19 @@ export function useConsulta() {
       buffer.push(d.rol, d.text);
     });
     es.onerror = () => {
-      // EventSource reintenta solo y el servidor reenvía desde Last-Event-ID; si el stream terminó, cerramos.
-      if (es.readyState === EventSource.CLOSED) dispatch({ t: "streaming", v: false });
+      // EventSource reintenta solo los cortes; si el servidor rechaza la conexión (p. ej. 403 por token caducado)
+      // queda CLOSED sin haber recibido nada: se pide un token nuevo y se reabre una sola vez.
+      if (es.readyState !== EventSource.CLOSED) return;
+      if (!recibido && intento === 0) {
+        resetToken();
+        void escuchar(id, false, 1);
+        return;
+      }
+      if (!recibido) {
+        dispatch({ t: "error", msg: "No se pudo conectar con el análisis (stream rechazado). Recarga la página." });
+        return;
+      }
+      dispatch({ t: "streaming", v: false });
     };
   }, [buffer, cerrar]);
 

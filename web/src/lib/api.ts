@@ -1,30 +1,46 @@
 let cachedToken: string | null = null;
 
-/** Token local por arranque: lo inyecta el backend en el HTML; en desarrollo (Vite) se pide a /api/token. */
-export async function token(): Promise<string> {
-  if (cachedToken) return cachedToken;
-  const meta = document.querySelector<HTMLMetaElement>('meta[name="iuris-token"]')?.content;
-  if (meta && meta !== "__IURIS_TOKEN__") {
-    cachedToken = meta;
-  } else {
-    const r = await fetch("/api/token");
-    cachedToken = (await r.json()).token as string;
+/** Error HTTP con el código y la llamada que falló, para que la interfaz los muestre. */
+export class ApiError extends Error {
+  constructor(readonly status: number, readonly method: string, readonly path: string, readonly detail: string) {
+    super(`${detail} (HTTP ${status} · ${method} ${path})`);
   }
-  return cachedToken;
+}
+
+/** Token local del servidor. Siempre se pide a /api/token (no va en el HTML, que el service worker podría
+ *  tener cacheado de un arranque anterior). `forceRefresh` lo vuelve a pedir tras un 403. */
+export async function token(forceRefresh = false): Promise<string> {
+  if (cachedToken !== null && !forceRefresh) return cachedToken;
+  const r = await fetch("/api/token", { cache: "no-store" });
+  if (!r.ok) throw new ApiError(r.status, "GET", "/api/token", "no se pudo obtener el token local");
+  const data = await r.json();
+  cachedToken = typeof data?.token === "string" ? data.token : "";
+  return cachedToken ?? "";
+}
+
+export function resetToken(): void {
+  cachedToken = null;
 }
 
 async function request<T>(path: string, init: RequestInit = {}, auth = false): Promise<T> {
+  const method = (init.method ?? "GET").toUpperCase();
   const headers = new Headers(init.headers);
   if (auth) headers.set("X-Iuris-Token", await token());
-  const r = await fetch(path, { ...init, headers });
+  let r = await fetch(path, { ...init, headers, cache: "no-store" });
+  if (r.status === 403 && auth) {
+    // Token caducado (servidor reiniciado o pestaña antigua): se pide de nuevo y se reintenta una sola vez.
+    headers.set("X-Iuris-Token", await token(true));
+    r = await fetch(path, { ...init, headers, cache: "no-store" });
+  }
   if (!r.ok) {
-    let detail = r.statusText;
+    let detail = r.statusText || "error";
     try {
-      detail = (await r.json()).detail ?? detail;
+      const body = await r.json();
+      detail = typeof body?.detail === "string" ? body.detail : JSON.stringify(body?.detail ?? body);
     } catch {
       /* respuesta sin JSON */
     }
-    throw new Error(typeof detail === "string" ? detail : JSON.stringify(detail));
+    throw new ApiError(r.status, method, path.split("?")[0], detail);
   }
   return (await r.json()) as T;
 }
