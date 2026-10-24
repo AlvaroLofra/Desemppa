@@ -1,0 +1,41 @@
+{
+  "id": "CASE-LIVE-004",
+  "tipo": "tipico",
+  "materia_esperada": "ADM_TRAFICO_ORA",
+  "titulo": "Sanción de tráfico por estacionamiento ORA y plazo de pronto pago",
+  "municipio_nombre": "Madrid",
+  "municipio_ine": "28079",
+  "consulta": "El día 12 de octubre de 2026 recibí en el buzón una notificación de sanción del Ayuntamiento de Madrid por valor de 90 euros, por estacionar supuestamente en zona verde ORA sin distintivo ni tique el 20 de septiembre. El coche estaba allí pero el parquímetro no funcionaba y tengo foto de la pantalla con error. ¿Me conviene recurrir o acogerme a la reducción del 50 por ciento? ¿Qué plazo tengo?",
+  "aclaraciones_simuladas": [
+    {
+      "pregunta_contiene": "notificación",
+      "respuesta": "La notificación formal se practicó el 12 de octubre de 2026."
+    }
+  ],
+  "criterios_evaluacion": {
+    "estimacion_principal": null,
+    "normas_requeridas": [
+      {
+        "id": "BOE-A-2015-11722",
+        "articulo": "93",
+        "descripcion": "Ley de Tráfico y Seguridad Vial Art. 93: procedimiento abreviado y reducción del 50 %"
+      },
+      {
+        "id": "BOE-A-2015-11722",
+        "articulo": "94",
+        "descripcion": "Ley de Tráfico y Seguridad Vial Art. 94: efectos del pago con reducción"
+      }
+    ],
+    "postulacion_esperada": {
+      "abogado_obligatorio": false,
+      "procurador_obligatorio": false,
+      "motivo": "Vía administrativa sancionadora no requiere abogado ni procurador"
+    },
+    "puntos_clave": [
+      "Plazo de 20 días naturales para pronto pago del 50 % o para formular alegaciones",
+      "El pago con reducción implica renuncia a formular alegaciones en vía administrativa",
+      "Si formula alegaciones y son desestimadas, se pierde el descuento del 50 %"
+    ],
+    "nota_revision": "Caso de decisión (recurrir o pagar con descuento): no hay parte «ganadora» esperada. Revisado el 24-10-2026."
+  }
+}

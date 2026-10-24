@@ -69,7 +69,7 @@ BANDA_TEXTO = {
     BandaSolidez.NO_DETERMINABLE: "No es posible valorar",
 }
 
-SourceId = Annotated[str, Field(pattern=r"^(BOE|ROJ|CONV|DOC):.+")]
+SourceId = Annotated[str, Field(pattern=r"^(BOE|ROJ|CONV|DOC|EUR):.+")]
 IdNormaBOE = Annotated[str, Field(pattern=r"^BOE-A-\d{4}-\d{1,6}$")]
 CodigoINE = Annotated[str, Field(pattern=r"^\d{5}$")]
 VecindadCivil = Literal["comun", "catalana", "aragonesa", "navarra", "vasca", "gallega", "balear", "desconocida"]
@@ -146,7 +146,7 @@ class TriageOutputSchema(BaseModel):
 # ---------- Fase 2 ----------
 class FragmentoFuente(BaseModel):
     source_id: SourceId
-    tipo: Literal["boe", "sentencia", "convenio", "adjunto"]
+    tipo: Literal["boe", "sentencia", "convenio", "adjunto", "ue"]
     titulo: str
     texto_verbatim: str
     url_oficial: str | None = None
@@ -159,6 +159,14 @@ class ArticuloBOE(FragmentoFuente):
     version_fecha_vigencia: date
     vigente_a_fecha_hechos: bool
     reformado_tras_fecha_hechos: bool = False
+
+
+class ArticuloUE(FragmentoFuente):
+    """Artículo de una norma de la UE (texto del Diario Oficial vía Cellar/EUR-Lex)."""
+
+    tipo: Literal["ue"] = "ue"
+    celex: str
+    articulo: str
 
 
 class ExtractoSentencia(FragmentoFuente):
@@ -185,6 +193,7 @@ class DossierIngestaSchema(BaseModel):
     schema_version: Literal["1.0"] = "1.0"
     consulta_id: str
     articulos_boe: list[ArticuloBOE]
+    articulos_ue: list[ArticuloUE] = Field(default_factory=list)
     sentencias: list[ExtractoSentencia] = Field(default_factory=list, max_length=8)
     clausulas_convenio: list[ClausulaConvenio] = Field(default_factory=list)
     extractos_adjuntos: list[FragmentoFuente] = Field(default_factory=list)
@@ -203,6 +212,7 @@ class DossierIngestaSchema(BaseModel):
     def fuentes(self) -> dict[str, FragmentoFuente]:
         items: list[FragmentoFuente] = [
             *self.articulos_boe,
+            *self.articulos_ue,
             *self.sentencias,
             *self.clausulas_convenio,
             *self.extractos_adjuntos,
@@ -249,6 +259,10 @@ class CuestionLitigiosa(BaseModel):
         if self.tipo != "cuantia":
             self.importe_estimado_eur = None
             self.fundamento_cuantia = None
+        elif self.fundamento_cuantia is None:
+            # Un importe sin sentencia que lo respalde no se muestra (antes forzaba un reintento que, en el
+            # benchmark, acabó en tres timeouts seguidos y en una consulta fallida).
+            self.importe_estimado_eur = None
         return self
 
 
@@ -256,6 +270,8 @@ class ResolucionMagistradoSchema(BaseModel):
     cuestiones: list[CuestionLitigiosa] = Field(min_length=1)
     banda_propuesta: BandaSolidez
     razonamiento_banda: str
+    # Contestación literal a lo que preguntó el ciudadano (vacía = fallo que fuerza el reintento del Magistrado).
+    respuesta_directa: str = Field(default="", max_length=700)
     resumen_ciudadano: str = Field(max_length=2000)
     fortalezas: list[str] = Field(default_factory=list)
     debilidades_contraparte: list[str] = Field(default_factory=list)
@@ -305,6 +321,7 @@ class DictamenCertificadoSchema(BaseModel):
     modo: Modo
     modelos_usados: dict[str, str]
     banda_solidez: BandaSolidez
+    respuesta_directa: str = ""
     resumen_ciudadano: str = Field(max_length=2000)
     fundamentos: list[Fundamento]
     cuestiones: list[CuestionLitigiosa] = Field(default_factory=list)
@@ -319,7 +336,7 @@ class DictamenCertificadoSchema(BaseModel):
     aviso_legal: str
     generado_en: datetime
 
-    @field_validator("resumen_ciudadano")
+    @field_validator("resumen_ciudadano", "respuesta_directa")
     @classmethod
     def _sin_porcentajes(cls, v: str) -> str:
         if _PERCENT_RE.search(v):
@@ -328,7 +345,7 @@ class DictamenCertificadoSchema(BaseModel):
 
 
 AVISO_LEGAL = (
-    "Iuris-IA es una herramienta personal de información jurídica y apoyo a la autodefensa. No es "
+    "Desemppa es una herramienta personal de información jurídica y apoyo a la autodefensa. No es "
     "asesoramiento profesional ni sustituye a un abogado colegiado. Verifica los plazos y las citas en las "
     "fuentes oficiales enlazadas antes de actuar. Si no tienes recursos, puedes solicitar asistencia "
     "jurídica gratuita (Ley 1/1996) en el Colegio de Abogados de tu partido judicial."

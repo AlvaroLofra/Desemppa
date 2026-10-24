@@ -1,0 +1,734 @@
+[
+  {
+    "case_id": "CASE-LIVE-001",
+    "titulo": "Retención indebida de fianza de arrendamiento por pintura",
+    "tipo": "tipico",
+    "materia_esperada": "CIV_LAU_FIANZA",
+    "consulta": "Alquilé un piso en Madrid durante 3 años. Entregué las llaves y devolví la vivienda el 1 de septiembre de 2026. Ya han pasado 40 días y el arrendador se niega a devolverme los 900 euros de fianza alegando que tiene que repintar todo el piso, a pesar de que las paredes solo tienen el desgaste normal del uso. ¿Tengo derecho a que me la devuelva ya y con intereses?",
+    "municipio": "Madrid",
+    "t_inicio": 1792855099.490199,
+    "t_fin": 1792855257.3600342,
+    "duracion_total_s": 157.87,
+    "estado_final": "CERTIFICADA",
+    "consulta_id": "2baecbbf-a20f-4f20-a4fd-f025877a4559",
+    "aclaraciones_requeridas": false,
+    "drawer_interactivo_ok": false,
+    "screenshot_path": "C:\\Users\\Administrator\\Documents\\Claude Code\\Proyecto abogado personal\\benchmark\\reports\\screenshots\\CASE-LIVE-001.png",
+    "screenshot_drawer_path": "C:\\Users\\Administrator\\Documents\\Claude Code\\Proyecto abogado personal\\benchmark\\reports\\screenshots\\CASE-LIVE-001_drawer.png",
+    "dictamen": null,
+    "evaluacion": {
+      "estimacion_esperada": "DEFENSA",
+      "estimacion_obtenida": null,
+      "estimacion_coincide": false,
+      "normas_verificadas": [
+        {
+          "norma": "BOE-A-1994-26003",
+          "articulo": "36",
+          "descripcion": "LAU Art. 36: restitución de fianza e interés legal tras 1 mes",
+          "encontrado": false
+        },
+        {
+          "norma": "BOE-A-1889-4763",
+          "articulo": "1561",
+          "descripcion": "Código Civil Art. 1561: exención por menoscabo o desgaste ordinario",
+          "encontrado": false
+        }
+      ],
+      "postulacion_coincide": false,
+      "postulacion_esperada": {
+        "abogado_obligatorio": false,
+        "procurador_obligatorio": false,
+        "motivo": "Juicio verbal por cuantía hasta 2.000 € (900 €)"
+      },
+      "postulacion_obtenida": {
+        "abogado_obligatorio": null,
+        "procurador_obligatorio": null,
+        "base_legal": null
+      },
+      "score_calidad": 3.0
+    },
+    "ledger_calls": [
+      {
+        "id": 39,
+        "fase": "triaje",
+        "rol": "triaje",
+        "proveedor": "antigravity_cli",
+        "modelo": "gemini-3.8-flash-low",
+        "effort": "low",
+        "latencia_ms": 14500,
+        "input_tokens": 12251,
+        "output_tokens": 457,
+        "coste_usd": null,
+        "ok": true,
+        "error_tipo": null,
+        "creado_en": "2026-10-24 15:18:37"
+      },
+      {
+        "id": 40,
+        "fase": "defensa",
+        "rol": "defensa",
+        "proveedor": "antigravity_cli",
+        "modelo": "gemini-3.8-flash-medium",
+        "effort": "medium",
+        "latencia_ms": 21625,
+        "input_tokens": 13333,
+        "output_tokens": 3990,
+        "coste_usd": null,
+        "ok": true,
+        "error_tipo": null,
+        "creado_en": "2026-10-24 15:18:59"
+      },
+      {
+        "id": 41,
+        "fase": "contraparte",
+        "rol": "contraparte",
+        "proveedor": "antigravity_cli",
+        "modelo": "gemini-3.8-flash-medium",
+        "effort": "medium",
+        "latencia_ms": 24593,
+        "input_tokens": null,
+        "output_tokens": null,
+        "coste_usd": null,
+        "ok": false,
+        "error_tipo": "EmptyResponse",
+        "creado_en": "2026-10-24 15:19:24"
+      },
+      {
+        "id": 42,
+        "fase": "contraparte",
+        "rol": "contraparte",
+        "proveedor": "antigravity_cli",
+        "modelo": "claude-sonnet-5-5-medium",
+        "effort": "medium",
+        "latencia_ms": 14875,
+        "input_tokens": 16090,
+        "output_tokens": 1622,
+        "coste_usd": null,
+        "ok": true,
+        "error_tipo": null,
+        "creado_en": "2026-10-24 15:19:39"
+      },
+      {
+        "id": 43,
+        "fase": "magistrado",
+        "rol": "magistrado",
+        "proveedor": "antigravity_cli",
+        "modelo": "gemini-3.8-flash-medium",
+        "effort": "medium",
+        "latencia_ms": 31967,
+        "input_tokens": 15105,
+        "output_tokens": 6015,
+        "coste_usd": null,
+        "ok": true,
+        "error_tipo": null,
+        "creado_en": "2026-10-24 15:20:11"
+      },
+      {
+        "id": 44,
+        "fase": "magistrado",
+        "rol": "magistrado",
+        "proveedor": "antigravity_cli",
+        "modelo": "gemini-3.8-flash-medium",
+        "effort": "medium",
+        "latencia_ms": 14625,
+        "input_tokens": null,
+        "output_tokens": null,
+        "coste_usd": null,
+        "ok": false,
+        "error_tipo": "EmptyResponse",
+        "creado_en": "2026-10-24 15:20:25"
+      },
+      {
+        "id": 45,
+        "fase": "magistrado",
+        "rol": "magistrado",
+        "proveedor": "antigravity_cli",
+        "modelo": "claude-sonnet-5-5-medium",
+        "effort": "medium",
+        "latencia_ms": 24171,
+        "input_tokens": 17978,
+        "output_tokens": 2214,
+        "coste_usd": null,
+        "ok": true,
+        "error_tipo": null,
+        "creado_en": "2026-10-24 15:20:49"
+      },
+      {
+        "id": 46,
+        "fase": "guardarrailes",
+        "rol": "nli",
+        "proveedor": "antigravity_cli",
+        "modelo": "gemini-3.8-flash-low",
+        "effort": "low",
+        "latencia_ms": 7328,
+        "input_tokens": 11017,
+        "output_tokens": 242,
+        "coste_usd": null,
+        "ok": true,
+        "error_tipo": null,
+        "creado_en": "2026-10-24 15:20:57"
+      }
+    ],
+    "ledger_resumen": {},
+    "errores": [
+      "Fallo ledger: unsupported operand type(s) for +: 'int' and 'NoneType'"
+    ],
+    "dictamen_completo": {
+      "consulta_id": "2baecbbf-a20f-4f20-a4fd-f025877a4559",
+      "modo": "eco",
+      "estado": "CERTIFICADA",
+      "triage": {
+        "schema_version": "1.0",
+        "consulta_id": "2baecbbf-a20f-4f20-a4fd-f025877a4559",
+        "jurisdiccion_principal": "civil",
+        "submateria_principal": "CIV_LAU_FIANZA",
+        "ramas": [
+          {
+            "submateria": "CIV_LAU_FIANZA",
+            "jurisdiccion": "civil",
+            "peso_enrutamiento": 1,
+            "justificacion": "Reclamación de devolución de fianza arrendaticia frente a retención indebida por gastos ordinarios de pintura o desgaste por uso ordinario."
+          }
+        ],
+        "grado_ambiguedad": 0,
+        "requiere_aclaracion": false,
+        "preguntas_aclaracion": [],
+        "datos_criticos_faltantes": [],
+        "fecha_hechos": "2026-09-01",
+        "municipio_ine_organo": "28079",
+        "vecindad_civil": "comun",
+        "cuantia_estimada_eur": 900,
+        "alertas_plazo": [
+          {
+            "tipo_plazo_id": "CIV_FIANZA_DEVOLUCION_1M",
+            "fecha_inicio_computo": "2026-09-01",
+            "evento_inicio": "fecha de entrega de llaves"
+          },
+          {
+            "tipo_plazo_id": "CIV_CONTRACTUAL_5A",
+            "fecha_inicio_computo": "2026-09-01",
+            "evento_inicio": "fecha de entrega de llaves"
+          }
+        ],
+        "normas_boe_objetivo": [
+          {
+            "id_norma": "BOE-A-1994-26003",
+            "articulos": [
+              "36",
+              "21",
+              "27"
+            ],
+            "motivo": "LAU"
+          },
+          {
+            "id_norma": "BOE-A-1889-4763",
+            "articulos": [
+              "1561",
+              "1562",
+              "1563",
+              "1564"
+            ],
+            "motivo": "CC"
+          }
+        ],
+        "terminos_cendoj": [
+          "arrendamiento urbano",
+          "devolucion de fianza",
+          "pintura",
+          "desgaste por uso ordinario",
+          "interes legal del dinero",
+          "articulo 36 LAU"
+        ],
+        "convenio_aplicable": null,
+        "competencia_local": false,
+        "resumen_hechos": "El arrendatario finalizó un contrato de arrendamiento de vivienda en Madrid tras 3 años de duración, formalizando la entrega de llaves el 1 de septiembre de 2026. Transcurrido más de un mes desde la devolución posesoria, el arrendador rehúsa restituir el importe de 900 euros correspondiente a la fianza legal. La negativa se fundamenta en la necesidad de repintar la vivienda, pese a que el estado de las paredes se atribuye al mero desgaste ordinario derivado del uso continuado."
+      },
+      "dossier": {
+        "schema_version": "1.0",
+        "consulta_id": "2baecbbf-a20f-4f20-a4fd-f025877a4559",
+        "articulos_boe": [
+          {
+            "source_id": "BOE:BOE-A-1994-26003:a36:2019-03-06",
+            "tipo": "boe",
+            "titulo": "Artículo 36 LAU",
+            "texto_verbatim": "Artículo 36. Fianza.\n1. A la celebración del contrato será obligatoria la exigencia y prestación de fianza en metálico en cantidad equivalente a una mensualidad de renta en el arrendamiento de viviendas y de dos en el arrendamiento para uso distinto del de vivienda.\n2. Durante los cinco primeros años de duración del contrato, o durante los siete primeros años si el arrendador fuese persona jurídica, la fianza no estará sujeta a actualización. Pero cada vez que el arrendamiento se prorrogue, el arrendador podrá exigir que la fianza sea incrementada, o el arrendatario que disminuya, hasta hacerse igual a una o dos mensualidades de la renta vigente, según proceda, al tiempo de la prórroga.\n3. La actualización de la fianza durante el período de tiempo en que el plazo pactado para el arrendamiento exceda de cinco años, o de siete años si el arrendador fuese persona jurídica, se regirá por lo estipulado al efecto por las partes. A falta de pacto específico, lo acordado sobre actualización de la renta se presumirá querido también para la actualización de la fianza.\n4. El saldo de la fianza en metálico que deba ser restituido al arrendatario al final del arriendo, devengará el interés legal, transcurrido un mes desde la entrega de las llaves por el mismo sin que se hubiere hecho efectiva dicha restitución.\n5. Las partes podrán pactar cualquier tipo de garantía del cumplimiento por el arrendatario de sus obligaciones arrendaticias adicional a la fianza en metálico.\nEn el caso del arrendamiento de vivienda, en contratos de hasta cinco años de duración, o de hasta siete años si el arrendador fuese persona jurídica, el valor de esta garantía adicional no podrá exceder de dos mensualidades de renta.\n6. Quedan exceptuadas de la obligación de prestar fianza la Administración General del Estado, las Administraciones de las comunidades autónomas y las entidades que integran la Administración Local, los organismos autónomos, las entidades públicas empresariales y demás entes públicos vinculados o dependientes de ellas, y las Mutuas colaboradoras con la Seguridad Social en su función pública de colaboración en la gestión de la Seguridad Social, así como sus Centros Mancomunados, cuando la renta haya de ser satisfecha con cargo a sus respectivos presupuestos.\nSe modifica por el art. 1.14 del Real Decreto-ley 7/2019, de 1 de marzo. Ref. BOE-A-2019-3108#ap\nTéngase en cuenta, para los contratos celebrados con anterioridad, lo dispuesto en la disposición transitoria 1 del citado Real Decreto-ley.\nSe deja sin efecto la modificación por Resolución de 22 de enero de 2019 que publica el Acuerdo del Congreso de los Diputados por el que se deroga el Real Decreto-ley 21/2018, de 14 de diciembre. Ref. BOE-A-2019-799\nSe modifica por el art. 1.11 del Real Decreto-ley 21/2018, de 14 de diciembre. Ref. BOE-A-2018-17293#ap\nTéngase en cuenta, para los contratos celebrados con anterioridad, lo dispuesto en la disposición transitoria 1 del citado Real Decreto-ley.\nSe modifican los apartados 2 y 3 por el art. 1.20 de la Ley 4/2013, de 4 de junio. Ref. BOE-A-2013-5941.\nSe modifica el apartado 6 por la disposición final.4 de la Ley 39/2010, de 22 de diciembre. Ref. BOE-A-2010-19703.\nSe añade el apartado 6 por el art. 145 de la Ley 13/1996, de 30 de diciembre. Ref. BOE-A-1996-29117.",
+            "url_oficial": "https://www.boe.es/buscar/act.php?id=BOE-A-1994-26003#a36",
+            "id_norma": "BOE-A-1994-26003",
+            "id_bloque": "a36",
+            "version_fecha_vigencia": "2019-03-06",
+            "vigente_a_fecha_hechos": true,
+            "reformado_tras_fecha_hechos": true
+          },
+          {
+            "source_id": "BOE:BOE-A-1994-26003:a21:1995-01-01",
+            "tipo": "boe",
+            "titulo": "Artículo 21 LAU",
+            "texto_verbatim": "Artículo 21. Conservación de la vivienda.\n1. El arrendador está obligado a realizar, sin derecho a elevar por ello la renta, todas las reparaciones que sean necesarias para conservar la vivienda en las condiciones de habitabilidad para servir al uso convenido, salvo cuando el deterioro de cuya reparación se trate sea imputable al arrendatario a tenor de lo dispuesto en los artículos 1.563 y 1.564 del Código Civil.\nLa obligación de reparación tiene su límite en la destrucción de la vivienda por causa no imputable al arrendador. A este efecto, se estará a lo dispuesto en el artículo 28.\n2. Cuando la ejecución de una obra de conservación no pueda razonablemente diferirse hasta la conclusión del arrendamiento, el arrendatario estará obligado a soportarla, aunque le sea muy molesta o durante ella se vea privado de una parte de la vivienda.\nSi la obra durase más de veinte días, habrá de disminuirse la renta en proporción a la parte de la vivienda de la que el arrendatario se vea privado.\n3. El arrendatario deberá poner en conocimiento del arrendador, en el plazo más breve posible, la necesidad de las reparaciones que contempla el apartado 1 de este artículo, a cuyos solos efectos deberá facilitar al arrendador la verificación directa, por sí mismo o por los técnicos que designe, del estado de la vivienda. En todo momento, y previa comunicación al arrendador, podrá realizar las que sean urgentes para evitar un daño inminente o una incomodidad grave, y exigir de inmediato su importe al arrendador.\n4. Las pequeñas reparaciones que exija el desgaste por el uso ordinario de la vivienda serán de cargo del arrendatario.",
+            "url_oficial": "https://www.boe.es/buscar/act.php?id=BOE-A-1994-26003#a21",
+            "id_norma": "BOE-A-1994-26003",
+            "id_bloque": "a21",
+            "version_fecha_vigencia": "1995-01-01",
+            "vigente_a_fecha_hechos": true,
+            "reformado_tras_fecha_hechos": true
+          },
+          {
+            "source_id": "BOE:BOE-A-1994-26003:a27:2013-06-06",
+            "tipo": "boe",
+            "titulo": "Artículo 27 LAU",
+            "texto_verbatim": "Artículo 27. Incumplimiento de obligaciones.\n1. El incumplimiento por cualquiera de las partes de las obligaciones resultantes del contrato dará derecho a la parte que hubiere cumplido las suyas a exigir el cumplimiento de la obligación o a promover la resolución del contrato de acuerdo con lo dispuesto en el artículo 1.124 del Código Civil.\n2. Además, el arrendador podrá resolver de pleno derecho el contrato por las siguientes causas:\na) La falta de pago de la renta o, en su caso, de cualquiera de las cantidades cuyo pago haya asumido o corresponda al arrendatario.\nb) La falta de pago del importe de la fianza o de su actualización.\nc) El subarriendo o la cesión inconsentidos.\nd) La realización de daños causados dolosamente en la finca o de obras no consentidas por el arrendador cuando el consentimiento de éste sea necesario.\ne) Cuando en la vivienda tengan lugar actividades molestas, insalubres, nocivas, peligrosas o ilícitas.\nf) Cuando la vivienda deje de estar destinada de forma primordial a satisfacer la necesidad permanente de vivienda del arrendatario o de quien efectivamente la viniera ocupando de acuerdo con lo dispuesto en el artículo 7.\n3. Del mismo modo, el arrendatario podrá resolver el contrato por las siguientes causas:\na) La no realización por el arrendador de las reparaciones a que se refiere el artículo 21.\nb) La perturbación de hecho o de derecho que realice el arrendador en la utilización de la vivienda.\n4. Tratándose de arrendamientos de finca urbana inscritos en el Registro de la Propiedad, si se hubiera estipulado en el contrato que el arrendamiento quedará resuelto por falta de pago de la renta y que deberá en tal caso restituirse inmediatamente el inmueble al arrendador, la resolución tendrá lugar de pleno derecho una vez el arrendador haya requerido judicial o notarialmente al arrendatario en el domicilio designado al efecto en la inscripción, instándole al pago o cumplimiento, y éste no haya contestado al requerimiento en los diez días hábiles siguientes, o conteste aceptando la resolución de pleno derecho, todo ello por medio del mismo juez o notario que hizo el requerimiento.\nEl título aportado al procedimiento registral, junto con la copia del acta de requerimiento, de la que resulte la notificación y que no se haya contestado por el requerido de pago o que se haya contestado aceptando la resolución de pleno derecho, será título suficiente para practicar la cancelación del arrendamiento en el Registro de la Propiedad.\nSi hubiera cargas posteriores que recaigan sobre el arrendamiento, será además preciso para su cancelación justificar la notificación fehaciente a los titulares de las mismas, en el domicilio que obre en el Registro, y acreditar la consignación a su favor ante el mismo notario, de la fianza prestada por el arrendatario.\nSe añade el apartado 4 por el art. 1.18 de la Ley 4/2013, de 4 de junio. Ref. BOE-A-2013-5941.",
+            "url_oficial": "https://www.boe.es/buscar/act.php?id=BOE-A-1994-26003#a27",
+            "id_norma": "BOE-A-1994-26003",
+            "id_bloque": "a27",
+            "version_fecha_vigencia": "2013-06-06",
+            "vigente_a_fecha_hechos": true,
+            "reformado_tras_fecha_hechos": true
+          },
+          {
+            "source_id": "BOE:BOE-A-1889-4763:art1561:1889-08-16",
+            "tipo": "boe",
+            "titulo": "Art 1561 CC",
+            "texto_verbatim": "Artículo 1561.\nEl arrendatario debe devolver la finca, al concluir el arriendo, tal como la recibió, salvo lo que hubiese perecido o se hubiera menoscabado por el tiempo o por causa inevitable.",
+            "url_oficial": "https://www.boe.es/buscar/act.php?id=BOE-A-1889-4763#art1561",
+            "id_norma": "BOE-A-1889-4763",
+            "id_bloque": "art1561",
+            "version_fecha_vigencia": "1889-08-16",
+            "vigente_a_fecha_hechos": true,
+            "reformado_tras_fecha_hechos": false
+          },
+          {
+            "source_id": "BOE:BOE-A-1889-4763:art1562:1889-08-16",
+            "tipo": "boe",
+            "titulo": "Art 1562 CC",
+            "texto_verbatim": "Artículo 1562.\nA falta de expresión del estado de la finca al tiempo de arrendarla, la ley presume que el arrendatario la recibió en buen estado, salvo prueba en contrario.",
+            "url_oficial": "https://www.boe.es/buscar/act.php?id=BOE-A-1889-4763#art1562",
+            "id_norma": "BOE-A-1889-4763",
+            "id_bloque": "art1562",
+            "version_fecha_vigencia": "1889-08-16",
+            "vigente_a_fecha_hechos": true,
+            "reformado_tras_fecha_hechos": false
+          },
+          {
+            "source_id": "BOE:BOE-A-1889-4763:art1563:1889-08-16",
+            "tipo": "boe",
+            "titulo": "Art 1563 CC",
+            "texto_verbatim": "Artículo 1563.\nEl arrendatario es responsable del deterioro o pérdida que tuviere la cosa arrendada, a no ser que pruebe haberse ocasionado sin culpa suya.",
+            "url_oficial": "https://www.boe.es/buscar/act.php?id=BOE-A-1889-4763#art1563",
+            "id_norma": "BOE-A-1889-4763",
+            "id_bloque": "art1563",
+            "version_fecha_vigencia": "1889-08-16",
+            "vigente_a_fecha_hechos": true,
+            "reformado_tras_fecha_hechos": false
+          },
+          {
+            "source_id": "BOE:BOE-A-1889-4763:art1564:1889-08-16",
+            "tipo": "boe",
+            "titulo": "Art 1564 CC",
+            "texto_verbatim": "Artículo 1564.\nEl arrendatario es responsable del deterioro causado por las personas de su casa.",
+            "url_oficial": "https://www.boe.es/buscar/act.php?id=BOE-A-1889-4763#art1564",
+            "id_norma": "BOE-A-1889-4763",
+            "id_bloque": "art1564",
+            "version_fecha_vigencia": "1889-08-16",
+            "vigente_a_fecha_hechos": true,
+            "reformado_tras_fecha_hechos": false
+          }
+        ],
+        "sentencias": [],
+        "clausulas_convenio": [],
+        "extractos_adjuntos": [],
+        "resumen_hechos": "El arrendatario finalizó un contrato de arrendamiento de vivienda en Madrid tras 3 años de duración, formalizando la entrega de llaves el 1 de septiembre de 2026. Transcurrido más de un mes desde la devolución posesoria, el arrendador rehúsa restituir el importe de 900 euros correspondiente a la fianza legal. La negativa se fundamenta en la necesidad de repintar la vivienda, pese a que el estado de las paredes se atribuye al mero desgaste ordinario derivado del uso continuado.",
+        "cobertura": "degradada_sin_jurisprudencia",
+        "tokens_estimados": 2114,
+        "avisos": [
+          "Artículo 36 (BOE-A-1994-26003): se aplica la redacción vigente el 01/09/2026 (desde 06/03/2019). Reformado después, por primera vez el 01/10/2026 (BOE-A-2026-20266). Revisar disposiciones transitorias.",
+          "Artículo 21 (BOE-A-1994-26003): se aplica la redacción vigente el 01/09/2026 (desde 01/01/1995). Reformado después, por primera vez el 01/10/2026 (BOE-A-2026-20266). Revisar disposiciones transitorias.",
+          "Artículo 27 (BOE-A-1994-26003): se aplica la redacción vigente el 01/09/2026 (desde 06/06/2013). Reformado después, por primera vez el 01/10/2026 (BOE-A-2026-20266). Revisar disposiciones transitorias.",
+          "No hay jurisprudencia aplicable en el corpus local: la valoración se apoya solo en la ley. Se ha encolado una búsqueda para ampliar el corpus."
+        ]
+      },
+      "debate": {
+        "defensa": {
+          "rol": "DEFENSA",
+          "pretension": "La restitución íntegra de los 900 euros depositados en concepto de fianza legal, junto con el interés legal devengado por transcurso de más de un mes desde la entrega de llaves.",
+          "cuestiones": [
+            {
+              "id": "C1",
+              "argumentos": [
+                {
+                  "afirmacion": "El arrendatario no responde del deterioro derivado del mero paso del tiempo o uso ordinario de la vivienda durante los tres años de arriendo, por lo que la necesidad de repintar no constituye daño imputable ni faculta la retención de la fianza.",
+                  "citas": [
+                    {
+                      "source_id": "BOE:BOE-A-1889-4763:art1561:1889-08-16",
+                      "verbatim_quote": "El arrendatario debe devolver la finca, al concluir el arriendo, tal como la recibió, salvo lo que hubiese perecido o se hubiera menoscabado por el tiempo o por causa inevitable."
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "C2",
+              "argumentos": [
+                {
+                  "afirmacion": "Habiendo transcurrido más de un mes desde la entrega de llaves el 1 de septiembre de 2026 sin efectuarse la restitución del saldo de la fianza, procede el reintegro de los 900 euros con devengo del interés legal.",
+                  "citas": [
+                    {
+                      "source_id": "BOE:BOE-A-1994-26003:a36:2019-03-06",
+                      "verbatim_quote": "El saldo de la fianza en metálico que deba ser restituido al arrendatario al final del arriendo, devengará el interés legal, transcurrido un mes desde la entrega de las llaves por el mismo sin que se hubiere hecho efectiva dicha restitución."
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "importe_reclamado_eur": 900
+        },
+        "contraparte": {
+          "rol": "CONTRAPARTE",
+          "pretension": "Que se desestime la reclamación de restitución íntegra de la fianza y se autorice al arrendador a retener la cantidad necesaria para reparar el deterioro de las paredes, imputable al arrendatario.",
+          "cuestiones": [
+            {
+              "id": "C1",
+              "argumentos": [
+                {
+                  "afirmacion": "El arrendatario debe devolver la vivienda tal como la recibió. La necesidad de repintar demuestra que no la devolvió en ese estado, y le corresponde a él probar que el deterioro se produjo sin culpa suya.",
+                  "citas": [
+                    {
+                      "source_id": "BOE:BOE-A-1889-4763:art1563:1889-08-16",
+                      "verbatim_quote": "El arrendatario es responsable del deterioro o pérdida que tuviere la cosa arrendada, a no ser que pruebe haberse ocasionado sin culpa suya."
+                    },
+                    {
+                      "source_id": "BOE:BOE-A-1889-4763:art1561:1889-08-16",
+                      "verbatim_quote": "El arrendatario debe devolver la finca, al concluir el arriendo, tal como la recibió, salvo lo que hubiese perecido o se hubiera menoscabado por el tiempo o por causa inevitable."
+                    }
+                  ]
+                },
+                {
+                  "afirmacion": "Como el contrato no expresa el estado de la finca al arrendarla, la ley presume que el arrendatario la recibió en buen estado. Para la Defensa, el «mero desgaste ordinario» es una simple afirmación. No ha aportado prueba en contrario, por ejemplo un inventario inicial o fotografías.",
+                  "citas": [
+                    {
+                      "source_id": "BOE:BOE-A-1889-4763:art1562:1889-08-16",
+                      "verbatim_quote": "A falta de expresión del estado de la finca al tiempo de arrendarla, la ley presume que el arrendatario la recibió en buen estado, salvo prueba en contrario."
+                    }
+                  ]
+                },
+                {
+                  "afirmacion": "Aunque el deterioro se calificara de desgaste por uso ordinario, la ley pone a cargo del arrendatario las pequeñas reparaciones que ese desgaste exija. El repintado puede encuadrarse en ellas, y por eso el arrendador puede cubrir su coste con la fianza.",
+                  "citas": [
+                    {
+                      "source_id": "BOE:BOE-A-1994-26003:a21:1995-01-01",
+                      "verbatim_quote": "Las pequeñas reparaciones que exija el desgaste por el uso ordinario de la vivienda serán de cargo del arrendatario."
+                    }
+                  ]
+                },
+                {
+                  "afirmacion": "La obligación de conservación del arrendador no alcanza a los deterioros imputables al arrendatario conforme a los arts. 1563 y 1564 CC. Esto incluye los causados por las personas de su casa.",
+                  "citas": [
+                    {
+                      "source_id": "BOE:BOE-A-1994-26003:a21:1995-01-01",
+                      "verbatim_quote": "salvo cuando el deterioro de cuya reparación se trate sea imputable al arrendatario a tenor de lo dispuesto en los artículos 1.563 y 1.564 del Código Civil."
+                    },
+                    {
+                      "source_id": "BOE:BOE-A-1889-4763:art1564:1889-08-16",
+                      "verbatim_quote": "El arrendatario es responsable del deterioro causado por las personas de su casa."
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "C2",
+              "argumentos": [
+                {
+                  "afirmacion": "El art. 36.4 LAU solo devenga interés sobre el «saldo» de la fianza que deba ser restituido. Ese saldo es lo que queda tras descontar los daños imputables al arrendatario. Por tanto, el interés no se genera sobre los 900 euros íntegros, sino solo sobre el remanente que se determine, si lo hubiera.",
+                  "citas": [
+                    {
+                      "source_id": "BOE:BOE-A-1994-26003:a36:2019-03-06",
+                      "verbatim_quote": "El saldo de la fianza en metálico que deba ser restituido al arrendatario al final del arriendo, devengará el interés legal"
+                    }
+                  ]
+                },
+                {
+                  "afirmacion": "La fianza garantiza el cumplimiento de las obligaciones arrendaticias del arrendatario, entre ellas devolver la finca en el estado en que la recibió. El arrendador puede por tanto retener la parte necesaria para cubrir el repintado imputable al arrendatario, y no está obligado a devolver los 900 euros íntegros.",
+                  "citas": [
+                    {
+                      "source_id": "BOE:BOE-A-1994-26003:a27:2013-06-06",
+                      "verbatim_quote": "El incumplimiento por cualquiera de las partes de las obligaciones resultantes del contrato dará derecho a la parte que hubiere cumplido las suyas"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "importe_reclamado_eur": null
+        },
+        "magistrado": {
+          "cuestiones": [
+            {
+              "id": "C1",
+              "enunciado": "¿Puede el arrendador retener la fianza para repintar la vivienda cuando el estado de las paredes responde al desgaste ordinario tras tres años de uso?",
+              "tipo": "calificacion_juridica",
+              "estimacion": "DEFENSA",
+              "fundamentos": [
+                {
+                  "afirmacion": "El arrendatario no responde de lo que se haya menoscabado por el paso del tiempo. El desgaste de las paredes tras tres años de uso normal entra en esa excepción y no es un daño imputable a él.",
+                  "citas": [
+                    {
+                      "source_id": "BOE:BOE-A-1889-4763:art1561:1889-08-16",
+                      "verbatim_quote": "El arrendatario debe devolver la finca, al concluir el arriendo, tal como la recibió, salvo lo que hubiese perecido o se hubiera menoscabado por el tiempo o por causa inevitable."
+                    }
+                  ]
+                },
+                {
+                  "afirmacion": "La responsabilidad del arrendatario por deterioro (art. 1563 CC) se refiere a daños con culpa suya. El repintado por desgaste ordinario no es un daño de ese tipo. Además, el art. 21.4 LAU solo pone a su cargo las pequeñas reparaciones. Una pintura general de la vivienda tras tres años no es claramente una pequeña reparación, y la Contraparte no ha acreditado su alcance ni su coste.",
+                  "citas": [
+                    {
+                      "source_id": "BOE:BOE-A-1994-26003:a21:1995-01-01",
+                      "verbatim_quote": "Las pequeñas reparaciones que exija el desgaste por el uso ordinario de la vivienda serán de cargo del arrendatario."
+                    }
+                  ]
+                }
+              ],
+              "importe_estimado_eur": null,
+              "fundamento_cuantia": null
+            },
+            {
+              "id": "C2",
+              "enunciado": "¿Procede devolver la fianza íntegra y con interés legal al haber pasado más de un mes desde la entrega de llaves?",
+              "tipo": "plazo",
+              "estimacion": "DEFENSA",
+              "fundamentos": [
+                {
+                  "afirmacion": "Han pasado más de un mes desde la entrega de llaves sin devolver la fianza. Por eso el saldo que deba restituirse devenga el interés legal. Como no se ha probado ningún daño imputable al arrendatario, el saldo a restituir es la fianza completa.",
+                  "citas": [
+                    {
+                      "source_id": "BOE:BOE-A-1994-26003:a36:2019-03-06",
+                      "verbatim_quote": "El saldo de la fianza en metálico que deba ser restituido al arrendatario al final del arriendo, devengará el interés legal, transcurrido un mes desde la entrega de las llaves por el mismo sin que se hubiere hecho efectiva dicha restitución."
+                    }
+                  ]
+                }
+              ],
+              "importe_estimado_eur": null,
+              "fundamento_cuantia": null
+            }
+          ],
+          "banda_propuesta": "argumento_solido_sin_doctrina",
+          "razonamiento_banda": "Las normas citadas apoyan al ciudadano con claridad. El art. 1561 CC excluye el deterioro por el paso del tiempo y el art. 36.4 LAU regula el interés tras un mes. El dossier no incluye jurisprudencia. Hay un punto de prueba: el contrato no dice en qué estado estaba la vivienda, y el art. 1562 CC presume que se recibió en buen estado salvo prueba en contrario. Por eso el resultado final depende en parte de lo que el ciudadano pueda demostrar.",
+          "resumen_ciudadano": "La ley está de tu lado en lo principal. El desgaste normal de tres años no se paga con la fianza. El arrendador debe devolverte los 900 euros y, pasado un mes desde que entregaste las llaves, también el interés legal. El punto débil es que el contrato no describe cómo estaba la casa al entrar. La ley presume que la recibiste en buen estado, y tendrás que demostrar que las paredes solo tienen desgaste normal. Si puedes aportar fotos, un inventario o mensajes, tu postura será mucho más fuerte.",
+          "fortalezas": [
+            "El art. 1561 CC excluye de la responsabilidad del arrendatario lo menoscabado por el paso del tiempo.",
+            "El art. 36.4 LAU hace que la fianza devengue interés legal pasado un mes desde la entrega de llaves.",
+            "El arrendador se niega a devolver la fianza completa sin acreditar el daño ni su coste."
+          ],
+          "debilidades_contraparte": [
+            "No ha aportado presupuesto, facturas ni fotos que acrediten el daño o su coste.",
+            "Confunde el desgaste ordinario con un daño imputable al arrendatario.",
+            "El art. 21.4 LAU solo habla de pequeñas reparaciones, y repintar toda la vivienda tras tres años no encaja claramente ahí."
+          ],
+          "riesgos_propios": [
+            "El contrato no recoge el estado inicial de la vivienda, y el art. 1562 CC presume que se recibió en buen estado salvo prueba en contrario.",
+            "Si no puedes probar que se trata de desgaste ordinario, el tribunal podría aceptar parte de la retención.",
+            "Un repintado puntual, por pequeño, podría considerarse a tu cargo conforme al art. 21.4 LAU."
+          ],
+          "pasos_inmediatos": [
+            "Reúne pruebas del estado de la vivienda: fotos, vídeos, inventario de entrada, mensajes con el arrendador y el acta de entrega de llaves del 1 de septiembre de 2026.",
+            "Envía al arrendador un requerimiento por escrito, con burofax o medio que deje constancia, pidiendo la devolución de los 900 euros más el interés legal, con un plazo breve.",
+            "Pídele que justifique por escrito el daño y su coste, con presupuesto o facturas.",
+            "Si no responde, valora acudir a un procedimiento de mediación o conciliación, que puede ser requisito previo, y después reclamar judicialmente."
+          ]
+        }
+      },
+      "dictamen": {
+        "estado": "CERTIFICADA",
+        "dictamen": {
+          "schema_version": "1.0",
+          "consulta_id": "2baecbbf-a20f-4f20-a4fd-f025877a4559",
+          "modo": "eco",
+          "modelos_usados": {
+            "triaje": "gemini-3.8-flash-low",
+            "defensa": "gemini-3.8-flash-medium",
+            "contraparte": "claude-sonnet-5-5-medium",
+            "magistrado": "claude-sonnet-5-5-medium"
+          },
+          "banda_solidez": "argumento_solido_sin_doctrina",
+          "resumen_ciudadano": "La ley está de tu lado en lo principal. El desgaste normal de tres años no se paga con la fianza. El arrendador debe devolverte los 900 euros y, pasado un mes desde que entregaste las llaves, también el interés legal. El punto débil es que el contrato no describe cómo estaba la casa al entrar. La ley presume que la recibiste en buen estado, y tendrás que demostrar que las paredes solo tienen desgaste normal. Si puedes aportar fotos, un inventario o mensajes, tu postura será mucho más fuerte.",
+          "fundamentos": [
+            {
+              "texto": "El arrendatario no responde de lo que se haya menoscabado por el paso del tiempo. El desgaste de las paredes tras tres años de uso normal entra en esa excepción y no es un daño imputable a él.",
+              "source_id": "BOE:BOE-A-1889-4763:art1561:1889-08-16",
+              "verbatim_quote": "El arrendatario debe devolver la finca, al concluir el arriendo, tal como la recibió, salvo lo que hubiese perecido o se hubiera menoscabado por el tiempo o por causa inevitable.",
+              "fuzzy_score": 100,
+              "nli": "NEUTRAL",
+              "offsets": [
+                15,
+                193
+              ]
+            },
+            {
+              "texto": "La responsabilidad del arrendatario por deterioro (art. 1563 CC) se refiere a daños con culpa suya. El repintado por desgaste ordinario no es un daño de ese tipo. Además, el art. 21.4 LAU solo pone a su cargo las pequeñas reparaciones. Una pintura general de la vivienda tras tres años no es claramente una pequeña reparación, y la Contraparte no ha acreditado su alcance ni su coste.",
+              "source_id": "BOE:BOE-A-1994-26003:a21:1995-01-01",
+              "verbatim_quote": "Las pequeñas reparaciones que exija el desgaste por el uso ordinario de la vivienda serán de cargo del arrendatario.",
+              "fuzzy_score": 100,
+              "nli": "NEUTRAL",
+              "offsets": [
+                1518,
+                1634
+              ]
+            },
+            {
+              "texto": "Han pasado más de un mes desde la entrega de llaves sin devolver la fianza. Por eso el saldo que deba restituirse devenga el interés legal. Como no se ha probado ningún daño imputable al arrendatario, el saldo a restituir es la fianza completa.",
+              "source_id": "BOE:BOE-A-1994-26003:a36:2019-03-06",
+              "verbatim_quote": "El saldo de la fianza en metálico que deba ser restituido al arrendatario al final del arriendo, devengará el interés legal, transcurrido un mes desde la entrega de las llaves por el mismo sin que se hubiere hecho efectiva dicha restitución.",
+              "fuzzy_score": 100,
+              "nli": "NEUTRAL",
+              "offsets": [
+                1078,
+                1319
+              ]
+            }
+          ],
+          "cuestiones": [
+            {
+              "id": "C1",
+              "enunciado": "¿Puede el arrendador retener la fianza para repintar la vivienda cuando el estado de las paredes responde al desgaste ordinario tras tres años de uso?",
+              "tipo": "calificacion_juridica",
+              "estimacion": "DEFENSA",
+              "fundamentos": [
+                {
+                  "afirmacion": "El arrendatario no responde de lo que se haya menoscabado por el paso del tiempo. El desgaste de las paredes tras tres años de uso normal entra en esa excepción y no es un daño imputable a él.",
+                  "citas": [
+                    {
+                      "source_id": "BOE:BOE-A-1889-4763:art1561:1889-08-16",
+                      "verbatim_quote": "El arrendatario debe devolver la finca, al concluir el arriendo, tal como la recibió, salvo lo que hubiese perecido o se hubiera menoscabado por el tiempo o por causa inevitable."
+                    }
+                  ]
+                },
+                {
+                  "afirmacion": "La responsabilidad del arrendatario por deterioro (art. 1563 CC) se refiere a daños con culpa suya. El repintado por desgaste ordinario no es un daño de ese tipo. Además, el art. 21.4 LAU solo pone a su cargo las pequeñas reparaciones. Una pintura general de la vivienda tras tres años no es claramente una pequeña reparación, y la Contraparte no ha acreditado su alcance ni su coste.",
+                  "citas": [
+                    {
+                      "source_id": "BOE:BOE-A-1994-26003:a21:1995-01-01",
+                      "verbatim_quote": "Las pequeñas reparaciones que exija el desgaste por el uso ordinario de la vivienda serán de cargo del arrendatario."
+                    }
+                  ]
+                }
+              ],
+              "importe_estimado_eur": null,
+              "fundamento_cuantia": null
+            },
+            {
+              "id": "C2",
+              "enunciado": "¿Procede devolver la fianza íntegra y con interés legal al haber pasado más de un mes desde la entrega de llaves?",
+              "tipo": "plazo",
+              "estimacion": "DEFENSA",
+              "fundamentos": [
+                {
+                  "afirmacion": "Han pasado más de un mes desde la entrega de llaves sin devolver la fianza. Por eso el saldo que deba restituirse devenga el interés legal. Como no se ha probado ningún daño imputable al arrendatario, el saldo a restituir es la fianza completa.",
+                  "citas": [
+                    {
+                      "source_id": "BOE:BOE-A-1994-26003:a36:2019-03-06",
+                      "verbatim_quote": "El saldo de la fianza en metálico que deba ser restituido al arrendatario al final del arriendo, devengará el interés legal, transcurrido un mes desde la entrega de las llaves por el mismo sin que se hubiere hecho efectiva dicha restitución."
+                    }
+                  ]
+                }
+              ],
+              "importe_estimado_eur": null,
+              "fundamento_cuantia": null
+            }
+          ],
+          "fortalezas": [
+            "El art. 1561 CC excluye de la responsabilidad del arrendatario lo menoscabado por el paso del tiempo.",
+            "El art. 36.4 LAU hace que la fianza devengue interés legal pasado un mes desde la entrega de llaves.",
+            "El arrendador se niega a devolver la fianza completa sin acreditar el daño ni su coste."
+          ],
+          "debilidades_contraparte": [
+            "No ha aportado presupuesto, facturas ni fotos que acrediten el daño o su coste.",
+            "Confunde el desgaste ordinario con un daño imputable al arrendatario.",
+            "El art. 21.4 LAU solo habla de pequeñas reparaciones, y repintar toda la vivienda tras tres años no encaja claramente ahí."
+          ],
+          "riesgos_propios": [
+            "El contrato no recoge el estado inicial de la vivienda, y el art. 1562 CC presume que se recibió en buen estado salvo prueba en contrario.",
+            "Si no puedes probar que se trata de desgaste ordinario, el tribunal podría aceptar parte de la retención.",
+            "Un repintado puntual, por pequeño, podría considerarse a tu cargo conforme al art. 21.4 LAU."
+          ],
+          "pasos_inmediatos": [
+            "Reúne pruebas del estado de la vivienda: fotos, vídeos, inventario de entrada, mensajes con el arrendador y el acta de entrega de llaves del 1 de septiembre de 2026.",
+            "Envía al arrendador un requerimiento por escrito, con burofax o medio que deje constancia, pidiendo la devolución de los 900 euros más el interés legal, con un plazo breve.",
+            "Pídele que justifique por escrito el daño y su coste, con presupuesto o facturas.",
+            "Si no responde, valora acudir a un procedimiento de mediación o conciliación, que puede ser requisito previo, y después reclamar judicialmente."
+          ],
+          "plazos": [
+            {
+              "tipo_plazo_id": "CIV_FIANZA_DEVOLUCION_1M",
+              "descripcion": "Plazo del arrendador para devolver la fianza (desde la entrega de llaves)",
+              "naturaleza": "sustantivo",
+              "tipo_computo": "meses_fecha_a_fecha",
+              "titular": "contraparte",
+              "fecha_inicio": "2026-09-01",
+              "fecha_limite_segura": "2026-10-01",
+              "dia_gracia_hasta": null,
+              "dias_habiles_restantes": null,
+              "festivos_no_verificados": [],
+              "municipio_ine": "28079",
+              "base_legal": "Art. 36.4 LAU",
+              "suspensiones": [],
+              "avisos": [
+                "Festivos locales del municipio no cargados para ese año: confirma las 2 fiestas locales en el boletín oficial de la provincia.",
+                "Transcurrido el mes, el saldo devenga el interés legal."
+              ],
+              "validado_juridicamente": false
+            },
+            {
+              "tipo_plazo_id": "CIV_CONTRACTUAL_5A",
+              "descripcion": "Acciones personales sin plazo especial (contratos)",
+              "naturaleza": "prescripcion",
+              "tipo_computo": "anios_fecha_a_fecha",
+              "titular": "usuario",
+              "fecha_inicio": "2026-09-01",
+              "fecha_limite_segura": "2031-09-01",
+              "dia_gracia_hasta": null,
+              "dias_habiles_restantes": null,
+              "festivos_no_verificados": [],
+              "municipio_ine": "28079",
+              "base_legal": "Art. 1964.2 CC (Ley 42/2015)",
+              "suspensiones": [],
+              "avisos": [
+                "Festivos locales del municipio no cargados para ese año: confirma las 2 fiestas locales en el boletín oficial de la provincia.",
+                "🔎 Criterio con jurisprudencia cambiante: confírmalo con un profesional.",
+                "Régimen transitorio para obligaciones nacidas antes del 7-10-2015."
+              ],
+              "validado_juridicamente": false
+            }
+          ],
+          "postulacion": {
+            "requiere_abogado": false,
+            "requiere_procurador": false,
+            "bloquea_escritos": false,
+            "base_legal": "Arts. 23.2.1º y 31.2.1º LEC; arts. 5 y 10 LO 1/2025",
+            "texto_usuario": "En asuntos civiles de hasta 2.000 € puedes actuar por ti mismo, sin abogado ni procurador. Antes de demandar, la LO 1/2025 (art. 5) exige haber intentado negociar (mediación, conciliación, oferta vinculante confidencial o negociación directa entre las partes) y poder acreditarlo por escrito (art. 10): basta un documento firmado por ambas partes o, en su defecto, uno que pruebe que la otra parte recibió tu invitación o propuesta para negociar y pudo leerla entera (p. ej., burofax con certificación de contenido). Si no contesta en 30 días naturales desde que la recibe, el intento se da por terminado sin acuerdo."
+          },
+          "avisos": [
+            "agy_gemini_flash no disponible (EmptyResponse); se degrada al siguiente modelo",
+            "Artículo 36 (BOE-A-1994-26003): se aplica la redacción vigente el 01/09/2026 (desde 06/03/2019). Reformado después, por primera vez el 01/10/2026 (BOE-A-2026-20266). Revisar disposiciones transitorias.",
+            "Artículo 21 (BOE-A-1994-26003): se aplica la redacción vigente el 01/09/2026 (desde 01/01/1995). Reformado después, por primera vez el 01/10/2026 (BOE-A-2026-20266). Revisar disposiciones transitorias.",
+            "Artículo 27 (BOE-A-1994-26003): se aplica la redacción vigente el 01/09/2026 (desde 06/06/2013). Reformado después, por primera vez el 01/10/2026 (BOE-A-2026-20266). Revisar disposiciones transitorias.",
+            "No hay jurisprudencia aplicable en el corpus local: la valoración se apoya solo en la ley. Se ha encolado una búsqueda para ampliar el corpus.",
+            "Alguna afirmación no se deduce literalmente de la norma (inferencia)."
+          ],
+          "guardarrailes": {
+            "G1_schema": true,
+            "G2_G3_citas": true,
+            "G4_sin_pronosticos": true,
+            "G5_nli": true,
+            "G6_banda": true,
+            "G8_plazos": true,
+            "G9_postulacion": true
+          },
+          "aviso_legal": "Iuris-IA es una herramienta personal de información jurídica y apoyo a la autodefensa. No es asesoramiento profesional ni sustituye a un abogado colegiado. Verifica los plazos y las citas en las fuentes oficiales enlazadas antes de actuar. Si no tienes recursos, puedes solicitar asistencia jurídica gratuita (Ley 1/1996) en el Colegio de Abogados de tu partido judicial.",
+          "generado_en": "2026-10-24T15:20:57.192282Z"
+        },
+        "banda_texto": "Argumento sólido, sin doctrina consolidada"
+      },
+      "texto": "Alquilé un piso en Madrid durante 3 años. Entregué las llaves y devolví la vivienda el 1 de septiembre de 2026. Ya han pasado 40 días y el arrendador se niega a devolverme los 900 euros de fianza alegando que tiene que repintar todo el piso, a pesar de que las paredes solo tienen el desgaste normal del uso. ¿Tengo derecho a que me la devuelva ya y con intereses?",
+      "adjuntos": []
+    }
+  }
+]

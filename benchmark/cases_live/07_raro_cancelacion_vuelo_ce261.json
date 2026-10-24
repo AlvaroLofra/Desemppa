@@ -1,0 +1,41 @@
+{
+  "id": "CASE-LIVE-007",
+  "tipo": "raro",
+  "materia_esperada": "CIV_CONSUMO_AEREO",
+  "titulo": "Cancelación de vuelo por huelga interna de la aerolínea",
+  "municipio_nombre": "Madrid",
+  "municipio_ine": "28079",
+  "consulta": "Compré un billete de avión para viajar de Madrid a París con salida hoy a las 8:00 AM. Cuatro horas antes del despegue, la aerolínea me mandó un SMS cancelando el vuelo alegando 'fuerza mayor y circunstancias extraordinarias' por una huelga de su propio personal de tierra y tripulantes. Me ofrecieron recolocación para mañana pero perdí mi reunión de trabajo. ¿Tengo derecho a la indemnización legal de 250 euros del Reglamento europeo o la huelga les exime?",
+  "aclaraciones_simuladas": [
+    {
+      "pregunta_contiene": "aerolínea",
+      "respuesta": "La compañía es una aerolínea comunitaria europea con sede en la UE y el trayecto Madrid-París tiene una distancia aproximada de 1.050 km."
+    }
+  ],
+  "criterios_evaluacion": {
+    "estimacion_principal": "DEFENSA",
+    "normas_requeridas": [
+      {
+        "id": "32004R0261",
+        "articulo": "7",
+        "descripcion": "Reglamento (CE) 261/2004 art. 7: compensación (250 € hasta 1.500 km)"
+      },
+      {
+        "id": "32004R0261",
+        "articulo": "5",
+        "descripcion": "Reglamento (CE) 261/2004 art. 5: cancelación y circunstancias extraordinarias"
+      }
+    ],
+    "postulacion_esperada": {
+      "abogado_obligatorio": false,
+      "procurador_obligatorio": false,
+      "motivo": "Reclamación de cuantía inferior a 2.000 € (250 €) en juicio verbal civil ex Arts. 23 y 31 LEC"
+    },
+    "puntos_clave": [
+      "Compensación fija de 250 € (art. 7.1.a del Reglamento (CE) 261/2004) para trayectos de hasta 1.500 km",
+      "La aerolínea solo se libera si prueba circunstancias extraordinarias (art. 5.3); según la doctrina del TJUE, la huelga de su propio personal no lo es (doctrina NO verificada en el corpus: comprobar en CURIA)",
+      "No se requiere abogado ni procurador para reclamar 250 €",
+      "La respuesta no añade hechos que el pasajero no ha contado"
+    ]
+  }
+}

@@ -4,6 +4,7 @@ guardarraíles. Emite eventos SSE por el EventBus; nunca deja que el LLM calcule
 from __future__ import annotations
 
 import logging
+import re
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, date, datetime
@@ -15,12 +16,14 @@ from pydantic import BaseModel, ValidationError
 from connectors.boe_client import BOEError, BOERepository
 from connectors.cendoj_fetcher import CendojRepository
 from connectors.convenios_db import ConveniosRepository
+from connectors.eurlex_client import EURLexError, EURLexRepository
 from connectors.retriever import HybridRetriever
 from core.calendar_engine import CalendarEngine, PlazoError
 from core.errors import ProviderError
+from core.fechas_es import fecha_consta, mes_consta
 from core.llm_types import LLMRequest, LLMResult
-from core.materias import Submateria, catalogo_para_prompt, id_norma, submaterias
-from core.nli import NLIChecker, extract_json
+from core.materias import Submateria, catalogo_para_prompt, id_norma, normas_aplicables, submaterias
+from core.nli import NLIChecker, extract_json, hechos_no_constatados
 from core.normalize import fold
 from core.postulacion_rules import CasoPostulacion, evaluar
 from core.router import ModelRouter
@@ -30,6 +33,7 @@ from core.schemas import (
     AlegatoSchema,
     AlertaPlazo,
     ArticuloBOE,
+    ArticuloUE,
     BandaSolidez,
     Cita,
     ClausulaConvenio,
@@ -93,6 +97,7 @@ class Services:
     store: ConsultaStore
     bus: EventBus
     today: Callable[[], date] = date.today
+    eurlex: EURLexRepository | None = None  # Derecho de la UE (opcional)
 
 
 @dataclass
@@ -188,6 +193,19 @@ class Orchestrator:
             .replace("{convenios}", lista_convenios or "(ninguno indexado: usa null)")
         )
         raw = await self._llm_json(run, "triaje", system, f"CONSULTA DEL CIUDADANO:\n{texto}", TriageLLM)
+        # Las fechas solo valen si el ciudadano las ha escrito (o «hoy», «ayer», «hace N días»): el modelo no puede
+        # deducirlas ni calcularlas. Una fecha inventada movería el plazo (benchmark 24-10-2026, caso de Barcelona).
+        hechos_txt = c.texto_seudonimizado + "\n" + "\n".join(str(a.get("respuesta", "")) for a in c.aclaraciones)
+        fecha_inicio = raw.fecha_inicio_plazo
+        if fecha_inicio and not fecha_consta(fecha_inicio, hechos_txt, hoy):
+            run.avisos.append(
+                f"El modelo propuso el {fecha_inicio:%d/%m/%Y} como inicio del plazo, pero esa fecha no consta en tu "
+                "consulta: no se ha usado."
+            )
+            fecha_inicio = None
+        fecha_hechos = raw.fecha_hechos
+        if fecha_hechos and not mes_consta(fecha_hechos, hechos_txt, hoy):
+            fecha_hechos = None
         cat = submaterias()
         principal = (
             raw.submateria_principal
@@ -204,12 +222,15 @@ class Orchestrator:
             if p.get("texto")
         ]
         faltan = list(raw.datos_criticos_faltantes)
-        if sub and sub.plazos and raw.fecha_inicio_plazo is None:
-            evento = sub.campos_criticos[0] if sub.campos_criticos else "fecha de inicio del plazo"
+        if sub and sub.plazos and fecha_inicio is None:
+            evento = _campo_fecha(sub)
             if not any(p.tipo_respuesta == "fecha" for p in preguntas):
                 preguntas.append(
                     PreguntaAclaratoria(
-                        id="q_fecha", texto=f"¿Cuál es la {evento}?", tipo_respuesta="fecha", motivo="cálculo de plazos"
+                        id="q_fecha",
+                        texto=f"Indica la fecha exacta (día, mes y año): {evento}",
+                        tipo_respuesta="fecha",
+                        motivo="cálculo de plazos",
                     )
                 )
         if (
@@ -235,6 +256,13 @@ class Orchestrator:
                     motivo="ambigüedad",
                 )
             )
+        # Derecho civil catalán: por vecindad civil declarada o por estar el juzgado en Cataluña (mismo criterio
+        # que el cálculo de plazos).
+        foral = (
+            "CT"
+            if raw.vecindad_civil == "catalana" or self.s.calendar.festivos.ccaa_de(municipio_ine) == "CT"
+            else None
+        )
         ya_aclarado = bool(c.aclaraciones)
         if ya_aclarado:  # una sola ronda: lo que falte se convierte en aviso
             if preguntas:
@@ -274,7 +302,7 @@ class Orchestrator:
             else min(raw.grado_ambiguedad, 0.34),
             preguntas_aclaracion=preguntas,
             datos_criticos_faltantes=[] if ya_aclarado else faltan,
-            fecha_hechos=raw.fecha_hechos or raw.fecha_inicio_plazo,
+            fecha_hechos=fecha_hechos or fecha_inicio,
             municipio_ine_organo=municipio_ine,
             vecindad_civil=cast(Any, raw.vecindad_civil)
             if raw.vecindad_civil in ("comun", "catalana", "aragonesa", "navarra", "vasca", "gallega", "balear")
@@ -283,15 +311,22 @@ class Orchestrator:
             alertas_plazo=[
                 AlertaPlazo(
                     tipo_plazo_id=p,
-                    fecha_inicio_computo=raw.fecha_inicio_plazo,
-                    evento_inicio=(sub.campos_criticos[0] if sub and sub.campos_criticos else ""),
+                    fecha_inicio_computo=fecha_inicio,
+                    evento_inicio=_campo_fecha(sub) if sub else "",
                 )
                 for p in (sub.plazos if sub else [])
             ],
             normas_boe_objetivo=[
                 NormaObjetivo(id_norma=id_norma(n.norma), articulos=n.articulos, motivo=n.norma)
-                for n in (sub.normas if sub else [])
-            ],
+                for n in (normas_aplicables(sub, foral) if sub else [])
+            ]
+            # Toda demanda civil exige antes intentar negociar (arts. 5 y 10 LO 1/2025): el debate debe tener el
+            # texto delante para no contradecir el aviso de postulación (benchmark, caso de la comisión bancaria).
+            + (
+                [NormaObjetivo(id_norma=id_norma("LOEFICIENCIA"), articulos=["5", "10"], motivo="LOEFICIENCIA")]
+                if jur == Jurisdiccion.CIVIL and sub and not sub.fuera_alcance
+                else []
+            ),
             terminos_cendoj=(raw.terminos_cendoj or (sub.terminos_cendoj if sub else []))[:8],
             # Solo códigos que existen en la base local: un código inventado por el modelo se descarta.
             convenio_aplicable=raw.convenio_aplicable if raw.convenio_aplicable in convenios else None,
@@ -370,6 +405,38 @@ class Orchestrator:
                         "titulo": fuente.titulo,
                         "url": fuente.url_oficial,
                         "extracto": fuente.texto_verbatim[:280],
+                    },
+                )
+        articulos_ue: list[ArticuloUE] = []
+        sub_ingesta = submaterias().get(triage.submateria_principal)
+        for norma_ue in sub_ingesta.normas_ue if sub_ingesta else []:
+            if self.s.eurlex is None:
+                avisos.append(f"{norma_ue.titulo}: el conector de Derecho de la UE no está disponible.")
+                break
+            for art in norma_ue.articulos:
+                try:
+                    ue = await self.s.eurlex.get_articulo(norma_ue.celex, art)
+                except EURLexError as exc:
+                    avisos.append(f"No se pudo obtener el art. {art} de {norma_ue.titulo} de EUR-Lex: {exc}")
+                    continue
+                fuente_ue = ArticuloUE(
+                    source_id=f"EUR:{ue.celex}:art{ue.articulo}",
+                    titulo=f"Art. {ue.articulo} {norma_ue.titulo} ({ue.titulo})",
+                    texto_verbatim=ue.texto[:MAX_FUENTE_CHARS],
+                    url_oficial=ue.url,
+                    celex=ue.celex,
+                    articulo=ue.articulo,
+                )
+                articulos_ue.append(fuente_ue)
+                self._emit(
+                    run,
+                    "source",
+                    {
+                        "source_id": fuente_ue.source_id,
+                        "tipo": "ue",
+                        "titulo": fuente_ue.titulo,
+                        "url": fuente_ue.url_oficial,
+                        "extracto": fuente_ue.texto_verbatim[:280],
                     },
                 )
         jur_filtro = {"administrativa_previa": "contencioso"}.get(
@@ -476,12 +543,17 @@ class Orchestrator:
                 "o de la ordenanza para un análisis completo."
             )
         cobertura = (
-            "degradada_sin_boe" if not articulos else "degradada_sin_jurisprudencia" if not sentencias else "completa"
+            "degradada_sin_boe"
+            if not (articulos or articulos_ue)
+            else "degradada_sin_jurisprudencia"
+            if not sentencias
+            else "completa"
         )
-        total = sum(len(f.texto_verbatim) for f in [*articulos, *sentencias, *clausulas, *adjuntos])
+        total = sum(len(f.texto_verbatim) for f in [*articulos, *articulos_ue, *sentencias, *clausulas, *adjuntos])
         dossier = DossierIngestaSchema(
             consulta_id=run.consulta_id,
             articulos_boe=articulos,
+            articulos_ue=articulos_ue,
             sentencias=sentencias,
             clausulas_convenio=clausulas,
             extractos_adjuntos=adjuntos,
@@ -528,7 +600,11 @@ class Orchestrator:
         self, run: _Run, dossier: DossierIngestaSchema, feedback: str = "", previo: dict[str, Any] | None = None
     ) -> dict[str, Any]:
         self._estado(run, Estado.DEBATE)
-        base = self._dossier_texto(dossier)
+        c = self.s.store.get(run.consulta_id)
+        pregunta = c.texto_seudonimizado + "".join(
+            f"\n- {a.get('pregunta', '')}: {a.get('respuesta', '')}" for a in c.aclaraciones
+        )
+        base = f"CONSULTA LITERAL DEL CIUDADANO (seudonimizada):\n{pregunta}\n\n" + self._dossier_texto(dossier)
         alegato_fmt = _prompt("_alegato")
         fuentes = dossier.fuentes()
         if previo is None:
@@ -606,9 +682,10 @@ class Orchestrator:
                     fallos.append(
                         f"{q.id}: cita a {cita.source_id} no verificada ({v['motivo']}): «{cita.verbatim_quote[:120]}»"
                     )
-            if q.tipo == "cuantia" and q.importe_estimado_eur is not None and q.fundamento_cuantia is None:
-                fallos.append(f"{q.id}: importe sin fundamento_cuantia")
+        if len(res.respuesta_directa.strip()) < 15:
+            fallos.append("falta respuesta_directa: contesta en 1-3 frases exactamente lo que pregunta el ciudadano")
         textos = [
+            res.respuesta_directa,
             res.resumen_ciudadano,
             res.razonamiento_banda,
             *res.fortalezas,
@@ -620,6 +697,16 @@ class Orchestrator:
             for p in find_pronosticos(t):
                 fallos.append(f"pronóstico porcentual prohibido: «{p}»")
         return fallos
+
+    async def _hechos_inventados(self, run: _Run, res: ResolucionMagistradoSchema, hechos: str) -> list[str]:
+        """Frases del texto para el ciudadano que afirman hechos del caso que el ciudadano no ha contado."""
+        texto = f"{res.respuesta_directa} {res.resumen_ciudadano}"
+        frases = [f.strip() for f in re.split(r"(?<=[.!?])\s+", texto) if len(f.strip()) > 15]
+        try:
+            return await hechos_no_constatados(self.s.router, run.modo, frases, hechos, consulta_id=run.consulta_id)
+        except (ProviderError, ValueError) as exc:
+            run.avisos.append(f"No se ha podido comprobar que la respuesta no añade hechos ({exc}).")
+            return []
 
     def _plazos(self, triage: TriageOutputSchema) -> tuple[list[PlazoCalculado], list[str]]:
         plazos, avisos = [], []
@@ -649,26 +736,49 @@ class Orchestrator:
         self._estado(run, Estado.GUARDARRAILES)
         fuentes = dossier.fuentes()
         res = ResolucionMagistradoSchema.model_validate(debate["magistrado"])
+        c = self.s.store.get(run.consulta_id)
+        hechos_txt = c.texto_seudonimizado + "".join(f"\n{a.get('respuesta', '')}" for a in c.aclaraciones)
         fallos = self._fallos_magistrado(res, fuentes)
+        inventados = await self._hechos_inventados(run, res, hechos_txt)
+        fallos += [f"afirma un hecho que no consta en la consulta: «{f}»" for f in inventados]
         self._emit(run, "guardrail", {"id": "G2-G4", "ok": not fallos, "detalle": fallos[:10]})
         if fallos:  # 1 reintento del Magistrado con el informe de errores (§2.3)
-            debate = await self._debate(run, dossier, feedback="\n".join(fallos[:20]), previo=debate)
+            try:
+                debate = await self._debate(run, dossier, feedback="\n".join(fallos[:20]), previo=debate)
+            except ProviderError as exc:
+                # Ya hay una resolución válida: se sigue con ella (lo no verificado se descarta más abajo)
+                # en lugar de perder la consulta porque el reintento no llega a tiempo.
+                run.avisos.append(f"No se pudo repetir la resolución para corregirla ({type(exc).__name__}).")
+            else:
+                res = ResolucionMagistradoSchema.model_validate(debate["magistrado"])
+                fallos = self._fallos_magistrado(res, fuentes)
+                inventados = await self._hechos_inventados(run, res, hechos_txt)
+                fallos += [f"afirma un hecho que no consta en la consulta: «{f}»" for f in inventados]
             self._estado(run, Estado.GUARDARRAILES)
-            res = ResolucionMagistradoSchema.model_validate(debate["magistrado"])
-            fallos = self._fallos_magistrado(res, fuentes)
             self._emit(run, "guardrail", {"id": "G2-G4 (reintento)", "ok": not fallos, "detalle": fallos[:10]})
+        if inventados:
+            run.avisos.append(
+                "Se han eliminado de la respuesta frases que atribuían hechos que no constan en tu consulta."
+            )
 
         # Construcción de fundamentos verificados (las citas que sigan fallando se descartan con aviso)
         fundamentos: list[Fundamento] = []
         pares: list[tuple[str, str]] = []
         ref: list[tuple[str, str, str, float, tuple[int, int], str]] = []
         descartadas = 0
+        vistos: set[tuple[str, str]] = set()
         for q in res.cuestiones:
             for arg in q.fundamentos:
                 for cita, v in zip(arg.citas, self._verificar_citas(arg.citas, fuentes), strict=True):
                     if not v["ok"] or v.get("offsets") is None:
                         descartadas += 1
                         continue
+                    # La misma cita (o la misma afirmación con la misma fuente) no se repite en el dictamen.
+                    clave_cita = (cita.source_id, " ".join(cita.verbatim_quote.lower().split()))
+                    clave_afirm = (cita.source_id, " ".join(arg.afirmacion.lower().split()))
+                    if clave_cita in vistos or clave_afirm in vistos:
+                        continue
+                    vistos.update({clave_cita, clave_afirm})
                     pares.append((cita.verbatim_quote, arg.afirmacion))
                     ref.append(
                         (
@@ -682,10 +792,16 @@ class Orchestrator:
                     )
         if descartadas:
             run.avisos.append(f"Se han descartado {descartadas} cita(s) que no coinciden literalmente con la fuente.")
-        pronosticos = [p for t in [res.resumen_ciudadano] for p in find_pronosticos(t)]
-        resumen = res.resumen_ciudadano
-        for p in pronosticos:
-            resumen = resumen.replace(p, "[pronóstico eliminado]")
+        resumen, respuesta_directa = res.resumen_ciudadano, res.respuesta_directa.strip()
+        for frase in inventados:
+            resumen, respuesta_directa = (
+                resumen.replace(frase, "").strip(),
+                respuesta_directa.replace(frase, "").strip(),
+            )
+        for t in (resumen, respuesta_directa):
+            for p in find_pronosticos(t):
+                resumen = resumen.replace(p, "[pronóstico eliminado]")
+                respuesta_directa = respuesta_directa.replace(p, "[pronóstico eliminado]")
 
         nli_neutral = nli_contra = 0
         if pares:
@@ -725,7 +841,8 @@ class Orchestrator:
         roj_contra = {sid for (_, sid, _, _, _, est) in ref if sid.startswith("ROJ:") and est == "CONTRAPARTE"}
         niveles = {f.source_id: getattr(f, "nivel", None) for f in dossier.sentencias}
         ev = EvidenciaBanda(
-            citas_boe_verificadas=sum(1 for f in fundamentos if f.source_id.startswith("BOE:")),
+            # Normas verificadas: BOE y Derecho de la UE (EUR-Lex).
+            citas_boe_verificadas=sum(1 for f in fundamentos if f.source_id.startswith(("BOE:", "EUR:"))),
             sentencias_favorables_ts=sum(1 for s in roj_favor if niveles.get(s) == "TS"),
             sentencias_favorables_ap=sum(1 for s in roj_favor if niveles.get(s) in ("AP", "TSJ", "AN")),
             sentencias_desfavorables=len(roj_contra),
@@ -775,7 +892,8 @@ class Orchestrator:
             },
         )
 
-        avisos = list(dict.fromkeys([*run.avisos, *dossier.avisos, *avisos_plazos, *motivos]))
+        notas = [sub.notas] if sub and sub.notas else []  # nota fija de la materia en el catálogo
+        avisos = list(dict.fromkeys([*notas, *run.avisos, *dossier.avisos, *avisos_plazos, *motivos]))
         if not fundamentos:
             self._estado(run, Estado.BLOQUEADA)
             payload = {
@@ -798,6 +916,7 @@ class Orchestrator:
             modo=cast(Any, run.modo),
             modelos_usados=run.modelos,
             banda_solidez=banda,
+            respuesta_directa=respuesta_directa,
             resumen_ciudadano=resumen,
             fundamentos=fundamentos,
             cuestiones=res.cuestiones,
@@ -857,8 +976,20 @@ class Orchestrator:
             self._emit(run, "error", {"mensaje": str(exc)[:500], "tipo": type(exc).__name__})
 
 
+def _campo_fecha(sub: Submateria) -> str:
+    """El dato de fecha que inicia el plazo (p. ej. «fecha de entrega de llaves»); nunca otro campo crítico."""
+    return next((c for c in sub.campos_criticos if "fecha" in c.lower()), "fecha del hecho principal")
+
+
 def render_markdown(d: DictamenCertificadoSchema) -> str:
-    lines = [f"# Dictamen Iuris-IA — {BANDA_TEXTO[d.banda_solidez]}", "", d.resumen_ciudadano, ""]
+    lines = [
+        f"# Dictamen Desemppa — {BANDA_TEXTO[d.banda_solidez]}",
+        "",
+        d.respuesta_directa,
+        "",
+        d.resumen_ciudadano,
+        "",
+    ]
     if d.plazos:
         lines += [
             "## Plazos",

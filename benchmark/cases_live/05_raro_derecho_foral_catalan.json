@@ -1,0 +1,32 @@
+{
+  "id": "CASE-LIVE-005",
+  "tipo": "raro",
+  "materia_esperada": "CIV_DANOS_VECINO",
+  "titulo": "Daños por filtración vecinal en Barcelona y especialidad foral catalana",
+  "municipio_nombre": "Barcelona",
+  "municipio_ine": "08019",
+  "consulta": "Vivo en un piso en Barcelona. En junio de 2024 sufrí una grave inundación en el baño y pasillo provocada por la rotura de una tubería privativa del piso superior. El presupuesto de reparación asciende a 2.400 euros. Intenté llegar a un acuerdo con el vecino pero lo fue demorando. Ahora su aseguradora me dice que la reclamación ha prescrito porque ha pasado más de un año conforme al Código Civil español. ¿Es cierto que ha prescrito en Barcelona?",
+  "aclaraciones_simuladas": [
+    {
+      "pregunta_contiene": "fecha",
+      "respuesta": "El siniestro ocurrió el 10 de junio de 2024 en Barcelona capital y desde entonces han transcurrido 2 años y 4 meses."
+    }
+  ],
+  "criterios_evaluacion": {
+    "estimacion_principal": "DEFENSA",
+    "normas_requeridas": [
+      {"id": "BOE-A-2003-2410", "articulo": "121-21", "descripcion": "Codi Civil de Catalunya Art. 121-21: prescripción trienal de pretensiones extracontractuales"}
+    ],
+    "postulacion_esperada": {
+      "abogado_obligatorio": true,
+      "procurador_obligatorio": true,
+      "motivo": "Reclamación superior a 2.000 € (2.400 €) en juicio verbal civil ex Arts. 23 y 31 LEC"
+    },
+    "puntos_clave": [
+      "Aplicación preferente del Derecho Civil Foral de Cataluña en razón del territorio y vecindad civil",
+      "El plazo de prescripción extracontractual en Cataluña es de 3 años (Art. 121-21 CCCat) y no de 1 año (Art. 1968.2 CC)",
+      "La acción NO está prescrita y la pretensión está plenamente viva",
+      "Al superar los 2.000 €, es preceptiva la intervención de abogado y procurador"
+    ]
+  }
+}

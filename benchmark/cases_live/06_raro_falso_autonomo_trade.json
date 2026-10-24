@@ -1,0 +1,33 @@
+{
+  "id": "CASE-LIVE-006",
+  "tipo": "raro",
+  "materia_esperada": "SOC_FALSO_AUTONOMO",
+  "titulo": "Falso autónomo TRADE con horario e infraestructura impuesta",
+  "municipio_nombre": "Sevilla",
+  "municipio_ine": "41091",
+  "consulta": "Trabajo en Sevilla como diseñador gráfico desde hace 2 años para una agencia de marketing. Me obligaron a darme de alta como autónomo y firmar contrato de TRADE porque el 95% de mis ingresos vienen de ellos. Sin embargo, tengo horario fijo de 9:00 a 18:00 en su oficina, uso un portátil de la empresa, tengo cuenta de correo corporativa y no puedo fijar mis precios ni rechazar clientes. Ayer me comunicaron que prescinden de mis servicios sin preaviso ni indemnización. ¿Puedo demandar por despido improcedente en la jurisdicción social?",
+  "aclaraciones_simuladas": [
+    {
+      "pregunta_contiene": "fecha",
+      "respuesta": "La rescisión me la comunicaron ayer mismo por correo electrónico."
+    }
+  ],
+  "criterios_evaluacion": {
+    "estimacion_principal": "DEFENSA",
+    "normas_requeridas": [
+      {"id": "BOE-A-2015-11430", "articulo": "1", "descripcion": "Estatuto de los Trabajadores Art. 1.1: ámbito de aplicación y notas de ajenidad y dependencia"},
+      {"id": "BOE-A-2007-13409", "articulo": "11", "descripcion": "LETA Art. 11: concepto y régimen del trabajador autónomo económicamente dependiente"}
+    ],
+    "postulacion_esperada": {
+      "abogado_obligatorio": false,
+      "procurador_obligatorio": false,
+      "motivo": "Jurisdicción social en primera instancia (Arts. 18 y 21 LRJS)"
+    },
+    "puntos_clave": [
+      "Principio de primacía de la realidad frente a la denominación formal dada por las partes",
+      "Existencia de indicios concluyentes de laboralidad: horario fijo, medios de producción de la empresa, inserción en la organización",
+      "La rescisión unilateral sin causa constituye un despido improcedente con derecho a indemnización legal",
+      "Plazo de 20 días hábiles de caducidad para accionar por despido"
+    ]
+  }
+}

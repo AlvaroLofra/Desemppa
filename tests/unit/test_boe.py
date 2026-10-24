@@ -135,3 +135,11 @@ async def test_resolve_bloque_uses_norm_index(db):
     assert await repo.resolve_bloque("BOE-A-1889-4763", "26") == "a2-8"
     assert await repo.resolve_bloque("BOE-A-1889-4763", "9") == "anoveno"
     assert await repo.resolve_bloque("BOE-A-1889-4763", "16") == "adieciseis"
+
+
+def test_articulo_con_guion_del_codigo_civil_catalan():
+    from connectors.boe_client import _titulo_es_articulo
+
+    assert _titulo_es_articulo("Artículo 121-21", "121-21") is True
+    assert _titulo_es_articulo("Artículo 121-21", "121") is False
+    assert _titulo_es_articulo("Artículo 36 bis", "36bis") is True

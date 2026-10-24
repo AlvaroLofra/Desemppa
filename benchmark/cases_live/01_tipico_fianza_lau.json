@@ -1,0 +1,32 @@
+{
+  "id": "CASE-LIVE-001",
+  "tipo": "tipico",
+  "materia_esperada": "CIV_LAU_FIANZA",
+  "titulo": "Retención indebida de fianza de arrendamiento por pintura",
+  "municipio_nombre": "Madrid",
+  "municipio_ine": "28079",
+  "consulta": "Alquilé un piso en Madrid durante 3 años. Entregué las llaves y devolví la vivienda el 1 de septiembre de 2026. Ya han pasado 40 días y el arrendador se niega a devolverme los 900 euros de fianza alegando que tiene que repintar todo el piso, a pesar de que las paredes solo tienen el desgaste normal del uso. ¿Tengo derecho a que me la devuelva ya y con intereses?",
+  "aclaraciones_simuladas": [
+    {
+      "pregunta_contiene": "llaves",
+      "respuesta": "Las llaves se entregaron el 1 de septiembre de 2026 con acta de entrega sin desperfectos graves."
+    }
+  ],
+  "criterios_evaluacion": {
+    "estimacion_principal": "DEFENSA",
+    "normas_requeridas": [
+      {"id": "BOE-A-1994-26003", "articulo": "36", "descripcion": "LAU Art. 36: restitución de fianza e interés legal tras 1 mes"},
+      {"id": "BOE-A-1889-4763", "articulo": "1561", "descripcion": "Código Civil Art. 1561: exención por menoscabo o desgaste ordinario"}
+    ],
+    "postulacion_esperada": {
+      "abogado_obligatorio": false,
+      "procurador_obligatorio": false,
+      "motivo": "Juicio verbal por cuantía hasta 2.000 € (900 €)"
+    },
+    "puntos_clave": [
+      "El arrendatario no responde del deterioro derivado del uso ordinario",
+      "Devengo del interés legal transcurrido un mes desde la entrega de llaves",
+      "Reclamable mediante juicio verbal sin necesidad de abogado ni procurador"
+    ]
+  }
+}

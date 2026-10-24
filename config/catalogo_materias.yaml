@@ -74,6 +74,12 @@ submaterias:
     jurisdiccion: civil
     procedimiento: verbal
     normas: [{norma: CC, articulos: ["1902", "1907", "1910"]}, {norma: LPH, articulos: ["9"]}]
+    # Cataluña: la propiedad horizontal la regula el libro quinto del CCCat (no la LPH estatal) y la prescripción
+    # extracontractual es de 3 años (art. 121-21.d CCCat). Textos verificados en el BOE el 24-10-2026.
+    normas_forales:
+      CT:
+        quita: [LPH]
+        anade: [{norma: CCCAT_L5, articulos: ["553-38", "553-40"]}, {norma: CCCAT_L1, articulos: ["121-21"]}]
     campos_criticos: ["fecha del daño", "origen (elemento privativo o común)", "importe de la reparación"]
     plazos: [CIV_EXTRACONTRACTUAL_1A]
     terminos_cendoj: ["daños por agua vecino responsabilidad extracontractual"]
@@ -106,9 +112,12 @@ submaterias:
     descripcion: "Multa de tráfico o de zona azul/ORA"
     jurisdiccion: administrativa_previa
     procedimiento: multa_trafico
-    normas: [{norma: LSV, articulos: ["93", "94", "95"]}, {norma: LPAC, articulos: ["30", "124"]}]
+    normas: [{norma: LSV, articulos: ["93", "94", "95", "96"]}, {norma: LPAC, articulos: ["30", "124"]}]
     campos_criticos: ["fecha de notificación", "municipio", "¿te la entregaron en mano o por correo?", "¿ya está pagada?"]
-    plazos: [ADM_TRAFICO_ALEGACIONES_20N, ADM_REPOSICION_1M]
+    # La reposición (art. 96.2 LTSV) cuenta desde la notificación de la RESOLUCIÓN, no de la denuncia: no se calcula
+    # aquí porque solo conocemos la fecha de la denuncia (verificado en el BOE el 24-10-2026).
+    plazos: [ADM_TRAFICO_ALEGACIONES_20N]
+    notas: "Si no alegas ni pagas en 20 días naturales, en las infracciones leves la denuncia pasa a valer como resolución (art. 95.4 LTSV). Contra la resolución cabe recurso de reposición en el plazo de un mes desde su notificación (art. 96.2 LTSV)."
     terminos_cendoj: ["sanción tráfico estacionamiento regulado notificación"]
     competencia_local: true
   ADM_SANCION_MUNICIPAL:
@@ -155,7 +164,9 @@ submaterias:
     plazos: [CIV_CONTRACTUAL_5A]
     terminos_cendoj: ["Reglamento 261/2004 compensación cancelación"]
     doctrina_cambiante: true
-    notas: "El Reglamento (CE) 261/2004 no está en el BOE: su texto no se cita literalmente."
+    # Texto oficial desde Cellar/EUR-Lex (Diario Oficial, no consolidado), verificado el 24-10-2026.
+    normas_ue: [{celex: "32004R0261", titulo: "Reglamento (CE) 261/2004", articulos: ["5", "7", "8"]}]
+    notas: "El Reglamento (CE) 261/2004 se cita con su texto publicado en el Diario Oficial de la UE. La jurisprudencia del Tribunal de Justicia de la UE sobre «circunstancias extraordinarias» no está en el corpus local: compruébala antes de reclamar."
   FUERA_PENAL:
     descripcion: "Delitos, denuncias penales, impago de pensiones como delito"
     jurisdiccion: penal

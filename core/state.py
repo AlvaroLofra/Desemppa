@@ -100,13 +100,19 @@ class ConsultaStore:
 
     # ---------- consultas ----------
     def create(
-        self, texto: str, modo: str, *, municipio_ine: str | None = None, adjuntos: list[str] | None = None
+        self,
+        texto: str,
+        modo: str,
+        *,
+        municipio_ine: str | None = None,
+        adjuntos: list[str] | None = None,
+        origen: str = "local",
     ) -> str:
         consulta_id = str(uuid.uuid4())
         red = redact(texto)
         self._con.execute(
             """INSERT INTO sesiones_consultas(consulta_id, modo_utilizado, estado, consulta_usuario_cifrada,
-                   consulta_seudonimizada, pii_map_cifrado) VALUES (?, ?, ?, ?, ?, ?)""",
+                   consulta_seudonimizada, pii_map_cifrado, origen) VALUES (?, ?, ?, ?, ?, ?, ?)""",
             (
                 consulta_id,
                 modo,
@@ -114,6 +120,7 @@ class ConsultaStore:
                 encrypt(texto),
                 red.text,
                 encrypt(json.dumps({"mapping": red.mapping, "municipio_ine": municipio_ine, "aclaraciones": []})),
+                origen,
             ),
         )
         for adjunto_id in adjuntos or []:
@@ -237,16 +244,46 @@ class ConsultaStore:
         )
         return int(cur.rowcount or 0)
 
-    def listar(self, limit: int = 50) -> list[dict[str, Any]]:
+    def listar(self, limit: int = 50, *, origen: str | None = None) -> list[dict[str, Any]]:
+        """Historial. Con `origen` solo las de ese origen (lo que ve un invitado); sin él, todas."""
+        filtro, params = ("WHERE origen = ?", (origen, limit)) if origen else ("", (limit,))
         rows = self._con.execute(
-            """SELECT consulta_id, creado_en, modo_utilizado, estado, consulta_seudonimizada, banda_solidez
-               FROM sesiones_consultas ORDER BY creado_en DESC LIMIT ?""",
-            (limit,),
+            f"""SELECT consulta_id, creado_en, modo_utilizado, estado, consulta_seudonimizada, banda_solidez, origen
+               FROM sesiones_consultas {filtro} ORDER BY creado_en DESC LIMIT ?""",
+            params,
         ).fetchall()
         return [
-            {"consulta_id": r[0], "creado_en": r[1], "modo": r[2], "estado": r[3], "titulo": r[4][:90], "banda": r[5]}
+            {
+                "consulta_id": r[0],
+                "creado_en": r[1],
+                "modo": r[2],
+                "estado": r[3],
+                "titulo": r[4][:90],
+                "banda": r[5],
+                "invitado": r[6] != "local",
+            }
             for r in rows
         ]
+
+    def origen(self, consulta_id: str) -> str:
+        row = self._con.execute(
+            "SELECT origen FROM sesiones_consultas WHERE consulta_id = ?", (consulta_id,)
+        ).fetchone()
+        if row is None:
+            raise KeyError(consulta_id)
+        return str(row[0])
+
+    def contar_hoy(self, origen: str) -> int:
+        row = self._con.execute(
+            "SELECT COUNT(*) FROM sesiones_consultas WHERE origen = ? AND date(creado_en) = date('now')", (origen,)
+        ).fetchone()
+        return int(row[0])
+
+    def contar_hoy_invitados(self) -> int:
+        row = self._con.execute(
+            "SELECT COUNT(*) FROM sesiones_consultas WHERE origen != 'local' AND date(creado_en) = date('now')"
+        ).fetchone()
+        return int(row[0])
 
     def restore_pii(self, consulta_id: str, text: str) -> str:
         return Redaction(text="", mapping=self._meta(consulta_id).get("mapping", {})).restore(text)

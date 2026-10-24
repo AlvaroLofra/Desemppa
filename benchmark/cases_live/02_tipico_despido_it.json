@@ -1,0 +1,34 @@
+{
+  "id": "CASE-LIVE-002",
+  "tipo": "tipico",
+  "materia_esperada": "SOC_DESPIDO_IT",
+  "titulo": "Despido disciplinario durante incapacidad temporal",
+  "municipio_nombre": "Valencia",
+  "municipio_ine": "46250",
+  "consulta": "Trabajo de mozo de almacén en Valencia. El día 15 de octubre de 2026 me dieron la baja médica por una hernia discal. Dos días después, el 17 de octubre de 2026, la empresa me notificó una carta de despido disciplinario alegando supuesta 'disminución voluntaria del rendimiento', sin aportar ninguna prueba. Quiero impugnar el despido para que sea declarado nulo o improcedente. ¿Qué plazo tengo y qué opciones tengo?",
+  "aclaraciones_simuladas": [
+    {
+      "pregunta_contiene": "notificación",
+      "respuesta": "La carta de despido se me notificó fehacientemente por burofax el 17 de octubre de 2026."
+    }
+  ],
+  "criterios_evaluacion": {
+    "estimacion_principal": "DEFENSA",
+    "normas_requeridas": [
+      {"id": "BOE-A-2015-11430", "articulo": "54", "descripcion": "Estatuto de los Trabajadores Art. 54: despido disciplinario"},
+      {"id": "BOE-A-2015-11430", "articulo": "55", "descripcion": "Estatuto de los Trabajadores Art. 55: forma, efectos e improcedencia o nulidad"},
+      {"id": "BOE-A-2022-11589", "articulo": "26", "descripcion": "Ley 15/2022 Art. 26: nulidad de pleno derecho de actos discriminatorios por enfermedad"},
+      {"id": "BOE-A-2011-15936", "articulo": "103", "descripcion": "LRJS Art. 103: plazo de caducidad de 20 días hábiles"}
+    ],
+    "postulacion_esperada": {
+      "abogado_obligatorio": false,
+      "procurador_obligatorio": false,
+      "motivo": "En la jurisdicción social en primera instancia (Juzgado de lo Social) no es preceptiva la defensa de letrado ni procurador, aunque es altamente aconsejable (Art. 18 y 21 LRJS)"
+    },
+    "puntos_clave": [
+      "Plazo perentorio de 20 días hábiles de caducidad para papeleta de conciliación (SMAC)",
+      "Inversión de la carga probatoria e indicio de vulneración de la Ley 15/2022 integral de no discriminación",
+      "Improcedencia subsidiaria si no prospera la nulidad radical"
+    ]
+  }
+}

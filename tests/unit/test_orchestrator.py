@@ -75,6 +75,7 @@ def magistrado(quote_boe=Q_BOE, resumen="Tienes argumentos sólidos para recuper
         ],
         "banda_propuesta": "criterio_consolidado_favorable",
         "razonamiento_banda": "doctrina AP",
+        "respuesta_directa": "Sí: el casero no puede quedarse la fianza por el desgaste normal de la pintura.",
         "resumen_ciudadano": resumen,
         "fortalezas": ["ley clara"],
         "debilidades_contraparte": [],
@@ -95,6 +96,8 @@ class ScriptedRouter:
             payload = {"resultados": [{"indice": i, "etiqueta": "ENTAILS"} for i in range(n)]}
         else:
             payload = self.script[role].pop(0)
+            if isinstance(payload, Exception):
+                raise payload
         text = json.dumps(payload, ensure_ascii=False)
         yield StreamChunk(text=text[:20])
         yield LLMResult(text=text, provider="gemini", alias="gemini_flash", model=f"fake-{role}")
@@ -165,7 +168,11 @@ async def test_full_pipeline_certifies(services):
             "magistrado": [magistrado()],
         }
     )
-    cid = s.store.create("Me llamo Ana Pérez, DNI 12345678Z. El casero no me devuelve la fianza por pintar.", "eco")
+    cid = s.store.create(
+        "Me llamo Ana Pérez, DNI 12345678Z. Entregué las llaves el 1 de junio de 2026 y el casero no me "
+        "devuelve la fianza por pintar.",
+        "eco",
+    )
     assert "12345678Z" not in s.store.get(cid).texto_seudonimizado
     await Orchestrator(s).run(cid)
     c = s.store.get(cid)
@@ -179,7 +186,8 @@ async def test_full_pipeline_certifies(services):
     tipos = [t for t, _ in _events(s, cid)]
     for t in ("triage", "source", "debate_done", "guardrail", "deadline", "final"):
         assert t in tipos
-    assert router.calls == ["triaje", "defensa", "contraparte", "magistrado", "nli"]
+    # nli: verificación de cada fundamento (G5) y comprobación de hechos no constatados en la respuesta
+    assert router.calls == ["triaje", "defensa", "contraparte", "magistrado", "nli", "nli"]
 
 
 async def test_fabricated_quote_triggers_single_retry_then_certifies(services):
@@ -192,7 +200,9 @@ async def test_fabricated_quote_triggers_single_retry_then_certifies(services):
             "magistrado": [magistrado(quote_boe=falsa), magistrado()],
         }
     )
-    cid = s.store.create("El casero no me devuelve la fianza por pintar la casa.", "eco")
+    cid = s.store.create(
+        "Entregué las llaves el 1 de junio de 2026 y el casero no me devuelve la fianza por pintar la casa.", "eco"
+    )
     await Orchestrator(s).run(cid)
     assert router.calls.count("magistrado") == 2
     assert s.store.get(cid).estado == Estado.CERTIFICADA
@@ -212,7 +222,9 @@ async def test_persistent_fabrication_blocks(services):
             "magistrado": [mala, mala],
         }
     )
-    cid = s.store.create("El casero no me devuelve la fianza por pintar la casa.", "eco")
+    cid = s.store.create(
+        "Entregué las llaves el 1 de junio de 2026 y el casero no me devuelve la fianza por pintar la casa.", "eco"
+    )
     await Orchestrator(s).run(cid)
     c = s.store.get(cid)
     assert c.estado == Estado.BLOQUEADA
@@ -231,7 +243,9 @@ async def test_prognosis_is_removed_from_summary(services):
             ],
         }
     )
-    cid = s.store.create("El casero no me devuelve la fianza por pintar la casa.", "eco")
+    cid = s.store.create(
+        "Entregué las llaves el 1 de junio de 2026 y el casero no me devuelve la fianza por pintar la casa.", "eco"
+    )
     await Orchestrator(s).run(cid)
     d = s.store.get(cid).dictamen["dictamen"]
     assert "90%" not in d["resumen_ciudadano"]
@@ -339,6 +353,73 @@ async def test_triaje_solo_acepta_convenios_indexados(services, db, propuesto, e
         "convenio_aplicable": propuesto,  # un código inventado por el modelo debe descartarse
     }
     s, _ = services({"triaje": [triaje]})
-    cid = s.store.create("Soy camarero y me han despedido.", "eco")
+    cid = s.store.create("Soy camarero y me despidieron el 1 de junio de 2026.", "eco")
     t = await Orchestrator(s)._triaje(_Run(cid, "eco"))
     assert t is not None and t.convenio_aplicable == esperado
+
+
+async def test_fecha_de_inicio_que_no_consta_se_descarta(services):
+    from core.orchestrator import _Run
+
+    inventada = {**TRIAJE_OK, "fecha_inicio_plazo": "2026-09-30", "fecha_hechos": "2026-09-30"}
+    s, _ = services({"triaje": [inventada]})
+    cid = s.store.create("Entregué las llaves el 1 de junio de 2026 y no me devuelven la fianza.", "eco")
+    run = _Run(cid, "eco")
+    t = await Orchestrator(s)._triaje(run)
+    assert t is None  # se pregunta la fecha en lugar de usar la inventada
+    preguntas = next(d for tipo, d in _events(s, cid) if tipo == "clarification_needed")["preguntas"]
+    assert any(p["id"] == "q_fecha" and p["texto"].startswith("Indica la fecha exacta") for p in preguntas)
+    assert any("30/09/2026" in a for a in run.avisos)
+
+
+async def test_fundamentos_duplicados_se_muestran_una_vez(services):
+    duplicado = magistrado()
+    fund = duplicado["cuestiones"][0]["fundamentos"]
+    duplicado["cuestiones"][0]["fundamentos"] = [fund[0], fund[0], fund[1]]
+    s, _ = services(
+        {
+            "triaje": [TRIAJE_OK],
+            "defensa": [ALEGATO("DEFENSA", Q_BOE)],
+            "contraparte": [ALEGATO("CONTRAPARTE", Q_BOE)],
+            "magistrado": [duplicado],
+        }
+    )
+    cid = s.store.create("Entregué las llaves el 1 de junio de 2026 y el casero no me devuelve la fianza.", "eco")
+    await Orchestrator(s).run(cid)
+    d = s.store.get(cid).dictamen["dictamen"]
+    assert [f["source_id"] for f in d["fundamentos"]] == [BOE_SID, ROJ_SID]
+    assert d["respuesta_directa"].startswith("Sí")
+
+
+async def test_si_el_reintento_del_magistrado_falla_se_usa_la_primera_resolucion(services):
+    from core.errors import ProviderTimeout
+
+    s, router = services(
+        {
+            "triaje": [TRIAJE_OK],
+            "defensa": [ALEGATO("DEFENSA", Q_BOE), ALEGATO("DEFENSA", Q_BOE)],
+            "contraparte": [ALEGATO("CONTRAPARTE", Q_BOE), ALEGATO("CONTRAPARTE", Q_BOE)],
+            # La primera resolución trae una cita inventada (fuerza el reintento) y el reintento agota el tiempo.
+            "magistrado": [
+                magistrado(quote_boe="texto que no aparece en la ley en absoluto, inventado"),
+                ProviderTimeout("240 s", provider="antigravity_cli"),
+            ],
+        }
+    )
+    cid = s.store.create("Entregué las llaves el 1 de junio de 2026 y el casero no me devuelve la fianza.", "eco")
+    await Orchestrator(s).run(cid)
+    c = s.store.get(cid)
+    assert c.estado == Estado.CERTIFICADA  # antes: ERROR por el timeout del reintento
+    d = c.dictamen["dictamen"]
+    assert [f["source_id"] for f in d["fundamentos"]] == [ROJ_SID]  # la cita inventada se descarta
+    assert any("No se pudo repetir la resolución" in a for a in d["avisos"])
+
+
+async def test_toda_consulta_civil_lleva_el_requisito_masc_al_dossier(services):
+    from core.orchestrator import _Run
+
+    s, _ = services({"triaje": [TRIAJE_OK]})
+    cid = s.store.create("Entregué las llaves el 1 de junio de 2026 y no me devuelven la fianza.", "eco")
+    t = await Orchestrator(s)._triaje(_Run(cid, "eco"))
+    assert t is not None
+    assert any(n.id_norma == "BOE-A-2025-76" and n.articulos == ["5", "10"] for n in t.normas_boe_objetivo)

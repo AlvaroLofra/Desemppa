@@ -18,12 +18,27 @@ class NormaRef(BaseModel):
     articulos: list[str]
 
 
+class NormaUE(BaseModel):
+    celex: str  # p. ej. 32004R0261
+    titulo: str
+    articulos: list[str]
+
+
+class NormasForales(BaseModel):
+    """Ajuste de normas cuando se aplica un Derecho civil territorial (p. ej. Cataluña)."""
+
+    anade: list[NormaRef] = Field(default_factory=list)
+    quita: list[str] = Field(default_factory=list)  # alias de normas estatales que no se aplican en ese territorio
+
+
 class Submateria(BaseModel):
     clave: str
     descripcion: str
     jurisdiccion: str
     procedimiento: str | None = None
     normas: list[NormaRef] = Field(default_factory=list)
+    normas_forales: dict[str, NormasForales] = Field(default_factory=dict)  # clave: territorio (CT, ...)
+    normas_ue: list[NormaUE] = Field(default_factory=list)
     campos_criticos: list[str] = Field(default_factory=list)
     plazos: list[str] = Field(default_factory=list)
     terminos_cendoj: list[str] = Field(default_factory=list)
@@ -34,6 +49,14 @@ class Submateria(BaseModel):
     ambigua: bool = False
     cji: bool = False
     notas: str = ""
+
+
+def normas_aplicables(sub: Submateria, territorio_foral: str | None) -> list[NormaRef]:
+    """Normas de la submateria; con Derecho foral, se quitan las estatales desplazadas y se añaden las propias."""
+    ajuste = sub.normas_forales.get(territorio_foral or "")
+    if ajuste is None:
+        return list(sub.normas)
+    return [n for n in sub.normas if n.norma not in ajuste.quita] + list(ajuste.anade)
 
 
 @lru_cache

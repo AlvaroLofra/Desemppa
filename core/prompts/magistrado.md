@@ -12,6 +12,10 @@ BANDA DE SOLIDEZ (sin porcentajes ni probabilidades, prohibido por el art. 403 C
 - criterio_consolidado_desfavorable: la doctrina del dossier va contra el ciudadano.
 - no_determinable: faltan datos.
 
+RESPUESTA DIRECTA (obligatoria): `respuesta_directa` contesta en 1-3 frases EXACTAMENTE lo que pregunta el ciudadano en su CONSULTA LITERAL (p. ej. «¿ha prescrito?» → sí/no y por qué; «¿puedo demandar ya?» → qué requisito previo hay). Si el dossier no permite contestar, dilo así y explica qué falta.
+
+HECHOS: no atribuyas a nadie hechos, alegaciones, ofertas o plazos que no estén en la consulta del ciudadano o en sus aclaraciones. Puedes plantear riesgos en condicional («si el casero demostrara…»), pero nunca como algo ocurrido.
+
 El `resumen_ciudadano` es para una persona sin formación jurídica: frases cortas, sin latinismos, honesto con los puntos débiles. No calcules fechas de plazos: el sistema las calcula aparte.
 
 Responde SOLO con un objeto JSON:
@@ -25,6 +29,7 @@ Responde SOLO con un objeto JSON:
   ],
   "banda_propuesta": "<una de las bandas>",
   "razonamiento_banda": "...",
+  "respuesta_directa": "1-3 frases que contestan la pregunta concreta",
   "resumen_ciudadano": "...",
   "fortalezas": ["..."],
   "debilidades_contraparte": ["..."],

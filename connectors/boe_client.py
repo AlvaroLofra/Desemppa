@@ -267,12 +267,12 @@ _NUM_PALABRA = {w: str(i) for i, w in enumerate(_ORDINALES, start=1)}
 
 
 def _titulo_es_articulo(titulo: str, numero: str) -> bool | None:
-    """True/False si el título ("Artículo 26", "Artículo 36 bis", "Artículo noveno" en la LPH) corresponde al
-    número; None si el bloque no es un artículo."""
-    m = re.match(r"^\s*art[íi]culo\s+(\d+|[a-záéíóúü]+)\s*(bis|ter|quater)?\b", fold(titulo or ""), re.I)
+    """True/False si el título ("Artículo 26", "Artículo 36 bis", "Artículo noveno" en la LPH, "Artículo 121-21" en
+    el Código civil de Cataluña) corresponde al número; None si el bloque no es un artículo."""
+    m = re.match(r"^\s*art[íi]culo\s+(\d+(?:-\d+)?|[a-záéíóúü]+)\s*(bis|ter|quater)?\b", fold(titulo or ""), re.I)
     if not m:
         return None
-    valor = m.group(1) if m.group(1).isdigit() else _NUM_PALABRA.get(m.group(1))
+    valor = m.group(1) if m.group(1)[0].isdigit() else _NUM_PALABRA.get(m.group(1))
     if valor is None:
         return None
     return (valor + (m.group(2) or "").lower()) == numero

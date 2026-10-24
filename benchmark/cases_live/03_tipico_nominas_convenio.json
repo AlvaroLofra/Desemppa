@@ -1,0 +1,40 @@
+{
+  "id": "CASE-LIVE-003",
+  "tipo": "tipico",
+  "materia_esperada": "SOC_RECLAMACION_CANTIDAD",
+  "titulo": "Reclamación de cantidades y plus de convenio en hostelería",
+  "municipio_nombre": "Madrid",
+  "municipio_ine": "28079",
+  "consulta": "Trabajo como camarero en un restaurante de Madrid. La empresa me debe las nóminas de agosto y septiembre de 2026, así como el complemento de festivos y horas extra que fija el convenio colectivo del sector de hostelería de Madrid. En total asciende a 3.200 euros. ¿Qué plazo tengo para reclamar y qué trámite debo seguir?",
+  "aclaraciones_simuladas": [
+    {
+      "pregunta_contiene": "contrato",
+      "respuesta": "Tengo contrato indefinido a jornada completa y sigo en activo en la empresa."
+    },
+    {
+      "pregunta_contiene": "meses",
+      "respuesta": "2026-09-30"
+    },
+    {
+      "pregunta_contiene": "fecha",
+      "respuesta": "2026-09-30"
+    }
+  ],
+  "criterios_evaluacion": {
+    "estimacion_principal": "DEFENSA",
+    "normas_requeridas": [
+      {"id": "BOE-A-2015-11430", "articulo": "29", "descripcion": "Estatuto de los Trabajadores Art. 29: liquidación y pago del salario"},
+      {"id": "BOE-A-2015-11430", "articulo": "59", "descripcion": "Estatuto de los Trabajadores Art. 59: prescripción de 1 año para reclamar deudas salariales"}
+    ],
+    "postulacion_esperada": {
+      "abogado_obligatorio": false,
+      "procurador_obligatorio": false,
+      "motivo": "Jurisdicción social en primera instancia no requiere postulación obligatoria (Arts. 18 y 21 LRJS)"
+    },
+    "puntos_clave": [
+      "Plazo de prescripción de 1 año para deudas salariales ex Art. 59.1 ET",
+      "Interés por mora del 10 % anual sobre las cantidades salariales debidas ex Art. 29.3 ET",
+      "Papeleta de conciliación previa obligatoria ante el SMAC"
+    ]
+  }
+}

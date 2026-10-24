@@ -80,3 +80,41 @@ class NLIChecker:
             if 0 <= idx < len(pares) and r.get("etiqueta") in ("ENTAILS", "NEUTRAL", "CONTRADICTS"):
                 out[idx] = NLIResult(r["etiqueta"], str(r.get("motivo", "")))
         return out
+
+
+SYSTEM_HECHOS = (
+    "Eres un verificador de hechos para un asistente jurídico. Recibes los HECHOS que contó el ciudadano y FRASES de "
+    "la respuesta que se le va a dar. Marca solo las frases que afirman como ocurrido un hecho concreto del caso "
+    "(qué pasó, qué hizo, dijo, alegó u ofreció alguna persona o empresa, fechas, importes) que NO consta en los "
+    "HECHOS. No marques explicaciones de la ley, valoraciones, consejos ni riesgos en condicional. "
+    "Responde únicamente con el JSON pedido."
+)
+
+
+async def hechos_no_constatados(
+    router: ModelRouter, profile: str, frases: list[str], hechos: str, *, consulta_id: str | None = None
+) -> list[str]:
+    """Devuelve las frases que atribuyen al caso hechos que el ciudadano no ha contado."""
+    if not frases:
+        return []
+    prompt = (
+        'Devuelve {"no_constatados": [{"indice": n, "motivo": "..."}]} (lista vacía si todas son correctas).\n\n'
+        f"HECHOS DEL CIUDADANO:\n{hechos[:6000]}\n\n" + "\n".join(f"### Frase {i}: {f}" for i, f in enumerate(frases))
+    )
+    text = ""
+    async for item in router.stream(
+        profile,
+        "nli",
+        LLMRequest(system=SYSTEM_HECHOS, prompt=prompt, json_mode=True),
+        fase="guardarrailes",
+        consulta_id=consulta_id,
+    ):
+        if isinstance(item, LLMResult):
+            text = item.text
+    data = extract_json(text)
+    marcadas = data.get("no_constatados", [])
+    out: list[str] = []
+    for r in marcadas if isinstance(marcadas, list) else []:
+        if isinstance(r, dict) and isinstance(r.get("indice"), int) and 0 <= r["indice"] < len(frases):
+            out.append(frases[r["indice"]])
+    return list(dict.fromkeys(out))

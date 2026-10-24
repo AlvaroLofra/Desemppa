@@ -1,0 +1,41 @@
+{
+  "id": "CASE-LIVE-008",
+  "tipo": "raro",
+  "materia_esperada": "CIV_CONSUMO_BANCARIO",
+  "titulo": "Reclamación de comisión de apertura y requisito MASC de la LO 1/2025",
+  "municipio_nombre": "Madrid",
+  "municipio_ine": "28079",
+  "consulta": "Tengo una hipoteca firmada en 2018 con mi banco y me cobraron 1.800 euros de comisión de apertura sin prestarme ningún servicio concreto. Sé que el Tribunal Supremo y la justicia europea dicen que es abusiva si no hubo negociación ni costes reales. Quiero interponer una demanda en el juzgado directamente mañana mismo sin perder tiempo hablando con el banco. ¿Puedo demandar de inmediato o qué requisitos procesales previos debo cumplir obligatoriamente?",
+  "aclaraciones_simuladas": [
+    {
+      "pregunta_contiene": "reclamación previa",
+      "respuesta": "No he presentado ninguna reclamación previa al Servicio de Atención al Cliente del banco ni intento de mediación; quiero ir directo al juzgado."
+    }
+  ],
+  "criterios_evaluacion": {
+    "estimacion_principal": "DEFENSA",
+    "normas_requeridas": [
+      {
+        "id": "BOE-A-2025-76",
+        "articulo": "5",
+        "descripcion": "LO 1/2025 Art. 5: requisito de procedibilidad MASC para demandas civiles"
+      },
+      {
+        "id": "BOE-A-2007-20555",
+        "articulo": "82",
+        "descripcion": "TRLGDCU Art. 82: concepto general de cláusula abusiva"
+      }
+    ],
+    "postulacion_esperada": {
+      "abogado_obligatorio": false,
+      "procurador_obligatorio": false,
+      "motivo": "Reclamación de cuantía no superior a 2.000 € (1.800 €), aunque la materia de condiciones generales suele requerir asesoramiento legal"
+    },
+    "puntos_clave": [
+      "La respuesta directa contesta a «¿puedo demandar ya?»: no, primero hay que intentar negociar (art. 5 LO 1/2025)",
+      "Explica cómo acreditar el intento (art. 10 LO 1/2025: documento que pruebe que el banco recibió la propuesta)",
+      "La pretensión de nulidad por abusividad tiene base en el art. 82 TRLGDCU",
+      "Cuantía de 1.800 € no supera el umbral de 2.000 € de postulación obligatoria"
+    ]
+  }
+}
