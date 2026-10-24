@@ -1,7 +1,7 @@
-# Guía Maestra de Contexto del Proyecto — Iuris-IA / Lex-Agent ES (`CLAUDE.md` = `GEMINI.md`)
+# Guía Maestra de Contexto del Proyecto — Desemppa (antes Iuris-IA) (`CLAUDE.md` = `GEMINI.md`)
 
 > **Instrucción para el Agente de IA (Claude Code / Gemini / Antigravity):**
-> Este fichero (`CLAUDE.md` y su gemelo idéntico `GEMINI.md`) contiene las reglas operativas, el perfil del usuario, las restricciones de suscripciones/modelos y el mapa de lectura rápida para que puedas retomar el trabajo en **Iuris-IA** en cualquier sesión **sin pedir contexto adicional al usuario**.
+> Este fichero (`CLAUDE.md` y su gemelo idéntico `GEMINI.md`) contiene las reglas operativas, el perfil del usuario, las restricciones de suscripciones/modelos y el mapa de lectura rápida para que puedas retomar el trabajo en **Desemppa** en cualquier sesión **sin pedir contexto adicional al usuario**.
 > **Regla de sincronización:** Si en el futuro modificas `CLAUDE.md` o `GEMINI.md`, **debes actualizar ambos ficheros con exactamente el mismo contenido**.
 
 ---
@@ -57,10 +57,11 @@ Cuando inicies una nueva sesión, consulta directamente estos ficheros según la
 
 ## 3. Reglas Inquebrantables de Ingeniería y Seguridad en este Proyecto
 
+0. **Nombre**: la app se llama **Desemppa** en todo lo visible. Los identificadores internos conservan `iuris` (`X-Iuris-Token`, variables `IURIS_*`, claves de `localStorage`, `data/local/iuris.log`, nombre de carpeta) para no romper datos ni scripts: no los renombres.
 1. **Nada de memoria: todo dato se verifica contra la fuente en la misma sesión.** Referencias BOE, códigos REGCON, artículos de ley e ids de modelos se comprueban (BOE, `agy models`, documentación oficial) antes de escribirlos en configuración, datos o documentación. Lo que no se pueda verificar se marca como «sin verificar». Todo script nuevo lleva al menos un test de humo. (Motivo: el 23-10-2026 se introdujeron 9 referencias BOE inventadas; ver [`docs/informe_revision_2026-10-24.md`](docs/informe_revision_2026-10-24.md).)
-2. **El LLM nunca calcula fechas ni inventa normas**: Todo cálculo de plazos pasa por `CalendarEngine` (`core/calendar_engine.py`) y toda cita se verifica literalmente contra el texto del BOE/sentencia/convenio con `verify_quote` (`core/validators.py`).
+2. **El LLM nunca calcula fechas ni inventa normas ni hechos**: las fechas del triaje solo valen si constan en el texto del usuario (`core/fechas_es.py`); el texto para el ciudadano se contrasta con sus hechos (`core/nli.py::hechos_no_constatados`); el Magistrado debe dar una `respuesta_directa` a la pregunta. Todo cálculo de plazos pasa por `CalendarEngine` (`core/calendar_engine.py`) y toda cita se verifica literalmente contra el texto del BOE/sentencia/convenio con `verify_quote` (`core/validators.py`).
 3. **Seguridad de subprocesos CLI**: Jamás añadas flags de autoaprobación como `--dangerously-skip-permissions` en `config/providers.toml` (`config/settings.py` los rechaza expresamente). En Windows, `uvicorn` debe ejecutarse **sin `--reload`** para no romper el `ProactorEventLoop` necesario para subprocesos asíncronos.
-4. **Privacidad y Loopback**: El servidor solo escucha en `127.0.0.1` (`Host` validado contra DNS rebinding), exige cabecera `X-Iuris-Token` en escrituras, seudonimiza PII antes de llamar a cualquier LLM (`core/pii_redactor.py`) y cifra datos sensibles y API keys con Windows DPAPI (`core/secure_store.py`).
+4. **Privacidad, loopback y red local**: El servidor escucha en `0.0.0.0` pero `api/red_local.py` rechaza todo lo que no venga de este equipo salvo que el dueño active «Compartir en la red local» (solo IPs privadas, `Host` = IP del equipo, rol invitado con token propio, solo sus consultas, solo modos permitidos y límites de uso). Nunca expongas el token del dueño ni rutas de ajustes a invitados. El servidor valida el `Host` contra DNS rebinding, exige cabecera `X-Iuris-Token` en escrituras, seudonimiza PII antes de llamar a cualquier LLM (`core/pii_redactor.py`) y cifra datos sensibles y API keys con Windows DPAPI (`core/secure_store.py`).
 5. **Checklist de verificación antes de cerrar cualquier cambio**:
    ```powershell
    uv run ruff check .

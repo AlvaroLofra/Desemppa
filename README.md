@@ -1,4 +1,4 @@
-# Iuris-IA / Lex-Agent ES
+# Desemppa (antes Iuris-IA)
 
 Asistente legal **personal y local** para el derecho español. Analiza un caso enfrentando los argumentos del
 usuario con los de la contraparte (`Defensa` → `Contraparte` → `Magistrado`), verifica cada cita literalmente contra
@@ -31,7 +31,7 @@ sin necesidad de re-explicarlo.
 
 ## Arranque rápido (Windows)
 
-**Doble clic en `INICIAR_IURIS_IA.bat`** (migra datos antiguos si aplica, compila la interfaz si falta, arranca el backend y abre el navegador **solo cuando el servidor responde `200 OK` en `/api/version`**, evitando errores `ERR_CONNECTION_REFUSED` o cachés antiguas del Service Worker).
+**Doble clic en `INICIAR_DESEMPPA.bat`** (migra datos antiguos si aplica, compila la interfaz si falta, arranca el backend y abre el navegador **solo cuando el servidor responde `200 OK` en `/api/version`**, evitando errores `ERR_CONNECTION_REFUSED` o cachés antiguas del Service Worker).
 
 Requisitos: Python 3.12 (vía `uv`), Node 18+ y al menos un proveedor de modelos.
 

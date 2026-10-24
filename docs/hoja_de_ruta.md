@@ -27,7 +27,7 @@ Detalle en [informe_revision_2026-10-24.md](informe_revision_2026-10-24.md) (§6
 ### Paso 1 · Verificar en vivo y activar sesión de Claude Code (5 min)
 | # | Tarea | Cómo hacerlo | Quién |
 |---|---|---|---|
-| 1.1 | Arrancar la app actualizada | Cierra cualquier ventana antigua del servidor y haz doble clic en `INICIAR_IURIS_IA.bat` (o ejecuta `powershell -ExecutionPolicy Bypass -File scripts/start.ps1`). Si tu navegador tenía cacheado `index-fDqGlMOV.js`, pulsa una vez `Ctrl + F5`. | 🧑 Tú |
+| 1.1 | Arrancar la app actualizada | Cierra cualquier ventana antigua del servidor y haz doble clic en `INICIAR_DESEMPPA.bat` (o ejecuta `powershell -ExecutionPolicy Bypass -File scripts/start.ps1`). Si tu navegador tenía cacheado `index-fDqGlMOV.js`, pulsa una vez `Ctrl + F5`. | 🧑 Tú |
 | 1.2 | Iniciar sesión en Claude Code (si quieres usar tu plan Claude Pro además de Antigravity) | Abre una terminal normal PowerShell, escribe `claude` y dentro escribe `/login`. Luego en la web ve a **Modelos → Probar** en `Claude Sonnet (Plan Claude Pro)`. *(Mientras no inicies sesión en `claude`, la app usa automáticamente `Claude Sonnet 5.5` y `Gemini 4 Argon` a través de tu plan de Antigravity).* | 🧑 Tú |
 
 ### Paso 2 · Poblar tus datos locales cuando los necesites (100 % opcional según tus consultas)

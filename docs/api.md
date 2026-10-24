@@ -12,6 +12,26 @@ Documentación interactiva OpenAPI en `http://127.0.0.1:8000/docs` mientras el s
 | Obtener el token | `GET /api/token` (guardado en `data/local/local_token.txt`, estable entre reinicios) |
 | Autolimpieza en 403 | Si una pestaña antigua envía un token caducado, el 403 incluye `Clear-Site-Data: "cache"` para purgar cachés obsoletas del navegador |
 
+## Roles: dueño e invitado (red local)
+| Origen de la petición | Rol | Condición |
+|---|---|---|
+| `127.0.0.1` / `::1` | dueño | `Host` = `127.0.0.1` o `localhost` |
+| IP privada de la LAN | invitado | solo con la red activada (`PUT /api/red`) y `Host` = IP de este equipo |
+| cualquier otra | — | 403 antes de llegar a la app |
+
+El invitado envía `X-Desemppa-Invitado: <id aleatorio>` (y `?invitado=` en el stream SSE); recibe un token propio en
+`/api/token`. Las rutas marcadas 👤 son solo del dueño. Un invitado solo ve, abre y sigue sus propias consultas
+(404 para las demás); solo puede usar los modos permitidos (403), 1 consulta en curso y un tope diario (429).
+
+### `GET /api/sesion`
+`{"rol": "dueno" | "invitado", "modos_permitidos": [...]}`.
+
+### `GET /api/red` 👤 · `PUT /api/red` 👤🔒
+Estado de la red local: `activo`, `escucha_red` (el servidor se arrancó en `0.0.0.0`), `ip`, `url`,
+`modos_permitidos` (Eco siempre), `tope_diario`, `invitados_activos` (últimos 2 min), `consultas_hoy`.
+`PUT` acepta `{"activo"?, "modos_permitidos"?, "tope_diario"? (1-200)}`. El estado vive en memoria: al reiniciar,
+la red vuelve a estar desactivada.
+
 ## Endpoints de Estado, Proveedores y Modelos
 
 ### `GET /api/version`
@@ -20,10 +40,10 @@ Documentación interactiva OpenAPI en `http://127.0.0.1:8000/docs` mientras el s
 ### `GET /api/token`
 `{"token": "<hex>"}` — token local de seguridad.
 
-### `GET /api/estado`
+### `GET /api/estado` 👤
 Resumen general de proveedores (incluyendo `compania`, `modalidad`: `"plan" | "api"`, `api_key_env`), modos, modelos y tamaño del corpus (`sentencias`, `convenios`, `municipios`, `anios_festivos`).
 
-### `GET /api/proveedores`
+### `GET /api/proveedores` 👤
 Estado detallado de todos los proveedores configurados (`antigravity_cli`, `claude_cli`, `codex_cli`, `gemini_api`, `anthropic_api`, `openai_api`, `xai_api`, `deepseek_api`, `mistral_api`, `openrouter_api`).
 
 ### `POST /api/proveedores/{pid}/configurar` 🔒
@@ -61,9 +81,9 @@ Borra `config/user_models.toml` (modelos personalizados y activación de proveed
 - `POST /api/consultas` 🔒 → 201: Crea y lanza el análisis asíncrono (`{"texto", "modo", "municipio_ine", "adjuntos"}`).
 - `POST /api/consultas/{id}/aclaraciones` 🔒: Envía las respuestas a las preguntas aclaratorias de la Fase 1 y reanuda el pipeline.
 - `GET /api/consultas` y `GET /api/consultas/{id}`: Lista el historial y recupera el detalle completo (con PII restaurado en local).
-- `GET /api/consultar/stream/{id}?token=…&after=N`: Stream SSE con replay automático desde el evento `N`.
+- `GET /api/consultar/stream/{id}?token=…&after=N`: Stream SSE con replay automático desde el evento `N`. Termina siempre con el evento `fin` (el navegador cierra al recibirlo).
 - `POST /api/adjuntos` 🔒 → 201: Extrae texto de PDF/TXT en local y lo cifra con DPAPI (solo se envía al LLM si `permitir_envio=true`).
-- `GET /api/fuentes?source_id=…&consulta_id=…&quote=…`: Devuelve el texto íntegro oficial de fuentes `BOE:...`, `ROJ:...`, `CONV:...` y `DOC:...` con offsets de resaltado literal.
+- `GET /api/fuentes?source_id=…&consulta_id=…&quote=…`: Devuelve el texto íntegro oficial de fuentes `BOE:...`, `EUR:...` (Derecho de la UE), `ROJ:...`, `CONV:...` y `DOC:...` con offsets de resaltado literal.
 - `GET /api/calendario/plazo`, `GET /api/calendario/tipos`, `GET /api/municipios?q=…`: Motor determinista de plazos procesales y buscador de los 8.131 municipios del INE.
 - `GET /api/convenios`: Lista los convenios colectivos indexados en SQLite.
 - `POST /api/jurisprudencia/importar` 🔒 → 201: Importa e indexa una sentencia en formato PDF o TXT.

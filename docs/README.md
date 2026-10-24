@@ -1,4 +1,4 @@
-# Documentación de Iuris-IA / Lex-Agent ES
+# Documentación de Desemppa (antes Iuris-IA)
 
 Asistente legal **personal y local** para el derecho español: analiza un caso enfrentando los argumentos del
 usuario con los de la contraparte, verifica cada cita literalmente contra el BOE, los convenios colectivos o la
@@ -17,6 +17,8 @@ jurisprudencia del corpus y calcula los plazos con un motor de calendario determ
 | Saber qué está hecho, qué se ha corregido hoy y qué falta | [estado_implementacion.md](estado_implementacion.md) y [hoja_de_ruta.md](hoja_de_ruta.md) |
 | Ver la última revisión independiente (problemas detectados y prioridades) | [informe_revision_2026-10-24.md](informe_revision_2026-10-24.md) |
 | Ver el diseño de la interfaz (propuesta e implementación) | [propuesta_rediseno.md](propuesta_rediseno.md) |
+| Ver la valoración jurídica del benchmark en modo Eco y sus correcciones | [benchmark_eco_2026-10-24.md](benchmark_eco_2026-10-24.md) |
+| Compartir la app con otros equipos de tu wifi | [operacion.md §3](operacion.md) |
 | Configurar modelos por Plan (Antigravity, Claude Pro, Codex) o por API (OpenAI, Anthropic, Google, xAI, DeepSeek, Mistral, OpenRouter) | [proveedores_y_modelos.md](proveedores_y_modelos.md) |
 | Entender cómo funciona por dentro | [arquitectura.md](arquitectura.md) |
 | Programar: entorno, convenciones, tests y "cómo añadir X" | [guia_desarrollo.md](guia_desarrollo.md) |

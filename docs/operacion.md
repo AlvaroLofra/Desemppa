@@ -3,11 +3,14 @@
 Actualizado: 24-10-2026.
 
 ## 1. Arrancar la aplicación
-- **Doble clic en `INICIAR_IURIS_IA.bat`** (recomendado). Hace, en orden:
+- **Doble clic en `INICIAR_DESEMPPA.bat`** (recomendado; `INICIAR_IURIS_IA.bat` sigue funcionando y lo llama).
+  Hace, en orden:
   1. Si el puerto 8000 ya está en uso, abre directamente el navegador (no arranca un segundo servidor).
   2. La primera vez, migra los datos antiguos a `data/local/` (`scripts/migrar_datos.py`).
   3. Si falta `web/dist`, compila la interfaz web.
-  4. Lanza en segundo plano un vigilante que **espera hasta que `http://127.0.0.1:8000/api/version` devuelve `200 OK`** antes de abrir el navegador, y arranca `uvicorn` en el puerto 8000. Así nunca se produce `ERR_CONNECTION_REFUSED` al arrancar.
+  4. Lanza en segundo plano un vigilante que **espera hasta que `http://127.0.0.1:8000/api/version` devuelve `200 OK`** antes de abrir el navegador, y arranca `uvicorn` en el puerto 8000 escuchando en todas las interfaces (`0.0.0.0`), para poder compartir
+     la app en la red local. **Mientras no actives «Compartir en la red local» en Ajustes, cualquier petición que no
+     venga de este ordenador recibe 403.**
 - Alternativa por terminal: `powershell -ExecutionPolicy Bypass -File scripts/start.ps1`.
 
 > **Nota si tenías la pestaña abierta de una versión anterior (`index-fDqGlMOV.js`)**:
@@ -30,10 +33,31 @@ Actualizado: 24-10-2026.
      `config/user_models.toml`.
    - **Apariencia**: claro, oscuro o como el sistema.
 
-## 3. Problemas frecuentes y solución rápida
+## 3. Compartir en la red local (otros ordenadores de tu wifi)
+1. Arranca con `INICIAR_DESEMPPA.bat` (escucha en la red; arrancado con `--host 127.0.0.1` el interruptor sale
+   desactivado con un aviso).
+2. **Ajustes → Red local** → activa el interruptor. Aparece el enlace (`http://<IP-de-tu-PC>:8000`) con el botón
+   Copiar. Pásaselo a la otra persona: lo abre en su navegador y ya está.
+3. Por defecto solo pueden usar **Eco**; marca Equilibrado, Pro o Auditoría si quieres permitirlos. Ajusta el tope de
+   consultas por persona y día (10 por defecto). Cada invitado puede tener 1 consulta en curso.
+4. Los invitados no ven Ajustes ni tu historial; solo sus consultas. Tú ves las suyas en tu historial con la etiqueta
+   «Invitado». Su consulta se ejecuta en tu ordenador con tu suscripción y se encola con las tuyas.
+5. Al reiniciar Desemppa se desactiva sola.
+
+Avisos:
+- **Firewall de Windows**: la primera vez pedirá permiso para Python; acéptalo **solo en redes privadas**. Tu wifi
+  debe estar como «Red privada» (Configuración → Red e Internet → propiedades de la wifi). Si no, los otros equipos no
+  podrán conectar.
+- La conexión no va cifrada (HTTP): úsalo solo en tu red de casa o de confianza y desactívalo al terminar.
+- Las suscripciones (Google AI Pro, Claude Pro) son personales: compartirlas de forma continuada puede ir contra sus
+  condiciones de uso. Pensado para pruebas puntuales.
+- Seguridad: solo se aceptan IPs privadas; el `Host` debe ser la IP de tu equipo (protección frente a DNS
+  rebinding); los invitados reciben un token distinto del tuyo y no pueden tocar ajustes, proveedores ni modelos.
+
+## 4. Problemas frecuentes y solución rápida
 | Síntoma | Causa | Solución |
 |---|---|---|
-| En la consola salía `ERR_CONNECTION_REFUSED` + `index-fDqGlMOV.js` + `403 Forbidden` | El `.bat` antiguo abría el navegador antes de que `uvicorn` escuchara en el puerto 8000 y el navegador servía un bundle antiguo desde el Service Worker | **Ya corregido en el código actual.** Cierra la ventana antigua del servidor, lanza el nuevo `INICIAR_IURIS_IA.bat` y pulsa `Ctrl + F5` una vez en el navegador |
+| En la consola salía `ERR_CONNECTION_REFUSED` + `index-fDqGlMOV.js` + `403 Forbidden` | El `.bat` antiguo abría el navegador antes de que `uvicorn` escuchara en el puerto 8000 y el navegador servía un bundle antiguo desde el Service Worker | **Ya corregido en el código actual.** Cierra la ventana antigua del servidor, lanza `INICIAR_DESEMPPA.bat` y pulsa `Ctrl + F5` una vez en el navegador |
 | Proveedor `Claude Code` en rojo ("sin sesión iniciada") | No has iniciado sesión en el CLI `claude` | Abre una terminal, ejecuta `claude` y escribe `/login`. Mientras tanto, el sistema usa automáticamente `Claude 5.5` y `Gemini 4 Argon` vía Antigravity |
 | "No hay jurisprudencia aplicable en el corpus local" | Aún no has importado PDFs de sentencias del CENDOJ | Descarga los PDFs de [CENDOJ](https://www.poderjudicial.es/search/indexAN.jsp) y ejecuta `uv run python scripts/importar_sentencias.py <carpeta>` |
 | Quieres cargar los 10 grandes convenios colectivos estatales | Aún no se ha ejecutado el importador BOE de convenios | Ejecuta `uv run python scripts/importar_convenios_boe.py` (verifica cada referencia contra el BOE antes de indexar) |
