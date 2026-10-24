@@ -47,3 +47,10 @@ class NotAuthenticated(ProviderError):
     """El CLI de Claude no tiene sesión iniciada: el usuario debe ejecutar `claude` y `/login`."""
 
     degradable = True
+
+
+class EmptyResponse(ProviderError):
+    """El modelo terminó sin texto (p. ej. Antigravity intentó usar una herramienta y el modo no interactivo se la
+    denegó). Es un fallo de esa llamada, no un error de programación: el router prueba el siguiente modelo."""
+
+    degradable = True

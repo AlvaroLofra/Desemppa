@@ -58,9 +58,9 @@ async def _run(router, mode, role):
 def test_router_maps_roles_per_mode(build):
     router, *_ = build()
     assert router.resolve("eco", "magistrado").model == "agy_gemini_flash"
-    assert router.resolve("eco", "triaje").model == "gemini_flash"
+    assert router.resolve("eco", "triaje").model == "agy_gemini_flash"
     assert router.resolve("equilibrado", "magistrado").model == "claude_sonnet"
-    assert router.resolve("pro", "magistrado").model == "claude_opus"
+    assert router.resolve("pro", "magistrado").model == "agy_gemini_argon"
     with pytest.raises(ValueError):
         router.resolve("turbo", "magistrado")
 
@@ -70,11 +70,12 @@ def test_candidates_chain_crosses_providers(build):
     assert router.candidates("claude_opus") == [
         "claude_opus",
         "agy_claude_opus",
+        "agy_gemini_argon",
         "claude_sonnet",
         "agy_claude_sonnet",
         "agy_gemini_flash",
-        "gemini_flash_38_api",
         "gemini_flash",
+        "agy_gpt_oss",
         "gemini_flash_lite",
     ]
 
@@ -88,11 +89,13 @@ async def test_happy_path_effort_in_model_id_and_ledger(build, db):
     assert tuple(row) == ("antigravity_cli", "gemini-3.8-flash-medium", "medium", 1)
 
 
-async def test_unsupported_effort_is_clamped(build):
+async def test_agy_flash_and_argon_support_all_efforts(build):
     router, b, _ = build()
     await _run(router, "pro", "nli")  # nli = agy_gemini_flash low
-    spec = router.catalog.models["agy_gemini_flash"]
-    assert "high" not in spec.efforts
+    spec_flash = router.catalog.models["agy_gemini_flash"]
+    spec_argon = router.catalog.models["agy_gemini_argon"]
+    assert spec_flash.efforts == ["low", "medium", "high"]
+    assert spec_argon.efforts == ["low", "medium", "high"]
 
 
 async def test_usage_limit_opens_breaker_and_degrades_to_other_provider(build):
@@ -101,22 +104,26 @@ async def test_usage_limit_opens_breaker_and_degrades_to_other_provider(build):
     assert items[-1].provider == "antigravity_cli" and items[-1].alias == "agy_claude_sonnet"
     assert items[-1].degradado and breaker.state("claude_cli") == "open"
     b["claude_cli"].calls.clear()
-    items = await _run(router, "pro", "magistrado")  # claude_opus: breaker abierto -> ni se intenta
-    assert b["claude_cli"].calls == [] and items[-1].alias == "agy_claude_opus"
+    items = await _run(router, "pro", "defensa")  # claude_sonnet: breaker abierto -> ni se intenta
+    assert b["claude_cli"].calls == [] and items[-1].alias == "agy_claude_sonnet"
     assert any("circuit breaker abierto" in a for a in items[-1].avisos)
 
 
 async def test_disabled_provider_is_skipped(build):
     router, b, _ = build(sin=("antigravity_cli",))
     items = await _run(router, "eco", "magistrado")
-    assert items[-1].alias == "gemini_flash_38_api"
+    assert items[-1].alias == "claude_sonnet"
     assert any("desactivado" in a for a in items[-1].avisos)
 
 
-async def test_rate_limited_falls_back_within_gemini(build):
-    router, b, _ = build(gemini={"gemini_flash": RateLimited("503", provider="gemini_api")})
+async def test_rate_limited_falls_back_to_other_family_then_other_provider(build):
+    router, b, _ = build(agy={"agy_gemini_flash": RateLimited("503", provider="antigravity_cli")})
     items = await _run(router, "eco", "triaje")
-    assert items[-1].alias == "gemini_flash_lite" and items[-1].degradado
+    assert items[-1].alias == "agy_claude_sonnet" and items[-1].degradado  # mismo plan, otra familia
+    err = RateLimited("503", provider="antigravity_cli")
+    router, b, _ = build(agy={"agy_gemini_flash": err, "agy_claude_sonnet": err, "agy_gpt_oss": err})
+    items = await _run(router, "eco", "triaje")
+    assert items[-1].alias == "claude_sonnet" and items[-1].degradado
 
 
 async def test_not_authenticated_degrades(build):
@@ -139,13 +146,17 @@ async def test_non_degradable_error_raises(build):
 
 async def test_everything_down_raises_last_error(build):
     err = RateLimited("x", provider="p")
-    router, *_ = build(gemini={"gemini_flash": err, "gemini_flash_lite": err})
+    router, *_ = build(
+        agy={"agy_gemini_flash": err, "agy_claude_sonnet": err, "agy_gpt_oss": err},
+        claude={"claude_sonnet": err},
+        gemini={"gemini_flash": err, "gemini_flash_lite": err},
+    )
     with pytest.raises(RateLimited):
         await _run(router, "eco", "triaje")
 
 
 async def test_restartable_mid_stream_failure_moves_to_next_model(build):
-    router, b, _ = build(gemini={"gemini_flash": (['{"parcial'], RateLimited("503", provider="gemini_api"))})
+    router, b, _ = build(agy={"agy_gemini_flash": (['{"parcial'], RateLimited("503", provider="antigravity_cli"))})
     items = [i async for i in router.stream("eco", "triaje", LLMRequest(prompt="p"), fase="t", restartable=True)]
-    assert items[-1].alias == "gemini_flash_lite" and items[-1].degradado
+    assert items[-1].alias == "agy_claude_sonnet" and items[-1].degradado
     assert any("mitad de respuesta" in a for a in items[-1].avisos)

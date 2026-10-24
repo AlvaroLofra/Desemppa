@@ -1,49 +1,48 @@
 # Asignación por defecto de roles por modo. model = alias de config/models.toml.
-# El usuario puede cambiarla desde la página «Modelos» (se guarda en config/user_profiles.toml, que se superpone a este).
-#
-# Criterio (docs/estado_implementacion.md): tareas de volumen (triaje, cribado, NLI) con Gemini 3.5 Flash por API,
-# que es rápido y tiene cuota propia; razonamiento (defensa, contraparte, magistrado) con Gemini 3.8 Flash por
-# Antigravity o con Claude. El NLI usa un canal distinto del Magistrado (verificación cruzada).
+# Configurado al 100 % sobre tus suscripciones activas:
+#   - Antigravity (Google AI Pro): Gemini 3.8 Flash (low/medium/high), Gemini 4 Argon (low/medium/high) y Claude 5.5
+#   - Claude Code (Claude Pro): Claude Haiku, Sonnet y Opus 5.5 (low/medium/high)
+# No requiere GEMINI_API_KEY. De los modelos Flash se usa únicamente Gemini 3.8 Flash variando el nivel de esfuerzo.
 
 [profiles.eco]
 label = "Eco"
 claude_calls_per_query = 0
-triaje      = { model = "gemini_flash", effort = "low" }
-cribado     = { model = "gemini_flash", effort = "low" }
+triaje      = { model = "agy_gemini_flash", effort = "low" }
+cribado     = { model = "agy_gemini_flash", effort = "low" }
 defensa     = { model = "agy_gemini_flash", effort = "medium" }
 contraparte = { model = "agy_gemini_flash", effort = "medium" }
 magistrado  = { model = "agy_gemini_flash", effort = "medium" }
-nli         = { model = "gemini_flash", effort = "low" }
+nli         = { model = "agy_gemini_flash", effort = "low" }
 
 [profiles.equilibrado]
 label = "Equilibrado"
 default = true
 claude_calls_per_query = 1
-triaje      = { model = "gemini_flash", effort = "low" }
-cribado     = { model = "gemini_flash", effort = "low" }
+triaje      = { model = "agy_gemini_flash", effort = "low" }
+cribado     = { model = "agy_gemini_flash", effort = "low" }
 defensa     = { model = "agy_gemini_flash", effort = "medium" }
 contraparte = { model = "agy_gemini_flash", effort = "medium" }
 magistrado  = { model = "claude_sonnet", effort = "medium" }
-nli         = { model = "gemini_flash", effort = "low" }
+nli         = { model = "agy_gemini_flash", effort = "low" }
 
 [profiles.pro]
 label = "Pro"
-claude_calls_per_query = 3
-triaje      = { model = "gemini_flash", effort = "low" }
-cribado     = { model = "gemini_flash", effort = "medium" }
+claude_calls_per_query = 2
+triaje      = { model = "agy_gemini_flash", effort = "low" }
+cribado     = { model = "agy_gemini_flash", effort = "medium" }
 defensa     = { model = "claude_sonnet", effort = "medium" }
 contraparte = { model = "claude_sonnet", effort = "medium" }
-magistrado  = { model = "claude_opus", effort = "high" }
+magistrado  = { model = "agy_gemini_argon", effort = "high" }
 nli         = { model = "agy_gemini_flash", effort = "low" }
 
 [profiles.auditoria]
 label = "Auditoría cruzada"
 optional = true
 claude_calls_per_query = 3
-triaje      = { model = "gemini_flash", effort = "low" }
-cribado     = { model = "gemini_flash", effort = "medium" }
+triaje      = { model = "agy_gemini_flash", effort = "low" }
+cribado     = { model = "agy_gemini_flash", effort = "medium" }
 defensa     = { model = "claude_sonnet", effort = "medium" }
 contraparte = { model = "claude_sonnet", effort = "medium" }
 magistrado  = { model = "claude_opus", effort = "high" }
-auditor     = { model = "gemini_top", effort = "high" }
+auditor     = { model = "agy_gemini_argon", effort = "high" }
 nli         = { model = "agy_gemini_flash", effort = "low" }

@@ -32,8 +32,10 @@ from config.settings import (
     get_catalog,
     get_settings,
     load_catalog,
+    reset_user_models,
     reset_user_profiles,
     save_user_profiles,
+    save_user_provider_or_model,
 )
 from connectors.boe_client import BOEClient, BOERepository
 from connectors.cendoj_fetcher import CendojRepository
@@ -50,6 +52,7 @@ from core.normalize import fold
 from core.orchestrator import Orchestrator
 from core.orchestrator import Services as PipelineServices
 from core.providers.cli_adapter import CliAdapter
+from core.providers.http_adapter import ApiKeyStore
 from core.providers.registry import ProviderAdapter, build_registry
 from core.quota_ledger import QuotaLedger
 from core.router import ModelRouter
@@ -100,6 +103,7 @@ class Services:
     router: ModelRouter
     providers: dict[str, ProviderAdapter]
     cli_version: Callable[[str], str | None]
+    key_store: ApiKeyStore | None = None
     pipeline: PipelineServices | None = None
     tasks: dict[str, asyncio.Task[None]] = field(default_factory=dict)
     token: str = field(default_factory=lambda: secrets.token_urlsafe(24))
@@ -142,21 +146,23 @@ def build_services(settings: Settings | None = None, catalog: Catalog | None = N
     con = open_database(settings.sqlite_path)
     breaker = CircuitBreaker(con, default_open_minutes=catalog.circuit_breaker.default_open_minutes)
     ledger = QuotaLedger(con)
+    key_store = ApiKeyStore(settings.data_dir / "provider_keys.bin")
+    gemini_key = key_store.get("gemini_api", None) or settings.gemini_api_key
     gemini = GeminiClient(
-        settings.gemini_api_key,
+        gemini_key,
         daily_count=ledger.daily_count,
         max_retries=catalog.circuit_breaker.gemini_max_retries,
     )
-    providers = build_registry(catalog, settings, gemini=gemini, exe_overrides={"claude_cli": settings.claude_exe})
+    providers = build_registry(
+        catalog, settings, gemini=gemini, exe_overrides={"claude_cli": settings.claude_exe}, key_store=key_store
+    )
     router = ModelRouter(catalog, providers=providers, breaker=breaker, ledger=ledger)
     embedder: Embedder | None = None
     store: JurisprudenciaStore | None = None
     emb_spec = catalog.models.get("gemini_embedding")
-    if settings.gemini_api_key and emb_spec and emb_spec.model_id:
+    if gemini_key and emb_spec and emb_spec.model_id:
         try:
-            embedder = GeminiEmbedder(
-                settings.gemini_api_key, model=emb_spec.model_id, dim=emb_spec.output_dimensionality or 768
-            )
+            embedder = GeminiEmbedder(gemini_key, model=emb_spec.model_id, dim=emb_spec.output_dimensionality or 768)
             store = JurisprudenciaStore(settings.lancedb_dir, dim=embedder.dim)
         except ModelUnavailable:
             embedder = None
@@ -181,6 +187,7 @@ def build_services(settings: Settings | None = None, catalog: Catalog | None = N
         router=router,
         providers=providers,
         cli_version=_cli_version,
+        key_store=key_store,
         pipeline=pipeline,
         token=local_token,
     )
@@ -204,6 +211,19 @@ class Aclaraciones(BaseModel):
     respuestas: list[Respuesta] = Field(min_length=1, max_length=8)
 
 
+class ConfigurarProveedor(BaseModel):
+    habilitado: bool | None = None
+    api_key: str | None = Field(default=None, max_length=500)
+
+
+class NuevoModelo(BaseModel):
+    alias: str = Field(min_length=2, max_length=60, pattern=r"^[a-z0-9_]+$")
+    proveedor: str = Field(min_length=2, max_length=60)
+    model_id: str = Field(min_length=1, max_length=120)
+    etiqueta: str = Field(min_length=2, max_length=120)
+    efforts: list[str] = Field(default_factory=lambda: ["low", "medium", "high"])
+
+
 def _estado_proveedor(s: Services, pid: str) -> dict[str, Any]:
     spec = s.catalog.providers[pid]
     adapter = s.providers.get(pid)
@@ -213,16 +233,34 @@ def _estado_proveedor(s: Services, pid: str) -> dict[str, Any]:
         version = s.cli_version(adapter.resolve_exe())
     return {
         "etiqueta": spec.etiqueta,
+        "compania": spec.compania,
+        "modalidad": spec.modalidad or ("plan" if spec.tipo == "cli" else "api"),
         "tipo": spec.tipo,
         "habilitado": spec.habilitado,
         "instalado": instalado,
         "version": version,
+        "api_key_env": spec.api_key_env,
         "ultima_llamada": s.ledger.last_call(pid),
         "breaker": s.breaker.snapshot(pid),
         "uso_ultimas_5h": s.ledger.window_usage(pid),
         "login": spec.login,
-        "modelos": [a for a, m in s.catalog.models.items() if m.provider == pid],
+        "modelos": [a for a, m in s.catalog.models.items() if m.provider == pid and a != "gemini_embedding"],
     }
+
+
+def _reload_catalog_and_providers(s: Services, nuevo: Catalog) -> None:
+    for adapter in s.providers.values():
+        adapter.stop()
+    s.catalog = nuevo
+    s.providers = build_registry(
+        nuevo,
+        s.settings,
+        gemini=s.gemini,
+        exe_overrides={"claude_cli": s.settings.claude_exe},
+        key_store=s.key_store,
+    )
+    s.router.catalog = nuevo
+    s.router.providers = s.providers
 
 
 def create_app(services_factory: Callable[[], Services] = build_services) -> FastAPI:
@@ -242,7 +280,7 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
             for adapter in services.providers.values():
                 adapter.stop()
 
-    app = FastAPI(title="Iuris-IA", version="0.2.0", lifespan=lifespan)
+    app = FastAPI(title="Iuris-IA", version="0.3.0", lifespan=lifespan)
     # Protección frente a DNS rebinding: solo se aceptan peticiones dirigidas a loopback (dossier §2.5).
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=ALLOWED_HOSTS)
 
@@ -265,7 +303,13 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
                 request.url.path,
                 request.headers.get("user-agent", "?")[:80],
             )
-            raise HTTPException(403, f"token local inválido ({motivo}); recarga la página")
+            # Clear-Site-Data: "cache" purga automáticamente en Chrome/Brave/Edge cualquier bundle antiguo
+            # cacheado por un Service Worker previo (como index-fDqGlMOV.js).
+            raise HTTPException(
+                403,
+                f"token local inválido ({motivo}); recarga la página",
+                headers={"Clear-Site-Data": '"cache"'},
+            )
 
     def _launch(s: Services, consulta_id: str) -> None:
         assert s.pipeline is not None
@@ -292,6 +336,7 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
         if s.pipeline is not None:
             corpus = {
                 "sentencias": s.pipeline.cendoj.count(),
+                "convenios": len(s.pipeline.convenios.listar()),
                 "municipios": len(s.pipeline.calendar.festivos.municipios),
                 "anios_festivos": sorted(s.pipeline.calendar.festivos.years_nacional),
             }
@@ -307,7 +352,14 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
                 for name, p in s.catalog.profiles.items()
             },
             "modelos": {
-                alias: {"proveedor": m.provider, "id": m.model_id, "etiqueta": m.etiqueta}
+                alias: {
+                    "proveedor": m.provider,
+                    "id": m.model_id,
+                    "etiqueta": m.etiqueta,
+                    "compania": s.catalog.providers[m.provider].compania,
+                    "modalidad": s.catalog.providers[m.provider].modalidad
+                    or ("plan" if s.catalog.providers[m.provider].tipo == "cli" else "api"),
+                }
                 for alias, m in s.catalog.models.items()
             },
             "corpus": corpus,
@@ -318,6 +370,46 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
     def proveedores(request: Request) -> dict[str, Any]:
         s = svc(request)
         return {pid: _estado_proveedor(s, pid) for pid in s.catalog.providers}
+
+    @app.post("/api/proveedores/{pid}/configurar", dependencies=[Depends(require_token)])
+    def configurar_proveedor(pid: str, body: ConfigurarProveedor, request: Request) -> dict[str, Any]:
+        s = svc(request)
+        if pid not in s.catalog.providers:
+            raise HTTPException(404, "proveedor desconocido")
+        if body.api_key is not None and s.key_store is not None:
+            s.key_store.set(pid, body.api_key)
+            if pid == "gemini_api":
+                s.gemini.set_api_key(body.api_key.strip() or s.settings.gemini_api_key)
+        if body.habilitado is not None:
+            nuevo = save_user_provider_or_model(provider_overrides={pid: {"habilitado": body.habilitado}})
+            _reload_catalog_and_providers(s, nuevo)
+        else:
+            _reload_catalog_and_providers(s, s.catalog)
+        return _estado_proveedor(s, pid)
+
+    @app.post("/api/modelos", status_code=201, dependencies=[Depends(require_token)])
+    def anadir_modelo(body: NuevoModelo, request: Request) -> dict[str, Any]:
+        s = svc(request)
+        if body.proveedor not in s.catalog.providers:
+            raise HTTPException(422, f"proveedor desconocido: {body.proveedor}")
+        efforts = [e for e in body.efforts if e in ("low", "medium", "high")] or ["medium"]
+        try:
+            nuevo = save_user_provider_or_model(
+                model_overrides={
+                    body.alias: {
+                        "provider": body.proveedor,
+                        "model_id": body.model_id,
+                        "etiqueta": body.etiqueta,
+                        "efforts": efforts,
+                        "timeout_s": 240,
+                        "fallbacks": ["agy_gemini_flash"],
+                    }
+                }
+            )
+        except ValueError as exc:
+            raise HTTPException(422, str(exc)) from exc
+        _reload_catalog_and_providers(s, nuevo)
+        return {"ok": True, "alias": body.alias, "estado": "creado"}
 
     @app.post("/api/proveedores/{pid}/detectar", dependencies=[Depends(require_token)])
     async def detectar(pid: str, request: Request) -> dict[str, Any]:
@@ -373,6 +465,10 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
                 alias: {
                     "etiqueta": m.etiqueta or alias,
                     "proveedor": m.provider,
+                    "compania": s.catalog.providers[m.provider].compania,
+                    "modalidad": s.catalog.providers[m.provider].modalidad
+                    or ("plan" if s.catalog.providers[m.provider].tipo == "cli" else "api"),
+                    "model_id": m.model_id,
                     "efforts": m.efforts,
                     "disponible": m.provider in s.providers and s.providers[m.provider].installed(),
                 }
@@ -388,16 +484,23 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
             nuevo = save_user_profiles(body)
         except ValueError as exc:
             raise HTTPException(422, str(exc)) from exc
-        s.catalog = nuevo
-        s.router.catalog = nuevo
+        _reload_catalog_and_providers(s, nuevo)
         return {"estado": "guardado"}
 
     @app.delete("/api/ajustes/perfiles", dependencies=[Depends(require_token)])
     def restablecer_perfiles(request: Request) -> dict[str, str]:
         s = svc(request)
         reset_user_profiles()
-        s.catalog = load_catalog()
-        s.router.catalog = s.catalog
+        nuevo = load_catalog()
+        _reload_catalog_and_providers(s, nuevo)
+        return {"estado": "restablecido"}
+
+    @app.delete("/api/ajustes/modelos", dependencies=[Depends(require_token)])
+    def restablecer_modelos(request: Request) -> dict[str, str]:
+        """Borra los modelos personalizados y las activaciones de proveedores (user_models.toml)."""
+        s = svc(request)
+        reset_user_models()
+        _reload_catalog_and_providers(s, load_catalog())
         return {"estado": "restablecido"}
 
     # ---------- consultas ----------
@@ -457,7 +560,7 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
     ) -> EventSourceResponse:
         s, p = svc(request), pipe(request)
         if not secrets.compare_digest(token, s.token):
-            raise HTTPException(403, "token local inválido")
+            raise HTTPException(403, "token local inválido", headers={"Clear-Site-Data": '"cache"'})
         try:
             c = p.store.get(consulta_id)
         except KeyError as exc:
@@ -535,6 +638,10 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
             det = p.cendoj.detalle(source_id[4:])
             if det:
                 texto, url = det["fundamentos"], det["url"]
+        if texto is None and source_id.startswith("CONV:"):
+            det_conv = p.convenios.detalle_clausula(source_id)
+            if det_conv:
+                titulo, texto, url = det_conv["titulo"], det_conv["texto"], det_conv["url"]
         if texto is None and source_id.startswith("BOE:"):
             _, id_norma, id_bloque, *_ = source_id.split(":")
             bloque = await p.boe.get_bloque(id_norma, id_bloque)

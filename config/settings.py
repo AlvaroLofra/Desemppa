@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 import tomllib
 from functools import lru_cache
@@ -60,8 +61,10 @@ class Settings(BaseSettings):
 class ProviderSpec(BaseModel):
     """Bloque de config/providers.toml (ver la cabecera de ese fichero)."""
 
-    tipo: Literal["cli", "api_gemini", "api_openai"]
+    tipo: Literal["cli", "api_gemini", "api_openai", "api_anthropic"]
     etiqueta: str
+    compania: str = "Otra"
+    modalidad: Literal["plan", "api"] | None = None
     habilitado: bool = True
     ejecutable: str | None = None
     args: list[str] = Field(default_factory=list)
@@ -72,10 +75,14 @@ class ProviderSpec(BaseModel):
     json_schema_args: list[str] = Field(default_factory=list)
     descubrir: list[str] = Field(default_factory=list)
     modelos_conocidos: list[str] = Field(default_factory=list)
+    base_url: str | None = None
+    api_key_env: str | None = None
     login: str = ""
 
     @model_validator(mode="after")
     def _cli_completo(self) -> ProviderSpec:
+        if self.modalidad is None:
+            self.modalidad = "plan" if self.tipo == "cli" else "api"
         if self.tipo == "cli" and not (self.ejecutable and self.args and self.parser):
             raise ValueError("un proveedor 'cli' necesita ejecutable, args y parser")
         peligrosos = [a for a in self.args if "dangerously" in a.lower() or "skip-permissions" in a.lower()]
@@ -159,6 +166,7 @@ class Catalog(BaseModel):
 
 _PROFILE_META = {"label", "claude_calls_per_query", "default", "optional", "nli_cross_family"}
 USER_PROFILES = "user_profiles.toml"  # asignaciones del usuario (excluido de git); se superpone a profiles.toml
+USER_MODELS = "user_models.toml"  # modelos o activaciones de proveedor personalizados por el usuario
 
 
 def _split_profiles(raw: dict[str, Any]) -> dict[str, dict[str, Any]]:
@@ -174,7 +182,18 @@ def _split_profiles(raw: dict[str, Any]) -> dict[str, dict[str, Any]]:
 def load_catalog(config_dir: Path = CONFIG_DIR, *, user_overrides: bool = True) -> Catalog:
     models_raw = tomllib.loads((config_dir / "models.toml").read_text(encoding="utf-8"))
     providers_raw = tomllib.loads((config_dir / "providers.toml").read_text(encoding="utf-8"))
+    providers_dict: dict[str, Any] = dict(providers_raw["providers"])
+    models_dict: dict[str, Any] = dict(models_raw["models"])
     profiles = _split_profiles(tomllib.loads((config_dir / "profiles.toml").read_text(encoding="utf-8")))
+    user_models_path = config_dir / USER_MODELS
+    if user_overrides and user_models_path.exists():
+        um_raw = tomllib.loads(user_models_path.read_text(encoding="utf-8"))
+        for pid, p_override in um_raw.get("providers", {}).items():
+            if pid in providers_dict and isinstance(p_override, dict):
+                providers_dict[pid] = {**providers_dict[pid], **p_override}
+        for alias, m_override in um_raw.get("models", {}).items():
+            if isinstance(m_override, dict):
+                models_dict[alias] = {**models_dict.get(alias, {}), **m_override}
     user_path = config_dir / USER_PROFILES
     if user_overrides and user_path.exists():
         for name, body in _split_profiles(tomllib.loads(user_path.read_text(encoding="utf-8"))).items():
@@ -182,8 +201,8 @@ def load_catalog(config_dir: Path = CONFIG_DIR, *, user_overrides: bool = True) 
                 profiles[name]["roles"].update(body["roles"])
     return Catalog.model_validate(
         {
-            "providers": providers_raw["providers"],
-            "models": models_raw["models"],
+            "providers": providers_dict,
+            "models": models_dict,
             "profiles": profiles,
             "circuit_breaker": models_raw.get("circuit_breaker", {}),
         }
@@ -211,8 +230,67 @@ def save_user_profiles(assignments: dict[str, dict[str, dict[str, str]]], config
         raise
 
 
+def _toml_str(value: str) -> str:
+    """Cadena básica TOML: el escape de JSON (comillas, barras, controles) es compatible."""
+    return json.dumps(value, ensure_ascii=False)
+
+
+def save_user_provider_or_model(
+    *,
+    provider_overrides: dict[str, dict[str, Any]] | None = None,
+    model_overrides: dict[str, dict[str, Any]] | None = None,
+    config_dir: Path = CONFIG_DIR,
+) -> Catalog:
+    """Guarda activación de proveedores o modelos personalizados en user_models.toml y valida el catálogo."""
+    path = config_dir / USER_MODELS
+    existing: dict[str, Any] = tomllib.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+    provs: dict[str, Any] = dict(existing.get("providers", {}))
+    mods: dict[str, Any] = dict(existing.get("models", {}))
+    if provider_overrides:
+        for pid, data in provider_overrides.items():
+            provs[pid] = {**provs.get(pid, {}), **data}
+    if model_overrides:
+        for alias, data in model_overrides.items():
+            mods[alias] = {**mods.get(alias, {}), **data}
+    lines = ["# Generado por la página «Modelos» de Iuris-IA (excluido de git).", ""]
+    for pid, pdata in provs.items():
+        lines.append(f"[providers.{pid}]")
+        for k, v in pdata.items():
+            if isinstance(v, bool):
+                lines.append(f"{k} = {'true' if v else 'false'}")
+            elif isinstance(v, str):
+                lines.append(f"{k} = {_toml_str(v)}")
+        lines.append("")
+    for alias, mdata in mods.items():
+        lines.append(f"[models.{alias}]")
+        for k, v in mdata.items():
+            if isinstance(v, str):
+                lines.append(f"{k} = {_toml_str(v)}")
+            elif isinstance(v, (int, float)):
+                lines.append(f"{k} = {v}")
+            elif isinstance(v, list):
+                items = ", ".join(_toml_str(str(x)) for x in v)
+                lines.append(f"{k} = [{items}]")
+        lines.append("")
+    previous = path.read_text(encoding="utf-8") if path.exists() else None
+    path.write_text("\n".join(lines), encoding="utf-8")
+    try:
+        return load_catalog(config_dir)
+    except ValueError:
+        if previous is None:
+            path.unlink(missing_ok=True)
+        else:
+            path.write_text(previous, encoding="utf-8")
+        raise
+
+
 def reset_user_profiles(config_dir: Path = CONFIG_DIR) -> None:
+    """Restablece solo las asignaciones de modelos por modo (no toca proveedores ni modelos personalizados)."""
     (config_dir / USER_PROFILES).unlink(missing_ok=True)
+
+
+def reset_user_models(config_dir: Path = CONFIG_DIR) -> None:
+    (config_dir / USER_MODELS).unlink(missing_ok=True)
 
 
 @lru_cache

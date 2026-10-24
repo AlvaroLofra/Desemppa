@@ -1,70 +1,115 @@
 # Catálogo de modelos por alias lógico. Cada alias = proveedor (config/providers.toml) + id de modelo.
-# model_id puede llevar {effort} (Antigravity codifica el razonamiento en el nombre: gemini-3.8-flash-medium).
+# model_id puede llevar {effort} (Antigravity codifica el nivel de esfuerzo en el nombre: gemini-3.8-flash-{effort}).
 # fallbacks: cadena ordenada si el modelo falla, no tiene sesión o agota cuota; puede cruzar proveedores.
-#
-# Mediciones del 2026-10-23 (docs/spike_antigravity.md y docs/spike_entorno_fase0.md):
-#   3.8 Flash vía Antigravity: 4–13 s (low/medium), 48 s con 32 KB en medium; high con prompts grandes > 240 s.
-#   3.8 Flash vía API gratuita: 128 s y 20 peticiones/día.  3.5 Flash vía API: 4–6 s.
 
-# ---------- Google AI Pro vía Antigravity (preferente para 3.8 Flash) ----------
+# ==================== 1. PLAN GOOGLE AI PRO VÍA ANTIGRAVITY (PREFERENTE) ====================
+
 [models.agy_gemini_flash]
-etiqueta = "Gemini 3.8 Flash (Antigravity)"
+etiqueta = "Gemini 3.8 Flash (Plan Antigravity)"
 provider = "antigravity_cli"
 model_id = "gemini-3.8-flash-{effort}"
-efforts = ["low", "medium"]   # high se cuelga con prompts grandes (spike)
+efforts = ["low", "medium", "high"]
 timeout_s = 240
-fallbacks = ["gemini_flash_38_api", "gemini_flash"]
+fallbacks = ["agy_claude_sonnet", "agy_gpt_oss", "claude_sonnet", "gemini_flash"]
+
+[models.agy_gemini_argon]
+etiqueta = "Gemini 4 Argon (Plan Antigravity)"
+provider = "antigravity_cli"
+model_id = "gemini-4-argon-{effort}"
+efforts = ["low", "medium", "high"]
+timeout_s = 300
+fallbacks = ["agy_claude_opus", "claude_opus", "claude_sonnet", "agy_claude_sonnet", "agy_gemini_flash"]
 
 [models.agy_claude_sonnet]
-etiqueta = "Claude Sonnet 4.6 (Antigravity)"
+etiqueta = "Claude Sonnet 5.5 (Plan Antigravity)"
 provider = "antigravity_cli"
-model_id = "claude-sonnet-4-6"
+model_id = "claude-sonnet-5-5-{effort}"
+efforts = ["low", "medium", "high"]
+timeout_s = 240
+fallbacks = ["claude_sonnet", "agy_gemini_flash", "gemini_flash"]
+
+[models.agy_claude_opus]
+etiqueta = "Claude Opus 5.5 (Plan Antigravity)"
+provider = "antigravity_cli"
+model_id = "claude-opus-5-5-{effort}"
+efforts = ["low", "medium", "high"]
+timeout_s = 300
+fallbacks = ["agy_gemini_argon", "claude_sonnet", "agy_claude_sonnet", "agy_gemini_flash"]
+
+[models.agy_gpt_oss]
+etiqueta = "GPT-OSS 120B (Plan Antigravity)"
+provider = "antigravity_cli"
+model_id = "gpt-oss-120b-medium"
+efforts = ["medium"]
 timeout_s = 240
 fallbacks = ["agy_gemini_flash"]
 
-[models.agy_claude_opus]
-etiqueta = "Claude Opus 4.6 thinking (Antigravity)"
-provider = "antigravity_cli"
-model_id = "claude-opus-4-6-thinking"
-timeout_s = 300
-fallbacks = ["agy_claude_sonnet"]
+# ==================== 2. PLAN CLAUDE PRO VÍA CLAUDE CODE ====================
 
-# ---------- Gemini API (AI Studio, plan gratuito) ----------
-[models.gemini_flash]
-etiqueta = "Gemini 3.5 Flash (API)"
-provider = "gemini_api"
-model_id = "gemini-3.5-flash"
-rpm = 10
-rpd = 250
+[models.claude_haiku]
+etiqueta = "Claude Haiku (Plan Claude Pro)"
+provider = "claude_cli"
+model_id = "haiku"
+efforts = ["low", "medium", "high"]
 timeout_s = 90
+fallbacks = ["agy_gemini_flash"]
+
+[models.claude_sonnet]
+etiqueta = "Claude Sonnet (Plan Claude Pro)"
+provider = "claude_cli"
+model_id = "sonnet"
+efforts = ["low", "medium", "high"]
+timeout_s = 180
+fallbacks = ["agy_claude_sonnet", "agy_gemini_flash", "gemini_flash"]
+
+[models.claude_opus]
+etiqueta = "Claude Opus 5.5 (Plan Claude Pro)"
+provider = "claude_cli"
+model_id = "opus"
+efforts = ["low", "medium", "high"]
+timeout_s = 300
+fallbacks = ["agy_claude_opus", "agy_gemini_argon", "claude_sonnet", "agy_claude_sonnet", "agy_gemini_flash"]
+
+# ==================== 3. PLAN CHATGPT PLUS/PRO VÍA CODEX ====================
+
+[models.codex_default]
+etiqueta = "GPT-5 Codex (Plan ChatGPT)"
+provider = "codex_cli"
+model_id = "gpt-5-codex"
+efforts = ["low", "medium", "high"]
+timeout_s = 300
+fallbacks = ["agy_gemini_argon", "agy_gemini_flash"]
+
+# ==================== 4. APIS POR CLAVE (OPCIONALES · TODAS LAS COMPAÑÍAS) ====================
+# Los ids de Google y Anthropic están verificados (oct-2026). Los de OpenAI, xAI, DeepSeek, Mistral y OpenRouter son
+# ejemplos sin verificar: antes de usarlos, guarda la clave y pulsa «Detectar» en Ajustes para ver los ids reales.
+
+[models.gemini_top]
+etiqueta = "Gemini 4 Argon (API Google)"
+provider = "gemini_api"
+model_id = "gemini-4-argon"
+rpm = 5
+rpd = 100
+timeout_s = 300
+fallbacks = ["agy_gemini_argon", "claude_opus"]
+
+[models.gemini_flash]
+etiqueta = "Gemini 3.8 Flash (API Google)"
+provider = "gemini_api"
+model_id = "gemini-3.8-flash"
+rpm = 10
+rpd = 20  # cuota del plan gratuito observada en las pruebas (dossier: detección de cuota agotada)
+timeout_s = 180
 fallbacks = ["gemini_flash_lite"]
 
 [models.gemini_flash_lite]
-etiqueta = "Gemini 3.5 Flash-Lite (API)"
+etiqueta = "Gemini Flash-Lite (API Google · Compatibilidad)"
 provider = "gemini_api"
 model_id = "gemini-3.5-flash-lite"
 rpm = 15
 rpd = 500
 timeout_s = 90
 fallbacks = []
-
-[models.gemini_flash_38_api]
-etiqueta = "Gemini 3.8 Flash (API, 20/día)"
-provider = "gemini_api"
-model_id = "gemini-3.8-flash"
-rpm = 5
-rpd = 20
-timeout_s = 240
-fallbacks = []
-
-[models.gemini_top]
-etiqueta = "Gemini 4 Argon (API; sin cuota en el plan gratuito)"
-provider = "gemini_api"
-model_id = "gemini-4-argon"
-rpm = 5
-rpd = 100
-timeout_s = 300
-fallbacks = ["claude_opus"]
 
 [models.gemini_embedding]
 etiqueta = "Gemini Embedding"
@@ -76,37 +121,69 @@ rpd = 1000
 timeout_s = 30
 fallbacks = []
 
-# ---------- Claude Pro vía Claude Code ----------
-[models.claude_haiku]
-etiqueta = "Claude Haiku (Claude Code)"
-provider = "claude_cli"
-model_id = "haiku"
-timeout_s = 90
+[models.anthropic_sonnet_api]
+etiqueta = "Claude Sonnet 5.5 (API Anthropic)"
+provider = "anthropic_api"
+model_id = "claude-sonnet-5-5"
+timeout_s = 180
+fallbacks = ["claude_sonnet", "agy_claude_sonnet"]
+
+[models.anthropic_opus_api]
+etiqueta = "Claude Opus 5.5 (API Anthropic)"
+provider = "anthropic_api"
+model_id = "claude-opus-5-5"
+timeout_s = 300
+fallbacks = ["claude_opus", "agy_claude_opus"]
+
+[models.openai_gpt41]
+etiqueta = "GPT-4.1 (API OpenAI)"
+provider = "openai_api"
+model_id = "gpt-4.1"
+timeout_s = 180
+fallbacks = ["agy_gemini_argon", "agy_gemini_flash"]
+
+[models.openai_o3]
+etiqueta = "OpenAI o3 (API OpenAI)"
+provider = "openai_api"
+model_id = "o3"
+timeout_s = 300
+fallbacks = ["openai_gpt41", "agy_gemini_argon"]
+
+[models.xai_grok3]
+etiqueta = "Grok 3 (API xAI)"
+provider = "xai_api"
+model_id = "grok-3"
+timeout_s = 180
+fallbacks = ["agy_gemini_argon", "agy_gemini_flash"]
+
+[models.deepseek_v3]
+etiqueta = "DeepSeek V3 Chat (API DeepSeek)"
+provider = "deepseek_api"
+model_id = "deepseek-chat"
+timeout_s = 180
 fallbacks = ["agy_gemini_flash"]
 
-[models.claude_sonnet]
-etiqueta = "Claude Sonnet (Claude Code)"
-provider = "claude_cli"
-model_id = "sonnet"
+[models.deepseek_r1]
+etiqueta = "DeepSeek R1 Reasoner (API DeepSeek)"
+provider = "deepseek_api"
+model_id = "deepseek-reasoner"
+timeout_s = 300
+fallbacks = ["deepseek_v3", "agy_gemini_argon"]
+
+[models.mistral_large]
+etiqueta = "Mistral Large (API Mistral)"
+provider = "mistral_api"
+model_id = "mistral-large-latest"
 timeout_s = 180
-fallbacks = ["agy_claude_sonnet", "agy_gemini_flash"]
+fallbacks = ["agy_gemini_flash"]
 
-[models.claude_opus]
-etiqueta = "Claude Opus (Claude Code)"
-provider = "claude_cli"
-model_id = "opus"
-timeout_s = 300
-fallbacks = ["agy_claude_opus", "claude_sonnet"]
-
-# ---------- ChatGPT vía Codex (desactivado hasta instalarlo) ----------
-[models.codex_default]
-etiqueta = "Codex (ChatGPT)"
-provider = "codex_cli"
-model_id = "gpt-5-codex"
-timeout_s = 300
+[models.openrouter_auto]
+etiqueta = "OpenRouter Auto (API OpenRouter)"
+provider = "openrouter_api"
+model_id = "openrouter/auto"
+timeout_s = 180
 fallbacks = ["agy_gemini_flash"]
 
 [circuit_breaker]
-# Tras un "usage limit" de una suscripción: abierto hasta reset_at informado o este valor por defecto.
 default_open_minutes = 60
 gemini_max_retries = 3

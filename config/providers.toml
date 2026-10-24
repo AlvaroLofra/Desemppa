@@ -1,29 +1,44 @@
-# Proveedores de modelos. Añadir uno = añadir un bloque (y, si su salida es nueva, un parser en core/providers/parsers.py).
+# Proveedores de modelos (Planes de Suscripción vía CLI y APIs por Clave de todas las grandes compañías).
+#
+# modalidad:
+#   "plan"  Suscripción plana mensual (invocación por CLI local sin coste extra por token)
+#   "api"   API oficial de pago por uso (mediante clave en .env o guardada cifrada desde la interfaz web)
 #
 # tipo:
-#   "cli"         programa local con modo no interactivo (suscripciones: Claude Pro, Google AI Pro vía Antigravity, Codex…)
-#   "api_gemini"  Gemini API (AI Studio) con GEMINI_API_KEY
-#
-# Para "cli":
-#   args             plantilla de argumentos; marcadores: {model} {effort} {timeout_inner}
-#   system_prompt    "file" (se pasa en un fichero con system_prompt_args, marcador {system_file}) o "inline"
-#                    (se antepone al prompt)
-#   stdin            "text" (prompt en crudo) o "agy_ndjson" (una línea {"event":"user","message":{...}})
-#   parser           formato de la salida: claude_stream_json | agy_stream_json | codex_jsonl
-#   json_schema_args argumentos para forzar salida JSON con esquema (marcador {schema_file}); opcional
-#   descubrir        argumentos que listan modelos (una línea "id<TAB>nombre" por modelo); vacío = modelos_conocidos
-#   login            instrucciones que la interfaz muestra si el CLI no tiene sesión
-#
-# Todos los CLI se ejecutan de uno en uno (cola + FileLock propio), con cwd en un directorio vacío y el prompt por stdin.
+#   "cli"            CLI local no interactivo (Antigravity, Claude Code, Codex…)
+#   "api_gemini"     Google Gemini API (AI Studio)
+#   "api_anthropic"  Anthropic Messages API
+#   "api_openai"     OpenAI Chat Completions API y compatibles (OpenAI, xAI/Grok, DeepSeek, Mistral, OpenRouter)
 
-[providers.gemini_api]
-tipo = "api_gemini"
-etiqueta = "Gemini API (AI Studio, plan gratuito)"
-login = "Define GEMINI_API_KEY en el fichero .env (clave de https://aistudio.google.com)."
+# ==================== PLANES / SUSCRIPCIONES (0 € EXTRA POR TOKEN) ====================
+
+[providers.antigravity_cli]
+tipo = "cli"
+compania = "Google"
+modalidad = "plan"
+etiqueta = "Antigravity (Suscripción Google AI Pro)"
+ejecutable = "agy"
+args = ["--model", "{model}", "--input-format", "stream-json", "--output-format", "stream-json",
+        "--disable-slash-commands", "--print-timeout", "{timeout_inner}s", "-p="]
+system_prompt = "inline"
+stdin = "agy_ndjson"
+parser = "agy_stream_json"
+json_schema_args = ["--json-schema", "{schema_file}"]
+descubrir = ["models"]
+modelos_conocidos = [
+    "gemini-4-argon-low", "gemini-4-argon-medium", "gemini-4-argon-high",
+    "gemini-3.8-flash-low", "gemini-3.8-flash-medium", "gemini-3.8-flash-high",
+    "claude-opus-5-5-low", "claude-opus-5-5-medium", "claude-opus-5-5-high",
+    "claude-sonnet-5-5-low", "claude-sonnet-5-5-medium", "claude-sonnet-5-5-high",
+    "gpt-oss-120b-medium"
+]
+login = "Abre Antigravity o ejecuta `agy` en una terminal e inicia sesión con tu cuenta de Google AI Pro."
 
 [providers.claude_cli]
 tipo = "cli"
-etiqueta = "Claude Code (suscripción Claude Pro)"
+compania = "Anthropic"
+modalidad = "plan"
+etiqueta = "Claude Code (Suscripción Claude Pro)"
 ejecutable = "claude"
 args = ["-p", "--model", "{model}", "--effort", "{effort}", "--output-format", "stream-json", "--verbose",
         "--include-partial-messages", "--tools", "", "--no-session-persistence"]
@@ -34,23 +49,11 @@ parser = "claude_stream_json"
 modelos_conocidos = ["haiku", "sonnet", "opus"]
 login = "Abre una terminal, ejecuta `claude` y escribe /login."
 
-[providers.antigravity_cli]
-tipo = "cli"
-etiqueta = "Antigravity (suscripción Google AI Pro)"
-ejecutable = "agy"
-args = ["--model", "{model}", "--input-format", "stream-json", "--output-format", "stream-json",
-        "--disable-slash-commands", "--print-timeout", "{timeout_inner}s", "-p="]
-system_prompt = "inline"
-stdin = "agy_ndjson"
-parser = "agy_stream_json"
-json_schema_args = ["--json-schema", "{schema_file}"]
-descubrir = ["models"]
-login = "Abre Antigravity o ejecuta `agy` en una terminal e inicia sesión con tu cuenta de Google AI Pro."
-
 [providers.codex_cli]
-# EXPERIMENTAL: preparado para el plan de ChatGPT/Codex; flags pendientes de verificar cuando el CLI esté instalado.
 tipo = "cli"
-etiqueta = "Codex CLI (suscripción ChatGPT)"
+compania = "OpenAI"
+modalidad = "plan"
+etiqueta = "Codex CLI (Suscripción ChatGPT Plus/Pro)"
 habilitado = false
 ejecutable = "codex"
 args = ["exec", "--json", "--model", "{model}", "--skip-git-repo-check", "--sandbox", "read-only", "-"]
@@ -59,3 +62,74 @@ stdin = "text"
 parser = "codex_jsonl"
 modelos_conocidos = ["gpt-5-codex"]
 login = "Instala el CLI (`npm i -g @openai/codex`), ejecuta `codex` e inicia sesión con tu cuenta de ChatGPT."
+
+# ==================== APIS POR CLAVE (TODAS LAS GRANDES COMPAÑÍAS) ====================
+
+[providers.gemini_api]
+tipo = "api_gemini"
+compania = "Google"
+modalidad = "api"
+etiqueta = "Google Gemini API (AI Studio)"
+api_key_env = "GEMINI_API_KEY"
+modelos_conocidos = ["gemini-3.8-flash", "gemini-4-argon"]
+login = "Configura tu clave desde el botón «Clave API» en la web o define GEMINI_API_KEY en .env."
+
+[providers.anthropic_api]
+tipo = "api_anthropic"
+compania = "Anthropic"
+modalidad = "api"
+etiqueta = "Anthropic API (Claude Directo)"
+base_url = "https://api.anthropic.com/v1"
+api_key_env = "ANTHROPIC_API_KEY"
+modelos_conocidos = ["claude-sonnet-5-5", "claude-opus-5-5", "claude-haiku-5-5"]
+login = "Configura tu clave desde el botón «Clave API» en la web o define ANTHROPIC_API_KEY en .env."
+
+[providers.openai_api]
+tipo = "api_openai"
+compania = "OpenAI"
+modalidad = "api"
+etiqueta = "OpenAI API (GPT / serie o)"
+base_url = "https://api.openai.com/v1"
+api_key_env = "OPENAI_API_KEY"
+modelos_conocidos = ["gpt-4.1", "gpt-4o", "o3", "o4-mini"]
+login = "Configura tu clave desde el botón «Clave API» en la web o define OPENAI_API_KEY en .env."
+
+[providers.xai_api]
+tipo = "api_openai"
+compania = "xAI (Grok)"
+modalidad = "api"
+etiqueta = "xAI API (Grok)"
+base_url = "https://api.x.ai/v1"
+api_key_env = "XAI_API_KEY"
+modelos_conocidos = ["grok-3", "grok-3-mini"]
+login = "Configura tu clave desde el botón «Clave API» en la web o define XAI_API_KEY en .env."
+
+[providers.deepseek_api]
+tipo = "api_openai"
+compania = "DeepSeek"
+modalidad = "api"
+etiqueta = "DeepSeek API (V3 / R1)"
+base_url = "https://api.deepseek.com/v1"
+api_key_env = "DEEPSEEK_API_KEY"
+modelos_conocidos = ["deepseek-chat", "deepseek-reasoner"]
+login = "Configura tu clave desde el botón «Clave API» en la web o define DEEPSEEK_API_KEY en .env."
+
+[providers.mistral_api]
+tipo = "api_openai"
+compania = "Mistral AI"
+modalidad = "api"
+etiqueta = "Mistral AI API (Large / Magistral)"
+base_url = "https://api.mistral.ai/v1"
+api_key_env = "MISTRAL_API_KEY"
+modelos_conocidos = ["mistral-large-latest", "magistral-medium-latest"]
+login = "Configura tu clave desde el botón «Clave API» en la web o define MISTRAL_API_KEY en .env."
+
+[providers.openrouter_api]
+tipo = "api_openai"
+compania = "OpenRouter"
+modalidad = "api"
+etiqueta = "OpenRouter API (Multimarca: Llama, Qwen, etc.)"
+base_url = "https://openrouter.ai/api/v1"
+api_key_env = "OPENROUTER_API_KEY"
+modelos_conocidos = ["openrouter/auto", "meta-llama/llama-3.3-70b-instruct", "qwen/qwen-2.5-72b-instruct"]
+login = "Configura tu clave desde el botón «Clave API» en la web o define OPENROUTER_API_KEY en .env."

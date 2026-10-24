@@ -48,3 +48,4 @@ $RECYCLE.BIN/
 
 # Asignación de modelos del usuario (página «Modelos»)
 config/user_profiles.toml
+config/user_models.toml

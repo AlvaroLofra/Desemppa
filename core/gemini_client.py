@@ -101,6 +101,11 @@ class GeminiClient:
         self._buckets: dict[str, TokenBucket] = {}
         self._exhausted: dict[str, float] = {}  # model_id -> instante (clock) en que vuelve a haber cuota
 
+    def set_api_key(self, api_key: str | None) -> None:
+        """Cambia la clave en caliente (p. ej. guardada desde la web); el cliente del SDK se recrea al usarse."""
+        self._api_key = api_key or None
+        self._client = None
+
     @property
     def configured(self) -> bool:
         return self._client is not None or bool(self._api_key)

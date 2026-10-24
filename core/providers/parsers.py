@@ -13,7 +13,14 @@ import re
 from dataclasses import dataclass, field
 from typing import Any, Protocol
 
-from core.errors import NotAuthenticated, ProviderError, ProviderTimeout, RateLimited, UsageLimitReached
+from core.errors import (
+    EmptyResponse,
+    NotAuthenticated,
+    ProviderError,
+    ProviderTimeout,
+    RateLimited,
+    UsageLimitReached,
+)
 from core.llm_types import StreamChunk, Usage
 
 _AUTH_RE = re.compile(
@@ -175,7 +182,10 @@ class AgyStreamParser:
         if self.final is None:
             raise classify_error(stderr or "agy terminó sin evento result", self.provider)
         if not self.final.text.strip():
-            raise ProviderError(f"agy devolvió una respuesta vacía. {stderr.strip()[:300]}", provider=self.provider)
+            denegadas = " (intentó usar una herramienta y se le denegó)" if self.final.raw.get("denied_actions") else ""
+            raise EmptyResponse(
+                f"agy devolvió una respuesta vacía{denegadas}. {stderr.strip()[:300]}", provider=self.provider
+            )
 
 
 class CodexJsonlParser:

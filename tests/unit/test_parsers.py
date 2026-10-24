@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from core.errors import NotAuthenticated, ProviderError, ProviderTimeout, RateLimited, UsageLimitReached
+from core.errors import EmptyResponse, NotAuthenticated, ProviderError, ProviderTimeout, RateLimited, UsageLimitReached
 from core.providers.parsers import (
     AgyStreamParser,
     ClaudeStreamParser,
@@ -79,8 +79,9 @@ def test_agy_tool_attempt_is_reported_and_empty_answer_fails(fixtures_dir):
     parser = AgyStreamParser()
     _feed_all(parser, _agy("tool_denied.jsonl", fixtures_dir))
     assert any("write_file" in a for a in parser.avisos)
-    with pytest.raises(ProviderError, match="vacía"):
+    with pytest.raises(EmptyResponse, match="vacía.*herramienta") as exc:
         parser.finish("")
+    assert exc.value.degradable  # el router debe probar el siguiente modelo, no abortar la consulta
 
 
 def test_agy_print_timeout_is_timeout(fixtures_dir):

@@ -62,7 +62,10 @@ def test_chunk_text_overlap():
 
 
 def test_pdf_extractor_on_real_pdf():
-    result = extract_pdf(ROOT / "Propuesta_Maestra_IurisIA_LexAgent_Definitiva.pdf")
+    pdf_path = ROOT / "docs" / "historico_v2" / "Propuesta_Maestra_IurisIA_LexAgent_Definitiva.pdf"
+    if not pdf_path.exists():
+        pdf_path = ROOT / "Propuesta_Maestra_IurisIA_LexAgent_Definitiva.pdf"
+    result = extract_pdf(pdf_path)
     assert len(result.pages) == 6 and result.ocr_pending == []
     assert "Fase 3" in result.text
 

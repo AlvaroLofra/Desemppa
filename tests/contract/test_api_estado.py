@@ -28,12 +28,14 @@ def test_estado(tmp_path):
         body = client.get("/api/estado").json()
     prov = body["proveedores"]
     assert prov["gemini_api"]["instalado"] is False  # sin clave
+    assert prov["openai_api"]["modalidad"] == "api" and prov["openai_api"]["compania"] == "OpenAI"
+    assert prov["antigravity_cli"]["modalidad"] == "plan" and prov["antigravity_cli"]["compania"] == "Google"
     assert prov["claude_cli"]["breaker"]["estado"] == "closed"
     assert prov["claude_cli"]["uso_ultimas_5h"]["llamadas"] == 0
     assert prov["codex_cli"]["habilitado"] is False and prov["codex_cli"]["instalado"] is False
     assert "login" in prov["antigravity_cli"]
     assert body["modo_por_defecto"] == "equilibrado"
-    assert body["modos"]["pro"]["roles"]["magistrado"] == {"model": "claude_opus", "effort": "high"}
+    assert body["modos"]["pro"]["roles"]["magistrado"] == {"model": "agy_gemini_argon", "effort": "high"}
     assert body["corpus"]["municipios"] > 8000 and 2026 in body["corpus"]["anios_festivos"]
 
 
@@ -48,6 +50,7 @@ def test_mutations_require_local_token(tmp_path):
     with client:
         r = client.post("/api/consultas", json={"texto": "El casero no me devuelve la fianza", "modo": "eco"})
         assert r.status_code == 403
+        assert "cache" in r.headers.get("clear-site-data", "")
         r = client.post(
             "/api/consultas",
             headers={"X-Iuris-Token": "malo"},
@@ -104,7 +107,7 @@ def test_upload_txt_and_sse_replay(tmp_path):
         assert client.get("/api/consultas").json()[0]["consulta_id"] == cid
 
 
-def test_ajustes_perfiles_roundtrip(tmp_path, monkeypatch):
+def test_ajustes_perfiles_y_configurar_proveedor(tmp_path, monkeypatch):
     import shutil
 
     import config.settings as cs
@@ -119,13 +122,16 @@ def test_ajustes_perfiles_roundtrip(tmp_path, monkeypatch):
     monkeypatch.setattr(am, "CONFIG_DIR", cfg)
     monkeypatch.setattr(am, "save_user_profiles", lambda body: cs.save_user_profiles(body, cfg))
     monkeypatch.setattr(am, "reset_user_profiles", lambda: cs.reset_user_profiles(cfg))
+    monkeypatch.setattr(
+        am, "save_user_provider_or_model", lambda **k: cs.save_user_provider_or_model(config_dir=cfg, **k)
+    )
     monkeypatch.setattr(am, "load_catalog", lambda *a, **k: cs.load_catalog(cfg, **k))
     client, holder = _client(tmp_path)
     with client:
         token = {"X-Iuris-Token": holder["s"].token}
         data = client.get("/api/ajustes/perfiles").json()
         assert data["modos"]["eco"]["magistrado"]["model"] == "agy_gemini_flash"
-        assert data["modelos"]["claude_opus"]["proveedor"] == "claude_cli"
+        assert data["modelos"]["agy_gemini_argon"]["proveedor"] == "antigravity_cli"
         nuevo = {"eco": {"magistrado": {"model": "claude_opus", "effort": "high"}}}
         assert client.put("/api/ajustes/perfiles", json=nuevo).status_code == 403
         assert client.put("/api/ajustes/perfiles", json=nuevo, headers=token).status_code == 200
@@ -135,6 +141,27 @@ def test_ajustes_perfiles_roundtrip(tmp_path, monkeypatch):
         assert client.delete("/api/ajustes/perfiles", headers=token).status_code == 200
         assert holder["s"].router.resolve("eco", "magistrado").model == "agy_gemini_flash"
         assert client.post("/api/proveedores/nope/detectar", headers=token).status_code == 404
+
+        # Configurar clave API cifrada y añadir modelo personalizado
+        r_cfg = client.post(
+            "/api/proveedores/openai_api/configurar",
+            headers=token,
+            json={"api_key": "sk-test-12345", "habilitado": True},
+        )
+        assert r_cfg.status_code == 200 and r_cfg.json()["instalado"] is True
+        r_mod = client.post(
+            "/api/modelos",
+            headers=token,
+            json={
+                "alias": "openai_custom",
+                "proveedor": "openai_api",
+                "model_id": "gpt-4.1-mini",
+                "etiqueta": "GPT-4.1 Mini Custom",
+                "efforts": ["low", "medium", "high"],
+            },
+        )
+        assert r_mod.status_code == 201
+        assert "openai_custom" in client.get("/api/ajustes/perfiles").json()["modelos"]
 
 
 def test_version_and_html_without_token(tmp_path, monkeypatch):
