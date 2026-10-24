@@ -408,7 +408,10 @@ class Orchestrator:
         encontrados: list[dict[str, Any]] = []
         if triage.jurisdiccion_principal == Jurisdiccion.SOCIAL and triage.convenio_aplicable:
             fecha_ref = triage.fecha_hechos or self.s.today()
-            encontrados = self.s.convenios.buscar_en_vigentes(query, fecha_ref, triage.convenio_aplicable, limit=4)
+            # Solo los términos jurídicos del triaje: el resumen de hechos («camarero», «Madrid»…) desplaza en BM25 a
+            # los artículos pertinentes (faltas, sanciones) en favor de los de clasificación profesional.
+            q_conv = " ".join(triage.terminos_cendoj) or query
+            encontrados = self.s.convenios.buscar_en_vigentes(q_conv, fecha_ref, triage.convenio_aplicable, limit=4)
             if not encontrados:
                 run.avisos.append(
                     "No hay texto del convenio aplicable vigente en la fecha de los hechos en la base local: "
