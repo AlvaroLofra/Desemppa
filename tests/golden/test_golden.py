@@ -53,3 +53,28 @@ def test_golden_postulacion(caso):
 def test_titular_del_plazo(engine):
     assert engine.compute("CIV_FIANZA_DEVOLUCION_1M", date(2026, 1, 31)).titular == "contraparte"
     assert engine.compute("SOC_DESPIDO_CADUCIDAD", date(2026, 3, 27), municipio_ine="28079").titular == "usuario"
+
+
+@pytest.mark.parametrize(
+    "caso",
+    [
+        CasoPostulacion(jurisdiccion="civil", procedimiento="monitorio", fase="inicial"),
+        CasoPostulacion(jurisdiccion="civil", cuantia_eur=900),
+        CasoPostulacion(jurisdiccion="civil", cuantia_eur=5000),
+        CasoPostulacion(jurisdiccion="civil"),
+    ],
+)
+def test_aviso_masc_civil_cita_lo_1_2025_sin_prometer_borradores(caso):
+    r = evaluar(caso)
+    assert "arts. 5 y 10 LO 1/2025" in r.base_legal
+    assert "30 días naturales" in r.texto_usuario and "borrador" not in r.texto_usuario.lower()
+
+
+def test_dias_habiles_restantes_solo_en_plazos_de_dias_habiles(engine):
+    # Plazo en días hábiles: se cuentan los hábiles (menos que los naturales que quedan).
+    habiles = engine.compute("CIV_APELACION_20H", date(2026, 6, 30), municipio_ine="08019", hoy=date(2026, 7, 1))
+    assert habiles.dias_habiles_restantes is not None
+    assert habiles.dias_habiles_restantes < (habiles.fecha_limite_segura - date(2026, 7, 1)).days
+    # Plazo en años: no hay «días hábiles» que mostrar (antes se devolvían los naturales con esa etiqueta).
+    anios = engine.compute("CIV_CONTRACTUAL_5A", date(2026, 9, 13), hoy=date(2026, 10, 24))
+    assert anios.dias_habiles_restantes is None

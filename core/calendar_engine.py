@@ -31,6 +31,9 @@ MADRID_TZ = ZoneInfo("Europe/Madrid")
 FIESTAS_FIJAS = {(1, 1), (5, 1), (10, 12), (12, 25)}
 
 
+_COMPUTO_NATURAL = (TipoComputo.MESES_FECHA_A_FECHA, TipoComputo.ANIOS_FECHA_A_FECHA, TipoComputo.NATURALES)
+
+
 @dataclass(frozen=True)
 class PlazoRule:
     id: str
@@ -311,7 +314,8 @@ class CalendarEngine:
                 "día hábil siguiente. No lo apures: la fecha recomendada es la fecha límite segura."
             )
         restantes = None
-        if hoy is not None:
+        # Solo tiene sentido en plazos de días hábiles; en meses, años o naturales sería un recuento de naturales.
+        if hoy is not None and rule.computo not in _COMPUTO_NATURAL:
             restantes = self.dias_habiles_entre(hoy, fin, ctx) if hoy <= fin else 0
         if rule.doctrina_cambiante:
             avisos.append("🔎 Criterio con jurisprudencia cambiante: confírmalo con un profesional.")
@@ -336,7 +340,7 @@ class CalendarEngine:
 
     def dias_habiles_entre(self, desde: date, hasta: date, ctx: _Ctx) -> int:
         computo = ctx.rule.computo
-        if computo in (TipoComputo.MESES_FECHA_A_FECHA, TipoComputo.ANIOS_FECHA_A_FECHA, TipoComputo.NATURALES):
+        if computo in _COMPUTO_NATURAL:
             return (hasta - desde).days
         n, d = 0, desde
         while d < hasta:

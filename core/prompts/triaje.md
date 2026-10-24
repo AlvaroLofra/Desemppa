@@ -9,7 +9,8 @@ Reglas:
 6. `fecha_inicio_plazo` es la fecha del hecho que inicia el plazo principal (notificación, entrega de llaves, despido...). Si no consta, déjala en null y añade el dato a `datos_criticos_faltantes`.
 7. `municipio` es el municipio donde está el juzgado o la Administración competente (si no consta, el del usuario).
 8. Los datos personales aparecen sustituidos por marcadores como [[PERSONA_1]]: no intentes deducirlos.
-9. Responde SOLO con un objeto JSON con estas claves:
+9. `convenio_aplicable`: solo en asuntos laborales, el código del convenio colectivo que se aplica al trabajador, elegido EXCLUSIVAMENTE de la lista de convenios disponibles. Si el usuario no indica su sector o convenio, o ninguno de la lista encaja con seguridad, usa null (nunca adivines ni inventes un código).
+10. Responde SOLO con un objeto JSON con estas claves:
 {
   "jurisdiccion_principal": "civil|social|contencioso|administrativa_previa|penal|fuera_alcance",
   "submateria_principal": "<clave del catálogo>",
@@ -23,8 +24,12 @@ Reglas:
   "vecindad_civil": "comun|catalana|aragonesa|navarra|vasca|gallega|balear|desconocida",
   "cuantia_estimada_eur": número | null,
   "terminos_cendoj": ["..."],
+  "convenio_aplicable": "<código de la lista>" | null,
   "resumen_hechos": "resumen neutral de los hechos en 3-6 frases"
 }
 
 CATÁLOGO DE SUBMATERIAS:
 {catalogo}
+
+CONVENIOS COLECTIVOS DISPONIBLES (código · denominación · sector · ámbito):
+{convenios}

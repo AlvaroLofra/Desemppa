@@ -320,3 +320,25 @@ def test_recover_interrupted(db):
     store.set_estado(b, Estado.ESPERANDO_ACLARACION)
     assert store.recover_interrupted() == 1
     assert store.get(a).estado == Estado.ERROR and store.get(b).estado == Estado.ESPERANDO_ACLARACION
+
+
+@pytest.mark.parametrize(("propuesto", "esperado"), [("99010365011900", "99010365011900"), ("12345678901234", None)])
+async def test_triaje_solo_acepta_convenios_indexados(services, db, propuesto, esperado):
+    from core.orchestrator import _Run
+
+    repo = ConveniosRepository(db)
+    repo.upsert_convenio("99010365011900", "VI ALEH", "Hostelería", "estatal", prioridad=3)
+    repo.add_version(
+        "99010365011900", "Artículo 1. Ámbito.\nTexto.", boletin_ref="BOE-A-2023-6344", vigencia_desde=date(2023, 3, 10)
+    )
+    triaje = {
+        **TRIAJE_OK,
+        "jurisdiccion_principal": "social",
+        "submateria_principal": "SOC_DESPIDO_DISC",
+        "ramas": [{"submateria": "SOC_DESPIDO_DISC", "jurisdiccion": "social", "peso_enrutamiento": 1.0}],
+        "convenio_aplicable": propuesto,  # un código inventado por el modelo debe descartarse
+    }
+    s, _ = services({"triaje": [triaje]})
+    cid = s.store.create("Soy camarero y me han despedido.", "eco")
+    t = await Orchestrator(s)._triaje(_Run(cid, "eco"))
+    assert t is not None and t.convenio_aplicable == esperado

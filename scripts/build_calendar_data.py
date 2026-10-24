@@ -216,7 +216,8 @@ def build_festivos(year: int, source: str) -> int:
         ref = source
     else:
         text = Path(source).read_text(encoding="utf-8")
-        ref = re.search(r"BOE-A-\d{4}-\d+", text).group(0) if re.search(r"BOE-A-\d{4}-\d+", text) else source
+        m_ref = re.search(r"BOE-A-\d{4}-\d+", text)
+        ref = m_ref.group(0) if m_ref else source
     rows = parse_festivos_html(text, year, ref)
     out = DATA / "festivos" / f"{year}.csv"
     out.parent.mkdir(parents=True, exist_ok=True)

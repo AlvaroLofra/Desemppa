@@ -67,3 +67,51 @@ def test_version_search_and_salary_verification(db):
 def test_seed_has_30_candidates():
     seed = load_seed()
     assert len(seed) == 30 and sorted(c["prioridad"] for c in seed) == list(range(1, 31))
+
+
+def _dos_convenios(db):
+    repo = ConveniosRepository(db)
+    repo.upsert_convenio("11111111111111", "Convenio de hostelería", "Hostelería", "estatal", prioridad=1)
+    repo.upsert_convenio("22222222222222", "Convenio del metal", "Metal", "estatal", prioridad=2)
+    repo.add_version(
+        "11111111111111",
+        TEXTO,
+        boletin_ref="BOE-A-2020-1",
+        vigencia_desde=date(2020, 1, 1),
+        vigencia_hasta=date(2022, 12, 31),
+    )
+    repo.add_version(
+        "11111111111111", TEXTO.replace("1.780", "1.750"), boletin_ref="BOE-A-2023-1", vigencia_desde=date(2023, 1, 1)
+    )
+    repo.add_version(
+        "22222222222222",
+        TEXTO.replace("hostelería", "metal"),
+        boletin_ref="BOE-A-2023-2",
+        vigencia_desde=date(2023, 1, 1),
+    )
+    return repo
+
+
+def test_buscar_en_vigentes_solo_en_el_convenio_y_la_version_vigentes(db):
+    repo = _dos_convenios(db)
+    hits = repo.buscar_en_vigentes("jornada máxima anual", date(2024, 5, 1), "11111111111111")
+    assert hits and {h["codigo_convenio"] for h in hits} == {"11111111111111"}  # nunca del metal
+    assert {h["version_id"] for h in hits} == {"11111111111111:2023"}  # la de 2020 caducó en 2022
+    assert "1.750 horas" in hits[0]["texto"]
+    antiguos = repo.buscar_en_vigentes("jornada máxima anual", date(2021, 5, 1), "11111111111111")
+    assert {h["version_id"] for h in antiguos} == {"11111111111111:2020"}
+    assert repo.buscar_en_vigentes("jornada", date(2019, 1, 1), "11111111111111") == []  # sin versión vigente
+    assert repo.buscar_en_vigentes("jornada", date(2024, 1, 1), "99999999999999") == []  # convenio inexistente
+
+
+def test_indexados_solo_lista_convenios_con_texto(db):
+    repo = _dos_convenios(db)
+    repo.upsert_convenio("33333333333333", "Sin texto todavía", "Limpieza", "Madrid", prioridad=3)
+    assert [c["codigo"] for c in repo.indexados()] == ["11111111111111", "22222222222222"]
+
+
+def test_seed_estatales_tienen_referencia_y_codigo_regcon():
+    estatales = [c for c in load_seed() if c["territorio"] == "estatal"]
+    assert len(estatales) == 10
+    for c in estatales:
+        assert str(c["boletin_ref"]).startswith("BOE-A-") and len(str(c["codigo_regcon"])) == 14

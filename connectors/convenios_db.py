@@ -151,19 +151,89 @@ class ConveniosRepository:
     def version_vigente(self, codigo: str, fecha: date) -> str | None:
         row = self._con.execute(
             """SELECT version_id FROM convenios_versiones WHERE codigo_convenio = ? AND vigencia_desde <= ?
+                   AND (vigencia_hasta IS NULL OR vigencia_hasta >= ?)
                ORDER BY vigencia_desde DESC LIMIT 1""",
-            (codigo, fecha.isoformat()),
+            (codigo, fecha.isoformat(), fecha.isoformat()),
         ).fetchone()
         return row[0] if row else None
 
     def buscar_clausulas(self, version_id: str, consulta: str, limit: int = 5) -> list[dict[str, Any]]:
+        q = fts_query(consulta)
+        if not q:
+            return []
         rows = self._con.execute(
             """SELECT a.articulo, a.titulo, a.texto FROM convenios_fts JOIN convenios_articulos a
                    ON a.id = convenios_fts.rowid
                WHERE convenios_fts MATCH ? AND a.version_id = ? ORDER BY bm25(convenios_fts) LIMIT ?""",
-            (fts_query(consulta), version_id, limit),
+            (q, version_id, limit),
         ).fetchall()
         return [{"articulo": r[0], "titulo": r[1], "texto": r[2]} for r in rows]
+
+    def buscar_en_vigentes(
+        self, consulta: str, fecha: date, codigo_convenio: str, limit: int = 4
+    ) -> list[dict[str, Any]]:
+        """Artículos relevantes de la versión del convenio `codigo_convenio` vigente en `fecha`.
+
+        Solo se busca en el convenio identificado para el caso: mezclar convenios de otros sectores daría
+        «fuentes verificadas» que no se aplican al trabajador."""
+        q = fts_query(consulta)
+        version_id = self.version_vigente(codigo_convenio, fecha)
+        if not q or version_id is None:
+            return []
+        rows = self._con.execute(
+            """SELECT c.codigo_convenio, c.denominacion, v.version_id, v.boletin_ref,
+                      v.vigencia_desde, v.vigencia_hasta, a.articulo, a.titulo, a.texto
+               FROM convenios_fts
+               JOIN convenios_articulos a ON a.id = convenios_fts.rowid
+               JOIN convenios_versiones v ON v.version_id = a.version_id
+               JOIN convenios_cache c ON c.codigo_convenio = v.codigo_convenio
+               WHERE convenios_fts MATCH ? AND a.version_id = ?
+               ORDER BY bm25(convenios_fts) LIMIT ?""",
+            (q, version_id, limit),
+        ).fetchall()
+        return [
+            {
+                "codigo_convenio": r[0],
+                "denominacion": r[1],
+                "version_id": r[2],
+                "boletin_ref": r[3],
+                "vigencia_desde": date.fromisoformat(r[4]),
+                "vigencia_hasta": date.fromisoformat(r[5]) if r[5] else None,
+                "articulo": r[6],
+                "titulo": r[7],
+                "texto": r[8],
+            }
+            for r in rows
+        ]
+
+    def indexados(self) -> list[dict[str, str]]:
+        """Convenios con al menos una versión con texto indexado (los únicos que el triaje puede elegir)."""
+        rows = self._con.execute(
+            """SELECT DISTINCT c.codigo_convenio, c.denominacion, c.ambito_funcional, c.ambito_territorial
+               FROM convenios_cache c JOIN convenios_versiones v ON v.codigo_convenio = c.codigo_convenio
+               ORDER BY c.prioridad_seed"""
+        ).fetchall()
+        return [dict(zip(("codigo", "denominacion", "sector", "territorio"), r, strict=True)) for r in rows]
+
+    def detalle_clausula(self, source_id: str) -> dict[str, Any] | None:
+        m = re.match(r"^CONV:([^:]+):([^:]+):art(.+)$", source_id)
+        if not m:
+            return None
+        codigo, anio, art = m.groups()
+        version_id = f"{codigo}:{anio}"
+        row = self._con.execute(
+            """SELECT c.denominacion, v.boletin_ref, a.titulo, a.texto
+               FROM convenios_articulos a
+               JOIN convenios_versiones v ON v.version_id = a.version_id
+               JOIN convenios_cache c ON c.codigo_convenio = v.codigo_convenio
+               WHERE a.version_id = ? AND a.articulo = ?""",
+            (version_id, art),
+        ).fetchone()
+        if not row:
+            return None
+        denom, ref, tit, texto = row
+        url = f"https://www.boe.es/buscar/doc.php?id={ref}" if str(ref).startswith("BOE-") else None
+        return {"titulo": f"Art. {art} {tit or ''} ({denom})".strip(), "texto": texto, "url": url}
 
     def listar(self, sector: str | None = None, territorio: str | None = None) -> list[dict[str, Any]]:
         sql = (

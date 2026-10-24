@@ -1,19 +1,23 @@
-# Lista CANDIDATA de los 30 convenios más masivos (dossier §1.2.3). Pendiente de verificar:
-#  - el código REGCON (codigo_regcon) y la última versión publicada (boletin_ref),
-#  - el orden por trabajadores afectados según la Estadística de Convenios Colectivos del Ministerio de Trabajo.
-# Mientras codigo_regcon sea null, el convenio no se carga en la base de datos.
+# Lista de los 30 convenios más masivos (dossier §1.2.3).
+#
+# Estatales: `boletin_ref` y `codigo_regcon` VERIFICADOS el 24-10-2026 contra el BOE (título de la resolución
+# «por la que se registra y publica» el convenio y «Código de convenio n.º» dentro de su texto). Aun así,
+# `scripts/importar_convenios_boe.py` vuelve a comprobar ambos datos antes de indexar y rechaza lo que no cuadre.
+# Es la publicación del texto íntegro; las modificaciones posteriores (actas, revisiones salariales) NO están
+# integradas: el importador las lista para que se sepa que el texto puede estar parcialmente desactualizado.
+# Provinciales: dependen de boletines provinciales/autonómicos; mientras codigo_regcon sea null no se cargan.
 convenios:
-  # --- Estatales ---
-  - {prioridad: 1,  denominacion: "Convenio General del Sector de la Construcción", sector: "Construcción", territorio: "estatal", codigo_regcon: null}
-  - {prioridad: 2,  denominacion: "Convenio estatal de la industria, la tecnología y los servicios del sector del Metal (CEM)", sector: "Metal", territorio: "estatal", codigo_regcon: null}
-  - {prioridad: 3,  denominacion: "Acuerdo Laboral de ámbito Estatal para el sector de Hostelería (ALEH)", sector: "Hostelería", territorio: "estatal", codigo_regcon: null}
-  - {prioridad: 4,  denominacion: "Convenio colectivo estatal de contact center", sector: "Contact center", territorio: "estatal", codigo_regcon: null}
-  - {prioridad: 5,  denominacion: "Convenio colectivo estatal de empresas de seguridad privada", sector: "Seguridad privada", territorio: "estatal", codigo_regcon: null}
-  - {prioridad: 6,  denominacion: "Convenio colectivo de grandes almacenes", sector: "Comercio", territorio: "estatal", codigo_regcon: null}
-  - {prioridad: 7,  denominacion: "Convenio colectivo marco estatal de servicios de atención a las personas dependientes", sector: "Dependencia", territorio: "estatal", codigo_regcon: null}
-  - {prioridad: 8,  denominacion: "Convenio colectivo sectorial de limpieza de edificios y locales (marco estatal)", sector: "Limpieza", territorio: "estatal", codigo_regcon: null}
-  - {prioridad: 9,  denominacion: "Convenio colectivo general de la industria química", sector: "Química", territorio: "estatal", codigo_regcon: null}
-  - {prioridad: 10, denominacion: "Convenio colectivo de empresas de enseñanza privada sostenidas total o parcialmente con fondos públicos", sector: "Enseñanza", territorio: "estatal", codigo_regcon: null}
+  # --- Estatales (BOE) ---
+  - {prioridad: 1,  denominacion: "VII Convenio colectivo general del sector de la construcción", sector: "Construcción", territorio: "estatal", codigo_regcon: "99005585011900", boletin_ref: "BOE-A-2023-19903"}
+  - {prioridad: 2,  denominacion: "IV Convenio colectivo estatal de la industria, las nuevas tecnologías y los servicios del sector del metal (CEM)", sector: "Metal", territorio: "estatal", codigo_regcon: "99003435011900", boletin_ref: "BOE-A-2022-479"}
+  - {prioridad: 3,  denominacion: "VI Acuerdo Laboral para el sector de la Hostelería (ALEH VI)", sector: "Hostelería", territorio: "estatal", codigo_regcon: "99010365011900", boletin_ref: "BOE-A-2023-6344"}
+  - {prioridad: 4,  denominacion: "III Convenio colectivo de ámbito estatal del sector de contact center", sector: "Contact center", territorio: "estatal", codigo_regcon: "99012145012002", boletin_ref: "BOE-A-2023-13741"}
+  - {prioridad: 5,  denominacion: "Convenio colectivo estatal de empresas de seguridad (2023-2026)", sector: "Seguridad privada", territorio: "estatal", codigo_regcon: "99004615011982", boletin_ref: "BOE-A-2022-21175"}
+  - {prioridad: 6,  denominacion: "Convenio colectivo del sector de grandes almacenes", sector: "Comercio", territorio: "estatal", codigo_regcon: "99002405011982", boletin_ref: "BOE-A-2023-13740"}
+  - {prioridad: 7,  denominacion: "VIII Convenio marco estatal de servicios de atención a las personas dependientes", sector: "Dependencia", territorio: "estatal", codigo_regcon: "99010825011997", boletin_ref: "BOE-A-2023-13742"}
+  - {prioridad: 8,  denominacion: "I Convenio colectivo sectorial de limpieza de edificios y locales", sector: "Limpieza", territorio: "estatal", codigo_regcon: "99100125012013", boletin_ref: "BOE-A-2013-5424"}
+  - {prioridad: 9,  denominacion: "XXI Convenio colectivo general de la industria química", sector: "Química", territorio: "estatal", codigo_regcon: "99004235011981", boletin_ref: "BOE-A-2025-3083"}
+  - {prioridad: 10, denominacion: "VII Convenio colectivo de empresas de enseñanza privada sostenidas total o parcialmente con fondos públicos", sector: "Enseñanza", territorio: "estatal", codigo_regcon: "99008725011994", boletin_ref: "BOE-A-2021-15665"}
   # --- Hostelería provinciales ---
   - {prioridad: 11, denominacion: "Convenio colectivo de hostelería y actividades turísticas de la Comunidad de Madrid", sector: "Hostelería", territorio: "Madrid", codigo_regcon: null}
   - {prioridad: 12, denominacion: "Convenio colectivo de hostelería de Cataluña", sector: "Hostelería", territorio: "Barcelona", codigo_regcon: null}

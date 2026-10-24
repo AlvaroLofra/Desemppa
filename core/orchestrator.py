@@ -32,6 +32,7 @@ from core.schemas import (
     ArticuloBOE,
     BandaSolidez,
     Cita,
+    ClausulaConvenio,
     DictamenCertificadoSchema,
     DossierIngestaSchema,
     ExtractoSentencia,
@@ -77,6 +78,7 @@ class TriageLLM(BaseModel):
     vecindad_civil: str = "desconocida"
     cuantia_estimada_eur: float | None = None
     terminos_cendoj: list[str] = []
+    convenio_aplicable: str | None = None
     resumen_hechos: str = ""
 
 
@@ -175,7 +177,16 @@ class Orchestrator:
                     f"El contenido de «{adj['nombre']}» no se ha enviado a los modelos (sin tu "
                     "consentimiento): el análisis no lo tiene en cuenta."
                 )
-        system = _prompt("triaje").replace("{hoy}", hoy.isoformat()).replace("{catalogo}", catalogo_para_prompt())
+        convenios = {c["codigo"]: c for c in self.s.convenios.indexados()}
+        lista_convenios = "\n".join(
+            f"- {c['codigo']} · {c['denominacion']} · {c['sector']} · {c['territorio']}" for c in convenios.values()
+        )
+        system = (
+            _prompt("triaje")
+            .replace("{hoy}", hoy.isoformat())
+            .replace("{catalogo}", catalogo_para_prompt())
+            .replace("{convenios}", lista_convenios or "(ninguno indexado: usa null)")
+        )
         raw = await self._llm_json(run, "triaje", system, f"CONSULTA DEL CIUDADANO:\n{texto}", TriageLLM)
         cat = submaterias()
         principal = (
@@ -282,6 +293,8 @@ class Orchestrator:
                 for n in (sub.normas if sub else [])
             ],
             terminos_cendoj=(raw.terminos_cendoj or (sub.terminos_cendoj if sub else []))[:8],
+            # Solo códigos que existen en la base local: un código inventado por el modelo se descarta.
+            convenio_aplicable=raw.convenio_aplicable if raw.convenio_aplicable in convenios else None,
             competencia_local=bool(sub and sub.competencia_local),
         )
         self.s.store.save(
@@ -391,6 +404,47 @@ class Orchestrator:
                     "extracto": ext.texto_verbatim[:280],
                 },
             )
+        clausulas: list[ClausulaConvenio] = []
+        encontrados: list[dict[str, Any]] = []
+        if triage.jurisdiccion_principal == Jurisdiccion.SOCIAL and triage.convenio_aplicable:
+            fecha_ref = triage.fecha_hechos or self.s.today()
+            encontrados = self.s.convenios.buscar_en_vigentes(query, fecha_ref, triage.convenio_aplicable, limit=4)
+            if not encontrados:
+                run.avisos.append(
+                    "No hay texto del convenio aplicable vigente en la fecha de los hechos en la base local: "
+                    "el análisis no cita cláusulas de convenio."
+                )
+        elif triage.jurisdiccion_principal == Jurisdiccion.SOCIAL and self.s.convenios.indexados():
+            run.avisos.append(
+                "No se ha identificado tu convenio colectivo (indica tu sector o convenio en la consulta): "
+                "el análisis no cita cláusulas de convenio."
+            )
+        for ch in encontrados:
+            ref = str(ch.get("boletin_ref") or "")
+            url_conv = f"https://www.boe.es/buscar/doc.php?id={ref}" if ref.startswith("BOE-") else None
+            cl = ClausulaConvenio(
+                source_id=f"CONV:{ch['version_id']}:art{ch['articulo']}",
+                titulo=f"Art. {ch['articulo']} {ch['titulo'] or ''} ({ch['denominacion']})".strip(),
+                texto_verbatim=str(ch["texto"])[:MAX_FUENTE_CHARS],
+                url_oficial=url_conv,
+                codigo_convenio=str(ch["codigo_convenio"]),
+                version_id=str(ch["version_id"]),
+                articulo=str(ch["articulo"]),
+                vigencia_desde=ch["vigencia_desde"],
+                vigencia_hasta=ch["vigencia_hasta"],
+            )
+            clausulas.append(cl)
+            self._emit(
+                run,
+                "source",
+                {
+                    "source_id": cl.source_id,
+                    "tipo": "convenio",
+                    "titulo": cl.titulo,
+                    "url": cl.url_oficial,
+                    "extracto": cl.texto_verbatim[:280],
+                },
+            )
         adjuntos = [
             FragmentoFuente(
                 source_id=f"DOC:{a['adjunto_id'][:8]}",
@@ -421,11 +475,12 @@ class Orchestrator:
         cobertura = (
             "degradada_sin_boe" if not articulos else "degradada_sin_jurisprudencia" if not sentencias else "completa"
         )
-        total = sum(len(f.texto_verbatim) for f in [*articulos, *sentencias, *adjuntos])
+        total = sum(len(f.texto_verbatim) for f in [*articulos, *sentencias, *clausulas, *adjuntos])
         dossier = DossierIngestaSchema(
             consulta_id=run.consulta_id,
             articulos_boe=articulos,
             sentencias=sentencias,
+            clausulas_convenio=clausulas,
             extractos_adjuntos=adjuntos,
             resumen_hechos=resumen[:2500],
             cobertura=cast(Any, cobertura),
