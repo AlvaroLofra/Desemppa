@@ -63,10 +63,18 @@ TRLGDCU, Ley 39/2015, LJCA, LGT, Ley de Tráfico, CCCat libros I–VI, Fuero Nue
 - `connectors/convenios_db.py`: `ConveniosRepository` con versiones (vigencia), artículos (FTS5) y **tablas
   salariales verificadas**: cada fila se acepta solo si su texto aparece literalmente (≥ 95 %) en el convenio y
   contiene el importe declarado.
-- Estado: 30 candidatos en `data/convenios_seed.yaml` **sin código REGCON ni texto** (no se cargan hasta tenerlos).
-- Fuentes: REGCON del Ministerio de Trabajo, BOE (convenios estatales) y boletines provinciales (BOP). La versión
-  vigente es la última publicada en el boletín oficial.
-- Pendiente: script/UI de importación (ver [hoja_de_ruta.md](hoja_de_ruta.md)).
+- Estado: 30 candidatos en `data/convenios_seed.yaml`. Los **10 estatales** tienen `boletin_ref` y `codigo_regcon`
+  **verificados el 24-10-2026 contra el BOE** (título «por la que se registra y publica» y «Código de convenio n.º»
+  en el texto). Los 20 provinciales siguen sin código (no se cargan).
+- Importación: `uv run python scripts/importar_convenios_boe.py` (o `--verificar` para comprobar sin indexar).
+  `connectors/convenios_boe.py` vuelve a verificar cada documento antes de indexarlo y **rechaza** el que no sea una
+  resolución que registra y publica un convenio con ese código. Como fecha de vigencia se toma la de publicación.
+- Limitación: se indexa el texto original; las modificaciones posteriores (actas, revisiones salariales) **no** se
+  integran. El importador las lista (p. ej. construcción: 4 modificaciones).
+- Uso en el análisis: el triaje elige el convenio **solo de la lista de convenios indexados** (un código inventado
+  se descarta) y la ingesta busca únicamente en la versión vigente de ese convenio en la fecha de los hechos. Si no
+  se identifica el convenio, no se citan cláusulas y se avisa.
+- Test en vivo: `uv run pytest -m live tests/contract/test_live_convenios_boe.py`.
 
 ## 5. Calendario: municipios y festivos
 

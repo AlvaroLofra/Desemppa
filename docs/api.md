@@ -1,160 +1,69 @@
 # API local (REST + SSE)
 
-Base: `http://127.0.0.1:8000`. Implementación: `api/main.py`. Documentación interactiva generada por FastAPI en
-`http://127.0.0.1:8000/docs` (mientras la app está arrancada).
+Actualizado: 24-10-2026 · Base: `http://127.0.0.1:8000` · Implementación: `api/main.py`.
+Documentación interactiva OpenAPI en `http://127.0.0.1:8000/docs` mientras el servidor está en marcha.
 
 ## Reglas comunes
 
 | Aspecto | Regla |
 |---|---|
 | Host | Solo `127.0.0.1` o `localhost` (otro `Host` → **400**, protección frente a DNS rebinding) |
-| Autenticación | Las operaciones de escritura exigen la cabecera `X-Iuris-Token: <token>`. El SSE lo exige como `?token=` |
-| Obtener el token | `GET /api/token` (no tiene CORS: solo la propia app puede leerlo). Se guarda en `data/local/local_token.txt` y es estable entre reinicios; si se borra el fichero se genera otro |
-| Errores | JSON `{"detail": "..."}` con el código HTTP. 403 de token: `token local inválido (ausente|distinto del actual); recarga la página` (queda en `data/local/logs/iuris.log`) |
-| Codificación | UTF-8; fechas ISO `AAAA-MM-DD`; municipios con código INE de 5 dígitos |
+| Autenticación | Operaciones de escritura exigen cabecera `X-Iuris-Token: <token>`. El stream SSE lo exige como `?token=` |
+| Obtener el token | `GET /api/token` (guardado en `data/local/local_token.txt`, estable entre reinicios) |
+| Autolimpieza en 403 | Si una pestaña antigua envía un token caducado, el 403 incluye `Clear-Site-Data: "cache"` para purgar cachés obsoletas del navegador |
 
-Ejemplo de cliente mínimo (PowerShell):
-```powershell
-$t = (Invoke-RestMethod http://127.0.0.1:8000/api/token).token
-Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/consultas -Headers @{"X-Iuris-Token"=$t} `
-  -ContentType "application/json" -Body '{"texto":"El casero no me devuelve la fianza de 900 euros","modo":"eco","municipio_ine":"28079"}'
-```
-
-## Estado y versión
+## Endpoints de Estado, Proveedores y Modelos
 
 ### `GET /api/version`
-`{"build": "mvl1ogjz"}`: identificador del build de `web/dist` (`version.json`). El frontend lo compara con el
-suyo para autorrepararse.
+`{"build": "<id>"}` — identificador del build actual de `web/dist/version.json`.
 
 ### `GET /api/token`
-`{"token": "…"}`.
+`{"token": "<hex>"}` — token local de seguridad.
 
 ### `GET /api/estado`
-Resumen para la cabecera de la app:
+Resumen general de proveedores (incluyendo `compania`, `modalidad`: `"plan" | "api"`, `api_key_env`), modos, modelos y tamaño del corpus (`sentencias`, `convenios`, `municipios`, `anios_festivos`).
+
+### `GET /api/proveedores`
+Estado detallado de todos los proveedores configurados (`antigravity_cli`, `claude_cli`, `codex_cli`, `gemini_api`, `anthropic_api`, `openai_api`, `xai_api`, `deepseek_api`, `mistral_api`, `openrouter_api`).
+
+### `POST /api/proveedores/{pid}/configurar` 🔒
+Activa/desactiva un proveedor o guarda su `api_key` cifrada con Windows DPAPI en `data/local/provider_keys.bin`:
+```json
+{"api_key": "sk-...", "habilitado": true}
+```
+
+### `POST /api/proveedores/{pid}/detectar` 🔒
+Lista los modelos disponibles en el proveedor (`{"instalado": true, "modelos": [...]}`).
+
+### `POST /api/modelos` 🔒 → 201
+Añade un modelo personalizado al catálogo (`config/user_models.toml`) y recarga el router en caliente:
 ```json
 {
-  "proveedores": {"<id>": { ...ver /api/proveedores... }},
-  "modo_por_defecto": "equilibrado",
-  "modos": {"eco": {"label": "Eco", "llamadas_claude_por_consulta": 0, "roles": {"triaje": {"model": "...", "effort": "low"}}}},
-  "modelos": {"agy_gemini_flash": {"proveedor": "antigravity_cli", "id": "gemini-3.8-flash-{effort}", "etiqueta": "..."}},
-  "corpus": {"sentencias": 0, "municipios": 8131, "anios_festivos": [2026]}
+  "alias": "grok_3_custom",
+  "proveedor": "xai_api",
+  "model_id": "grok-3",
+  "etiqueta": "Grok 3 (xAI)",
+  "efforts": ["low", "medium", "high"]
 }
 ```
 
-## Proveedores y asignación de modelos
-
-### `GET /api/proveedores`
-Por proveedor (`gemini_api`, `claude_cli`, `antigravity_cli`, `codex_cli`):
-```json
-{"etiqueta": "Antigravity (suscripción Google AI Pro)", "tipo": "cli", "habilitado": true, "instalado": true,
- "version": "1.4.6", "ultima_llamada": {"ok": true, "error_tipo": null, "creado_en": "...", "modelo": "..."},
- "breaker": {"estado": "closed", "abierto_hasta": null, "motivo": null},
- "uso_ultimas_5h": {"llamadas": 3, "input_tokens": 0, "output_tokens": 0, "coste_equivalente_usd": 0},
- "login": "instrucciones para iniciar sesión", "modelos": ["agy_gemini_flash", "agy_claude_sonnet"]}
-```
-
-### `POST /api/proveedores/{id}/detectar` 🔒
-Lista los modelos que ofrece el proveedor (CLI: su orden de descubrimiento, p. ej. `agy models`).
-`{"instalado": true, "modelos": ["gemini-3.8-flash-high", ...]}` · 404 si está desactivado o no existe.
-
 ### `POST /api/modelos/{alias}/probar` 🔒
-Llamada mínima real ("Responde exactamente con la palabra: OK") con el primer *effort* del modelo. Consume cuota
-mínima y queda en el ledger. `{"ok": true, "latencia_ms": 12500, "respuesta": "OK", "error": null}`.
+Realiza una llamada mínima real (`"Responde exactamente con la palabra: OK"`) y devuelve `{"ok": true, "latencia_ms": 1200, "respuesta": "OK", "error": null}`.
 
-### `GET /api/ajustes/perfiles`
-```json
-{"modos": {"eco": {"triaje": {"model": "...", "effort": "low"}}},
- "por_defecto": { "...igual, sin las preferencias del usuario..." },
- "modelos": {"<alias>": {"etiqueta": "...", "proveedor": "...", "efforts": ["low","medium"], "disponible": true}}}
-```
+### `GET / PUT / DELETE /api/ajustes/perfiles` 🔒
+Lee, guarda (`config/user_profiles.toml`) o restablece la asignación de modelos y niveles de esfuerzo (`low`, `medium`, `high`) por modo y rol. `DELETE` solo borra `user_profiles.toml`.
 
-### `PUT /api/ajustes/perfiles` 🔒
-Cuerpo: `{"<modo>": {"<rol>": {"model": "<alias>", "effort": "low|medium|high"}}}` (parcial: lo no indicado se
-mantiene). Se valida contra el catálogo; inválido → **422** y no se guarda. Se aplica a las consultas siguientes.
+### `DELETE /api/ajustes/modelos` 🔒
+Borra `config/user_models.toml` (modelos personalizados y activación de proveedores) y recarga el catálogo.
 
-### `DELETE /api/ajustes/perfiles` 🔒
-Borra `config/user_profiles.toml` (vuelve a `config/profiles.toml`).
+## Endpoints de Consultas, Fuentes, Calendario y Corpus
 
-## Consultas
-
-### `POST /api/consultas` 🔒 → 201
-```json
-{"texto": "10–20.000 caracteres", "modo": "eco|equilibrado|pro|auditoria",
- "municipio_ine": "28079", "adjuntos": ["<adjunto_id>", "..."]}
-```
-Respuesta `{"consulta_id": "<uuid>"}`. El análisis arranca en segundo plano; síguelo por el SSE.
-Errores: 422 (validación o modo desconocido), 403 (token).
-
-### `POST /api/consultas/{id}/aclaraciones` 🔒
-Solo si la consulta está en `ESPERANDO_ACLARACION` (si no → **409**).
-```json
-{"respuestas": [{"pregunta": "¿Cuándo entregaste las llaves?", "respuesta": "2026-06-01"},
-                {"pregunta": "Municipio", "respuesta": "Madrid", "municipio_ine": "28079"}]}
-```
-→ `{"consulta_id": "...", "estado": "reanudada"}`; reabre el SSE con `after=<último id recibido>`.
-
-### `GET /api/consultas`
-Historial (50 más recientes): `[{"consulta_id", "creado_en", "modo", "estado", "titulo", "banda"}]`.
-
-### `GET /api/consultas/{id}`
-`{"consulta_id", "modo", "estado", "triage", "dossier", "debate", "dictamen", "texto" (original restaurado), "adjuntos"}`.
-
-### `GET /api/consultar/stream/{id}?token=…&after=N` (SSE)
-- Reenvía primero el historial persistido desde el evento `N` (o desde la cabecera `Last-Event-ID`) y luego los
-  eventos en vivo. Cierra tras `final`, `error` o `clarification_needed`.
-- Cada evento: `id: <secuencia>`, `event: <tipo>`, `data: <JSON>`. Cada 15 s llega `heartbeat`.
-- Los `debate_delta` no se persisten (no se reenvían en el replay).
-
-| Evento | `data` |
-|---|---|
-| `phase` | `{"estado": "TRIAJE"}` (todas las transiciones de la máquina de estados) |
-| `triage` | `TriageOutputSchema` + `resumen_hechos` + `submateria_descripcion` |
-| `clarification_needed` | `{"preguntas": [{"id","texto","tipo_respuesta":"si_no|fecha|importe|opcion|texto|municipio","opciones","motivo"}]}` |
-| `source` | `{"source_id","tipo":"boe|sentencia|adjunto","titulo","url","extracto"}` |
-| `debate_delta` | `{"rol":"defensa|contraparte|magistrado","text":"…"}` (texto en vivo del JSON) |
-| `debate_done` | Defensa/Contraparte: `{"rol","alegato","verificacion":[[{"ok","score","source_id","motivo"}]]}`; Magistrado: `{"rol","resolucion"}` |
-| `guardrail` | `{"id":"G2-G4|G5|G6|G9","ok":bool,"detalle":[...]}` (G6 añade `banda_propuesta`/`banda_final`) |
-| `deadline` | `{"plazos":[PlazoCalculado],"avisos":[...]}` |
-| `quota` | `{"rol","avisos":[...],"modelo"}`: se usó un modelo alternativo |
-| `final` | `{"estado":"CERTIFICADA","dictamen":DictamenCertificadoSchema,"banda_texto"}` · `{"estado":"BLOQUEADA","mensaje","plazos","postulacion","avisos","aviso_legal"}` · `{"estado":"FUERA_DE_ALCANCE","mensaje","aviso_legal"}` |
-| `error` | `{"mensaje","tipo"}` |
-| `heartbeat` | `{}` |
-
-Esquemas completos: `core/schemas.py` (`TriageOutputSchema`, `PlazoCalculado`, `DictamenCertificadoSchema`…).
-
-## Adjuntos y fuentes
-
-### `POST /api/adjuntos` 🔒 → 201 (multipart)
-Campos: `archivo` (PDF o TXT, máx. 20 MB) y `permitir_envio` (`true|false`, por defecto `false`).
-El texto se extrae en local y se guarda cifrado. **Sin `permitir_envio`, su contenido nunca se envía a un modelo.**
-→ `{"adjunto_id","nombre","tipo":"nomina|carta_despido|sancion|contrato|otro","caracteres","paginas_sin_texto":[n],"permitir_envio"}`.
-Errores: 413, 415, 422 (sin texto: PDF escaneado sin OCR).
-
-### `GET /api/fuentes?source_id=…&consulta_id=…&quote=…`
-Texto completo de una fuente (del dossier de la consulta, del corpus o del BOE) y, si se pasa `quote`, el rango
-a resaltar: `{"source_id","titulo","texto","url","resaltado":{"offsets":[ini,fin],"score":100.0,"ok":true}}`.
-
-## Calendario, municipios, convenios y jurisprudencia
-
-### `GET /api/calendario/plazo?tipo=…&fecha_inicio=AAAA-MM-DD&municipio_ine=…&foral=CT`
-Calcula un plazo con el motor determinista → `PlazoCalculado` (`fecha_limite_segura`, `dia_gracia_hasta`,
-`dias_habiles_restantes`, `avisos`, `titular`…). Tipo desconocido o municipio inválido → 422.
-
-### `GET /api/calendario/tipos`
-`[{"id","descripcion","base_legal"}]` (de `config/plazos.yaml`).
-
-### `GET /api/municipios?q=alca`
-Hasta 15 coincidencias (sin tildes ni mayúsculas): `[{"codigo_ine","nombre","provincia"}]`.
-
-### `GET /api/convenios?sector=…&territorio=…`
-Convenios cargados en la base de datos.
-
-### `POST /api/jurisprudencia/importar` 🔒 → 201 (multipart, campo `archivo`)
-PDF o texto de una sentencia (formato CENDOJ). Se segmenta, se aísla el voto particular, se indexa en FTS5 y, si
-hay clave de Gemini, en LanceDB. → `{"roj","nueva","chunks","avisos"}`; sin ROJ o sin fecha → 422.
-
-## Frontend
-- `GET /` y cualquier ruta no-API → `index.html` (sin caché, sin token).
-- `GET /assets/*` → bundle; `sw.js`, `version.json` y `manifest.webmanifest` se sirven sin caché.
-
-🔒 = requiere `X-Iuris-Token`.
+- `POST /api/consultas` 🔒 → 201: Crea y lanza el análisis asíncrono (`{"texto", "modo", "municipio_ine", "adjuntos"}`).
+- `POST /api/consultas/{id}/aclaraciones` 🔒: Envía las respuestas a las preguntas aclaratorias de la Fase 1 y reanuda el pipeline.
+- `GET /api/consultas` y `GET /api/consultas/{id}`: Lista el historial y recupera el detalle completo (con PII restaurado en local).
+- `GET /api/consultar/stream/{id}?token=…&after=N`: Stream SSE con replay automático desde el evento `N`.
+- `POST /api/adjuntos` 🔒 → 201: Extrae texto de PDF/TXT en local y lo cifra con DPAPI (solo se envía al LLM si `permitir_envio=true`).
+- `GET /api/fuentes?source_id=…&consulta_id=…&quote=…`: Devuelve el texto íntegro oficial de fuentes `BOE:...`, `ROJ:...`, `CONV:...` y `DOC:...` con offsets de resaltado literal.
+- `GET /api/calendario/plazo`, `GET /api/calendario/tipos`, `GET /api/municipios?q=…`: Motor determinista de plazos procesales y buscador de los 8.131 municipios del INE.
+- `GET /api/convenios`: Lista los convenios colectivos indexados en SQLite.
+- `POST /api/jurisprudencia/importar` 🔒 → 201: Importa e indexa una sentencia en formato PDF o TXT.

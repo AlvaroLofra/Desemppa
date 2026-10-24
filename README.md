@@ -1,94 +1,70 @@
 # Iuris-IA / Lex-Agent ES
 
 Asistente legal **personal y local** para el derecho español. Analiza un caso enfrentando los argumentos del
-usuario con los de la contraparte (Defensa → Contraparte → Magistrado), verifica cada cita literalmente contra
-el BOE o la jurisprudencia del corpus local y calcula los plazos con un motor de calendario determinista.
+usuario con los de la contraparte (`Defensa` → `Contraparte` → `Magistrado`), verifica cada cita literalmente contra
+el BOE, los convenios colectivos o la jurisprudencia del corpus local y calcula los plazos con un motor de calendario determinista.
 
-> Herramienta de información y apoyo a la autodefensa. **No es asesoramiento profesional.** Las reglas de
-> plazos y postulación están pendientes de validación por un profesional del derecho (ver `docs/`).
+> Herramienta de información y apoyo a la autodefensa para uso personal. **No es asesoramiento profesional.** Las reglas de
+> plazos y postulación están pendientes de validación por un profesional del derecho (ver [docs/guia_juridica_para_informaticos.md](docs/guia_juridica_para_informaticos.md)).
+
+## Contexto rápido para IA (`CLAUDE.md` / `GEMINI.md`)
+
+En la raíz del proyecto están [`CLAUDE.md`](CLAUDE.md) y [`GEMINI.md`](GEMINI.md) con el mapa completo del proyecto,
+suscripciones activas, reglas arquitectónicas y estado actual para que cualquier sesión futura tenga todo el contexto
+sin necesidad de re-explicarlo.
 
 ## Documentación
 
 | Documento | Para qué |
 |---|---|
-| [docs/README.md](docs/README.md) | Índice y mapa del repositorio |
+| [docs/README.md](docs/README.md) | Índice general y mapa del repositorio |
+| [docs/guia_juridica_para_informaticos.md](docs/guia_juridica_para_informaticos.md) | **Nuevo:** Explicación sencilla para informáticos de todos los conceptos y problemas legales (MASC LO 1/2025, caducidad vs. prescripción, postulación, CENDOJ) |
+| [docs/viabilidad_y_estrategia.md](docs/viabilidad_y_estrategia.md) | **Nuevo:** Valoración técnica, económica (coste 0 € marginal) y opciones futuras de comercialización |
 | [docs/operacion.md](docs/operacion.md) | Arrancar, usar y diagnosticar problemas |
-| [docs/estado_implementacion.md](docs/estado_implementacion.md) | Qué está hecho y verificado |
-| [docs/hoja_de_ruta.md](docs/hoja_de_ruta.md) | Qué queda, cómo hacerlo y qué te toca a ti |
-| [docs/arquitectura.md](docs/arquitectura.md) | Cómo funciona por dentro |
+| [docs/estado_implementacion.md](docs/estado_implementacion.md) | Qué está hecho, qué se ha corregido y estado de pruebas |
+| [docs/hoja_de_ruta.md](docs/hoja_de_ruta.md) | Qué queda por hacer y en qué orden |
+| [docs/proveedores_y_modelos.md](docs/proveedores_y_modelos.md) | Selector universal por Plan (Antigravity, Claude Pro, Codex) o por API (Google, Anthropic, OpenAI, xAI Grok, DeepSeek, Mistral, OpenRouter) |
+| [docs/arquitectura.md](docs/arquitectura.md) | Cómo funciona por dentro el pipeline de 4 fases |
 | [docs/guia_desarrollo.md](docs/guia_desarrollo.md) | Pautas, tests, convenciones y "cómo añadir X" |
 | [docs/api.md](docs/api.md) | API local REST + SSE |
-| [docs/proveedores_y_modelos.md](docs/proveedores_y_modelos.md) | Gemini, Claude, Antigravity, Codex: configuración y APIs |
 | [docs/datos_y_fuentes.md](docs/datos_y_fuentes.md) | BOE, CENDOJ, INE, convenios, festivos y base de datos |
 
 ## Arranque rápido (Windows)
 
-**Doble clic en `INICIAR_IURIS_IA.bat`** (migra datos antiguos, compila la interfaz si falta y abre el navegador).
-Detalle y alternativas en [docs/operacion.md](docs/operacion.md).
+**Doble clic en `INICIAR_IURIS_IA.bat`** (migra datos antiguos si aplica, compila la interfaz si falta, arranca el backend y abre el navegador **solo cuando el servidor responde `200 OK` en `/api/version`**, evitando errores `ERR_CONNECTION_REFUSED` o cachés antiguas del Service Worker).
 
-Requisitos: Python 3.12 (vía `uv`), Node 18+ y al menos un proveedor de modelos. Los proveedores se declaran en
-`config/providers.toml` y se gestionan desde la página **Modelos** de la app:
-- **Antigravity** (suscripción Google AI Pro): CLI `agy` con sesión iniciada. Da Gemini 3.8 Flash y Claude 4.6.
-- **Gemini API**: `GEMINI_API_KEY` en `.env` (ver `.env.example`). Plan gratuito con cuota diaria muy baja.
-- **Claude Code** (suscripción Claude Pro): CLI `claude` con sesión iniciada (`claude` → `/login`).
-- **Codex** (suscripción ChatGPT, opcional): instalar el CLI, activarlo en `config/providers.toml` y pulsar «Detectar».
+Requisitos: Python 3.12 (vía `uv`), Node 18+ y al menos un proveedor de modelos.
 
-```bash
-uv sync
-```
+### Suscripciones activas por defecto (0 € de coste extra por token)
+1. **Antigravity (`agy` — Suscripción Google AI Pro ~20 €/mes)**:
+   - Modelos configurados: **`Gemini 4 Argon`** (`gemini-4-argon-low|medium|high`), **`Gemini 3.8 Flash`** (`gemini-3.8-flash-low|medium|high`), **`Claude Opus 5.5`** (`claude-opus-5-5-low|medium|high`), **`Claude Sonnet 5.5`** (`claude-sonnet-5-5-low|medium|high`) y `gpt-oss-120b-medium`.
+2. **Claude Code (`claude` — Suscripción Claude Pro ~20 €/mes)**:
+   - Modelos configurados: `Claude Sonnet`, `Claude Opus 5.5` y `Claude Haiku` (`low|medium|high`).
+3. **No necesitas `GEMINI_API_KEY`**: Todos los perfiles por defecto (`Eco`, `Equilibrado`, `Pro`, `Auditoría`) funcionan al 100 % sobre Antigravity y Claude Pro. De los modelos Flash solo se utiliza **Gemini 3.8 Flash**, con esfuerzo `low` o `medium` (`high` falla en Antigravity: ver [docs/proveedores_y_modelos.md](docs/proveedores_y_modelos.md)).
 
-```bash
-powershell -ExecutionPolicy Bypass -File scripts/start.ps1
-```
+### Adaptable a cualquier modelo y API de cualquier compañía
+Desde **Ajustes** (engranaje, arriba a la derecha) eliges qué modelo hace cada tarea en cada modo, por **plan de suscripción (CLI)** o por **clave de API** (**Google, Anthropic, OpenAI, xAI, DeepSeek, Mistral y OpenRouter**), guardas claves (cifradas con Windows DPAPI en `data/local/provider_keys.bin`) o añades modelos nuevos.
 
-Se abre `http://127.0.0.1:8000`. Desde Edge/Chrome puedes instalarla como aplicación (icono de instalar en la
-barra de direcciones).
+## Modos y modelos por defecto (`config/profiles.toml`)
 
-## Modos y modelos
-
-Asignación por defecto (`config/profiles.toml`); cámbiala desde la página **Modelos** (se guarda en
-`config/user_profiles.toml`):
-
-| Modo | Triaje / cribado / NLI | Defensa / Contraparte | Magistrado |
+| Modo | Triaje / Cribado / NLI | Defensa / Contraparte | Magistrado |
 |---|---|---|---|
-| Eco | Gemini 3.5 Flash (API) | Gemini 3.8 Flash (Antigravity) | Gemini 3.8 Flash (Antigravity) |
-| Equilibrado | Gemini 3.5 Flash (API) | Gemini 3.8 Flash (Antigravity) | Claude Sonnet (Claude Code) |
-| Pro | Gemini 3.5 Flash (API) / 3.8 (NLI) | Claude Sonnet | Claude Opus |
+| **Eco** (100 % Antigravity) | Gemini 3.8 Flash (`low`) | Gemini 3.8 Flash (`medium`) | Gemini 3.8 Flash (`medium`) |
+| **Equilibrado** (Por defecto) | Gemini 3.8 Flash (`low`) | Gemini 3.8 Flash (`medium`) | Claude Sonnet (`medium`, Claude Pro → fallback Antigravity) |
+| **Pro** (Máxima potencia) | Gemini 3.8 Flash (`low` / `medium`) | Claude Sonnet (`medium`) | **Gemini 4 Argon (`high`, Antigravity)** |
+| **Auditoría** | Gemini 3.8 Flash (`low` / `medium`) | Claude Sonnet (`medium`) | Claude Opus (`high`) + Auditor Gemini 4 Argon (`high`) |
 
-Si un modelo falla, se queda sin cuota o su CLI no tiene sesión, el router pasa a la siguiente alternativa
-(`fallbacks` en `config/models.toml`, que puede cruzar proveedores: p. ej. Claude Code → Claude vía Antigravity →
-Gemini 3.8) y la interfaz lo avisa.
+## Desarrollo y Verificación
 
-### Añadir un proveedor nuevo
-1. Instala su CLI e inicia sesión.
-2. Añade (o activa) su bloque en `config/providers.toml`: ejecutable, plantilla de argumentos y parser de salida.
-3. Añade sus modelos en `config/models.toml` (`provider = "<id>"`, `model_id = "..."`).
-4. En la app: **Modelos → Detectar → Probar**, y asígnalo a las tareas que quieras.
-
-## Desarrollo
-
-```bash
+```powershell
 uv sync
-```
-
-```bash
 uv run pytest
-```
-
-```bash
 uv run pytest -m e2e
-```
-
-```bash
 uv run ruff check . && uv run mypy
 ```
 
-Pautas, capas de pruebas, "cómo añadir X" y checklist de terminado: [docs/guia_desarrollo.md](docs/guia_desarrollo.md).
-
 ## Privacidad
 
-- Los datos personales detectados (DNI/NIE, teléfonos, emails, IBAN, matrículas y nombres tras fórmulas como
-  "me llamo", "D.", "Sra.") se sustituyen por seudónimos antes de enviarse a un modelo.
-- El texto original, el mapa de seudónimos y los adjuntos se guardan cifrados con DPAPI de Windows en `data/local/`.
-- El contenido de los adjuntos solo se envía a los modelos si lo autorizas al subirlos.
+- Los datos personales detectados (DNI/NIE, teléfonos, emails, IBAN, matrículas y nombres tras fórmulas como "me llamo", "D.", "Sra.") se sustituyen por seudónimos antes de enviarse a un modelo.
+- El texto original, el mapa de seudónimos, los adjuntos y las claves API se guardan cifrados con DPAPI de Windows en `data/local/`.
 - El servidor solo escucha en `127.0.0.1` y exige un token local para cualquier operación de escritura.

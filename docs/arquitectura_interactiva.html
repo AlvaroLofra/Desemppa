@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iuris-IA / Lex-Agent ES — Arquitectura Interactiva del Sistema</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            slate: {
+              850: '#111827',
+              925: '#0b0f19',
+              950: '#060911',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Estilos personalizados para el lienzo infinito */
+    body {
+      user-select: none;
+      overflow: hidden;
+      background-color: #060911;
+    }
+    .grid-background {
+      background-size: 32px 32px;
+      background-image: 
+        radial-gradient(circle, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+    }
+    /* Tarjetas de nodo */
+    .node-card {
+      transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      cursor: pointer;
+    }
+    .node-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.7);
+    }
+    .node-card.active-simulation {
+      animation: pulse-ring 1.8s infinite;
+      border-color: #38bdf8 !important;
+      box-shadow: 0 0 25px rgba(56, 189, 248, 0.5) !important;
+    }
+    @keyframes pulse-ring {
+      0% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.7); }
+      70% { box-shadow: 0 0 0 14px rgba(56, 189, 248, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); }
+    }
+    /* Conexiones SVG */
+    .connector-line {
+      stroke-dasharray: 6 6;
+      animation: dash 30s linear infinite;
+    }
+    .connector-active {
+      stroke-dasharray: 8 4;
+      animation: dash-fast 1.2s linear infinite;
+      stroke: #38bdf8 !important;
+      stroke-width: 3.5px !important;
+    }
+    @keyframes dash {
+      to { stroke-dashoffset: -1000; }
+    }
+    @keyframes dash-fast {
+      to { stroke-dashoffset: -100; }
+    }
+    /* Scrollbar personalizada */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+  </style>
+</head>
+<body class="w-screen h-screen m-0 p-0 text-slate-200 antialiased font-sans select-none overflow-hidden bg-slate-950">
+
+  <!-- ================= BARRA SUPERIOR DE CONTROL ================= -->
+  <header class="absolute top-0 left-0 right-0 h-16 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 z-40 px-6 flex items-center justify-between shadow-lg">
+    <div class="flex items-center space-x-4">
+      <div class="flex items-center space-x-2">
+        <span class="text-2xl">⚖️</span>
+        <h1 class="text-lg font-bold bg-gradient-to-r from-amber-400 via-amber-200 to-sky-400 bg-clip-text text-transparent">
+          Iuris-IA / Lex-Agent ES
+        </h1>
+        <span class="text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-mono border border-slate-700">v3.0 C4 Interactive</span>
+      </div>
+      <div class="hidden md:flex items-center space-x-1 pl-4 border-l border-slate-800 text-xs text-slate-400">
+        <span>Arquitectura del Asistente Jurídico Personal Contradictorio y Determinista</span>
+      </div>
+    </div>
+
+    <!-- Controles centrales de filtro -->
+    <div class="flex items-center space-x-2 bg-slate-950/80 p-1 rounded-lg border border-slate-800 text-xs">
+      <button onclick="setFilter('all')" id="btn-filter-all" class="filter-btn px-3 py-1.5 rounded-md font-medium bg-amber-500/20 text-amber-300 border border-amber-500/40">
+        Vista Completa
+      </button>
+      <button onclick="setFilter('pipeline')" id="btn-filter-pipeline" class="filter-btn px-3 py-1.5 rounded-md font-medium text-slate-400 hover:text-slate-200">
+        Pipeline 4 Fases
+      </button>
+      <button onclick="setFilter('security')" id="btn-filter-security" class="filter-btn px-3 py-1.5 rounded-md font-medium text-slate-400 hover:text-slate-200">
+        Seguridad & DPAPI
+      </button>
+      <button onclick="setFilter('models')" id="btn-filter-models" class="filter-btn px-3 py-1.5 rounded-md font-medium text-slate-400 hover:text-slate-200">
+        Router & Modelos
+      </button>
+    </div>
+
+    <!-- Acciones derechas -->
+    <div class="flex items-center space-x-3">
+      <!-- Botón de Simulación de Consulta -->
+      <button onclick="toggleSimulation()" id="btn-sim" class="flex items-center space-x-2 px-3.5 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-slate-950 font-semibold text-xs shadow-md shadow-sky-500/20 transition-all">
+        <span id="sim-icon">▶</span>
+        <span id="sim-text">Simular Caso de Fianza</span>
+      </button>
+
+      <!-- Zoom y Centrado -->
+      <div class="flex items-center space-x-1 bg-slate-800/80 p-1 rounded-lg border border-slate-700 text-slate-300 text-xs">
+        <button onclick="zoomIn()" class="p-1.5 hover:bg-slate-700 rounded" title="Acercar (Zoom +)">🔍+</button>
+        <button onclick="zoomOut()" class="p-1.5 hover:bg-slate-700 rounded" title="Alejar (Zoom -)">🔍-</button>
+        <button onclick="resetZoom()" class="px-2 py-1 hover:bg-slate-700 rounded font-mono" title="Restablecer tamaño">100%</button>
+        <button onclick="fitView()" class="p-1.5 hover:bg-slate-700 rounded" title="Ajustar a pantalla">⛶</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= LIENZO INFINITO (CANVAS) ================= -->
+  <main id="viewport" class="w-full h-full relative cursor-grab active:cursor-grabbing grid-background overflow-hidden">
+    <div id="canvas-world" class="absolute transform-gpu origin-top-left" style="width: 3200px; height: 2200px; transform: matrix(1, 0, 0, 1, 0, 0);">
+
+      <!-- Capa de Conexiones SVG -->
+      <svg id="svg-connectors" class="absolute top-0 left-0 w-full h-full pointer-events-none z-10" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="arrow-amber" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+            <polygon points="0 0, 8 4, 0 8" fill="#f59e0b" />
+          </marker>
+          <marker id="arrow-sky" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+            <polygon points="0 0, 8 4, 0 8" fill="#38bdf8" />
+          </marker>
+          <marker id="arrow-emerald" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+            <polygon points="0 0, 8 4, 0 8" fill="#10b981" />
+          </marker>
+          <marker id="arrow-purple" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+            <polygon points="0 0, 8 4, 0 8" fill="#a855f7" />
+          </marker>
+        </defs>
+
+        <!-- 1. Frontend -> FastAPI -->
+        <path id="conn-fe-api" d="M 460 280 C 520 280, 520 280, 580 280" stroke="#f59e0b" stroke-width="2.5" fill="none" class="connector-line" marker-end="url(#arrow-amber)" />
+
+        <!-- 2. FastAPI -> PII Redactor -->
+        <path id="conn-api-pii" d="M 760 350 C 760 410, 760 420, 760 470" stroke="#38bdf8" stroke-width="2" fill="none" class="connector-line" marker-end="url(#arrow-sky)" />
+
+        <!-- 3. PII -> Orchestrator -->
+        <path id="conn-pii-orch" d="M 870 530 C 940 530, 940 330, 1020 330" stroke="#38bdf8" stroke-width="2.5" fill="none" class="connector-line" marker-end="url(#arrow-sky)" />
+
+        <!-- 4. Orchestrator -> FASE 1 (Triaje) -->
+        <path id="conn-orch-f1" d="M 1260 280 C 1320 280, 1320 280, 1380 280" stroke="#f59e0b" stroke-width="2.5" fill="none" class="connector-line" marker-end="url(#arrow-amber)" />
+
+        <!-- 5. FASE 1 -> FASE 2 (Ingesta) -->
+        <path id="conn-f1-f2" d="M 1520 370 C 1520 440, 1520 440, 1520 500" stroke="#f59e0b" stroke-width="2.5" fill="none" class="connector-line" marker-end="url(#arrow-amber)" />
+
+        <!-- 6. FASE 2 -> BOE Client / LanceDB -->
+        <path id="conn-f2-boe" d="M 1660 580 C 1760 580, 1760 480, 1860 480" stroke="#10b981" stroke-width="2" fill="none" class="connector-line" marker-end="url(#arrow-emerald)" />
+        <path id="conn-f2-convenios" d="M 1660 620 C 1760 620, 1760 680, 1860 680" stroke="#10b981" stroke-width="2" fill="none" class="connector-line" marker-end="url(#arrow-emerald)" />
+
+        <!-- 7. FASE 2 -> FASE 3 (Debate) -->
+        <path id="conn-f2-f3" d="M 1520 700 C 1520 770, 1520 770, 1520 840" stroke="#f59e0b" stroke-width="2.5" fill="none" class="connector-line" marker-end="url(#arrow-amber)" />
+
+        <!-- 8. FASE 3 -> Router de Modelos -->
+        <path id="conn-f3-router" d="M 1380 950 C 1200 950, 1200 1150, 1020 1150" stroke="#a855f7" stroke-width="2.5" fill="none" class="connector-line" marker-end="url(#arrow-purple)" />
+
+        <!-- 9. Router -> Antigravity / Claude / HTTP -->
+        <path id="conn-router-agy" d="M 1020 1200 C 1120 1200, 1120 1350, 1220 1350" stroke="#a855f7" stroke-width="2" fill="none" class="connector-line" marker-end="url(#arrow-purple)" />
+        <path id="conn-router-claude" d="M 1020 1220 C 1120 1220, 1120 1520, 1220 1520" stroke="#a855f7" stroke-width="2" fill="none" class="connector-line" marker-end="url(#arrow-purple)" />
+        <path id="conn-router-http" d="M 1020 1240 C 1120 1240, 1120 1690, 1220 1690" stroke="#a855f7" stroke-width="2" fill="none" class="connector-line" marker-end="url(#arrow-purple)" />
+
+        <!-- 10. FASE 3 -> FASE 4 (Guardarraíles) -->
+        <path id="conn-f3-f4" d="M 1660 950 C 1760 950, 1760 950, 1860 950" stroke="#f59e0b" stroke-width="2.5" fill="none" class="connector-line" marker-end="url(#arrow-amber)" />
+
+        <!-- 11. FASE 4 -> Calendar Engine / Postulación -->
+        <path id="conn-f4-cal" d="M 2000 1060 C 2000 1140, 2000 1140, 2000 1220" stroke="#10b981" stroke-width="2" fill="none" class="connector-line" marker-end="url(#arrow-emerald)" />
+
+        <!-- 12. FASE 4 -> Frontend SSE (Dictamen Final) -->
+        <path id="conn-f4-fe" d="M 1860 900 C 1500 850, 500 700, 360 400" stroke="#38bdf8" stroke-width="2.5" fill="none" class="connector-line" marker-end="url(#arrow-sky)" />
+      </svg>
+
+      <!-- ================= GRUPO 1: CLIENTE (FRONTEND PWA) ================= -->
+      <div class="absolute group-box p-6 rounded-2xl bg-slate-900/40 border border-slate-800" style="left: 60px; top: 120px; width: 440px; height: 600px;">
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-xs font-bold uppercase tracking-wider text-sky-400 font-mono">01 · Cliente de Usuario</span>
+          <span class="text-[10px] px-2 py-0.5 rounded bg-sky-950/80 text-sky-300 border border-sky-800 font-mono">React 18 · Vite · PWA</span>
+        </div>
+
+        <div class="space-y-4">
+          <!-- Nodo: UI PWA -->
+          <div onclick="inspectNode('node-ui-composer')" id="node-ui-composer" class="node-card p-4 rounded-xl bg-slate-850/90 border border-slate-700/80 hover:border-sky-400">
+            <div class="flex items-center justify-between">
+              <span class="font-semibold text-sm text-sky-200">Composer & Visor PWA</span>
+              <span class="text-xs">💻</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">Chat reactivo, drag&drop de PDFs, selector de municipios INE y consentimiento de datos.</p>
+            <div class="mt-2 flex items-center space-x-2 text-[10px] font-mono text-slate-500">
+              <span class="bg-slate-900 px-1.5 py-0.5 rounded">web/src/App.tsx</span>
+              <span class="text-emerald-400">127.0.0.1:8000</span>
+            </div>
+          </div>
+
+          <!-- Nodo: SSE & Self-Healing -->
+          <div onclick="inspectNode('node-ui-sse')" id="node-ui-sse" class="node-card p-4 rounded-xl bg-slate-850/90 border border-slate-700/80 hover:border-sky-400">
+            <div class="flex items-center justify-between">
+              <span class="font-semibold text-sm text-sky-200">SSE Client & Autorreparación</span>
+              <span class="text-xs">⚡</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">Streaming token-a-token con rAF, reconexión con Last-Event-ID y purga automática de caché ante HTTP 403.</p>
+            <div class="mt-2 flex items-center space-x-2 text-[10px] font-mono text-slate-500">
+              <span class="bg-slate-900 px-1.5 py-0.5 rounded">web/src/lib/useConsulta.ts</span>
+              <span class="bg-slate-900 px-1.5 py-0.5 rounded">selfHeal.ts</span>
+            </div>
+          </div>
+
+          <!-- Nodo: Selector Universal Modelos -->
+          <div onclick="inspectNode('node-ui-models')" id="node-ui-models" class="node-card p-4 rounded-xl bg-slate-850/90 border border-slate-700/80 hover:border-sky-400">
+            <div class="flex items-center justify-between">
+              <span class="font-semibold text-sm text-sky-200">Selector Universal Modelos</span>
+              <span class="text-xs">🎛️</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">Panel de control por Plan (Antigravity/Claude) o por API Key (OpenAI, Grok, DeepSeek, etc.) con test de latencia en 1-clic.</p>
+            <div class="mt-2 flex items-center space-x-2 text-[10px] font-mono text-slate-500">
+              <span class="bg-slate-900 px-1.5 py-0.5 rounded">ModelsPage.tsx</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= GRUPO 2: API GATEWAY & PRIVACIDAD ================= -->
+      <div class="absolute group-box p-6 rounded-2xl bg-slate-900/40 border border-slate-800" style="left: 560px; top: 120px; width: 380px; height: 600px;">
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-xs font-bold uppercase tracking-wider text-amber-400 font-mono">02 · API Local & Seguridad</span>
+          <span class="text-[10px] px-2 py-0.5 rounded bg-amber-950/80 text-amber-300 border border-amber-800 font-mono">FastAPI · Loopback</span>
+        </div>
+
+        <div class="space-y-4">
+          <!-- Nodo: FastAPI Gateway -->
+          <div onclick="inspectNode('node-api-main')" id="node-api-main" class="node-card p-4 rounded-xl bg-slate-850/90 border border-slate-700/80 hover:border-amber-400">
+            <div class="flex items-center justify-between">
+              <span class="font-semibold text-sm text-amber-200">FastAPI Loopback Gateway</span>
+              <span class="text-xs">🛡️</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">Bind exclusivo a 127.0.0.1. Protección anti DNS-rebinding (TrustedHost), validación de cabecera X-Iuris-Token y EventSource SSE.</p>
+            <div class="mt-2 flex items-center space-x-2 text-[10px] font-mono text-slate-500">
+              <span class="bg-slate-900 px-1.5 py-0.5 rounded">api/main.py</span>
+              <span class="text-amber-400">Clear-Site-Data 403</span>
+            </div>
+          </div>
+
+          <!-- Nodo: PII Redactor -->
+          <div onclick="inspectNode('node-pii')" id="node-pii" class="node-card p-4 rounded-xl bg-slate-850/90 border border-slate-700/80 hover:border-amber-400">
+            <div class="flex items-center justify-between">
+              <span class="font-semibold text-sm text-amber-200">PII Redactor Determinista</span>
+              <span class="text-xs">🔒</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">Filtro previo RGPD antes de salir hacia cualquier LLM: DNI/NIE con checksum, IBAN, matrículas, teléfonos y nombres propios sustituidos por tokens [[PERSONA_1]].</p>
+            <div class="mt-2 flex items-center space-x-2 text-[10px] font-mono text-slate-500">
+              <span class="bg-slate-900 px-1.5 py-0.5 rounded">core/pii_redactor.py</span>
+            </div>
+          </div>
+
+          <!-- Nodo: DPAPI Secure Store -->
+          <div onclick="inspectNode('node-dpapi')" id="node-dpapi" class="node-card p-4 rounded-xl bg-slate-850/90 border border-slate-700/80 hover:border-amber-400">
+            <div class="flex items-center justify-between">
+              <span class="font-semibold text-sm text-amber-200">Cifrado Nativo Windows DPAPI</span>
+              <span class="text-xs">🔑</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">El texto original del usuario, el mapa de reversión de PII y las API Keys externas se cifran con la clave del usuario del SO de Windows.</p>
+            <div class="mt-2 flex items-center space-x-2 text-[10px] font-mono text-slate-500">
+              <span class="bg-slate-900 px-1.5 py-0.5 rounded">core/secure_store.py</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= GRUPO 3: ORQUESTADOR Y PIPELINE 4 FASES ================= -->
+      <div class="absolute group-box p-6 rounded-2xl bg-slate-900/40 border border-slate-800" style="left: 1000px; top: 120px; width: 1200px; height: 1000px;">
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-xs font-bold uppercase tracking-wider text-amber-400 font-mono">03 · Pipeline de 4 Fases & Reglas Deterministas</span>
+          <span class="text-[10px] px-2 py-0.5 rounded bg-amber-950/80 text-amber-300 border border-amber-800 font-mono">Máquina de Estados · core/orchestrator.py</span>
+        </div>
+
+        <!-- Nodo Central: Orquestador -->
+        <div onclick="inspectNode('node-orch')" id="node-orch" class="node-card p-4 rounded-xl bg-slate-850/90 border border-amber-500/50 hover:border-amber-400 w-72 mb-6">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-sm text-amber-300">Orchestrator Core</span>
+            <span class="text-xs">⚙️</span>
+          </div>
+          <p class="text-xs text-slate-400 mt-1">Controlador de flujo y máquina de estados transicional (RECIBIDA → TRIAJE → INGESTA → DEBATE → GUARDARRAILES → CERTIFICADA).</p>
+          <div class="mt-2 text-[10px] font-mono text-amber-400/80">core/orchestrator.py</div>
+        </div>
+
+        <!-- Las 4 Fases en Cuadrícula -->
+        <div class="grid grid-cols-2 gap-6">
+
+          <!-- FASE 1: TRIAJE -->
+          <div onclick="inspectNode('node-f1')" id="node-f1" class="node-card p-5 rounded-xl bg-slate-850/95 border border-slate-700/80 hover:border-amber-400">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold text-amber-400 font-mono">FASE 1</span>
+              <span class="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">Gemini 3.8 Flash (low)</span>
+            </div>
+            <h4 class="font-bold text-sm text-slate-100">Triaje Multihop & Ambigüedad</h4>
+            <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+              • Clasificación contra el <strong>catálogo cerrado</strong> (18 submaterias civiles/sociales/administrativas).<br>
+              • Detección de ambigüedad (&ge;0.35) y hasta 1 ronda de preguntas aclaratorias.<br>
+              • Identificación de <strong>fecha de los hechos</strong> y normas BOE objetivo.
+            </p>
+            <div class="mt-3 pt-2 border-t border-slate-800 text-[10px] font-mono text-slate-400 flex justify-between">
+              <span>catalogo_materias.yaml</span>
+              <span class="text-amber-400">TriageOutputSchema</span>
+            </div>
+          </div>
+
+          <!-- FASE 2: INGESTA -->
+          <div onclick="inspectNode('node-f2')" id="node-f2" class="node-card p-5 rounded-xl bg-slate-850/95 border border-slate-700/80 hover:border-amber-400">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold text-emerald-400 font-mono">FASE 2</span>
+              <span class="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">Descargas Deterministas</span>
+            </div>
+            <h4 class="font-bold text-sm text-slate-100">Ingesta Quirúrgica & Temporal</h4>
+            <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+              • <strong>BOE temporal:</strong> descarga la versión exacta vigente a la <em>fecha_hechos</em> (no la de hoy).<br>
+              • <strong>Jurisprudencia:</strong> búsqueda híbrida BM25 (FTS5) + LanceDB (768d) sin votos particulares.<br>
+              • <strong>Convenios:</strong> búsqueda FTS5 en los 10 convenios estatales del BOE.<br>
+              • Asignación de <code>source_id</code> estable a cada párrafo verbatim.
+            </p>
+            <div class="mt-3 pt-2 border-t border-slate-800 text-[10px] font-mono text-slate-400 flex justify-between">
+              <span>temporal_sync.py</span>
+              <span class="text-emerald-400">DossierIngestaSchema</span>
+            </div>
+          </div>
+
+          <!-- FASE 3: DEBATE -->
+          <div onclick="inspectNode('node-f3')" id="node-f3" class="node-card p-5 rounded-xl bg-slate-850/95 border border-slate-700/80 hover:border-purple-400">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold text-purple-400 font-mono">FASE 3</span>
+              <span class="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">Dialéctica Multimodelo</span>
+            </div>
+            <h4 class="font-bold text-sm text-slate-100">Juicio Contradictorio (3 Roles)</h4>
+            <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+              • <strong>Defensa:</strong> alegato con pretensiones y citas verbatim obligatorias.<br>
+              • <strong>Contraparte:</strong> ataque a los puntos débiles y excepciones.<br>
+              • <strong>Magistrado:</strong> resolución bajo <strong>lógica disyuntiva estricta</strong> (estima DEFENSA o CONTRAPARTE; prohíbe componendas salomónicas sin prueba pericial).
+            </p>
+            <div class="mt-3 pt-2 border-t border-slate-800 text-[10px] font-mono text-slate-400 flex justify-between">
+              <span>ResolucionMagistradoSchema</span>
+              <span class="text-purple-400">Claude Opus / 4 Argon</span>
+            </div>
+          </div>
+
+          <!-- FASE 4: GUARDARRAÍLES -->
+          <div onclick="inspectNode('node-f4')" id="node-f4" class="node-card p-5 rounded-xl bg-slate-850/95 border border-slate-700/80 hover:border-emerald-400">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold text-emerald-400 font-mono">FASE 4</span>
+              <span class="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">10 Guardarraíles G1–G10</span>
+            </div>
+            <h4 class="font-bold text-sm text-slate-100">Certificación Determinista</h4>
+            <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+              • <strong>G3 Fuzzy Verbatim:</strong> RapidFuzz score &ge; 95% o la cita es rechazada.<br>
+              • <strong>G4 Anti-%:</strong> Prohibido porcentajes de ganar (Art. 403 CP).<br>
+              • <strong>G5 NLI:</strong> Validador de inferencia lógica de familia cruzada.<br>
+              • <strong>G8 Plazos:</strong> Cómputo matemático por CalendarEngine.<br>
+              • <strong>G9 Postulación:</strong> Reglas LEC (2.000 €) y aviso MASC LO 1/2025.
+            </p>
+            <div class="mt-3 pt-2 border-t border-slate-800 text-[10px] font-mono text-slate-400 flex justify-between">
+              <span>core/validators.py</span>
+              <span class="text-emerald-400">DictamenCertificadoSchema</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ================= GRUPO 4: BASES DE DATOS & CONECTORES ================= -->
+      <div class="absolute group-box p-6 rounded-2xl bg-slate-900/40 border border-slate-800" style="left: 2260px; top: 120px; width: 420px; height: 750px;">
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-xs font-bold uppercase tracking-wider text-emerald-400 font-mono">04 · Capa de Datos Locales</span>
+          <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-950/80 text-emerald-300 border border-emerald-800 font-mono">SQLite WAL + LanceDB</span>
+        </div>
+
+        <div class="space-y-4">
+          <!-- Conector BOE -->
+          <div onclick="inspectNode('node-db-boe')" id="node-db-boe" class="node-card p-4 rounded-xl bg-slate-850/90 border border-slate-700/80 hover:border-emerald-400">
+            <div class="flex items-center justify-between">
+              <span class="font-semibold text-sm text-emerald-200">BOE Client & Versiones</span>
+              <span class="text-xs">🏛️</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">Conector REST a Datos Abiertos del BOE. 40 normas núcleo descargadas y versionadas por bloques en SQLite con FTS5.</p>
+            <div class="mt-2 text-[10px] font-mono text-slate-500">connectors/boe_client.py</div>
+          </div>
+
+          <!-- LanceDB Jurisprudencia -->
+          <div onclick="inspectNode('node-db-lance')" id="node-db-lance" class="node-card p-4 rounded-xl bg-slate-850/90 border border-slate-700/80 hover:border-emerald-400">
+            <div class="flex items-center justify-between">
+              <span class="font-semibold text-sm text-emerald-200">LanceDB + FTS5 (CENDOJ)</span>
+              <span class="text-xs">📚</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">Búsqueda híbrida con Reciprocal Rank Fusion (RRF). Embeddings de 768d con prefiltro escalar (TS/AN/TSJ/AP) aislando votos particulares.</p>
+            <div class="mt-2 text-[10px] font-mono text-slate-500">storage/lance_schema.py · connectors/retriever.py</div>
+          </div>
+
+          <!-- Convenios Colectivos -->
+          <div onclick="inspectNode('node-db-convenios')" id="node-db-convenios" class="node-card p-4 rounded-xl bg-slate-850/90 border border-slate-700/80 hover:border-emerald-400">
+            <div class="flex items-center justify-between">
+              <span class="font-semibold text-sm text-emerald-200">Convenios Colectivos REGCON</span>
+              <span class="text-xs">💼</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">10 grandes convenios estatales indexados (Construcción, Metal, Hostelería, etc.) con tablas salariales verificadas línea a línea al 95%.</p>
+            <div class="mt-2 text-[10px] font-mono text-slate-500">connectors/convenios_db.py</div>
+          </div>
+
+          <!-- Motor de Calendario Judicial -->
+          <div onclick="inspectNode('node-db-cal')" id="node-db-cal" class="node-card p-4 rounded-xl bg-slate-850/90 border border-slate-700/80 hover:border-emerald-400">
+            <div class="flex items-center justify-between">
+              <span class="font-semibold text-sm text-emerald-200">Calendar Engine Determinista</span>
+              <span class="text-xs">📅</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">8.131 municipios del INE, festivos nacionales y autonómicos del BOE 2026. Cómputo de días hábiles, agosto (LRJS vs LEC) y día de gracia Art. 135 LEC.</p>
+            <div class="mt-2 text-[10px] font-mono text-slate-500">core/calendar_engine.py (36 golden tests)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= GRUPO 5: ROUTER DE MODELOS & PROVEEDORES ================= -->
+      <div class="absolute group-box p-6 rounded-2xl bg-slate-900/40 border border-slate-800" style="left: 60px; top: 760px; width: 880px; height: 500px;">
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-xs font-bold uppercase tracking-wider text-purple-400 font-mono">05 · Router Multimodelo & Conexiones</span>
+          <span class="text-[10px] px-2 py-0.5 rounded bg-purple-950/80 text-purple-300 border border-purple-800 font-mono">core/router.py</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-6">
+          <!-- Router Core -->
+          <div onclick="inspectNode('node-router-core')" id="node-router-core" class="node-card p-4 rounded-xl bg-slate-850/90 border border-slate-700/80 hover:border-purple-400">
+            <div class="flex items-center justify-between">
+              <span class="font-semibold text-sm text-purple-200">ModelRouter & Circuit Breaker</span>
+              <span class="text-xs">🔀</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">Resuelve (modo, rol) a modelo. Gestión de fallbacks automáticos entre proveedores, circuit breaker con degradación y registro en SQLite QuotaLedger.</p>
+            <div class="mt-2 text-[10px] font-mono text-purple-400">core/circuit_breaker.py</div>
+          </div>
+
+          <!-- Proveedor: Antigravity CLI -->
+          <div onclick="inspectNode('node-prov-agy')" id="node-prov-agy" class="node-card p-4 rounded-xl bg-slate-850/90 border border-slate-700/80 hover:border-purple-400">
+            <div class="flex items-center justify-between">
+              <span class="font-semibold text-sm text-purple-200">Antigravity CLI (Plan Google AI Pro)</span>
+              <span class="text-xs">🚀</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">Conector headless nativo a <code>agy.exe</code>: Gemini 3.8 Flash (low/med/high), Gemini 4 Argon y Claude 5.5 sin gastar cuota de API (0 € extra).</p>
+            <div class="mt-2 text-[10px] font-mono text-purple-400">--dangerously-skip-permissions</div>
+          </div>
+
+          <!-- Proveedor: Claude Code CLI -->
+          <div onclick="inspectNode('node-prov-claude')" id="node-prov-claude" class="node-card p-4 rounded-xl bg-slate-850/90 border border-slate-700/80 hover:border-purple-400">
+            <div class="flex items-center justify-between">
+              <span class="font-semibold text-sm text-purple-200">Claude Code CLI (Plan Claude Pro)</span>
+              <span class="text-xs">🧠</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">Cola serializada con FileLock en Windows. Prompt enviado por <code>stdin</code> (evitando el límite de 32.767 caracteres en Windows CreateProcess).</p>
+            <div class="mt-2 text-[10px] font-mono text-purple-400">Claude Sonnet 5.5 · Claude Opus 5.5</div>
+          </div>
+
+          <!-- Proveedor: HTTP Universal Adapter -->
+          <div onclick="inspectNode('node-prov-http')" id="node-prov-http" class="node-card p-4 rounded-xl bg-slate-850/90 border border-slate-700/80 hover:border-purple-400">
+            <div class="flex items-center justify-between">
+              <span class="font-semibold text-sm text-purple-200">Adaptador Universal HTTP (BYOK)</span>
+              <span class="text-xs">🌐</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">Compatibilidad universal con OpenAI, xAI Grok, DeepSeek, Mistral y OpenRouter con claves protegidas por Windows DPAPI.</p>
+            <div class="mt-2 text-[10px] font-mono text-purple-400">core/providers/http_adapter.py</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ================= PANEL LATERAL DE DETALLES (INSPECTOR) ================= -->
+  <aside id="inspector" class="absolute top-16 right-0 bottom-0 w-96 bg-slate-900/95 backdrop-blur-xl border-l border-slate-800 z-50 p-6 flex flex-col justify-between shadow-2xl transform translate-x-full transition-transform duration-300">
+    <div class="overflow-y-auto pr-1">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div class="flex items-center space-x-2">
+          <span id="inspect-icon" class="text-xl">📄</span>
+          <h2 id="inspect-title" class="font-bold text-sm text-slate-100">Detalles del Módulo</h2>
+        </div>
+        <button onclick="closeInspector()" class="p-1 rounded-md text-slate-400 hover:text-slate-200 hover:bg-slate-800 text-sm">✕</button>
+      </div>
+
+      <div class="mt-4">
+        <span id="inspect-tag" class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/30">Módulo</span>
+        <p id="inspect-desc" class="text-xs text-slate-300 mt-3 leading-relaxed">Selecciona cualquier componente del lienzo para ver sus contratos de datos, algoritmos deterministas y código fuente.</p>
+      </div>
+
+      <div class="mt-5 space-y-4">
+        <div>
+          <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider font-mono">Ficheros de Implementación</h3>
+          <div id="inspect-files" class="mt-2 space-y-1 text-xs font-mono text-sky-400 bg-slate-950 p-2.5 rounded-lg border border-slate-800 break-all">
+            -
+          </div>
+        </div>
+
+        <div>
+          <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider font-mono">Garantías & Reglas de Ingeniería</h3>
+          <ul id="inspect-guarantees" class="mt-2 space-y-1.5 text-xs text-slate-300 list-disc list-inside">
+            <li>-</li>
+          </ul>
+        </div>
+
+        <div id="inspect-code-block" class="hidden">
+          <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider font-mono">Esquema / Contrato</h3>
+          <pre id="inspect-code" class="mt-2 p-3 rounded-lg bg-slate-950 border border-slate-800 text-[11px] font-mono text-slate-300 overflow-x-auto"></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pie del Inspector -->
+    <div class="pt-4 border-t border-slate-800 text-[11px] text-slate-500 flex justify-between items-center">
+      <span>Iuris-IA Architecture Explorer</span>
+      <span class="text-slate-400">Esc para cerrar</span>
+    </div>
+  </aside>
+
+  <!-- ================= BANNER FLOTANTE DE SIMULACIÓN ================= -->
+  <div id="simulation-toast" class="hidden absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-slate-900/95 backdrop-blur-md border border-sky-500/50 rounded-2xl px-6 py-4 shadow-2xl z-50 flex items-center space-x-6 max-w-2xl">
+    <div class="flex items-center space-x-3">
+      <span class="relative flex h-3 w-3">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-3 w-3 bg-sky-500"></span>
+      </span>
+      <div>
+        <div class="text-xs font-bold text-sky-400 font-mono" id="sim-step-title">Paso 1 de 6</div>
+        <p class="text-xs text-slate-200 mt-0.5" id="sim-step-desc">Iniciando simulación del caso...</p>
+      </div>
+    </div>
+    <div class="flex items-center space-x-2 pl-4 border-l border-slate-800">
+      <button onclick="nextSimulationStep()" class="px-3 py-1 rounded bg-sky-500 hover:bg-sky-400 text-slate-950 text-xs font-bold">Siguiente ➔</button>
+      <button onclick="stopSimulation()" class="p-1 text-slate-400 hover:text-slate-200 text-xs">✕</button>
+    </div>
+  </div>
+
+  <!-- ================= LÓGICA INTERACTIVA JAVASCRIPT ================= -->
+  <script>
+    // Variables de navegación y zoom
+    const viewport = document.getElementById('viewport');
+    const world = document.getElementById('canvas-world');
+    const inspector = document.getElementById('inspector');
+
+    let scale = 0.85;
+    let panX = 40;
+    let panY = 70;
+    let isDragging = false;
+    let startX = 0;
+    let startY = 0;
+
+    function updateTransform() {
+      world.style.transform = `matrix(${scale}, 0, 0, ${scale}, ${panX}, ${panY})`;
+    }
+    updateTransform();
+
+    // Eventos de arrastre (Pan)
+    viewport.addEventListener('mousedown', (e) => {
+      // Ignorar si el clic fue en un nodo interactivo
+      if (e.target.closest('.node-card') || e.target.closest('header') || e.target.closest('aside') || e.target.closest('#simulation-toast')) return;
+      isDragging = true;
+      startX = e.clientX - panX;
+      startY = e.clientY - panY;
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      panX = e.clientX - startX;
+      panY = e.clientY - startY;
+      updateTransform();
+    });
+
+    window.addEventListener('mouseup', () => { isDragging = false; });
+
+    // Zoom con la rueda del ratón
+    viewport.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const zoomFactor = 1.1;
+      const oldScale = scale;
+      if (e.deltaY < 0) {
+        scale = Math.min(scale * zoomFactor, 2.0);
+      } else {
+        scale = Math.max(scale / zoomFactor, 0.4);
+      }
+      // Ajustar posición para zoom centrado en el cursor
+      const mouseX = e.clientX;
+      const mouseY = e.clientY;
+      panX = mouseX - (mouseX - panX) * (scale / oldScale);
+      panY = mouseY - (mouseY - panY) * (scale / oldScale);
+      updateTransform();
+    }, { passive: false });
+
+    function zoomIn() {
+      scale = Math.min(scale * 1.2, 2.0);
+      updateTransform();
+    }
+    function zoomOut() {
+      scale = Math.max(scale / 1.2, 0.4);
+      updateTransform();
+    }
+    function resetZoom() {
+      scale = 0.85;
+      panX = 40;
+      panY = 70;
+      updateTransform();
+    }
+    function fitView() {
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      scale = Math.min((vw - 80) / 2600, (vh - 120) / 1600);
+      panX = 20;
+      panY = 60;
+      updateTransform();
+    }
+
+    // Base de datos de conocimiento de cada nodo para el Inspector
+    const nodeDetails = {
+      'node-ui-composer': {
+        icon: '💻',
+        title: 'Composer & Interfaz PWA',
+        tag: 'Frontend · React 18',
+        desc: 'Punto de contacto con el usuario. Recoge el caso en lenguaje coloquial, gestiona el selector de municipios INE (8.131 municipios), el drag & drop de documentos con consentimiento de envío a LLM y el selector de modo (Eco / Equilibrado / Pro).',
+        files: 'web/src/components/Composer.tsx\nweb/src/App.tsx\nweb/src/lib/api.ts',
+        guarantees: [
+          'Sin fugas de datos: los adjuntos no viajan a modelos salvo consentimiento explícito en el checkbox.',
+          'Responsive y PWA: instalable en Windows y dispositivos móviles con service worker.',
+          'No congela la UI: deltas de streaming agrupados mediante requestAnimationFrame.'
+        ],
+        code: `// Contrato de petición a la API
+POST /api/consultas
+{
+  "texto": "El casero no me devuelve la fianza...",
+  "modo": "eco" | "equilibrado" | "pro",
+  "municipio_ine": "28079",
+  "adjuntos": []
+}`
+      },
+      'node-ui-sse': {
+        icon: '⚡',
+        title: 'SSE Client & Autorreparación',
+        tag: 'Streaming Reactivo',
+        desc: 'Mantiene la conexión EventSource con el backend local. Escucha eventos tipados (phase, triage, source, debate_delta, guardrail, deadline, final). Incorpora mecanismo de autorreparación que purga service workers antiguos si detecta HTTP 403.',
+        files: 'web/src/lib/useConsulta.ts\nweb/src/lib/selfHeal.ts\nweb/src/lib/deltaBuffer.ts',
+        guarantees: [
+          'Reanudación automática con Last-Event-ID si se interrumpe la red.',
+          'Buffer de renderizado suave: evita saturación del Virtual DOM durante respuestas rápidas de 100 t/s.',
+          'Pérdida cero de tokens gracias al almacenamiento temporal en SQLite.'
+        ]
+      },
+      'node-ui-models': {
+        icon: '🎛️',
+        title: 'Selector Universal de Modelos',
+        tag: 'Multi-Compañía',
+        desc: 'Interfaz para configurar y probar modelos en caliente. Soporta tanto suscripciones de escritorio por CLI (Antigravity y Claude Pro) como proveedores externos por API Key (OpenAI, Grok, DeepSeek, Mistral, OpenRouter).',
+        files: 'web/src/components/ModelsPage.tsx\napi/main.py (/api/modelos)',
+        guarantees: [
+          'Asignación en 1-clic a cualquier rol (Triaje, Defensa, Contraparte, Magistrado).',
+          'Test de latencia en vivo antes de guardar la configuración.',
+          'Las claves API se almacenan cifradas en Windows DPAPI, nunca en texto plano.'
+        ]
+      },
+      'node-api-main': {
+        icon: '🛡️',
+        title: 'FastAPI Loopback Gateway',
+        tag: 'Seguridad Local',
+        desc: 'Servidor FastAPI que solo escucha en 127.0.0.1. Implementa middleware TrustedHost contra ataques de DNS Rebinding, exige la cabecera X-Iuris-Token en cualquier mutación y emite cabeceras Clear-Site-Data ante fallos de autorización.',
+        files: 'api/main.py\napi/security.py\napi/routes_consultas.py',
+        guarantees: [
+          'Aislamiento 100% local: ninguna web externa en otra pestaña puede acceder al asistente.',
+          'Sonda de arranque: el navegador se abre solo tras recibir HTTP 200 en /api/version.',
+          'Límite de subida de 20 MB por documento con limpieza automática.'
+        ]
+      },
+      'node-pii': {
+        icon: '🔒',
+        title: 'PII Redactor Determinista',
+        tag: 'Privacidad RGPD',
+        desc: 'Módulo previo de higienización de datos. Escanea el texto con expresiones regulares verificadas (DNI/NIE con letra de control, IBAN español, matrículas, teléfonos, correos y nombres propios) y los sustituye por pseudónimos reversibles en local ([[PERSONA_1]]).',
+        files: 'core/pii_redactor.py\ncore/normalize.py',
+        guarantees: [
+          'Ningún dato identificativo personal viaja al tier gratuito de Gemini ni a Claude.',
+          'El mapa de reversión de pseudónimos se guarda cifrado en SQLite con Windows DPAPI.',
+          'Totalmente determinista y ejecutable en CPU en menos de 10 ms.'
+        ]
+      },
+      'node-dpapi': {
+        icon: '🔑',
+        title: 'Windows DPAPI Secure Store',
+        tag: 'Criptografía OS',
+        desc: 'Aprovecha la API Data Protection de Windows (CryptProtectData). Los textos confidenciales y las API keys se cifran vinculados a la cuenta de usuario del sistema operativo.',
+        files: 'core/secure_store.py\ndata/local/provider_keys.bin',
+        guarantees: [
+          'Sin claves maestras en el código: Windows gestiona la clave criptográfica derivada del login del usuario.',
+          'Imposible de leer desde otra cuenta de Windows o si se extrae el disco duro.'
+        ]
+      },
+      'node-orch': {
+        icon: '⚙️',
+        title: 'Orquestador Central & Estado',
+        tag: 'Máquina de Estados',
+        desc: 'El cerebro del pipeline. Coordina las 4 fases, controla el avance de la máquina de estados, gestiona pausas para aclaraciones del usuario y emite los eventos SSE.',
+        files: 'core/orchestrator.py\ncore/state.py',
+        guarantees: [
+          'Estados estrictos: RECIBIDA → TRIAJE → INGESTA → DEBATE → GUARDARRAILES → CERTIFICADA.',
+          'Transiciones inválidas lanzan TransicionInvalida.',
+          'Al arrancar, recover_interrupted() reanuda o finaliza consultas colgadas.'
+        ]
+      },
+      'node-f1': {
+        icon: '🎯',
+        title: 'Fase 1: Triaje Multihop',
+        tag: 'Clasificación Quirúrgica',
+        desc: 'Primer paso del pipeline. Toma la consulta seudonimizada y la clasifica contra un catálogo estricto de submaterias civiles, sociales y contenciosas. No permite al LLM inventar normas: las normas se eligen de un catálogo cerrado.',
+        files: 'core/orchestrator.py (_triaje)\nconfig/catalogo_materias.yaml\ncore/prompts/triaje.md',
+        guarantees: [
+          'Ambigüedad calculada: si supera 0.35, genera preguntas aclaratorias automáticas.',
+          'Detección automática de la fecha de los hechos y la cuantía reclamada.',
+          'Salida estructurada tipada según TriageOutputSchema.'
+        ]
+      },
+      'node-f2': {
+        icon: '📦',
+        title: 'Fase 2: Ingesta Quirúrgica & Temporal',
+        tag: 'Sincronización Normativa',
+        desc: 'Descarga y recopila únicamente los artículos del BOE pertinentes. Crucial: descarga la redacción de la ley vigente a la FECHA DE LOS HECHOS, no la actual. Búsqueda híbrida de sentencias y convenios colectivos.',
+        files: 'connectors/boe_client.py\ncore/temporal_sync.py\nconnectors/retriever.py',
+        guarantees: [
+          'Sin normas anacrónicas: resuelve reformas legales intermedias.',
+          'Aislamiento de votos particulares en sentencias judiciales.',
+          'Compactación verbatim: conserva fragmentos literales con source_id inmutable.'
+        ]
+      },
+      'node-f3': {
+        icon: '⚖️',
+        title: 'Fase 3: Juicio Contradictorio',
+        tag: 'Dialéctica en 3 Roles',
+        desc: 'Simula un debate judicial. La DEFENSA redacta sus pretensiones con citas; la CONTRAPARTE formula objeciones; el MAGISTRADO resuelve cada cuestión litigiosa bajo lógica disyuntiva estricta (o estima a la defensa o a la contraparte).',
+        files: 'core/orchestrator.py (_debate)\ncore/prompts/defensa.md\ncore/prompts/contraparte.md\ncore/prompts/magistrado.md',
+        guarantees: [
+          'Prohibidas soluciones salomónicas sin prueba en cuestiones cuantitativas.',
+          'Cada afirmación debe enlazar un verbatim_quote del dossier.',
+          'Totalmente agnóstico de modelo: corre en Gemini 3.8, 4 Argon, Claude Sonnet o Claude Opus.'
+        ]
+      },
+      'node-f4': {
+        icon: '🛡️',
+        title: 'Fase 4: Guardarraíles G1 a G10',
+        tag: 'Certificación Determinista',
+        desc: 'El muro de contención anti-alucinaciones. Ejecuta 10 verificaciones automáticas. Si alguna cita no coincide al 95% con el texto del BOE o se incluye un pronóstico porcentual de éxito, el dictamen se rechaza o reintenta.',
+        files: 'core/validators.py\ncore/nli.py\ncore/calendar_engine.py\ncore/postulacion_rules.py',
+        guarantees: [
+          'G3: RapidFuzz score >= 95% con cálculo de offsets para resaltado en el visor.',
+          'G4: Anti-% rechaza cualquier probabilidad de ganar ("70% de éxito").',
+          'G8: Los plazos los calcula el CalendarEngine, NUNCA el LLM.',
+          'G9: Postulación según LEC y aviso de negociación previa MASC (LO 1/2025).'
+        ]
+      },
+      'node-router-core': {
+        icon: '🔀',
+        title: 'Router Multimodelo & Circuit Breaker',
+        tag: 'Enrutamiento Inteligente',
+        desc: 'Desacopla la lógica legal de las APIs. Lee config/profiles.toml y user_profiles.toml. Si un modelo falla por cuota o red, busca en su árbol de fallbacks sin que el usuario sufra interrupciones.',
+        files: 'core/router.py\ncore/circuit_breaker.py\ncore/quota_ledger.py',
+        guarantees: [
+          'Circuit Breaker con estados CLOSED, OPEN y HALF_OPEN.',
+          'Degradación suave: de Claude Code a Antigravity y luego a Gemini Flash.',
+          'Registro contable en tiempo real del uso de tokens y latencias.'
+        ]
+      },
+      'node-prov-agy': {
+        icon: '🚀',
+        title: 'Antigravity CLI (Google AI Pro)',
+        tag: 'Suscripción Local',
+        desc: 'Conector de subproceso a agy.exe. Consume directamente la suscripción Google AI Pro de 20 €/mes en local. Da acceso a Gemini 3.8 Flash, Gemini 4 Argon y Claude 5.5 sin coste por token.',
+        files: 'core/providers/cli_adapter.py\nconfig/providers.toml',
+        guarantees: [
+          'Usa --dangerously-skip-permissions en carpeta sandbox aislada para ejecución headless.',
+          'Streaming nativo en formato stream-json por stdin.',
+          'Latencias de 4 a 12 s en Gemini 3.8 Flash low/medium.'
+        ]
+      },
+      'node-prov-claude': {
+        icon: '🧠',
+        title: 'Claude Code CLI (Claude Pro)',
+        tag: 'Suscripción Local',
+        desc: 'Conector a claude.exe. Aprovecha la suscripción Claude Pro. Pasa el expediente completo por stdin (sin el límite de 32.767 caracteres de argv en Windows) y mantiene un FileLock de hilo único.',
+        files: 'core/providers/cli_adapter.py\nconfig/providers.toml',
+        guarantees: [
+          'Un solo proceso activo a la vez para evitar colisiones en ~/.claude.',
+          'Timeouts duros por llamada (120 s Sonnet, 300 s Opus).',
+          'Compatible con Claude Sonnet 5.5 y Claude Opus 5.5.'
+        ]
+      },
+      'node-prov-http': {
+        icon: '🌐',
+        title: 'Adaptador Universal HTTP',
+        tag: 'APIs Externas',
+        desc: 'Cliente HTTP asíncrono para consumir APIs directas de OpenAI, xAI Grok, DeepSeek, Mistral, OpenRouter y Anthropic. Lee las claves cifradas desde Windows DPAPI.',
+        files: 'core/providers/http_adapter.py\ncore/providers/registry.py',
+        guarantees: [
+          'Compatible con la especificación estándar OpenAI Chat Completions.',
+          'Streaming reactivo por SSE y parseo de structured outputs.'
+        ]
+      },
+      'node-db-boe': {
+        icon: '🏛️',
+        title: 'Repositorio BOE en SQLite',
+        tag: 'Base Legal',
+        desc: 'Copia local consolidada de la legislación española. 40 leyes núcleo (Código Civil, LAU, Estatuto de los Trabajadores, LEC, Ley 39/2015, etc.) con histórico de versiones.',
+        files: 'connectors/boe_client.py\nstorage/migrations/0001_init.sql',
+        guarantees: [
+          'Búsqueda a texto completo FTS5 con tokenizador unicode61.',
+          'Caché de 7 días con verificación de ETag para ahorrar tráfico.',
+          'Normalización de párrafos polimórficos de la API oficial.'
+        ]
+      },
+      'node-db-lance': {
+        icon: '📚',
+        title: 'LanceDB + FTS5 (Jurisprudencia)',
+        tag: 'Búsqueda Híbrida',
+        desc: 'Base vectorial embebida de alto rendimiento. Almacena fundamentos de derecho de sentencias del Tribunal Supremo y Audiencias Provinciales en vectores de 768 dimensiones.',
+        files: 'storage/lance_schema.py\nconnectors/retriever.py',
+        guarantees: [
+          'Índice IVF_PQ con distancia coseno para búsquedas en < 50 ms.',
+          'Prefiltro escalar por jurisdicción y tribunal para evitar falsos positivos.',
+          'Fusión RRF (Reciprocal Rank Fusion) con el índice léxico BM25.'
+        ]
+      },
+      'node-db-convenios': {
+        icon: '💼',
+        title: 'Convenios Colectivos REGCON',
+        tag: 'Derecho Laboral',
+        desc: 'Base de datos de convenios colectivos con tablas salariales. Incorpora los 10 convenios sectoriales estatales con mayor número de trabajadores afectados en España.',
+        files: 'connectors/convenios_db.py\ndata/convenios_seed.yaml',
+        guarantees: [
+          'Verificación determinista al 95%: cada salario extraído debe existir en el texto original.',
+          'Versionado anual para respetar revisiones salariales y ultraactividad.'
+        ]
+      },
+      'node-db-cal': {
+        icon: '📅',
+        title: 'Motor Determinista de Calendario',
+        tag: 'Cálculo de Plazos',
+        desc: 'Motor matemático de cómputo procesal. Excluye sábados, domingos, festivos nacionales y autonómicos del BOE 2026. Maneja la inhabilidad de agosto y suspensiones por conciliación.',
+        files: 'core/calendar_engine.py\ndata/municipios_ine.csv\ndata/festivos/2026.csv',
+        guarantees: [
+          'Diferenciación estricta entre plazos procesales (LEC/LRJS) y administrativos (Ley 39/2015).',
+          '36 golden tests validados sin fallo.',
+          'El LLM nunca suma ni resta días: el cálculo es 100% algorítmico.'
+        ]
+      }
+    };
+
+    function inspectNode(nodeId) {
+      const data = nodeDetails[nodeId];
+      if (!data) return;
+
+      document.getElementById('inspect-icon').innerText = data.icon;
+      document.getElementById('inspect-title').innerText = data.title;
+      document.getElementById('inspect-tag').innerText = data.tag;
+      document.getElementById('inspect-desc').innerText = data.desc;
+      document.getElementById('inspect-files').innerText = data.files;
+
+      const gList = document.getElementById('inspect-guarantees');
+      gList.innerHTML = '';
+      data.guarantees.forEach(g => {
+        const li = document.createElement('li');
+        li.innerText = g;
+        gList.appendChild(li);
+      });
+
+      const codeBox = document.getElementById('inspect-code-block');
+      if (data.code) {
+        document.getElementById('inspect-code').innerText = data.code;
+        codeBox.classList.remove('hidden');
+      } else {
+        codeBox.classList.add('hidden');
+      }
+
+      inspector.classList.remove('translate-x-full');
+    }
+
+    function closeInspector() {
+      inspector.classList.add('translate-x-full');
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeInspector();
+    });
+
+    // Filtros visuales
+    function setFilter(type) {
+      document.querySelectorAll('.filter-btn').forEach(b => {
+        b.className = 'filter-btn px-3 py-1.5 rounded-md font-medium text-slate-400 hover:text-slate-200';
+      });
+      const activeBtn = document.getElementById('btn-filter-' + type);
+      if (activeBtn) {
+        activeBtn.className = 'filter-btn px-3 py-1.5 rounded-md font-medium bg-amber-500/20 text-amber-300 border border-amber-500/40';
+      }
+
+      const allCards = document.querySelectorAll('.node-card');
+      if (type === 'all') {
+        allCards.forEach(c => c.style.opacity = '1');
+      } else if (type === 'pipeline') {
+        allCards.forEach(c => {
+          c.style.opacity = (c.id.startsWith('node-f') || c.id === 'node-orch') ? '1' : '0.2';
+        });
+      } else if (type === 'security') {
+        allCards.forEach(c => {
+          c.style.opacity = (c.id.includes('pii') || c.id.includes('dpapi') || c.id.includes('api-main') || c.id === 'node-f4') ? '1' : '0.2';
+        });
+      } else if (type === 'models') {
+        allCards.forEach(c => {
+          c.style.opacity = (c.id.includes('prov') || c.id.includes('router') || c.id === 'node-ui-models' || c.id === 'node-f3') ? '1' : '0.2';
+        });
+      }
+    }
+
+    // ================= SIMULACIÓN INTERACTIVA PASO A PASO =================
+    const simulationSteps = [
+      {
+        node: 'node-ui-composer',
+        conn: 'conn-fe-api',
+        title: 'Paso 1: El usuario expone su caso',
+        desc: 'El usuario escribe: "Mi casero no me devuelve la fianza de 900 € alegando pintura tras 3 años. Entregué las llaves hace 40 días en Madrid".'
+      },
+      {
+        node: 'node-pii',
+        conn: 'conn-api-pii',
+        title: 'Paso 2: Seudonimización RGPD local',
+        desc: 'El PII Redactor reemplaza cualquier DNI, cuenta o nombre propio por pseudónimos reversibles [[PERSONA_1]]. El original se cifra con Windows DPAPI.'
+      },
+      {
+        node: 'node-f1',
+        conn: 'conn-orch-f1',
+        title: 'Paso 3: Triaje Multihop en Gemini Flash',
+        desc: 'Clasifica como civil CIV_LAU_FIANZA, identifica cuantía de 900 €, fecha de hechos (hace 40 días) y selecciona Art. 36 LAU y Arts. 1561-1564 Código Civil.'
+      },
+      {
+        node: 'node-f2',
+        conn: 'conn-f1-f2',
+        title: 'Paso 4: Ingesta Quirúrgica con BOE Temporal',
+        desc: 'Descarga del BOE la redacción oficial vigente a la fecha de entrega de llaves. Carga las sentencias del CENDOJ y las indexa con identificadores source_id estables.'
+      },
+      {
+        node: 'node-f3',
+        conn: 'conn-f2-f3',
+        title: 'Paso 5: Juicio Contradictorio (3 Roles)',
+        desc: 'Defensa exige restitución (Art. 1561 CC); Contraparte ataca alegando desperfectos; Magistrado en Antigravity estima a la Defensa bajo lógica disyuntiva estricta.'
+      },
+      {
+        node: 'node-f4',
+        conn: 'conn-f3-f4',
+        title: 'Paso 6: Guardarraíles G1-G10 y Plazos',
+        desc: 'RapidFuzz confirma 100% de coincidencia de citas. CalendarEngine calcula que el plazo legal de 1 mes venció (devengando interés legal) y LEC confirma que no requiere abogado (≤ 2.000 €).'
+      }
+    ];
+
+    let currentSimStep = 0;
+    let simActive = false;
+
+    function toggleSimulation() {
+      if (simActive) {
+        stopSimulation();
+      } else {
+        startSimulation();
+      }
+    }
+
+    function startSimulation() {
+      simActive = true;
+      currentSimStep = 0;
+      document.getElementById('sim-text').innerText = 'Detener Simulación';
+      document.getElementById('sim-icon').innerText = '⏹';
+      document.getElementById('simulation-toast').classList.remove('hidden');
+      applySimStep(0);
+    }
+
+    function stopSimulation() {
+      simActive = false;
+      document.getElementById('sim-text').innerText = 'Simular Caso de Fianza';
+      document.getElementById('sim-icon').innerText = '▶';
+      document.getElementById('simulation-toast').classList.add('hidden');
+      document.querySelectorAll('.node-card').forEach(n => n.classList.remove('active-simulation'));
+      document.querySelectorAll('.connector-line').forEach(l => l.classList.remove('connector-active'));
+    }
+
+    function applySimStep(index) {
+      document.querySelectorAll('.node-card').forEach(n => n.classList.remove('active-simulation'));
+      document.querySelectorAll('.connector-line').forEach(l => l.classList.remove('connector-active'));
+
+      const step = simulationSteps[index];
+      const targetCard = document.getElementById(step.node);
+      if (targetCard) targetCard.classList.add('active-simulation');
+
+      const targetConn = document.getElementById(step.conn);
+      if (targetConn) targetConn.classList.add('connector-active');
+
+      document.getElementById('sim-step-title').innerText = `Paso ${index + 1} de ${simulationSteps.length}: ${step.title}`;
+      document.getElementById('sim-step-desc').innerText = step.desc;
+
+      // Auto-inspeccionar el nodo activo
+      inspectNode(step.node);
+    }
+
+    function nextSimulationStep() {
+      currentSimStep++;
+      if (currentSimStep >= simulationSteps.length) {
+        currentSimStep = 0;
+      }
+      applySimStep(currentSimStep);
+    }
+  </script>
+</body>
+</html>

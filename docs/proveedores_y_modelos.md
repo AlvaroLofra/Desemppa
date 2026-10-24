@@ -1,160 +1,101 @@
-# Proveedores, modelos y APIs de IA
+# Proveedores, modelos y APIs de IA (Multi-Compañía · por Plan o por API)
 
-Todo es configuración. Tres ficheros, en orden de dependencia:
+Actualizado: 24-10-2026.
+
+Iuris-IA está diseñada para adaptarse a **cualquier modelo y cualquier proveedor** de las grandes compañías de IA,
+distinguiendo claramente entre dos modalidades:
+1. **Planes de Suscripción por CLI (`modalidad = "plan"`, coste marginal 0 €)**: usan tus suscripciones mensuales ya contratadas (**Google AI Pro vía Antigravity**, **Claude Pro vía Claude Code**, **ChatGPT Plus/Pro vía Codex**).
+2. **APIs HTTP por Clave (`modalidad = "api"`, pago por uso)**: conectan directamente con las APIs oficiales de **Google Gemini, Anthropic, OpenAI, xAI (Grok), DeepSeek, Mistral AI y OpenRouter**.
+
+---
+
+## 1. Archivos de configuración
 
 | Fichero | Qué define | ¿En git? |
 |---|---|---|
-| `config/providers.toml` | Cómo hablar con cada proveedor (API o CLI) | Sí |
-| `config/models.toml` | Alias de modelo = proveedor + id de modelo + límites + alternativas | Sí |
-| `config/profiles.toml` | Qué alias hace cada tarea (rol) en cada modo | Sí |
-| `config/user_profiles.toml` | Tus cambios desde la página **Modelos** (se superponen a `profiles.toml`) | No |
+| `config/providers.toml` | Todos los proveedores por Plan (CLI) y por API (`compania`, `modalidad`, `tipo`, `base_url`, `api_key_env`) | Sí |
+| `config/models.toml` | Catálogo de modelos = proveedor + `model_id` (con soporte `{effort}`) + `efforts` + cadena `fallbacks` | Sí |
+| `config/profiles.toml` | Qué modelo y nivel de esfuerzo (`low`, `medium`, `high`) hace cada tarea en cada modo | Sí |
+| `config/user_profiles.toml` | Tus cambios de asignación guardados desde **Ajustes → Modos** | No |
+| `config/user_models.toml` | Modelos personalizados y activación de proveedores desde **Ajustes** (se borra solo con «Restablecer modelos y proveedores», no con «Restablecer» de Modos) | No |
+| `data/local/provider_keys.bin` | Claves API guardadas desde la UI, **cifradas en local con Windows DPAPI** | No |
 
-Se validan al arrancar (`config/settings.py`, `load_catalog`): un perfil con un alias inexistente, un *effort* no
-soportado, un modelo con un proveedor desconocido o un flag `--dangerously-*` impiden arrancar con un error claro.
+---
 
-## 1. Proveedores disponibles
+## 2. Tus Suscripciones Activas por Defecto (Configuración Principal)
 
-| Id | Tipo | Suscripción / coste | Estado (23-10-2026) |
+No necesitas tener `GEMINI_API_KEY` en tu ordenador: los perfiles por defecto (`Eco`, `Equilibrado`, `Pro`, `Auditoría`) operan al 100 % sobre tus dos suscripciones de ~20 €/mes:
+
+### 2.1 Antigravity (`antigravity_cli` · `agy`) — Suscripción Google AI Pro
+- **Modelos verificados y activos en tu cuenta (`agy models`)**:
+  - `agy_gemini_argon` → `gemini-4-argon-{effort}` (`low`, `medium`, `high`)
+  - `agy_gemini_flash` → `gemini-3.8-flash-{effort}` (`low`, `medium`, `high`)
+  - `agy_claude_opus` → `claude-opus-5-5-{effort}` (`low`, `medium`, `high`)
+  - `agy_claude_sonnet` → `claude-sonnet-5-5-{effort}` (`low`, `medium`, `high`)
+  - `agy_gpt_oss` → `gpt-oss-120b-medium` (`medium`)
+- **Regla importante sobre modelos Flash**: de la familia Flash se utiliza **únicamente Gemini 3.8 Flash** (`agy_gemini_flash`), con esfuerzo `low` o `medium`.
+- **Medición real (24-10-2026, prompt de ~47.000 caracteres, el tamaño de un Magistrado)**:
+
+  | Modelo · esfuerzo | Resultado |
+  |---|---|
+  | `gemini-3.8-flash-medium` | ✅ 51 s |
+  | `gemini-3.8-flash-high` | ❌ 3 de 3 fallos: el modelo intenta ejecutar un comando, el modo no interactivo se lo deniega y devuelve una respuesta vacía |
+  | `gemini-4-argon-high` | ✅ 46 s |
+  | `gemini-4-argon-medium` | ✅ 22 s |
+
+  Por eso el Magistrado de Eco usa Flash `medium`. Si un modelo devuelve una respuesta vacía, el router pasa al siguiente (`EmptyResponse`, degradable).
+
+### 2.2 Claude Code (`claude_cli` · `claude`) — Suscripción Claude Pro
+- **Modelos**: `claude_sonnet` (`sonnet`), `claude_opus` (`opus`), `claude_haiku` (`haiku`), todos con soporte `--effort low|medium|high`.
+- **Iniciar sesión**: ejecuta `claude` en una terminal normal y escribe `/login`. Mientras no haya sesión iniciada, el router salta automáticamente a los modelos equivalentes en Antigravity (`agy_claude_sonnet`, `agy_claude_opus`, `agy_gemini_argon`).
+
+### 2.3 Codex (`codex_cli` · `codex`) — Suscripción ChatGPT Plus / Pro (Opcional)
+- Preparado en `config/providers.toml` (desactivado; sus flags están sin verificar porque Codex no está instalado) y activable desde **Ajustes → Cuentas y planes** si instalas `@openai/codex`.
+
+---
+
+## 3. APIs de Todas las Grandes Compañías (`core/providers/http_adapter.py`)
+
+Si quieres usar una API por clave, ve a **Ajustes → Cuentas y planes**, pulsa **Clave** en la compañía y guárdala (o defínela en `.env`). Los ids de Google y Anthropic están verificados (oct-2026); el resto son ejemplos sin verificar: usa **Detectar** para ver los reales antes de asignarlos.
+
+| Proveedor (`pid`) | Compañía | Variable de entorno alternativa | Modelos preconfigurados en `config/models.toml` |
 |---|---|---|---|
-| `antigravity_cli` | CLI `agy` | Google AI Pro (ya pagada) | ✅ Operativo. **Canal preferente para Gemini 3.8 Flash** y alternativa para Claude 4.6 |
-| `gemini_api` | API AI Studio | Gratuito con `GEMINI_API_KEY` | ✅ Operativo, cuota diaria **muy baja** |
-| `claude_cli` | CLI `claude` | Claude Pro (ya pagada) | ⚠ Instalado, **sin sesión iniciada** (cae a Antigravity) |
-| `codex_cli` | CLI `codex` | ChatGPT Plus/Pro | ⏸ Preparado y desactivado; no instalado |
+| `openai_api` | **OpenAI** | `OPENAI_API_KEY` | `openai_gpt41` (`gpt-4.1`), `openai_o3` (`o3`) |
+| `anthropic_api` | **Anthropic** | `ANTHROPIC_API_KEY` | `anthropic_sonnet_api` (`claude-sonnet-5-5`), `anthropic_opus_api` (`claude-opus-5-5`) |
+| `gemini_api` | **Google** | `GEMINI_API_KEY` | `gemini_flash` (`gemini-3.8-flash`, 20 peticiones/día en el plan gratuito), `gemini_top` (`gemini-4-argon`) |
+| `xai_api` | **xAI (Grok)** | `XAI_API_KEY` | `xai_grok3` (`grok-3`), `xai_grok3_mini` (`grok-3-mini`) |
+| `deepseek_api` | **DeepSeek** | `DEEPSEEK_API_KEY` | `deepseek_v3` (`deepseek-chat`), `deepseek_r1` (`deepseek-reasoner`) |
+| `mistral_api` | **Mistral AI** | `MISTRAL_API_KEY` | `mistral_large` (`mistral-large-latest`) |
+| `openrouter_api` | **OpenRouter** | `OPENROUTER_API_KEY` | `openrouter_auto` (`openrouter/auto`) + cualquier modelo de OpenRouter |
 
-### 1.1 Antigravity (`agy`) — Google AI Pro
-- Ejecutable: `%LOCALAPPDATA%\agy\bin\agy.exe` (en el PATH).
-- Modelos (`agy models`): `gemini-3.8-flash-low|medium|high`, `claude-sonnet-4-6`, `claude-opus-4-6-thinking`,
-  `gpt-oss-120b-medium`. El razonamiento de Gemini va en el nombre → en `models.toml`:
-  `model_id = "gemini-3.8-flash-{effort}"`.
-- Invocación que usa la app (no interactiva):
-  ```
-  agy --model <id> --input-format stream-json --output-format stream-json --disable-slash-commands
-      --print-timeout <N>s [--json-schema <fichero>] -p=
-  ```
-  - Prompt por **stdin** como una línea NDJSON: `{"event":"user","message":{"role":"user","content":"…"}}`.
-    ⚠ `-p=-` no lee stdin (lo toma como texto) y `-p` sin `=` se come el siguiente argumento.
-  - No hay flag de system prompt: el adaptador lo antepone al contenido (`system_prompt = "inline"`).
-  - Salida: eventos `init`, `step_update` (`text_delta` en `agent_response`; `tool` si intenta una herramienta),
-    `result` (`status`, `response`, `usage`, `structured_output` con `--json-schema`, `denied_actions`).
-  - ⚠ Con `--json-schema` el `response` trae el JSON duplicado: el parser usa `structured_output`.
-  - ⚠ Si vence `--print-timeout` devuelve `status: SUCCESS` con respuesta vacía: el parser lo trata como timeout.
-- Seguridad: en modo no interactivo las herramientas que requieren permiso (escribir ficheros, ejecutar comandos)
-  se **deniegan solas**. **Nunca** añadas `--dangerously-skip-permissions` (la configuración lo rechaza).
-- Latencias medidas: 4–13 s (low/medium, prompt corto); 48 s (medium, 32 KB); **high con prompts grandes > 4 min**
-  → `efforts = ["low", "medium"]` en `agy_gemini_flash`.
-- Iniciar sesión: abrir Antigravity o ejecutar `agy` en una terminal e identificarse con la cuenta de Google AI Pro.
+### Cómo añadir cualquier modelo nuevo sin tocar código
+En **Ajustes → Modelos personalizados** → **Añadir modelo**:
+1. Elige el proveedor (cualquier Plan CLI o API).
+2. Escribe un alias corto (ej. `grok_4` o `gpt_45`).
+3. Escribe el `model_id` oficial de la compañía (ej. `grok-4-latest` o `gemini-4-argon-{effort}`).
+4. Pulsa **Guardar modelo en catálogo**: queda inmediatamente disponible en el Selector Rápido y en la tabla de tareas.
 
-### 1.2 Gemini API (AI Studio)
-- Librería `google-genai` (`core/gemini_client.py`), clave en `GEMINI_API_KEY` (`.env` o variable de entorno).
-- Modelos usados: `gemini-3.5-flash` (rápido, 4–6 s), `gemini-3.5-flash-lite`, `gemini-3.8-flash` (**20 peticiones/día**
-  en el plan gratuito, 80–210 s), `gemini-4-argon` (sin cuota en el plan gratuito), `gemini-embedding-001` (768 dim).
-  `gemini-2.5-flash` ya no está disponible para cuentas nuevas (404).
-- Razonamiento: `ThinkingConfig(thinking_level=LOW|MEDIUM|HIGH)` (con alternativa a `thinking_budget` si el modelo lo
-  rechaza). JSON: `response_mime_type="application/json"` y, si se pasa, `response_json_schema`.
-- Límites: token bucket por alias (`rpm`) y contador diario (`rpd`, leído del ledger). Un 429 con "retry in 7h…" o
-  `retryDelay` > 60 s marca el modelo como **agotado hasta esa hora** y no se reintenta; 429/500/503 transitorios se
-  reintentan con backoff exponencial (máx. 3). Los reintentos internos del SDK están desactivados.
-- ⚠ Privacidad: el plan gratuito puede usar lo que recibe para mejorar productos de Google. La app seudonimiza y no
-  envía adjuntos sin consentimiento, pero conviene usarlo solo para tareas de volumen.
+---
 
-### 1.3 Claude Code (`claude -p`) — Claude Pro
-- Invocación: `claude -p --model <haiku|sonnet|opus> --effort <low|medium|high> --output-format stream-json --verbose
-  --include-partial-messages --tools "" --no-session-persistence --system-prompt-file <tmp>`; prompt por stdin.
-- Salida `stream-json`: `system/init` (modelo), `stream_event` con `content_block_delta/text_delta`, `result`
-  (`is_error`, `result`, `usage`, `total_cost_usd` = coste orientativo, no se cobra).
-- Errores clasificados: "Not logged in" → `NotAuthenticated`; "usage limit"/"weekly limit" → `UsageLimitReached`
-  (abre el breaker hasta el reinicio o 60 min); "overloaded/429/529" → `RateLimited`.
-- Iniciar sesión: en una terminal, `claude` y luego `/login`. Comprobar: página **Modelos → Probar** sobre un modelo
-  de Claude Code, o `uv run python scripts/spike_claude_live.py --alias claude_haiku`.
+## 4. Asignación por Defecto (`config/profiles.toml`)
 
-### 1.4 Codex (`codex exec`) — EXPERIMENTAL
-- Bloque preparado en `providers.toml` con `habilitado = false`, parser `codex_jsonl` probado solo con eventos
-  sintéticos (`item.completed` con `agent_message`, `turn.completed`, `error`/`turn.failed`).
-- Pasos para activarlo: ver §4 ("Añadir o activar un proveedor") y **verificar los flags con `codex exec --help`**.
-
-## 2. Catálogo de modelos (`config/models.toml`)
-
-```toml
-[models.agy_gemini_flash]
-etiqueta = "Gemini 3.8 Flash (Antigravity)"
-provider = "antigravity_cli"
-model_id = "gemini-3.8-flash-{effort}"
-efforts = ["low", "medium"]
-timeout_s = 240
-fallbacks = ["gemini_flash_38_api", "gemini_flash"]
-```
-Campos: `etiqueta`, `provider`, `model_id` (admite `{effort}`), `efforts` (por defecto low/medium/high), `timeout_s`,
-`rpm`/`rpd` (solo API), `output_dimensionality` (embeddings), `fallbacks` (alias en orden; pueden ser de otro
-proveedor).
-
-Cadenas actuales:
-- `claude_opus → agy_claude_opus → claude_sonnet → agy_claude_sonnet → agy_gemini_flash → gemini_flash_38_api →
-  gemini_flash → gemini_flash_lite`
-- `agy_gemini_flash → gemini_flash_38_api → gemini_flash → gemini_flash_lite`
-- `gemini_flash → gemini_flash_lite`
-
-## 3. Perfiles (qué modelo hace cada tarea)
-
-Roles: `triaje`, `cribado`, `defensa`, `contraparte`, `magistrado`, `nli` (+ `auditor` en Auditoría).
-
-| Modo | Triaje / cribado | Defensa / Contraparte | Magistrado | NLI |
+| Modo | Triaje / Cribado | Defensa / Contraparte | Magistrado | Verificación NLI |
 |---|---|---|---|---|
-| Eco (por defecto del repo) | Gemini 3.5 API | Gemini 3.8 Antigravity | Gemini 3.8 Antigravity | Gemini 3.5 API |
-| Eco (**tu configuración actual**, `user_profiles.toml`) | Gemini 3.8 Antigravity | Gemini 3.8 Antigravity | Gemini 3.8 Antigravity | Gemini 3.8 Antigravity |
-| Equilibrado | Gemini 3.5 API | Gemini 3.8 Antigravity | Claude Sonnet (Claude Code) | Gemini 3.5 API |
-| Pro | Gemini 3.5 API | Claude Sonnet | Claude Opus (high) | Gemini 3.8 Antigravity |
+| **Eco** | `agy_gemini_flash` (`low`) | `agy_gemini_flash` (`medium`) | `agy_gemini_flash` (`medium`) | `agy_gemini_flash` (`low`) |
+| **Equilibrado** (defecto) | `agy_gemini_flash` (`low`) | `agy_gemini_flash` (`medium`) | `claude_sonnet` (`medium`) | `agy_gemini_flash` (`low`) |
+| **Pro** | `agy_gemini_flash` (`low`/`medium`) | `claude_sonnet` (`medium`) | **`agy_gemini_argon` (`high`)** | `agy_gemini_flash` (`low`) |
+| **Auditoría** | `agy_gemini_flash` (`low`/`medium`) | `claude_sonnet` (`medium`) | `claude_opus` (`high`) + Auditor `agy_gemini_argon` (`high`) | `agy_gemini_flash` (`low`) |
 
-Pautas para elegir:
-1. **Volumen** (triaje, cribado, NLI): modelo rápido y con cuota abundante. Si la API gratuita se agota a menudo,
-   usa Antigravity low (como en tu Eco actual).
-2. **Razonamiento** (defensa, contraparte, magistrado): el mejor modelo disponible con effort medium; el Magistrado
-   es el rol más exigente.
-3. **NLI en otro canal** que el Magistrado cuando sea posible (verificación cruzada).
-4. Cambia la asignación desde la app (**Modelos → matriz → Guardar**); "Restablecer" vuelve a `profiles.toml`.
+## 5. Cadenas de alternativas (fallbacks)
 
-## 4. Añadir o activar un proveedor (p. ej. Codex)
+Si un modelo falla, agota cuota o no tiene sesión, el router prueba el siguiente de su cadena (`config/models.toml`).
+Los proveedores desactivados se saltan sin llamarlos.
 
-1. **Instalar e iniciar sesión** en su CLI desde una terminal normal. Comprobar que responde en modo no interactivo.
-2. **Spike rápido** (30 min) para conocer su salida:
-   ```bash
-   echo "Responde solo: hola" | codex exec --json --model <modelo> --skip-git-repo-check --sandbox read-only - > salida.jsonl
-   ```
-   Mira qué eventos emite (texto, final, uso, errores), cómo se pasa el prompt por stdin y cómo se indica el modelo
-   y el razonamiento. Guarda 2–3 salidas reales en `tests/fixtures/<proveedor>_stream/`.
-3. **Bloque en `config/providers.toml`**: `tipo = "cli"`, `ejecutable`, `args` (marcadores `{model}`, `{effort}`,
-   `{timeout_inner}`), `system_prompt` (`file` con `system_prompt_args` o `inline`), `stdin` (`text` o
-   `agy_ndjson`), `parser`, opcionalmente `json_schema_args`, `descubrir` y `modelos_conocidos`, `login`,
-   `habilitado = true`.
-   - Regla de seguridad: el CLI debe ejecutarse **sin poder modificar el equipo** (sandbox de solo lectura, sin
-     herramientas). Nada de flags de autoaprobación.
-4. **Parser** (si el formato es nuevo) en `core/providers/parsers.py`: una clase con `feed(line)` (devuelve
-   `StreamChunk` con el texto incremental o lanza un `ProviderError` tipado vía `classify_error`), `finish(stderr)`
-   (rellena o valida `self.final: CliFinal`) y `avisos`. Regístrala en `PARSERS`.
-5. **Modelos** en `config/models.toml` (`provider = "<id>"`) y, si quieres, en las cadenas `fallbacks` de otros.
-6. **Tests**: parser con los fixtures reales (`tests/unit/test_parsers.py`), parametriza
-   `tests/unit/test_cli_adapter.py` con el nuevo proveedor y añade el alias a `OBJETIVOS` en
-   `tests/contract/test_live_providers.py`.
-7. **En la app**: Modelos → **Detectar** → **Probar** → asignar en la matriz → Guardar.
+| Modelo | Alternativas, en orden |
+|---|---|
+| `agy_gemini_flash` | `agy_claude_sonnet` → `agy_gpt_oss` → `claude_sonnet` → `gemini_flash` (API) |
+| `claude_sonnet` | `agy_claude_sonnet` → `agy_gemini_flash` → `gemini_flash` (API) |
+| `agy_gemini_argon` | `agy_claude_opus` → `claude_opus` → `claude_sonnet` → `agy_claude_sonnet` → `agy_gemini_flash` |
 
-Para un proveedor por **API HTTP** (p. ej. OpenAI con clave): el tipo `api_openai` está reservado; habría que crear un
-adaptador como `GeminiApiAdapter` (método `stream(alias, spec, request)` que emita `StreamChunk` y un `LLMResult`
-final) y registrarlo en `core/providers/registry.py`.
-
-## 5. Interfaz común (para programar contra el router)
-```python
-async for item in router.stream(modo, rol, LLMRequest(system=..., prompt=..., json_mode=True),
-                                fase="magistrado", consulta_id=cid, restartable=True):
-    if isinstance(item, LLMResult): ...   # resultado final (texto completo, modelo efectivo, uso, degradado, avisos)
-    else: ...                             # StreamChunk: texto incremental
-```
-Errores (`core/errors.py`): `ProviderError` (base) y los degradables `RateLimited`, `UsageLimitReached`,
-`ProviderTimeout`, `ModelUnavailable`, `NotAuthenticated`.
-
-## 6. Problemas frecuentes
-| Síntoma | Causa probable | Qué hacer |
-|---|---|---|
-| Proveedor en rojo "sin sesión iniciada" | CLI sin login | Iniciar sesión en el CLI (ver §1) y **Probar** |
-| Avisos "se usó un modelo alternativo" | Cuota agotada o 503 del modelo principal | Normal; si es constante, cambia la asignación |
-| Gemini API siempre "RateLimited" | Cuota diaria gratuita agotada | Esperar al reinicio indicado o pasar esas tareas a Antigravity |
-| Antigravity tarda > 4 min | Effort `high` con prompt grande | Usar low/medium |
-| "flags no permitidos" al arrancar | Alguien añadió `--dangerously-*` | Quitarlo de `providers.toml` |
+Primero se prueba otra familia dentro del mismo plan (Antigravity) y después otro proveedor, para no gastar un salto
+en un proveedor desactivado.

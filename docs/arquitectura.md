@@ -141,9 +141,13 @@ Ver [proveedores_y_modelos.md](proveedores_y_modelos.md). Resumen:
 - `lib/selfHeal.ts`: si el bundle no coincide con `/api/version`, desregistra el service worker, limpia cachés y
   recarga una vez.
 - Service worker: precachea solo `js/css/svg/webmanifest`; **nunca HTML ni API**.
-- Componentes: `Header` (modos y estado de proveedores), `Composer` (texto, municipio, adjuntos con
-  consentimiento), `Results` (fases, triaje, aclaraciones, fuentes, debate, dictamen, plazos, postulación),
-  `SourceViewer` (texto oficial con la cita resaltada), `ModelsPage`, `Sidebar` (historial).
+- Componentes (diseño en [propuesta_rediseno.md](propuesta_rediseno.md)): `TopBar` (menú de modo y acceso a
+  Ajustes), `Sidebar` (historial por fechas, plegable), `Composer` (centrado al inicio y fijo abajo después; municipio
+  y adjuntos con consentimiento), `Results` (progreso, aclaraciones, respuesta con fundamentos numerados, plazos,
+  postulación y el proceso plegado: triaje, fuentes y debate), `SourceViewer` (panel derecho con el texto oficial y
+  la cita resaltada), `settings/*` (Modos, Cuentas y planes, Modelos personalizados, Apariencia) y `ui/primitives`.
+- Estilo: tokens de color en `src/index.css` (claro y oscuro), expuestos a Tailwind en `tailwind.config.js`; fuentes
+  Inter y Source Serif 4 autoalojadas (`@fontsource`), sin CDN.
 
 ## 7. Seguridad y privacidad
 | Medida | Implementación |
