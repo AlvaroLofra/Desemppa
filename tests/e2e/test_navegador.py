@@ -89,7 +89,15 @@ def server(tmp_path: Path) -> Iterator[Server]:
 @pytest.fixture
 def page(server: Server) -> Iterator[object]:
     with playwright_sync.sync_playwright() as p:
-        browser = p.chromium.launch()
+        browser = None
+        for kwargs in ({}, {"channel": "msedge"}, {"channel": "chrome"}):
+            try:
+                browser = p.chromium.launch(**kwargs)
+                break
+            except Exception:
+                continue
+        if browser is None:
+            pytest.skip("No hay navegador Chromium/Edge/Chrome disponible para Playwright")
         context = browser.new_context()
         pg = context.new_page()
         pg.on("console", lambda m: print(f"[consola] {m.type}: {m.text}"))
@@ -100,7 +108,7 @@ def page(server: Server) -> Iterator[object]:
 
 def _abrir(page, server: Server) -> None:  # type: ignore[no-untyped-def]
     page.goto(server.url)
-    page.get_by_role("heading", name="¿Qué problema legal tienes?").wait_for(timeout=20_000)
+    page.get_by_role("heading", name="¿En qué te puedo ayudar?").wait_for(timeout=20_000)
     page.evaluate("navigator.serviceWorker.ready.then(() => true)")  # service worker instalado y activo
 
 
@@ -132,7 +140,7 @@ def test_recarga_tras_reinicio_usa_el_token_nuevo(page, server: Server) -> None:
     server.rotate_token()
     server.start()
     page.reload()
-    page.get_by_role("heading", name="¿Qué problema legal tienes?").wait_for(timeout=20_000)
+    page.get_by_role("heading", name="¿En qué te puedo ayudar?").wait_for(timeout=20_000)
     _consultar_y_esperar_dictamen(page)
 
 
@@ -141,6 +149,6 @@ def test_copia_antigua_de_la_interfaz_se_autorrepara(page, server: Server) -> No
     # El servidor pasa a anunciar otro build: el JS que tiene la pestaña (y el service worker) es "antiguo".
     (server.dist / "version.json").write_text('{"build": "build-nuevo"}', encoding="utf-8")
     page.reload()
-    page.get_by_role("heading", name="¿Qué problema legal tienes?").wait_for(timeout=20_000)
+    page.get_by_role("heading", name="¿En qué te puedo ayudar?").wait_for(timeout=20_000)
     assert page.evaluate("sessionStorage.getItem('iuris-selfheal')") == "build-nuevo"  # limpió y recargó una vez
     _consultar_y_esperar_dictamen(page)

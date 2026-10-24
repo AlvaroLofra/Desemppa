@@ -7,6 +7,7 @@ export type Rol = "defensa" | "contraparte" | "magistrado";
 
 export interface ConsultaState {
   id: string | null;
+  pregunta: string | null;
   estado: Estado | null;
   triage: Triage | null;
   preguntas: Pregunta[];
@@ -23,13 +24,14 @@ export interface ConsultaState {
 }
 
 const inicial: ConsultaState = {
-  id: null, estado: null, triage: null, preguntas: [], fuentes: [],
+  id: null, pregunta: null, estado: null, triage: null, preguntas: [], fuentes: [],
   borradores: { defensa: "", contraparte: "", magistrado: "" }, alegatos: {}, resolucion: null,
   guardrails: [], plazos: [], avisosQuota: [], final: null, error: null, streaming: false,
 };
 
 type Accion =
-  | { t: "reset"; id: string | null }
+  | { t: "reset"; id: string | null; pregunta?: string | null }
+  | { t: "pregunta"; texto: string }
   | { t: "evento"; tipo: string; data: any }
   | { t: "deltas"; chunks: Record<string, string> }
   | { t: "streaming"; v: boolean }
@@ -38,7 +40,9 @@ type Accion =
 function reducer(s: ConsultaState, a: Accion): ConsultaState {
   switch (a.t) {
     case "reset":
-      return { ...inicial, id: a.id, streaming: a.id !== null };
+      return { ...inicial, id: a.id, pregunta: a.pregunta ?? null, streaming: a.id !== null };
+    case "pregunta":
+      return { ...s, pregunta: a.texto };
     case "streaming":
       return { ...s, streaming: a.v };
     case "error":
@@ -143,7 +147,7 @@ export function useConsulta() {
   const nueva = useCallback(async (texto: string, modo: string, municipio: string | null, adjuntos: string[]) => {
     try {
       const { consulta_id } = await api.crear({ texto, modo, municipio_ine: municipio, adjuntos });
-      dispatch({ t: "reset", id: consulta_id });
+      dispatch({ t: "reset", id: consulta_id, pregunta: texto });
       await escuchar(consulta_id);
       return consulta_id;
     } catch (e) {
@@ -154,6 +158,8 @@ export function useConsulta() {
 
   const abrir = useCallback(async (id: string) => {
     dispatch({ t: "reset", id });
+    api.consulta(id).then((c) => typeof c.texto === "string" && dispatch({ t: "pregunta", texto: c.texto }))
+      .catch(() => undefined);
     await escuchar(id);
   }, [escuchar]);
 

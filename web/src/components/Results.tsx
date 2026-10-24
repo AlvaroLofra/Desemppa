@@ -1,8 +1,5 @@
 import { useState } from "react";
-import {
-  AlertTriangle, BookOpen, CalendarClock, CheckCircle2, ChevronDown, FileText, Gavel, Landmark, Loader2,
-  ShieldAlert, ShieldCheck, Swords, UserRound, XCircle,
-} from "lucide-react";
+import { AlertCircle, Check, ChevronDown, Copy, Info, Loader2, Printer, X } from "lucide-react";
 import type { ConsultaState, Rol } from "../lib/useConsulta";
 import { BANDA_TEXTO, type Argumento, type Banda, type Fuente, type Plazo, type Postulacion, type Pregunta } from "../lib/types";
 import { diasNaturalesHasta, fechaLarga } from "../lib/highlight";
@@ -11,54 +8,25 @@ import { MunicipioPicker, type Municipio } from "./MunicipioPicker";
 export type AbrirFuente = (sourceId: string, quote?: string) => void;
 
 const FASES = [
-  { id: "TRIAJE", label: "Triaje", estados: ["RECIBIDA", "TRIAJE", "ESPERANDO_ACLARACION"] },
-  { id: "INGESTA", label: "Fuentes", estados: ["INGESTA", "INGESTA_DEGRADADA"] },
-  { id: "DEBATE", label: "Juicio contradictorio", estados: ["DEBATE"] },
-  { id: "GUARDARRAILES", label: "Verificación", estados: ["GUARDARRAILES"] },
+  { label: "Entendiendo tu caso", estados: ["RECIBIDA", "TRIAJE", "ESPERANDO_ACLARACION"] },
+  { label: "Buscando en el BOE y en la jurisprudencia", estados: ["INGESTA", "INGESTA_DEGRADADA"] },
+  { label: "Enfrentando los argumentos de ambas partes", estados: ["DEBATE"] },
+  { label: "Verificando cada cita contra el texto oficial", estados: ["GUARDARRAILES"] },
 ];
 
-export function PhaseStepper({ estado, streaming }: { estado: string | null; streaming: boolean }) {
-  const actual = FASES.findIndex((f) => estado && f.estados.includes(estado));
-  const terminado = estado && ["CERTIFICADA", "BLOQUEADA", "FUERA_DE_ALCANCE"].includes(estado);
+/** Una sola línea de progreso, como el «pensando…» de Gemini. */
+export function ProgressLine({ estado, streaming }: { estado: string | null; streaming: boolean }) {
+  const i = FASES.findIndex((f) => estado && f.estados.includes(estado));
+  if (!streaming || i < 0) return null;
   return (
-    <ol className="flex flex-wrap items-center gap-2 text-xs" aria-label="Progreso">
-      {FASES.map((f, i) => {
-        const done = terminado || i < actual;
-        const active = !terminado && i === actual;
-        return (
-          <li key={f.id} className="flex items-center gap-2">
-            <span className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 ${
-              done ? "border-emerald-700/60 text-emerald-300" : active ? "border-amber-500/70 text-amber-200" : "border-slate-800 text-slate-500"
-            }`}>
-              {done ? <CheckCircle2 className="h-3.5 w-3.5" /> : active && streaming ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <span className="h-1.5 w-1.5 rounded-full bg-current" />}
-              {f.label}
-            </span>
-            {i < FASES.length - 1 && <span className="h-px w-4 bg-slate-800" />}
-          </li>
-        );
-      })}
-    </ol>
+    <p className="fade-in flex items-center gap-3 text-sm text-ink-2" aria-live="polite">
+      <Loader2 className="h-4 w-4 animate-spin text-accent" aria-hidden />
+      {FASES[i].label}…<span className="text-ink-3">Fase {i + 1} de {FASES.length}</span>
+    </p>
   );
 }
 
-export function TriageCard({ state }: { state: ConsultaState }) {
-  const t = state.triage;
-  if (!t) return null;
-  return (
-    <section className="card p-4" aria-label="Triaje">
-      <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400">
-        <Landmark className="h-4 w-4 text-amber-400" aria-hidden />
-        <span className="chip">{t.jurisdiccion_principal.replace("_", " ")}</span>
-        <span className="chip">{t.submateria_descripcion ?? t.submateria_principal}</span>
-        {t.fecha_hechos && <span className="chip">hechos: {t.fecha_hechos}</span>}
-        {t.cuantia_estimada_eur != null && <span className="chip">{t.cuantia_estimada_eur.toLocaleString("es-ES")} €</span>}
-      </div>
-      {t.resumen_hechos && <p className="mt-2 text-sm text-slate-300">{t.resumen_hechos}</p>}
-    </section>
-  );
-}
-
-export function ClarificationForm({ preguntas, onResponder }: {
+export function Clarification({ preguntas, onResponder }: {
   preguntas: Pregunta[];
   onResponder: (r: { pregunta: string; respuesta: string; municipio_ine?: string | null }[]) => void;
 }) {
@@ -66,78 +34,87 @@ export function ClarificationForm({ preguntas, onResponder }: {
   const [muni, setMuni] = useState<Municipio | null>(null);
   const listo = preguntas.every((p) => (p.tipo_respuesta === "municipio" ? muni : resp[p.id]?.trim()));
   return (
-    <section className="card border-amber-600/40 p-4" aria-label="Preguntas aclaratorias">
-      <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-amber-200">
-        <AlertTriangle className="h-4 w-4" />Necesito algunos datos para no equivocarme
-      </h3>
-      <div className="space-y-3">
+    <section className="fade-in space-y-4" aria-label="Preguntas aclaratorias">
+      <p className="text-base text-ink">Antes de seguir, necesito algunos datos para no equivocarme:</p>
+      <div className="space-y-4 rounded-3xl bg-surface p-5">
         {preguntas.map((p) => (
-          <label key={p.id} className="block text-sm">
-            <span className="mb-1 block text-slate-300">{p.texto}</span>
+          <label key={p.id} className="block">
+            <span className="mb-2 block text-sm text-ink">{p.texto}</span>
             {p.tipo_respuesta === "municipio" ? (
-              <MunicipioPicker value={muni} onChange={setMuni} compact />
+              <MunicipioPicker value={muni} onChange={setMuni} compact arriba={false} />
             ) : p.tipo_respuesta === "si_no" ? (
-              <div className="flex gap-2">
+              <span className="flex gap-2">
                 {["Sí", "No"].map((o) => (
-                  <button key={o} onClick={() => setResp({ ...resp, [p.id]: o })}
-                          className={`btn border ${resp[p.id] === o ? "border-amber-500 text-amber-200" : "border-slate-700"}`}>{o}</button>
+                  <button key={o} type="button" onClick={() => setResp({ ...resp, [p.id]: o })}
+                          aria-pressed={resp[p.id] === o}
+                          className={resp[p.id] === o ? "btn-tonal" : "btn-outline"}>{o}</button>
                 ))}
-              </div>
+              </span>
             ) : p.opciones?.length ? (
-              <select className="rounded-lg border border-slate-700 bg-slate-900 px-2 py-1.5"
-                      value={resp[p.id] ?? ""} onChange={(e) => setResp({ ...resp, [p.id]: e.target.value })}>
+              <select className="field max-w-sm" value={resp[p.id] ?? ""}
+                      onChange={(e) => setResp({ ...resp, [p.id]: e.target.value })}>
                 <option value="">Elige…</option>
                 {p.opciones.map((o) => <option key={o}>{o}</option>)}
               </select>
             ) : (
               <input type={p.tipo_respuesta === "fecha" ? "date" : p.tipo_respuesta === "importe" ? "number" : "text"}
-                     className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 outline-none focus:border-amber-500"
-                     value={resp[p.id] ?? ""} onChange={(e) => setResp({ ...resp, [p.id]: e.target.value })} />
+                     className="field max-w-sm" value={resp[p.id] ?? ""}
+                     onChange={(e) => setResp({ ...resp, [p.id]: e.target.value })} />
             )}
           </label>
         ))}
+        <button className="btn-primary" disabled={!listo} onClick={() => onResponder(preguntas.map((p) => ({
+          pregunta: p.texto,
+          respuesta: p.tipo_respuesta === "municipio" ? `${muni?.nombre} (${muni?.provincia})` : resp[p.id] ?? "",
+          municipio_ine: p.tipo_respuesta === "municipio" ? muni?.codigo_ine : undefined,
+        })))}>Continuar</button>
       </div>
-      <button className="btn-primary mt-4" disabled={!listo} onClick={() => onResponder(preguntas.map((p) => ({
-        pregunta: p.texto,
-        respuesta: p.tipo_respuesta === "municipio" ? `${muni?.nombre} (${muni?.provincia})` : resp[p.id] ?? "",
-        municipio_ine: p.tipo_respuesta === "municipio" ? muni?.codigo_ine : undefined,
-      })))}>Continuar análisis</button>
     </section>
   );
 }
 
-const ICONO_FUENTE = { boe: BookOpen, sentencia: Gavel, convenio: FileText, adjunto: FileText } as const;
+// ---------- proceso (plegado por defecto) ----------
 
-export function SourcesList({ fuentes, onAbrir }: { fuentes: Fuente[]; onAbrir: AbrirFuente }) {
+const TIPO_FUENTE: Record<Fuente["tipo"], string> = {
+  boe: "Legislación", sentencia: "Jurisprudencia", convenio: "Convenio colectivo", adjunto: "Tus documentos",
+};
+
+function Fuentes({ fuentes, onAbrir }: { fuentes: Fuente[]; onAbrir: AbrirFuente }) {
   if (!fuentes.length) return null;
+  const tipos = [...new Set(fuentes.map((f) => f.tipo))];
   return (
-    <section aria-label="Fuentes consultadas" className="flex flex-wrap gap-2">
-      {fuentes.map((f) => {
-        const Icon = ICONO_FUENTE[f.tipo] ?? FileText;
-        return (
-          <button key={f.source_id} className="chip hover:border-amber-500/60" title={f.extracto} onClick={() => onAbrir(f.source_id)}>
-            <Icon className="h-3 w-3 text-amber-400" aria-hidden />{f.titulo}
-          </button>
-        );
-      })}
-    </section>
+    <div className="space-y-3">
+      {tipos.map((t) => (
+        <div key={t}>
+          <p className="eyebrow mb-1">{TIPO_FUENTE[t] ?? t}</p>
+          <ul>
+            {fuentes.filter((f) => f.tipo === t).map((f) => (
+              <li key={f.source_id}>
+                <button className="w-full truncate rounded-lg px-2 py-1.5 text-left text-sm text-ink hover:bg-surface-2"
+                        title={f.extracto} onClick={() => onAbrir(f.source_id)}>{f.titulo}</button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
   );
 }
 
-function Argumentos({ args, verif, onAbrir }: { args: Argumento[]; verif?: { ok: boolean }[][]; onAbrir: AbrirFuente }) {
+function Citas({ args, verif, onAbrir }: { args: Argumento[]; verif?: { ok: boolean }[][]; onAbrir: AbrirFuente }) {
   return (
-    <ul className="space-y-3">
+    <ul className="space-y-4">
       {args.map((a, i) => (
-        <li key={i} className="text-sm">
-          <p className="text-slate-200">{a.afirmacion}</p>
+        <li key={i}>
+          <p className="text-sm text-ink">{a.afirmacion}</p>
           {a.citas.map((c, j) => {
             const ok = verif?.[i]?.[j]?.ok;
             return (
               <button key={j} onClick={() => onAbrir(c.source_id, c.verbatim_quote)}
-                      className="mt-1 block w-full rounded-md border-l-2 border-slate-700 bg-slate-950/40 px-3 py-1.5 text-left hover:border-amber-500">
-                <span className="legal italic">«{c.verbatim_quote}»</span>
-                <span className="mt-0.5 flex items-center gap-1 text-[11px] text-slate-500">
-                  {ok === false ? <XCircle className="h-3 w-3 text-rose-400" /> : ok ? <CheckCircle2 className="h-3 w-3 text-emerald-400" /> : null}
+                      className="mt-1.5 block w-full border-l-2 border-outline pl-3 text-left hover:border-accent">
+                <span className="font-serif text-[15px] italic leading-relaxed text-ink-2">«{c.verbatim_quote}»</span>
+                <span className="mt-0.5 flex items-center gap-1 text-xs text-ink-3">
+                  {ok === false ? <X className="h-3 w-3 text-danger" aria-hidden /> : ok ? <Check className="h-3 w-3 text-success" aria-hidden /> : null}
                   {c.source_id}{ok === false && " · cita no verificada"}
                 </span>
               </button>
@@ -149,85 +126,128 @@ function Argumentos({ args, verif, onAbrir }: { args: Argumento[]; verif?: { ok:
   );
 }
 
-export function DebateTabs({ state, onAbrir }: { state: ConsultaState; onAbrir: AbrirFuente }) {
+function Debate({ state, onAbrir }: { state: ConsultaState; onAbrir: AbrirFuente }) {
   const [tab, setTab] = useState<Rol>("magistrado");
-  const hay = state.borradores.defensa || state.borradores.contraparte || state.borradores.magistrado
-    || state.alegatos.defensa || state.resolucion;
-  if (!hay) return null;
-  const tabs: { id: Rol; label: string; icon: typeof Swords }[] = [
-    { id: "defensa", label: "Argumentos de Defensa", icon: UserRound },
-    { id: "contraparte", label: "Ataque de la Contraparte", icon: Swords },
-    { id: "magistrado", label: "Resolución del Magistrado", icon: Gavel },
+  const tabs: { id: Rol; label: string }[] = [
+    { id: "defensa", label: "Defensa" },
+    { id: "contraparte", label: "Contraparte" },
+    { id: "magistrado", label: "Magistrado" },
   ];
   const borrador = state.borradores[tab];
   return (
-    <section className="card" aria-label="Juicio contradictorio">
-      <div role="tablist" className="flex overflow-x-auto border-b border-slate-800 scroll-thin">
-        {tabs.map(({ id, label, icon: Icon }) => {
-          const vivo = Boolean(state.borradores[id]);
-          return (
-            <button key={id} role="tab" aria-selected={tab === id} onClick={() => setTab(id)}
-                    className={`flex shrink-0 items-center gap-2 px-4 py-2.5 text-sm ${tab === id ? "border-b-2 border-amber-500 text-amber-200" : "text-slate-400 hover:text-slate-200"}`}>
-              <Icon className="h-4 w-4" />{label}{vivo && <Loader2 className="h-3 w-3 animate-spin" />}
-            </button>
-          );
-        })}
+    <div>
+      <div role="tablist" className="flex gap-6 border-b border-outline">
+        {tabs.map(({ id, label }) => (
+          <button key={id} role="tab" aria-selected={tab === id} onClick={() => setTab(id)}
+                  className={`-mb-px flex items-center gap-2 border-b-2 pb-2 pt-1 text-sm transition-colors ${
+                    tab === id ? "border-accent font-medium text-accent" : "border-transparent text-ink-2 hover:text-ink"
+                  }`}>
+            {label}{state.borradores[id] && <Loader2 className="h-3 w-3 animate-spin" aria-hidden />}
+          </button>
+        ))}
       </div>
-      <div role="tabpanel" className="max-h-[28rem] overflow-auto p-4 scroll-thin">
-        {borrador && <pre className="whitespace-pre-wrap font-mono text-xs text-slate-500">{borrador.slice(-4000)}</pre>}
+      <div role="tabpanel" className="max-h-[28rem] overflow-auto pt-4 scroll-thin">
+        {borrador && <pre className="whitespace-pre-wrap font-mono text-xs text-ink-3">{borrador.slice(-4000)}</pre>}
         {!borrador && tab !== "magistrado" && state.alegatos[tab] && (
           <div className="space-y-4">
-            <p className="text-sm text-slate-400"><b className="text-slate-200">Pretensión:</b> {state.alegatos[tab]!.alegato.pretension}</p>
-            <Argumentos args={state.alegatos[tab]!.alegato.cuestiones.flatMap((q) => q.argumentos)}
-                        verif={state.alegatos[tab]!.verificacion} onAbrir={onAbrir} />
+            <p className="text-sm text-ink-2"><span className="font-medium text-ink">Pretensión:</span> {state.alegatos[tab]!.alegato.pretension}</p>
+            <Citas args={state.alegatos[tab]!.alegato.cuestiones.flatMap((q) => q.argumentos)}
+                   verif={state.alegatos[tab]!.verificacion} onAbrir={onAbrir} />
           </div>
         )}
         {!borrador && tab === "magistrado" && state.resolucion && (
-          <div className="space-y-5">
+          <div className="space-y-6">
             {state.resolucion.cuestiones.map((q) => (
               <div key={q.id}>
-                <div className="mb-2 flex flex-wrap items-center gap-2">
-                  <span className="text-sm font-semibold text-slate-100">{q.enunciado}</span>
-                  <span className={`chip ${q.estimacion === "DEFENSA" ? "border-emerald-700 text-emerald-300" : "border-rose-800 text-rose-300"}`}>
-                    estima: {q.estimacion === "DEFENSA" ? "tu posición" : "la contraparte"}
-                  </span>
-                </div>
-                <Argumentos args={q.fundamentos} onAbrir={onAbrir} />
+                <p className="text-sm font-medium text-ink">{q.enunciado}</p>
+                <p className="mb-2 text-xs text-ink-2">Estima: {q.estimacion === "DEFENSA" ? "tu posición" : "la de la otra parte"}</p>
+                <Citas args={q.fundamentos} onAbrir={onAbrir} />
               </div>
             ))}
           </div>
         )}
         {!borrador && !(tab === "magistrado" ? state.resolucion : state.alegatos[tab as "defensa" | "contraparte"]) && (
-          <p className="text-sm text-slate-500">Esperando turno…</p>
+          <p className="text-sm text-ink-3">Esperando turno…</p>
         )}
       </div>
-    </section>
+    </div>
   );
 }
 
-const BANDA_ESTILO: Record<Banda, string> = {
-  criterio_consolidado_favorable: "border-emerald-600 bg-emerald-950/40 text-emerald-200",
-  argumento_solido_sin_doctrina: "border-sky-600 bg-sky-950/40 text-sky-200",
-  disparidad_de_criterio: "border-amber-600 bg-amber-950/40 text-amber-200",
-  riesgo_probatorio_alto: "border-orange-600 bg-orange-950/40 text-orange-200",
-  criterio_consolidado_desfavorable: "border-rose-600 bg-rose-950/40 text-rose-200",
-  no_determinable: "border-slate-600 bg-slate-900 text-slate-300",
-};
-
-export function BandaBadge({ banda }: { banda: Banda }) {
-  return <span className={`inline-flex rounded-lg border px-3 py-1 text-sm font-medium ${BANDA_ESTILO[banda]}`}>{BANDA_TEXTO[banda]}</span>;
+function Plegable({ titulo, abiertoInicial = false, children }: { titulo: string; abiertoInicial?: boolean; children: React.ReactNode }) {
+  const [abierto, setAbierto] = useState(abiertoInicial);
+  return (
+    <div>
+      <button className="flex items-center gap-1 text-sm text-ink-2 hover:text-ink" aria-expanded={abierto}
+              onClick={() => setAbierto(!abierto)}>
+        {titulo}<ChevronDown className={`h-4 w-4 transition-transform ${abierto ? "rotate-180" : ""}`} aria-hidden />
+      </button>
+      {abierto && <div className="fade-in pt-3">{children}</div>}
+    </div>
+  );
 }
 
-export function PostulacionBanner({ p }: { p: Postulacion }) {
+/** Triaje, fuentes consultadas y debate: el «cómo se ha llegado», a un clic. Abierto mientras se analiza. */
+export function ProcessDetails({ state, onAbrir }: { state: ConsultaState; onAbrir: AbrirFuente }) {
+  const t = state.triage;
+  const hayDebate = state.borradores.defensa || state.borradores.contraparte || state.borradores.magistrado
+    || state.alegatos.defensa || state.resolucion;
+  if (!t && !state.fuentes.length && !hayDebate) return null;
+  const terminado = Boolean(state.final);
   return (
-    <div role={p.bloquea_escritos ? "alert" : "note"} className={`flex gap-3 rounded-xl border p-4 text-sm ${
-      p.bloquea_escritos ? "border-rose-700 bg-rose-950/40 text-rose-100" : "border-slate-700 bg-slate-900/60 text-slate-300"}`}>
-      {p.bloquea_escritos ? <ShieldAlert className="h-5 w-5 shrink-0 text-rose-400" /> : <ShieldCheck className="h-5 w-5 shrink-0 text-emerald-400" />}
+    <Plegable titulo={terminado ? "Ver cómo se ha analizado" : "Ver el análisis en curso"} abiertoInicial={!terminado}>
+      <div className="space-y-6 rounded-3xl bg-surface p-5">
+        {t && (
+          <div>
+            <p className="eyebrow mb-1">Tu caso</p>
+            <p className="text-sm text-ink">
+              {t.submateria_descripcion ?? t.submateria_principal}
+              <span className="text-ink-2"> · {t.jurisdiccion_principal.replace("_", " ")}
+                {t.fecha_hechos && ` · hechos del ${fechaLarga(t.fecha_hechos)}`}
+                {t.cuantia_estimada_eur != null && ` · ${t.cuantia_estimada_eur.toLocaleString("es-ES")} €`}</span>
+            </p>
+            {t.resumen_hechos && <p className="mt-2 text-sm text-ink-2">{t.resumen_hechos}</p>}
+          </div>
+        )}
+        {state.fuentes.length > 0 && (
+          <div>
+            <p className="mb-2 text-sm font-medium text-ink">Fuentes consultadas</p>
+            <Fuentes fuentes={state.fuentes} onAbrir={onAbrir} />
+          </div>
+        )}
+        {hayDebate && (
+          <div>
+            <p className="mb-2 text-sm font-medium text-ink">Juicio contradictorio</p>
+            <Debate state={state} onAbrir={onAbrir} />
+          </div>
+        )}
+      </div>
+    </Plegable>
+  );
+}
+
+// ---------- respuesta ----------
+
+const BANDA_COLOR: Record<Banda, string> = {
+  criterio_consolidado_favorable: "bg-success",
+  argumento_solido_sin_doctrina: "bg-accent",
+  disparidad_de_criterio: "bg-warning",
+  riesgo_probatorio_alto: "bg-warning",
+  criterio_consolidado_desfavorable: "bg-danger",
+  no_determinable: "bg-ink-3",
+};
+
+function Postulacion({ p }: { p: Postulacion }) {
+  return (
+    <div role={p.bloquea_escritos ? "alert" : "note"} className="flex gap-3 text-sm">
+      <Info className={`mt-0.5 h-4 w-4 shrink-0 ${p.bloquea_escritos ? "text-danger" : "text-ink-2"}`} aria-hidden />
       <div>
-        <p className="font-medium">{p.requiere_abogado ? `Necesitas abogado${p.requiere_procurador ? " y procurador" : ""}` : "Puedes actuar sin abogado"}</p>
-        <p className="mt-1">{p.texto_usuario} <span className="text-slate-500">({p.base_legal})</span></p>
+        <p className="font-medium text-ink">
+          {p.requiere_abogado ? `Necesitas abogado${p.requiere_procurador ? " y procurador" : ""}` : "Puedes actuar sin abogado"}
+        </p>
+        <p className="mt-1 text-ink-2">{p.texto_usuario} <span className="text-ink-3">({p.base_legal})</span></p>
         {p.bloquea_escritos && (
-          <a className="mt-2 inline-block text-amber-300 underline" target="_blank" rel="noreferrer"
+          <a className="mt-2 inline-block text-accent hover:underline" target="_blank" rel="noreferrer"
              href="https://www.abogacia.es/servicios/ciudadanos/asistencia-juridica-gratuita/">Buscar asistencia jurídica gratuita</a>
         )}
       </div>
@@ -235,131 +255,155 @@ export function PostulacionBanner({ p }: { p: Postulacion }) {
   );
 }
 
-export function DeadlineTimeline({ plazos }: { plazos: Plazo[] }) {
+function Plazos({ plazos }: { plazos: Plazo[] }) {
   if (!plazos.length) return null;
   return (
-    <section className="card p-4" aria-label="Plazos">
-      <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-100"><CalendarClock className="h-4 w-4 text-amber-400" />Plazos</h3>
-      <ul className="space-y-5">
-        {plazos.map((p) => {
-          const total = Math.max(1, diasNaturalesHasta(p.fecha_limite_segura, new Date(`${p.fecha_inicio}T00:00:00`)));
-          const restan = diasNaturalesHasta(p.fecha_limite_segura);
-          const pct = Math.min(100, Math.max(0, ((total - restan) / total) * 100));
-          const ajeno = p.titular === "contraparte";
-          const vencido = restan < 0 && !ajeno;
-          const urgente = !ajeno && restan >= 0 && restan <= 5;
-          return (
-            <li key={p.tipo_plazo_id}>
-              <div className="flex flex-wrap items-baseline justify-between gap-2 text-sm">
-                <span className="text-slate-200">{p.descripcion}</span>
-                <span className={vencido ? "text-rose-400" : urgente ? "text-orange-300" : "text-slate-400"}>
-                  {ajeno
-                    ? restan < 0 ? "plazo de la otra parte: ya vencido (te favorece)" : `plazo de la otra parte: quedan ${restan} días`
-                    : vencido ? `vencido hace ${-restan} días` : `quedan ${restan} días naturales${p.dias_habiles_restantes != null ? ` (${p.dias_habiles_restantes} hábiles)` : ""}`}
-                </span>
-              </div>
-              <div className="relative mt-2 h-2 rounded-full bg-slate-800">
-                <div className={`h-2 rounded-full ${ajeno ? "bg-sky-600" : vencido ? "bg-rose-600" : urgente ? "bg-orange-500" : "bg-amber-500"}`} style={{ width: `${pct}%` }} />
-              </div>
-              <div className="mt-1.5 flex flex-wrap justify-between gap-2 text-xs text-slate-500">
-                <span>Desde {p.fecha_inicio}</span>
-                <span className={`font-medium ${ajeno ? "text-sky-300" : "text-rose-300"}`}>{ajeno ? "Vence para la otra parte" : "Fecha límite segura"}: {fechaLarga(p.fecha_limite_segura)}</span>
-              </div>
-              {p.dia_gracia_hasta && (
-                <p className="mt-1 text-[11px] text-slate-600">
-                  Día de gracia (solo escritos al juzgado): hasta las 15:00 del {fechaLarga(p.dia_gracia_hasta)}. No lo apures.
-                </p>
-              )}
-              <p className="mt-1 text-[11px] text-slate-600">{p.base_legal} · cálculo pendiente de validación jurídica</p>
-            </li>
-          );
-        })}
-      </ul>
+    <section aria-label="Plazos" className="space-y-3">
+      <h3 className="text-base font-medium text-ink">Plazos</h3>
+      {plazos.map((p) => {
+        const restan = diasNaturalesHasta(p.fecha_limite_segura);
+        const ajeno = p.titular === "contraparte";
+        const vencido = restan < 0 && !ajeno;
+        const urgente = !ajeno && restan >= 0 && restan <= 7;
+        return (
+          <div key={p.tipo_plazo_id} className="rounded-3xl bg-surface p-5">
+            <p className="text-sm text-ink-2">{p.descripcion}</p>
+            <p className={`mt-1 text-2xl tabular-nums ${vencido || urgente ? "text-danger" : "text-ink"}`}>
+              {fechaLarga(p.fecha_limite_segura)}
+            </p>
+            <p className="mt-1 text-sm text-ink-2">
+              {ajeno
+                ? restan < 0 ? "Plazo de la otra parte: ya ha vencido (te favorece)" : `Plazo de la otra parte: quedan ${restan} días`
+                : vencido ? `Vencido hace ${-restan} días` : `Quedan ${restan} días naturales${p.dias_habiles_restantes != null ? ` (${p.dias_habiles_restantes} hábiles al hacer el análisis)` : ""}`}
+              <span className="text-ink-3"> · desde el {fechaLarga(p.fecha_inicio)}</span>
+            </p>
+            {p.dia_gracia_hasta && (
+              <p className="mt-2 text-xs text-ink-3">
+                Día de gracia (solo escritos al juzgado): hasta las 15:00 del {fechaLarga(p.dia_gracia_hasta)}. No lo apures.
+              </p>
+            )}
+            <p className="mt-2 text-xs text-ink-3">{p.base_legal} · cálculo pendiente de validación jurídica</p>
+          </div>
+        );
+      })}
     </section>
   );
 }
 
-export function Avisos({ avisos }: { avisos: string[] }) {
-  const [open, setOpen] = useState(false);
+function Avisos({ avisos }: { avisos: string[] }) {
   if (!avisos.length) return null;
   return (
-    <section className="card">
-      <button className="flex w-full items-center gap-2 px-4 py-3 text-sm text-slate-300" aria-expanded={open} onClick={() => setOpen(!open)}>
-        <AlertTriangle className="h-4 w-4 text-amber-400" />Avisos ({avisos.length})
-        <ChevronDown className={`ml-auto h-4 w-4 transition ${open ? "rotate-180" : ""}`} />
-      </button>
-      {open && <ul className="list-disc space-y-1 px-8 pb-4 text-xs text-slate-400">{avisos.map((a, i) => <li key={i}>{a}</li>)}</ul>}
-    </section>
+    <Plegable titulo={`Avisos (${avisos.length})`}>
+      <ul className="list-disc space-y-1 pl-5 text-sm text-ink-2">{avisos.map((a, i) => <li key={i}>{a}</li>)}</ul>
+    </Plegable>
   );
 }
 
-export function FinalView({ state, onAbrir }: { state: ConsultaState; onAbrir: AbrirFuente }) {
+function Acciones({ texto }: { texto: string }) {
+  const [copiado, setCopiado] = useState(false);
+  return (
+    <div className="flex gap-1">
+      <button className="icon-btn h-9 w-9" aria-label="Copiar respuesta" title="Copiar"
+              onClick={() => navigator.clipboard?.writeText(texto).then(() => {
+                setCopiado(true);
+                setTimeout(() => setCopiado(false), 1500);
+              })}>
+        {copiado ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+      </button>
+      <button className="icon-btn h-9 w-9" aria-label="Imprimir" title="Imprimir o guardar como PDF" onClick={() => window.print()}>
+        <Printer className="h-4 w-4" />
+      </button>
+    </div>
+  );
+}
+
+export function Answer({ state, onAbrir }: { state: ConsultaState; onAbrir: AbrirFuente }) {
   const f = state.final;
   if (!f) return null;
   if (f.estado !== "CERTIFICADA" || !f.dictamen) {
     return (
-      <section className="space-y-4">
-        <div className="card border-slate-700 p-4 text-sm text-slate-300">
-          <p className="flex items-center gap-2 font-medium text-slate-100"><XCircle className="h-4 w-4 text-rose-400" />
-            {f.estado === "BLOQUEADA" ? "Dictamen bloqueado por los controles de verificación" : "Fuera de alcance"}</p>
-          <p className="mt-2">{f.mensaje}</p>
+      <section className="fade-in space-y-6" aria-label="Resultado">
+        <div className="flex gap-3">
+          <AlertCircle className="mt-1 h-5 w-5 shrink-0 text-danger" aria-hidden />
+          <div>
+            <p className="text-lg text-ink">
+              {f.estado === "BLOQUEADA" ? "No puedo darte un dictamen fiable" : "Este caso queda fuera de mi alcance"}
+            </p>
+            <p className="mt-1 text-sm text-ink-2">{f.mensaje}</p>
+          </div>
         </div>
-        {f.postulacion && <PostulacionBanner p={f.postulacion} />}
-        <DeadlineTimeline plazos={f.plazos ?? []} />
+        {f.postulacion && <Postulacion p={f.postulacion} />}
+        <Plazos plazos={f.plazos ?? []} />
         <Avisos avisos={f.avisos ?? []} />
-        {f.aviso_legal && <p className="text-[11px] text-slate-600">{f.aviso_legal}</p>}
+        {f.aviso_legal && <p className="text-xs text-ink-3">{f.aviso_legal}</p>}
       </section>
     );
   }
   const d = f.dictamen;
   return (
-    <section className="space-y-4" aria-label="Dictamen">
-      <div className="card p-5">
-        <div className="mb-3 flex flex-wrap items-center gap-3">
-          <BandaBadge banda={d.banda_solidez} />
-          <span className="text-xs text-slate-500">Solidez argumental · sin porcentajes (art. 403 CP)</span>
-        </div>
+    <article className="fade-in space-y-8" aria-label="Dictamen">
+      <div>
+        <p className="mb-3 flex items-center gap-2 text-sm text-ink-2">
+          <span className={`h-2 w-2 rounded-full ${BANDA_COLOR[d.banda_solidez]}`} aria-hidden />
+          Solidez: <span className="text-ink">{BANDA_TEXTO[d.banda_solidez]}</span>
+        </p>
         <p className="legal whitespace-pre-line">{d.resumen_ciudadano}</p>
-        {d.pasos_inmediatos.length > 0 && (
-          <div className="mt-4">
-            <h4 className="text-sm font-semibold text-slate-100">Qué hacer ahora</h4>
-            <ol className="mt-2 list-decimal space-y-1 pl-5 text-sm text-slate-300">{d.pasos_inmediatos.map((p, i) => <li key={i}>{p}</li>)}</ol>
-          </div>
-        )}
-        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+      </div>
+
+      {d.pasos_inmediatos.length > 0 && (
+        <section>
+          <h3 className="mb-2 text-base font-medium text-ink">Qué hacer ahora</h3>
+          <ol className="list-decimal space-y-1.5 pl-5 text-[15px] leading-relaxed text-ink">{d.pasos_inmediatos.map((p, i) => <li key={i}>{p}</li>)}</ol>
+        </section>
+      )}
+
+      {(d.fortalezas.length > 0 || d.riesgos_propios.length > 0) && (
+        <div className="grid gap-6 sm:grid-cols-2">
           {d.fortalezas.length > 0 && (
-            <div><h4 className="text-xs font-semibold uppercase tracking-wide text-emerald-400">A tu favor</h4>
-              <ul className="mt-1 list-disc pl-5 text-sm text-slate-300">{d.fortalezas.map((x, i) => <li key={i}>{x}</li>)}</ul></div>
+            <section><h3 className="mb-2 text-base font-medium text-ink">A tu favor</h3>
+              <ul className="list-disc space-y-1 pl-5 text-sm text-ink-2">{d.fortalezas.map((x, i) => <li key={i}>{x}</li>)}</ul></section>
           )}
           {d.riesgos_propios.length > 0 && (
-            <div><h4 className="text-xs font-semibold uppercase tracking-wide text-orange-400">Puntos débiles</h4>
-              <ul className="mt-1 list-disc pl-5 text-sm text-slate-300">{d.riesgos_propios.map((x, i) => <li key={i}>{x}</li>)}</ul></div>
+            <section><h3 className="mb-2 text-base font-medium text-ink">Puntos débiles</h3>
+              <ul className="list-disc space-y-1 pl-5 text-sm text-ink-2">{d.riesgos_propios.map((x, i) => <li key={i}>{x}</li>)}</ul></section>
           )}
         </div>
-      </div>
-      {d.postulacion && <PostulacionBanner p={d.postulacion} />}
-      <DeadlineTimeline plazos={d.plazos} />
-      <div className="card p-4">
-        <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-100"><ShieldCheck className="h-4 w-4 text-emerald-400" />Fundamentos verificados</h3>
-        <ul className="space-y-3">
+      )}
+
+      <Plazos plazos={d.plazos} />
+      {d.postulacion && <Postulacion p={d.postulacion} />}
+
+      <section aria-label="Fundamentos verificados">
+        <h3 className="mb-3 text-base font-medium text-ink">Fundamentos verificados</h3>
+        <ol className="space-y-4">
           {d.fundamentos.map((fu, i) => (
-            <li key={i} className="text-sm">
-              <p className="text-slate-200">{fu.texto}</p>
+            <li key={i} className="flex gap-3">
               <button onClick={() => onAbrir(fu.source_id, fu.verbatim_quote)}
-                      className="mt-1 block w-full rounded-md border-l-2 border-emerald-700 bg-slate-950/40 px-3 py-1.5 text-left hover:border-amber-500">
-                <span className="legal italic">«{fu.verbatim_quote}»</span>
-                <span className="mt-0.5 block text-[11px] text-slate-500">
-                  {fu.source_id} · coincidencia {fu.fuzzy_score.toFixed(0)}% con el texto oficial{fu.nli === "NEUTRAL" && " · inferencia no literal"}
-                </span>
+                      aria-label={`Abrir fuente ${i + 1}: ${fu.source_id}`}
+                      className="mt-0.5 flex h-6 min-w-6 shrink-0 items-center justify-center rounded-full bg-accent-container px-1.5 text-xs font-medium text-on-accent-container hover:opacity-80">
+                {i + 1}
               </button>
+              <div className="min-w-0">
+                <p className="text-[15px] text-ink">{fu.texto}</p>
+                <button onClick={() => onAbrir(fu.source_id, fu.verbatim_quote)} className="mt-1 text-left">
+                  <span className="font-serif text-[15px] italic leading-relaxed text-ink-2 hover:text-ink">«{fu.verbatim_quote}»</span>
+                  <span className="mt-0.5 block text-xs text-ink-3">
+                    {fu.source_id} · coincide al {fu.fuzzy_score.toFixed(0)} % con el texto oficial{fu.nli === "NEUTRAL" && " · inferencia no literal"}
+                  </span>
+                </button>
+              </div>
             </li>
           ))}
-        </ul>
-      </div>
+        </ol>
+      </section>
+
       <Avisos avisos={d.avisos} />
-      <p className="text-[11px] text-slate-600">
-        {d.aviso_legal} Modelos: {Object.entries(d.modelos_usados).map(([r, m]) => `${r}=${m}`).join(", ")}.
-      </p>
-    </section>
+      <div className="flex flex-wrap items-center gap-3 border-t border-outline pt-4">
+        <Acciones texto={d.resumen_ciudadano} />
+        <p className="min-w-0 flex-1 text-xs text-ink-3">
+          {d.aviso_legal} Modelos: {Object.entries(d.modelos_usados).map(([r, m]) => `${r} ${m}`).join(" · ")}.
+        </p>
+      </div>
+    </article>
   );
 }

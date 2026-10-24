@@ -27,14 +27,14 @@ export default defineConfig({
       registerType: "autoUpdate",
       includeAssets: ["icon.svg"],
       manifest: {
-        name: "Iuris-IA · Asistente legal personal",
-        short_name: "Iuris-IA",
+        name: "Iuris · Asistente legal personal",
+        short_name: "Iuris",
         description: "Información jurídica española verificada, en local.",
         lang: "es",
         start_url: "/",
         display: "standalone",
-        background_color: "#020617",
-        theme_color: "#020617",
+        background_color: "#ffffff",
+        theme_color: "#ffffff",
         icons: [{ src: "icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any maskable" }],
       },
       workbox: {

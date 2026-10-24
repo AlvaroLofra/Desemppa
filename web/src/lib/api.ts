@@ -50,6 +50,14 @@ export const api = {
   proveedores: () => request<Record<string, Proveedor>>("/api/proveedores"),
   detectar: (pid: string) =>
     request<{ instalado: boolean; modelos: string[] }>(`/api/proveedores/${pid}/detectar`, { method: "POST" }, true),
+  configurarProveedor: (pid: string, body: { api_key?: string | null; habilitado?: boolean | null; base_url?: string | null }) =>
+    request<{ ok: boolean; instalado: boolean; habilitado: boolean }>(`/api/proveedores/${pid}/configurar`, {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
+    }, true),
+  crearModelo: (body: { alias: string; proveedor: string; model_id: string; etiqueta: string; efforts: string[] }) =>
+    request<{ ok: boolean; alias: string }>("/api/modelos", {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
+    }, true),
   probar: (alias: string) =>
     request<{ ok: boolean; latencia_ms: number; respuesta: string; error: string | null }>(
       `/api/modelos/${alias}/probar`, { method: "POST" }, true),
@@ -59,6 +67,7 @@ export const api = {
       method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(modos),
     }, true),
   restablecerPerfiles: () => request("/api/ajustes/perfiles", { method: "DELETE" }, true),
+  restablecerModelos: () => request("/api/ajustes/modelos", { method: "DELETE" }, true),
   consultas: () => request<{ consulta_id: string; creado_en: string; modo: string; estado: string; titulo: string; banda: string | null }[]>("/api/consultas"),
   consulta: (id: string) => request<Record<string, any>>(`/api/consultas/${id}`),
   crear: (body: { texto: string; modo: string; municipio_ine?: string | null; adjuntos: string[] }) =>
@@ -93,10 +102,13 @@ export async function streamUrl(id: string, after = 0): Promise<string> {
 
 export interface Proveedor {
   etiqueta: string;
+  compania: string;
+  modalidad: "plan" | "api";
   tipo: string;
   habilitado: boolean;
   instalado: boolean;
   version: string | null;
+  api_key_env: string | null;
   ultima_llamada: { ok: boolean; error_tipo: string | null; creado_en: string; modelo: string } | null;
   breaker: { estado: string; abierto_hasta: string | null; motivo: string | null };
   uso_ultimas_5h: { llamadas: number; input_tokens: number; output_tokens: number };
@@ -106,8 +118,18 @@ export interface Proveedor {
 
 export type Asignacion = { model: string; effort: "low" | "medium" | "high" };
 
+export interface ModeloCatalogo {
+  etiqueta: string;
+  proveedor: string;
+  compania: string;
+  modalidad: "plan" | "api";
+  model_id: string;
+  efforts: string[];
+  disponible: boolean;
+}
+
 export interface Perfiles {
   modos: Record<string, Record<string, Asignacion>>;
   por_defecto: Record<string, Record<string, Asignacion>>;
-  modelos: Record<string, { etiqueta: string; proveedor: string; efforts: string[]; disponible: boolean }>;
+  modelos: Record<string, ModeloCatalogo>;
 }
