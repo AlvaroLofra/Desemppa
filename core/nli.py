@@ -25,11 +25,11 @@ SCHEMA = {
             "items": {
                 "type": "object",
                 "properties": {
-                    "indice": {"type": "integer"},
+                    "id": {"type": "string"},
                     "etiqueta": {"type": "string", "enum": ["ENTAILS", "NEUTRAL", "CONTRADICTS"]},
                     "motivo": {"type": "string"},
                 },
-                "required": ["indice", "etiqueta"],
+                "required": ["id", "etiqueta"],
             },
         }
     },
@@ -59,9 +59,14 @@ class NLIChecker:
     async def check(self, pares: list[tuple[str, str]], *, consulta_id: str | None = None) -> list[NLIResult]:
         if not pares:
             return []
-        prompt = 'Evalúa estos pares y devuelve {"resultados": [{"indice", "etiqueta", "motivo"}]}.\n\n'
+        # Identificadores de texto («P0», «P1»…) que el verificador debe repetir: con índices numéricos un modelo
+        # que cuente desde 1 desplazaba todas las etiquetas (falso CONTRADICTS visto en vivo el 25-10-2026).
+        prompt = (
+            'Evalúa estos pares y devuelve {"resultados": [{"id": "P0", "etiqueta": "...", "motivo": "..."}]}, '
+            "un resultado por par, copiando su id exacto.\n\n"
+        )
         prompt += "\n\n".join(
-            f"### Par {i}\nPREMISA: {premisa}\nHIPÓTESIS: {hipotesis}" for i, (premisa, hipotesis) in enumerate(pares)
+            f"### Par P{i}\nPREMISA: {premisa}\nHIPÓTESIS: {hipotesis}" for i, (premisa, hipotesis) in enumerate(pares)
         )
         request = LLMRequest(system=SYSTEM, prompt=prompt, response_schema=SCHEMA)
         text = ""
@@ -76,7 +81,7 @@ class NLIChecker:
         for r in resultados if isinstance(resultados, list) else []:
             if not isinstance(r, dict):
                 continue
-            idx = int(r.get("indice", -1))
+            idx = _indice(r, "P")
             if 0 <= idx < len(pares) and r.get("etiqueta") in ("ENTAILS", "NEUTRAL", "CONTRADICTS"):
                 out[idx] = NLIResult(r["etiqueta"], str(r.get("motivo", "")))
         return out
@@ -98,8 +103,9 @@ async def hechos_no_constatados(
     if not frases:
         return []
     prompt = (
-        'Devuelve {"no_constatados": [{"indice": n, "motivo": "..."}]} (lista vacía si todas son correctas).\n\n'
-        f"HECHOS DEL CIUDADANO:\n{hechos[:6000]}\n\n" + "\n".join(f"### Frase {i}: {f}" for i, f in enumerate(frases))
+        'Devuelve {"no_constatados": [{"id": "F0", "motivo": "..."}]} copiando el id exacto de cada frase marcada '
+        "(lista vacía si todas son correctas).\n\n"
+        f"HECHOS DEL CIUDADANO:\n{hechos[:6000]}\n\n" + "\n".join(f"### Frase F{i}: {f}" for i, f in enumerate(frases))
     )
     text = ""
     async for item in router.stream(
@@ -115,6 +121,16 @@ async def hechos_no_constatados(
     marcadas = data.get("no_constatados", [])
     out: list[str] = []
     for r in marcadas if isinstance(marcadas, list) else []:
-        if isinstance(r, dict) and isinstance(r.get("indice"), int) and 0 <= r["indice"] < len(frases):
-            out.append(frases[r["indice"]])
+        idx = _indice(r, "F") if isinstance(r, dict) else -1
+        if 0 <= idx < len(frases):
+            out.append(frases[idx])
     return list(dict.fromkeys(out))
+
+
+def _indice(r: dict[str, object], prefijo: str) -> int:
+    """«P3» -> 3. Acepta también el formato antiguo {"indice": 3}."""
+    ident = str(r.get("id", ""))
+    if ident.startswith(prefijo) and ident[1:].isdigit():
+        return int(ident[1:])
+    valor = r.get("indice")
+    return valor if isinstance(valor, int) else -1

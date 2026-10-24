@@ -23,7 +23,7 @@ EXPECTED = {
         "defensa": ("agy_gemini_flash", "medium"),
         "contraparte": ("agy_gemini_flash", "medium"),
         "magistrado": ("agy_gemini_flash", "medium"),
-        "nli": ("agy_gemini_flash", "low"),
+        "nli": ("agy_claude_sonnet", "low"),  # verificador de otra familia
     },
     "equilibrado": {
         "magistrado": ("claude_sonnet", "medium"),
@@ -161,3 +161,17 @@ def test_user_models_escapes_strings_and_survives_profile_reset(tmp_path):
     assert "mi_modelo" in load_catalog(cfg).models
     reset_user_models(cfg)
     assert "mi_modelo" not in load_catalog(cfg).models and not load_catalog(cfg).providers["codex_cli"].habilitado
+
+
+def _familia(alias: str) -> str:
+    for familia in ("gemini", "claude", "gpt", "codex"):
+        if familia in alias:
+            return "gpt" if familia == "codex" else familia
+    return alias
+
+
+def test_el_verificador_es_de_otra_familia_que_el_magistrado():
+    cat = load_catalog(user_overrides=False)
+    for nombre, perfil in cat.profiles.items():
+        mag, nli = perfil.roles["magistrado"].model, perfil.roles["nli"].model
+        assert _familia(mag) != _familia(nli), f"{nombre}: {mag} se verificaría a sí mismo con {nli}"

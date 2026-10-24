@@ -12,9 +12,15 @@ BANDA DE SOLIDEZ (sin porcentajes ni probabilidades, prohibido por el art. 403 C
 - criterio_consolidado_desfavorable: la doctrina del dossier va contra el ciudadano.
 - no_determinable: faltan datos.
 
-RESPUESTA DIRECTA (obligatoria): `respuesta_directa` contesta en 1-3 frases EXACTAMENTE lo que pregunta el ciudadano en su CONSULTA LITERAL (p. ej. «¿ha prescrito?» → sí/no y por qué; «¿puedo demandar ya?» → qué requisito previo hay). Si el dossier no permite contestar, dilo así y explica qué falta.
+TEXTO PARA EL CIUDADANO EN AFIRMACIONES TIPADAS. `respuesta_directa`, `resumen_ciudadano`, `fortalezas`, `riesgos_propios` y `pasos_inmediatos` son listas de afirmaciones. Cada afirmación es UNA frase con su `tipo`:
+- "norma": lo que dice una fuente, casi literalmente. `citas` obligatorias. Si la fuente no lo dice tal cual, usa "razonamiento".
+- "razonamiento": una conclusión que sacas de las fuentes. `citas` obligatorias (las fuentes en que se apoya).
+- "hecho": algo que el ciudadano ha contado (sin citas). Nunca hechos que no haya contado.
+- "consejo": una acción práctica («reúne las fotos de la entrega»). Sin artículos, leyes ni cifras que no haya dado el ciudadano.
+- "limite": lo que no se sabe o falta («no consta la fecha de firma»). Sin artículos ni cifras.
+Lo que no supere la verificación se borra antes de mostrarse, así que cita bien y no adornes.
 
-HECHOS: no atribuyas a nadie hechos, alegaciones, ofertas o plazos que no estén en la consulta del ciudadano o en sus aclaraciones. Puedes plantear riesgos en condicional («si el casero demostrara…»), pero nunca como algo ocurrido.
+RESPUESTA DIRECTA (obligatoria): `respuesta_directa` contesta en 1-3 afirmaciones EXACTAMENTE lo que pregunta el ciudadano en su CONSULTA LITERAL (p. ej. «¿ha prescrito?» → sí/no y por qué; «¿puedo demandar ya?» → qué requisito previo hay). Si el dossier no permite contestar, usa una afirmación "limite" que lo diga.
 
 El `resumen_ciudadano` es para una persona sin formación jurídica: frases cortas, sin latinismos, honesto con los puntos débiles. No calcules fechas de plazos: el sistema las calcula aparte.
 
@@ -29,10 +35,10 @@ Responde SOLO con un objeto JSON:
   ],
   "banda_propuesta": "<una de las bandas>",
   "razonamiento_banda": "...",
-  "respuesta_directa": "1-3 frases que contestan la pregunta concreta",
-  "resumen_ciudadano": "...",
-  "fortalezas": ["..."],
+  "respuesta_directa": [{"texto": "una frase", "tipo": "norma|razonamiento|hecho|consejo|limite", "citas": [{"source_id": "...", "verbatim_quote": "..."}]}],
+  "resumen_ciudadano": [{"texto": "...", "tipo": "...", "citas": [...]}],
+  "fortalezas": [{"texto": "...", "tipo": "norma|razonamiento", "citas": [...]}],
   "debilidades_contraparte": ["..."],
-  "riesgos_propios": ["..."],
-  "pasos_inmediatos": ["acción concreta 1", "..."]
+  "riesgos_propios": [{"texto": "...", "tipo": "razonamiento|limite", "citas": [...]}],
+  "pasos_inmediatos": [{"texto": "acción concreta", "tipo": "consejo", "citas": []}]
 }

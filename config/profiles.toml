@@ -3,6 +3,8 @@
 #   - Antigravity (Google AI Pro): Gemini 3.8 Flash (low/medium/high), Gemini 4 Argon (low/medium/high) y Claude 5.5
 #   - Claude Code (Claude Pro): Claude Haiku, Sonnet y Opus 5.5 (low/medium/high)
 # No requiere GEMINI_API_KEY. De los modelos Flash se usa únicamente Gemini 3.8 Flash variando el nivel de esfuerzo.
+# nli (verificador del cortafuegos) es SIEMPRE de otra familia que el Magistrado: un modelo no se corrige a sí mismo
+# (Gemini resuelve -> Claude verifica; Claude resuelve -> Gemini verifica). Lo comprueba tests/unit/test_settings.py.
 
 [profiles.eco]
 label = "Eco"
@@ -12,7 +14,7 @@ cribado     = { model = "agy_gemini_flash", effort = "low" }
 defensa     = { model = "agy_gemini_flash", effort = "medium" }
 contraparte = { model = "agy_gemini_flash", effort = "medium" }
 magistrado  = { model = "agy_gemini_flash", effort = "medium" }
-nli         = { model = "agy_gemini_flash", effort = "low" }
+nli         = { model = "agy_claude_sonnet", effort = "low" }
 
 [profiles.equilibrado]
 label = "Equilibrado"
@@ -33,7 +35,7 @@ cribado     = { model = "agy_gemini_flash", effort = "medium" }
 defensa     = { model = "claude_sonnet", effort = "medium" }
 contraparte = { model = "claude_sonnet", effort = "medium" }
 magistrado  = { model = "agy_gemini_argon", effort = "high" }
-nli         = { model = "agy_gemini_flash", effort = "low" }
+nli         = { model = "agy_claude_sonnet", effort = "low" }
 
 [profiles.auditoria]
 label = "Auditoría cruzada"

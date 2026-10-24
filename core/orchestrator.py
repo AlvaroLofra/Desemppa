@@ -4,7 +4,6 @@ guardarraíles. Emite eventos SSE por el EventBus; nunca deja que el LLM calcule
 from __future__ import annotations
 
 import logging
-import re
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, date, datetime
@@ -21,24 +20,28 @@ from connectors.retriever import HybridRetriever
 from core.calendar_engine import CalendarEngine, PlazoError
 from core.errors import ProviderError
 from core.fechas_es import fecha_consta, mes_consta
+from core.firewall import Contexto, ResultadoFirewall, Seccion, escanear, verificar_afirmaciones
 from core.llm_types import LLMRequest, LLMResult
 from core.materias import Submateria, catalogo_para_prompt, id_norma, normas_aplicables, submaterias
-from core.nli import NLIChecker, extract_json, hechos_no_constatados
+from core.nli import NLIChecker, extract_json
 from core.normalize import fold
 from core.postulacion_rules import CasoPostulacion, evaluar
 from core.router import ModelRouter
 from core.schemas import (
     AVISO_LEGAL,
     BANDA_TEXTO,
+    AfirmacionVerificada,
     AlegatoSchema,
     AlertaPlazo,
     ArticuloBOE,
     ArticuloUE,
     BandaSolidez,
     Cita,
+    CitaVerificada,
     ClausulaConvenio,
     DictamenCertificadoSchema,
     DossierIngestaSchema,
+    EntradaAuditoria,
     ExtractoSentencia,
     FragmentoFuente,
     Fundamento,
@@ -62,6 +65,11 @@ M = TypeVar("M", bound=BaseModel)
 
 def _prompt(name: str) -> str:
     return (PROMPTS / f"{name}.md").read_text(encoding="utf-8")
+
+
+def _prompt_rol(name: str) -> str:
+    """Prompt de un rol del debate con las reglas comunes anti-invención delante (core/prompts/_reglas.md)."""
+    return _prompt("_reglas") + "\n\n" + _prompt(name)
 
 
 _fold = fold
@@ -611,7 +619,7 @@ class Orchestrator:
             defensa = await self._llm_json(
                 run,
                 "defensa",
-                _prompt("defensa") + "\n\n" + alegato_fmt.replace("{rol}", "DEFENSA"),
+                _prompt_rol("defensa") + "\n\n" + alegato_fmt.replace("{rol}", "DEFENSA"),
                 base + "\n\nCUESTIONES LITIGIOSAS: defínelas tú (C1, C2...) incluyendo en cada argumento la cuestión "
                 "que resuelve. Defiende al ciudadano.",
                 AlegatoSchema,
@@ -632,7 +640,7 @@ class Orchestrator:
             contraparte = await self._llm_json(
                 run,
                 "contraparte",
-                _prompt("contraparte") + "\n\n" + alegato_fmt.replace("{rol}", "CONTRAPARTE"),
+                _prompt_rol("contraparte") + "\n\n" + alegato_fmt.replace("{rol}", "CONTRAPARTE"),
                 base + f"\n\nCUESTIONES LITIGIOSAS (planteadas por la Defensa):\n{cuestiones_txt}\n\n"
                 f"ALEGATO DE LA DEFENSA:\n{defensa.model_dump_json()}",
                 AlegatoSchema,
@@ -659,7 +667,7 @@ class Orchestrator:
         if feedback:
             prompt += f"\n\nCORRECCIONES OBLIGATORIAS (verificación automática de tu resolución anterior):\n{feedback}"
         magistrado = await self._llm_json(
-            run, "magistrado", _prompt("magistrado"), prompt, ResolucionMagistradoSchema, delta_rol="magistrado"
+            run, "magistrado", _prompt_rol("magistrado"), prompt, ResolucionMagistradoSchema, delta_rol="magistrado"
         )
         self._emit(run, "debate_done", {"rol": "magistrado", "resolucion": magistrado.model_dump()})
         debate = {
@@ -682,15 +690,10 @@ class Orchestrator:
                     fallos.append(
                         f"{q.id}: cita a {cita.source_id} no verificada ({v['motivo']}): «{cita.verbatim_quote[:120]}»"
                     )
-        if len(res.respuesta_directa.strip()) < 15:
-            fallos.append("falta respuesta_directa: contesta en 1-3 frases exactamente lo que pregunta el ciudadano")
         textos = [
-            res.respuesta_directa,
-            res.resumen_ciudadano,
             res.razonamiento_banda,
-            *res.fortalezas,
-            *res.riesgos_propios,
-            *res.pasos_inmediatos,
+            *[a.texto for a in res.respuesta_directa + res.resumen_ciudadano],
+            *[a.texto for a in res.fortalezas + res.riesgos_propios + res.pasos_inmediatos],
             *[a.afirmacion for q in res.cuestiones for a in q.fundamentos],
         ]
         for t in textos:
@@ -698,15 +701,27 @@ class Orchestrator:
                 fallos.append(f"pronóstico porcentual prohibido: «{p}»")
         return fallos
 
-    async def _hechos_inventados(self, run: _Run, res: ResolucionMagistradoSchema, hechos: str) -> list[str]:
-        """Frases del texto para el ciudadano que afirman hechos del caso que el ciudadano no ha contado."""
-        texto = f"{res.respuesta_directa} {res.resumen_ciudadano}"
-        frases = [f.strip() for f in re.split(r"(?<=[.!?])\s+", texto) if len(f.strip()) > 15]
-        try:
-            return await hechos_no_constatados(self.s.router, run.modo, frases, hechos, consulta_id=run.consulta_id)
-        except (ProviderError, ValueError) as exc:
-            run.avisos.append(f"No se ha podido comprobar que la respuesta no añade hechos ({exc}).")
-            return []
+    async def _cortafuegos(self, run: _Run, res: ResolucionMagistradoSchema, ctx: Contexto) -> ResultadoFirewall:
+        """Cada afirmación para el ciudadano pasa por el cortafuegos (core/firewall.py): citas literales, NLI,
+        hechos y escáner de referencias. Si la respuesta directa se queda vacía, eso también es un fallo."""
+        secciones: list[tuple[Seccion, Any]] = [
+            *(("respuesta", a) for a in res.respuesta_directa),
+            *(("resumen", a) for a in res.resumen_ciudadano),
+            *(("fortaleza", a) for a in res.fortalezas),
+            *(("riesgo", a) for a in res.riesgos_propios),
+            *(("paso", a) for a in res.pasos_inmediatos),
+        ]
+        return await verificar_afirmaciones(secciones, ctx, self.s.router, run.modo, consulta_id=run.consulta_id)
+
+    @staticmethod
+    def _fallos_cortafuegos(fw: ResultadoFirewall) -> list[str]:
+        fallos = fw.fallos()
+        if not fw.aceptadas("respuesta"):
+            fallos.append(
+                "respuesta_directa: ninguna afirmación verificada. Contesta lo que pregunta el ciudadano con "
+                "afirmaciones tipadas y, si son jurídicas, con citas literales del dossier."
+            )
+        return fallos
 
     def _plazos(self, triage: TriageOutputSchema) -> tuple[list[PlazoCalculado], list[str]]:
         plazos, avisos = [], []
@@ -738,9 +753,28 @@ class Orchestrator:
         res = ResolucionMagistradoSchema.model_validate(debate["magistrado"])
         c = self.s.store.get(run.consulta_id)
         hechos_txt = c.texto_seudonimizado + "".join(f"\n{a.get('respuesta', '')}" for a in c.aclaraciones)
-        fallos = self._fallos_magistrado(res, fuentes)
-        inventados = await self._hechos_inventados(run, res, hechos_txt)
-        fallos += [f"afirma un hecho que no consta en la consulta: «{f}»" for f in inventados]
+        # Los plazos se calculan antes: sus fechas y cifras son las únicas que el texto puede añadir.
+        plazos, avisos_plazos = self._plazos(triage)
+        sub = submaterias().get(triage.submateria_principal)
+        postulacion = evaluar(
+            CasoPostulacion(
+                jurisdiccion=triage.jurisdiccion_principal.value,
+                procedimiento=sub.procedimiento if sub else None,
+                fase="instancia",
+                cuantia_eur=triage.cuantia_estimada_eur,
+            )
+        )
+        reglas = self.s.calendar.rules
+        ctx = Contexto(
+            fuentes=fuentes,
+            hechos=hechos_txt,
+            hoy=self.s.today(),
+            plazos=plazos,
+            numeros_plazos={float(reglas[p.tipo_plazo_id].duracion) for p in plazos if p.tipo_plazo_id in reglas},
+            referencias_extra=[p.base_legal for p in plazos] + [postulacion.base_legal, postulacion.texto_usuario],
+        )
+        fw = await self._cortafuegos(run, res, ctx)
+        fallos = self._fallos_magistrado(res, fuentes) + self._fallos_cortafuegos(fw)
         self._emit(run, "guardrail", {"id": "G2-G4", "ok": not fallos, "detalle": fallos[:10]})
         if fallos:  # 1 reintento del Magistrado con el informe de errores (§2.3)
             try:
@@ -751,14 +785,16 @@ class Orchestrator:
                 run.avisos.append(f"No se pudo repetir la resolución para corregirla ({type(exc).__name__}).")
             else:
                 res = ResolucionMagistradoSchema.model_validate(debate["magistrado"])
-                fallos = self._fallos_magistrado(res, fuentes)
-                inventados = await self._hechos_inventados(run, res, hechos_txt)
-                fallos += [f"afirma un hecho que no consta en la consulta: «{f}»" for f in inventados]
+                fw = await self._cortafuegos(run, res, ctx)
+                fallos = self._fallos_magistrado(res, fuentes) + self._fallos_cortafuegos(fw)
             self._estado(run, Estado.GUARDARRAILES)
             self._emit(run, "guardrail", {"id": "G2-G4 (reintento)", "ok": not fallos, "detalle": fallos[:10]})
-        if inventados:
+        run.avisos.extend(fw.avisos)
+        eliminadas = [v for v in fw.veredictos if v.tipo_final is None]
+        if eliminadas:
             run.avisos.append(
-                "Se han eliminado de la respuesta frases que atribuían hechos que no constan en tu consulta."
+                f"El cortafuegos ha eliminado {len(eliminadas)} afirmación(es) sin respaldo verificable "
+                "(detalle en «Cómo se ha verificado»)."
             )
 
         # Construcción de fundamentos verificados (las citas que sigan fallando se descartan con aviso)
@@ -766,6 +802,7 @@ class Orchestrator:
         pares: list[tuple[str, str]] = []
         ref: list[tuple[str, str, str, float, tuple[int, int], str]] = []
         descartadas = 0
+        auditoria_fund: list[EntradaAuditoria] = []
         vistos: set[tuple[str, str]] = set()
         for q in res.cuestiones:
             for arg in q.fundamentos:
@@ -779,6 +816,19 @@ class Orchestrator:
                     if clave_cita in vistos or clave_afirm in vistos:
                         continue
                     vistos.update({clave_cita, clave_afirm})
+                    hallazgos = escanear(arg.afirmacion, ctx, citas=[cita.source_id])
+                    if hallazgos:  # el fundamento menciona normas, cifras o fechas sin respaldo
+                        descartadas += 1
+                        auditoria_fund.append(
+                            EntradaAuditoria(
+                                seccion="fundamento",
+                                texto=arg.afirmacion,
+                                tipo_propuesto="norma",
+                                resultado="eliminada",
+                                motivos=[f"{h.motivo}: «{h.fragmento}»" for h in hallazgos],
+                            )
+                        )
+                        continue
                     pares.append((cita.verbatim_quote, arg.afirmacion))
                     ref.append(
                         (
@@ -792,11 +842,14 @@ class Orchestrator:
                     )
         if descartadas:
             run.avisos.append(f"Se han descartado {descartadas} cita(s) que no coinciden literalmente con la fuente.")
-        resumen, respuesta_directa = res.resumen_ciudadano, res.respuesta_directa.strip()
-        for frase in inventados:
-            resumen, respuesta_directa = (
-                resumen.replace(frase, "").strip(),
-                respuesta_directa.replace(frase, "").strip(),
+        # El texto para el ciudadano se compone SOLO con afirmaciones que han superado el cortafuegos.
+        respuesta_directa = " ".join(v.texto for v in fw.aceptadas("respuesta"))
+        resumen = " ".join(v.texto for v in fw.aceptadas("resumen"))
+        respuesta_parcial = not respuesta_directa
+        if respuesta_parcial:
+            respuesta_directa = (
+                "No puedo contestar a tu pregunta con seguridad con las fuentes disponibles: abajo tienes solo lo que "
+                "sí se ha podido verificar."
             )
         for t in (resumen, respuesta_directa):
             for p in find_pronosticos(t):
@@ -836,7 +889,6 @@ class Orchestrator:
             },
         )
 
-        sub = submaterias().get(triage.submateria_principal)
         roj_favor = {sid for (_, sid, _, _, _, est) in ref if sid.startswith("ROJ:") and est == "DEFENSA"}
         roj_contra = {sid for (_, sid, _, _, _, est) in ref if sid.startswith("ROJ:") and est == "CONTRAPARTE"}
         niveles = {f.source_id: getattr(f, "nivel", None) for f in dossier.sentencias}
@@ -870,17 +922,7 @@ class Orchestrator:
             },
         )
 
-        plazos, avisos_plazos = self._plazos(triage)
         self._emit(run, "deadline", {"plazos": [p.model_dump(mode="json") for p in plazos], "avisos": avisos_plazos})
-        sub_proc = sub.procedimiento if sub else None
-        postulacion = evaluar(
-            CasoPostulacion(
-                jurisdiccion=triage.jurisdiccion_principal.value,
-                procedimiento=sub_proc,
-                fase="instancia",
-                cuantia_eur=triage.cuantia_estimada_eur,
-            )
-        )
         self._emit(
             run,
             "guardrail",
@@ -920,10 +962,10 @@ class Orchestrator:
             resumen_ciudadano=resumen,
             fundamentos=fundamentos,
             cuestiones=res.cuestiones,
-            fortalezas=res.fortalezas,
-            debilidades_contraparte=res.debilidades_contraparte,
-            riesgos_propios=res.riesgos_propios,
-            pasos_inmediatos=res.pasos_inmediatos[:8],
+            fortalezas=[v.texto for v in fw.aceptadas("fortaleza")],
+            debilidades_contraparte=[],
+            riesgos_propios=[v.texto for v in fw.aceptadas("riesgo")],
+            pasos_inmediatos=[v.texto for v in fw.aceptadas("paso")][:8],
             plazos=plazos,
             postulacion=postulacion,
             avisos=avisos,
@@ -936,6 +978,36 @@ class Orchestrator:
                 "G8_plazos": True,
                 "G9_postulacion": True,
             },
+            afirmaciones=[
+                AfirmacionVerificada(
+                    seccion=cast(Any, v.seccion),
+                    texto=v.texto,
+                    tipo=cast(Any, v.tipo_final),
+                    citas=[
+                        CitaVerificada(
+                            source_id=c["source_id"], verbatim_quote=c["verbatim_quote"], score=c.get("score")
+                        )
+                        for c in v.citas
+                    ],
+                )
+                for v in fw.veredictos
+                if v.tipo_final is not None
+            ],
+            auditoria=[
+                EntradaAuditoria(
+                    seccion=v.seccion,
+                    texto=v.texto,
+                    tipo_propuesto=v.tipo_propuesto,
+                    resultado=v.estado,
+                    tipo_final=v.tipo_final,
+                    citas_verificadas=[c["source_id"] for c in v.citas],
+                    nli=v.nli,
+                    motivos=v.motivos,
+                )
+                for v in fw.veredictos
+            ]
+            + auditoria_fund,
+            respuesta_parcial=respuesta_parcial,
             aviso_legal=AVISO_LEGAL,
             generado_en=datetime.now(UTC),
         )

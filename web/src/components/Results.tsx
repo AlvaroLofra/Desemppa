@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { AlertCircle, Check, ChevronDown, Copy, Info, Loader2, Printer, X } from "lucide-react";
 import type { ConsultaState, Rol } from "../lib/useConsulta";
-import { BANDA_TEXTO, type Argumento, type Banda, type Fuente, type Plazo, type Postulacion, type Pregunta } from "../lib/types";
+import {
+  BANDA_TEXTO, type AfirmacionVerificada, type Argumento, type Banda, type EntradaAuditoria, type Fuente, type Plazo,
+  type Postulacion, type Pregunta,
+} from "../lib/types";
 import { diasNaturalesHasta, fechaLarga } from "../lib/highlight";
 import { MunicipioPicker, type Municipio } from "./MunicipioPicker";
 
@@ -291,6 +294,53 @@ function Plazos({ plazos }: { plazos: Plazo[] }) {
   );
 }
 
+/** Texto compuesto solo con afirmaciones verificadas; las inferencias se marcan como «razonamiento». */
+function TextoVerificado({ afirmaciones, onAbrir }: { afirmaciones: AfirmacionVerificada[]; onAbrir: AbrirFuente }) {
+  return (
+    <p className="legal">
+      {afirmaciones.map((a, i) => (
+        <span key={i}>
+          {a.texto}
+          {a.tipo === "razonamiento" && a.citas[0] && (
+            <button onClick={() => onAbrir(a.citas[0].source_id, a.citas[0].verbatim_quote)}
+                    title={`Razonamiento basado en: ${a.citas.map((c) => c.source_id).join(", ")}`}
+                    className="ml-1 rounded-md bg-surface-2 px-1.5 py-0.5 align-middle font-sans text-[11px] text-ink-2 hover:text-ink">
+              razonamiento
+            </button>
+          )}{" "}
+        </span>
+      ))}
+    </p>
+  );
+}
+
+const ESTADO_AUDITORIA = { aceptada: "Verificada", reclasificada: "Pasa a razonamiento", eliminada: "Eliminada" } as const;
+
+/** «Cómo se ha verificado»: qué hizo el cortafuegos con cada afirmación (docs/cortafuegos.md). */
+function Auditoria({ entradas }: { entradas: EntradaAuditoria[] }) {
+  const eliminadas = entradas.filter((e) => e.resultado === "eliminada").length;
+  return (
+    <Plegable titulo={`Cómo se ha verificado (${entradas.length} afirmaciones, ${eliminadas} eliminadas)`}>
+      <ul className="divide-y divide-outline rounded-3xl bg-surface px-5">
+        {entradas.map((e, i) => (
+          <li key={i} className="py-3 text-sm">
+            <p className={e.resultado === "eliminada" ? "text-ink-3 line-through" : "text-ink"}>{e.texto}</p>
+            <p className="mt-1 text-xs text-ink-2">
+              <span className={e.resultado === "eliminada" ? "text-danger" : e.resultado === "reclasificada" ? "text-warning" : "text-success"}>
+                {ESTADO_AUDITORIA[e.resultado]}
+              </span>
+              {" · "}{e.seccion} · {e.tipo_propuesto}{e.tipo_final && e.tipo_final !== e.tipo_propuesto ? ` → ${e.tipo_final}` : ""}
+              {e.citas_verificadas.length > 0 && ` · citas verificadas: ${e.citas_verificadas.join(", ")}`}
+              {e.nli && ` · inferencia: ${e.nli}`}
+            </p>
+            {e.motivos.length > 0 && <p className="mt-0.5 text-xs text-ink-3">{e.motivos.join(" · ")}</p>}
+          </li>
+        ))}
+      </ul>
+    </Plegable>
+  );
+}
+
 function Avisos({ avisos }: { avisos: string[] }) {
   if (!avisos.length) return null;
   return (
@@ -351,7 +401,9 @@ export function Answer({ state, onAbrir }: { state: ConsultaState; onAbrir: Abri
           <span className={`h-2 w-2 rounded-full ${BANDA_COLOR[d.banda_solidez]}`} aria-hidden />
           Solidez: <span className="text-ink">{BANDA_TEXTO[d.banda_solidez]}</span>
         </p>
-        <p className="legal whitespace-pre-line">{d.resumen_ciudadano}</p>
+        {d.afirmaciones?.some((a) => a.seccion === "resumen")
+          ? <TextoVerificado afirmaciones={d.afirmaciones.filter((a) => a.seccion === "resumen")} onAbrir={onAbrir} />
+          : <p className="legal whitespace-pre-line">{d.resumen_ciudadano}</p>}
       </div>
 
       {d.pasos_inmediatos.length > 0 && (
@@ -402,6 +454,7 @@ export function Answer({ state, onAbrir }: { state: ConsultaState; onAbrir: Abri
       </section>
 
       <Avisos avisos={d.avisos} />
+      {d.auditoria && d.auditoria.length > 0 && <Auditoria entradas={d.auditoria} />}
       <div className="flex flex-wrap items-center gap-3 border-t border-outline pt-4">
         <Acciones texto={[d.respuesta_directa, d.resumen_ciudadano].filter(Boolean).join("\n\n")} />
         <p className="min-w-0 flex-1 text-xs text-ink-3">

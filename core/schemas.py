@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from datetime import date, datetime
 from enum import StrEnum
-from typing import Annotated, Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
@@ -231,6 +231,30 @@ class Argumento(BaseModel):
     citas: list[Cita] = Field(min_length=1)
 
 
+TipoAfirmacion = Literal["norma", "razonamiento", "hecho", "consejo", "limite"]
+
+
+class Afirmacion(BaseModel):
+    """Una frase del texto para el ciudadano, con su tipo y sus citas (docs/cortafuegos.md).
+
+    norma: lo que dice la ley (cita obligatoria; debe deducirse literalmente). razonamiento: inferencia apoyada en
+    citas. hecho: lo que contó el ciudadano. consejo: acción práctica. limite: lo que no se sabe o falta."""
+
+    texto: str = Field(min_length=3, max_length=900)
+    tipo: TipoAfirmacion
+    citas: list[Cita] = Field(default_factory=list)
+
+
+def _como_afirmaciones(valor: Any, tipo_por_defecto: str) -> Any:
+    """Compatibilidad: un texto suelto se trata como afirmación sin citas (el cortafuegos la eliminará si es
+    jurídica). Así una salida en el formato antiguo no rompe la consulta, pero tampoco cuela sin verificar."""
+    if isinstance(valor, str):
+        return [{"texto": valor, "tipo": tipo_por_defecto}] if valor.strip() else []
+    if isinstance(valor, list):
+        return [{"texto": v, "tipo": tipo_por_defecto} if isinstance(v, str) else v for v in valor if v]
+    return valor
+
+
 class CuestionAlegada(BaseModel):
     id: str
     argumentos: list[Argumento] = Field(min_length=1)
@@ -270,13 +294,23 @@ class ResolucionMagistradoSchema(BaseModel):
     cuestiones: list[CuestionLitigiosa] = Field(min_length=1)
     banda_propuesta: BandaSolidez
     razonamiento_banda: str
-    # Contestación literal a lo que preguntó el ciudadano (vacía = fallo que fuerza el reintento del Magistrado).
-    respuesta_directa: str = Field(default="", max_length=700)
-    resumen_ciudadano: str = Field(max_length=2000)
-    fortalezas: list[str] = Field(default_factory=list)
+    # Texto para el ciudadano en afirmaciones tipadas y citadas: el cortafuegos verifica cada una.
+    respuesta_directa: list[Afirmacion] = Field(default_factory=list, max_length=4)
+    resumen_ciudadano: list[Afirmacion] = Field(default_factory=list, max_length=12)
+    fortalezas: list[Afirmacion] = Field(default_factory=list, max_length=8)
     debilidades_contraparte: list[str] = Field(default_factory=list)
-    riesgos_propios: list[str] = Field(default_factory=list)
-    pasos_inmediatos: list[str] = Field(default_factory=list, max_length=8)
+    riesgos_propios: list[Afirmacion] = Field(default_factory=list, max_length=8)
+    pasos_inmediatos: list[Afirmacion] = Field(default_factory=list, max_length=8)
+
+    @field_validator("respuesta_directa", "resumen_ciudadano", "fortalezas", "riesgos_propios", mode="before")
+    @classmethod
+    def _texto_suelto(cls, v: Any) -> Any:
+        return _como_afirmaciones(v, "razonamiento")
+
+    @field_validator("pasos_inmediatos", mode="before")
+    @classmethod
+    def _pasos_sueltos(cls, v: Any) -> Any:
+        return _como_afirmaciones(v, "consejo")
 
 
 # ---------- Fase 4 / salida final ----------
@@ -315,6 +349,34 @@ class AdvertenciaPostulacion(BaseModel):
     texto_usuario: str
 
 
+class CitaVerificada(BaseModel):
+    source_id: str
+    verbatim_quote: str
+    score: float | None = None
+
+
+class AfirmacionVerificada(BaseModel):
+    """Afirmación que ha superado el cortafuegos, tal como se muestra (con su tipo final y su base)."""
+
+    seccion: Literal["respuesta", "resumen", "fortaleza", "riesgo", "paso"]
+    texto: str
+    tipo: TipoAfirmacion
+    citas: list[CitaVerificada] = Field(default_factory=list)
+
+
+class EntradaAuditoria(BaseModel):
+    """Qué hizo el cortafuegos con cada afirmación del Magistrado (también las eliminadas)."""
+
+    seccion: str
+    texto: str
+    tipo_propuesto: str
+    resultado: Literal["aceptada", "reclasificada", "eliminada"]
+    tipo_final: str | None = None
+    citas_verificadas: list[str] = Field(default_factory=list)
+    nli: str | None = None
+    motivos: list[str] = Field(default_factory=list)
+
+
 class DictamenCertificadoSchema(BaseModel):
     schema_version: Literal["1.0"] = "1.0"
     consulta_id: str
@@ -333,6 +395,9 @@ class DictamenCertificadoSchema(BaseModel):
     postulacion: AdvertenciaPostulacion | None = None
     avisos: list[str] = Field(default_factory=list)
     guardarrailes: dict[str, bool] = Field(default_factory=dict)
+    afirmaciones: list[AfirmacionVerificada] = Field(default_factory=list)
+    auditoria: list[EntradaAuditoria] = Field(default_factory=list)
+    respuesta_parcial: bool = False  # la respuesta directa no superó la verificación: se dice lo que no se sabe
     aviso_legal: str
     generado_en: datetime
 

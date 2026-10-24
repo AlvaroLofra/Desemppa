@@ -106,6 +106,29 @@ export interface Dictamen {
   avisos: string[];
   modelos_usados: Record<string, string>;
   aviso_legal: string;
+  afirmaciones?: AfirmacionVerificada[];
+  auditoria?: EntradaAuditoria[];
+  respuesta_parcial?: boolean;
+}
+
+export type TipoAfirmacion = "norma" | "razonamiento" | "hecho" | "consejo" | "limite";
+
+export interface AfirmacionVerificada {
+  seccion: "respuesta" | "resumen" | "fortaleza" | "riesgo" | "paso";
+  texto: string;
+  tipo: TipoAfirmacion;
+  citas: { source_id: string; verbatim_quote: string; score?: number | null }[];
+}
+
+export interface EntradaAuditoria {
+  seccion: string;
+  texto: string;
+  tipo_propuesto: string;
+  resultado: "aceptada" | "reclasificada" | "eliminada";
+  tipo_final?: string | null;
+  citas_verificadas: string[];
+  nli?: string | null;
+  motivos: string[];
 }
 
 export interface FinalPayload {

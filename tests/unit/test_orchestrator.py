@@ -75,12 +75,26 @@ def magistrado(quote_boe=Q_BOE, resumen="Tienes argumentos sólidos para recuper
         ],
         "banda_propuesta": "criterio_consolidado_favorable",
         "razonamiento_banda": "doctrina AP",
-        "respuesta_directa": "Sí: el casero no puede quedarse la fianza por el desgaste normal de la pintura.",
-        "resumen_ciudadano": resumen,
-        "fortalezas": ["ley clara"],
+        "respuesta_directa": [
+            {
+                "texto": "Sí: pasado un mes desde que devolviste las llaves, la fianza genera interés a tu favor.",
+                "tipo": "norma",
+                "citas": [{"source_id": BOE_SID, "verbatim_quote": quote_boe}],
+            }
+        ],
+        "resumen_ciudadano": [
+            {"texto": resumen, "tipo": "razonamiento", "citas": [{"source_id": ROJ_SID, "verbatim_quote": Q_ROJ}]}
+        ],
+        "fortalezas": [
+            {
+                "texto": "Repintar por el uso ordinario no es imputable al inquilino.",
+                "tipo": "razonamiento",
+                "citas": [{"source_id": ROJ_SID, "verbatim_quote": Q_ROJ}],
+            }
+        ],
         "debilidades_contraparte": [],
-        "riesgos_propios": ["prueba del estado inicial"],
-        "pasos_inmediatos": ["Envía un burofax"],
+        "riesgos_propios": [{"texto": "Tendrás que poder probar el estado inicial de la vivienda.", "tipo": "limite"}],
+        "pasos_inmediatos": [{"texto": "Envía un burofax al casero reclamando la fianza.", "tipo": "consejo"}],
     }
 
 
@@ -186,8 +200,12 @@ async def test_full_pipeline_certifies(services):
     tipos = [t for t, _ in _events(s, cid)]
     for t in ("triage", "source", "debate_done", "guardrail", "deadline", "final"):
         assert t in tipos
-    # nli: verificación de cada fundamento (G5) y comprobación de hechos no constatados en la respuesta
-    assert router.calls == ["triaje", "defensa", "contraparte", "magistrado", "nli", "nli"]
+    # nli ×3: inferencia de las afirmaciones para el ciudadano, hechos no constatados y fundamentos (G5)
+    assert router.calls == ["triaje", "defensa", "contraparte", "magistrado", "nli", "nli", "nli"]
+    # El texto para el ciudadano sale solo de afirmaciones verificadas, con su auditoría
+    assert dictamen["respuesta_directa"].startswith("Sí: pasado un mes")
+    assert {a["tipo"] for a in dictamen["afirmaciones"]} >= {"norma", "consejo", "limite"}
+    assert all(e["resultado"] != "eliminada" for e in dictamen["auditoria"])
 
 
 async def test_fabricated_quote_triggers_single_retry_then_certifies(services):
