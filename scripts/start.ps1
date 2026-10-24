@@ -3,6 +3,11 @@
 $ErrorActionPreference = "Stop"
 Set-Location (Split-Path $PSScriptRoot -Parent)
 
+# Servidor ya en marcha: con el código actual solo se abre el navegador; si es de una versión anterior se sustituye.
+uv run python scripts\comprobar_servidor.py --puerto 8000
+if ($LASTEXITCODE -eq 2) { Start-Process "http://127.0.0.1:8000"; exit 0 }
+if ($LASTEXITCODE -eq 3) { exit 1 }
+
 if (-not (Test-Path "web\dist\index.html")) {
     Write-Host "Compilando la interfaz web (solo la primera vez)..."
     Push-Location web

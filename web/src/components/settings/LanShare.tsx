@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Check, Copy, Loader2 } from "lucide-react";
-import { api, type EstadoRed } from "../../lib/api";
+import { ApiError, api, type EstadoRed } from "../../lib/api";
 import { Switch } from "../ui/primitives";
 
 const ETIQUETA: Record<string, string> = { eco: "Eco", equilibrado: "Equilibrado", pro: "Pro", auditoria: "Auditoría" };
@@ -11,10 +11,23 @@ export function LanShare({ onMensaje }: { onMensaje: (m: string) => void }) {
   const [ocupado, setOcupado] = useState(false);
   const [copiado, setCopiado] = useState(false);
 
+  const [bloqueo, setBloqueo] = useState<string | null>(null);
+
   useEffect(() => {
-    const cargar = () => api.red().then(setRed).catch((e) => onMensaje(e.message));
+    let t: ReturnType<typeof setInterval> | undefined;
+    const cargar = () => api.red().then(setRed).catch((e) => {
+      // 404/403: el servidor no tiene esta función (versión anterior) o no la permite. No se reintenta en bucle.
+      if (e instanceof ApiError && (e.status === 404 || e.status === 403)) {
+        clearInterval(t);
+        setBloqueo(e.status === 404
+          ? "El servidor en marcha es de una versión anterior. Ciérralo y abre INICIAR_DESEMPPA.bat para activar esta función."
+          : "Esta opción solo está disponible en el ordenador donde se ejecuta Desemppa.");
+        return;
+      }
+      onMensaje(e.message);
+    });
     cargar();
-    const t = setInterval(cargar, 5000);
+    t = setInterval(cargar, 5000);
     return () => clearInterval(t);
   }, [onMensaje]);
 
@@ -29,6 +42,9 @@ export function LanShare({ onMensaje }: { onMensaje: (m: string) => void }) {
     }
   };
 
+  if (bloqueo) {
+    return <p role="alert" className="rounded-xl bg-warning-container px-4 py-3 text-sm text-warning">{bloqueo}</p>;
+  }
   if (!red) return <Loader2 className="h-5 w-5 animate-spin text-ink-3" />;
   const extra = red.modos_disponibles.filter((m) => m !== "eco");
 

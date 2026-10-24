@@ -25,6 +25,7 @@ from pydantic import BaseModel, Field
 from sse_starlette.sse import EventSourceResponse
 
 from api.red_local import INVITADO_RE, EstadoRed, RedLocalMiddleware, Rol
+from api.version_codigo import huella_codigo
 from config.settings import (
     CONFIG_DIR,
     Catalog,
@@ -66,6 +67,10 @@ WEB_DIST = Path(os.environ.get("IURIS_WEB_DIST") or Path(__file__).resolve().par
 MAX_UPLOAD = 20 * 1024 * 1024
 NO_CACHE = {"Cache-Control": "no-cache, no-store, must-revalidate"}
 log = logging.getLogger("iuris")
+
+
+# Huella del código con el que arrancó este proceso (el lanzador la compara con la del disco).
+HUELLA_SERVIDOR = huella_codigo()
 
 
 def build_id() -> str | None:
@@ -361,9 +366,9 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
 
     @app.get("/api/version")
     def version() -> dict[str, str | None]:
-        """Identificador del build de la interfaz servido; el frontend lo compara con el suyo para detectar
-        una copia antigua cacheada por el service worker."""
-        return {"build": build_id()}
+        """`build`: interfaz servida (el frontend lo compara con el suyo para detectar una copia antigua del service
+        worker). `servidor`: huella del código del backend en marcha (el lanzador sustituye un servidor antiguo)."""
+        return {"build": build_id(), "servidor": HUELLA_SERVIDOR}
 
     @app.get("/api/token")
     def token(request: Request) -> dict[str, str]:

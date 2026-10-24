@@ -5,12 +5,16 @@ rem de este ordenador se rechazan hasta que actives Â«Compartir en la red localÂ
 cd /d "%~dp0"
 title Desemppa
 
-rem 1) No arrancar dos servidores a la vez: si el puerto 8000 ya esta en uso, solo se abre el navegador.
-netstat -ano | findstr /R /C:":8000 .*LISTENING" >nul
-if %errorlevel%==0 (
-    echo Desemppa ya se esta ejecutando en http://127.0.0.1:8000
+rem 1) Si ya hay un Desemppa con el codigo actual, solo se abre el navegador. Si el que hay es de una version
+rem    anterior, se cierra y se arranca el nuevo. Si el puerto lo usa otro programa, no se toca.
+uv run python scripts\comprobar_servidor.py --puerto 8000
+if %errorlevel%==2 (
     start "" "http://127.0.0.1:8000"
     exit /b 0
+)
+if %errorlevel%==3 (
+    pause
+    exit /b 1
 )
 
 rem 2) Primera vez con la nueva carpeta de datos: traer las consultas de %%LOCALAPPDATA%%\iuris.

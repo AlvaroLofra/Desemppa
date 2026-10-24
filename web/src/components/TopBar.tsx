@@ -102,9 +102,13 @@ export function TopBar({ modo, onModo, onMenu, onAjustes, enAjustes, invitado, p
   const [proveedores, setProveedores] = useState<Record<string, Proveedor> | null>(null);
   useEffect(() => {
     if (invitado) return;
-    const load = () => api.proveedores().then(setProveedores).catch(() => setProveedores(null));
+    let t: ReturnType<typeof setInterval> | undefined;
+    const load = () => api.proveedores().then(setProveedores).catch(() => {
+      setProveedores(null);
+      clearInterval(t); // sin reintentos en bucle si el servidor no responde a esta ruta
+    });
     load();
-    const t = setInterval(load, 30_000);
+    t = setInterval(load, 30_000);
     return () => clearInterval(t);
   }, [invitado]);
   const problema = hayProblema(proveedores);

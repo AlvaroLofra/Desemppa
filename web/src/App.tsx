@@ -8,7 +8,7 @@ import { SourceViewer, type FuenteAbierta } from "./components/SourceViewer";
 import { TopBar } from "./components/TopBar";
 import type { Modo } from "./lib/types";
 import { useConsulta } from "./lib/useConsulta";
-import { api, type Sesion } from "./lib/api";
+import { ApiError, api, type Sesion } from "./lib/api";
 
 function leer<T extends string>(clave: string, defecto: T): T {
   try {
@@ -31,13 +31,17 @@ export default function App() {
   const { state, nueva, abrir, responder, limpiar } = useConsulta();
   const [sesion, setSesion] = useState<Sesion>({ rol: "dueno", modos_permitidos: ["eco", "equilibrado", "pro"] });
   const invitado = sesion.rol === "invitado";
+  const [servidorAntiguo, setServidorAntiguo] = useState(false);
 
   useEffect(() => {
     api.sesion().then((s) => {
       setSesion(s);
       // Un invitado solo puede usar los modos que permita quien comparte la app (por defecto, Eco).
       if (s.rol === "invitado" && !s.modos_permitidos.includes(modo)) setModo((s.modos_permitidos[0] ?? "eco") as Modo);
-    }).catch(() => undefined);
+    }).catch((e) => {
+      // La interfaz es más nueva que el servidor en marcha (se actualizó sin reiniciarlo).
+      if (e instanceof ApiError && e.status === 404) setServidorAntiguo(true);
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -63,6 +67,11 @@ export default function App() {
                onAbrir={(id) => { setVista("consulta"); setFuente(null); cerrarLateralEnMovil(); void abrir(id); }}
                onNueva={() => { setVista("consulta"); setFuente(null); cerrarLateralEnMovil(); limpiar(); }} />
       <div className="flex min-w-0 flex-1 flex-col">
+        {servidorAntiguo && (
+          <p role="alert" className="bg-warning-container px-4 py-1.5 text-center text-xs text-warning print:hidden">
+            Desemppa se ha actualizado, pero el servidor en marcha es el anterior: ciérralo y abre INICIAR_DESEMPPA.bat.
+          </p>
+        )}
         {invitado && (
           <p className="bg-surface px-4 py-1.5 text-center text-xs text-ink-2 print:hidden">
             Estás usando Desemppa en el ordenador de otra persona: tus consultas se procesan allí y esa persona puede verlas.

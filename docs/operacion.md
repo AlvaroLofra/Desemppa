@@ -5,7 +5,12 @@ Actualizado: 24-10-2026.
 ## 1. Arrancar la aplicación
 - **Doble clic en `INICIAR_DESEMPPA.bat`** (recomendado; `INICIAR_IURIS_IA.bat` sigue funcionando y lo llama).
   Hace, en orden:
-  1. Si el puerto 8000 ya está en uso, abre directamente el navegador (no arranca un segundo servidor).
+  1. Si el puerto 8000 ya está en uso, `scripts/comprobar_servidor.py` mira quién lo ocupa:
+     - si es un Desemppa **con el código actual** (la huella `servidor` de `/api/version` coincide), solo abre el
+       navegador;
+     - si es un Desemppa **antiguo** de esta carpeta (huella distinta o sin huella, y su línea de comandos contiene
+       `api.main:app` y la ruta del proyecto), lo cierra y arranca el nuevo;
+     - si es **otro programa**, avisa y no toca nada.
   2. La primera vez, migra los datos antiguos a `data/local/` (`scripts/migrar_datos.py`).
   3. Si falta `web/dist`, compila la interfaz web.
   4. Lanza en segundo plano un vigilante que **espera hasta que `http://127.0.0.1:8000/api/version` devuelve `200 OK`** antes de abrir el navegador, y arranca `uvicorn` en el puerto 8000 escuchando en todas las interfaces (`0.0.0.0`), para poder compartir
@@ -58,6 +63,7 @@ Avisos:
 | Síntoma | Causa | Solución |
 |---|---|---|
 | En la consola salía `ERR_CONNECTION_REFUSED` + `index-fDqGlMOV.js` + `403 Forbidden` | El `.bat` antiguo abría el navegador antes de que `uvicorn` escuchara en el puerto 8000 y el navegador servía un bundle antiguo desde el Service Worker | **Ya corregido en el código actual.** Cierra la ventana antigua del servidor, lanza `INICIAR_DESEMPPA.bat` y pulsa `Ctrl + F5` una vez en el navegador |
+| En la consola salía `GET /api/red 404` en bucle y no se podía abrir «Red local» | El servidor en marcha era anterior a la red local, pero la interfaz ya era la nueva | **Corregido**: `INICIAR_DESEMPPA.bat` sustituye el servidor antiguo; la interfaz deja de reintentar y muestra «el servidor en marcha es el anterior: ciérralo y abre INICIAR_DESEMPPA.bat» |
 | Proveedor `Claude Code` en rojo ("sin sesión iniciada") | No has iniciado sesión en el CLI `claude` | Abre una terminal, ejecuta `claude` y escribe `/login`. Mientras tanto, el sistema usa automáticamente `Claude 5.5` y `Gemini 4 Argon` vía Antigravity |
 | "No hay jurisprudencia aplicable en el corpus local" | Aún no has importado PDFs de sentencias del CENDOJ | Descarga los PDFs de [CENDOJ](https://www.poderjudicial.es/search/indexAN.jsp) y ejecuta `uv run python scripts/importar_sentencias.py <carpeta>` |
 | Quieres cargar los 10 grandes convenios colectivos estatales | Aún no se ha ejecutado el importador BOE de convenios | Ejecuta `uv run python scripts/importar_convenios_boe.py` (verifica cada referencia contra el BOE antes de indexar) |

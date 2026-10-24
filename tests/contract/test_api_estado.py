@@ -177,7 +177,9 @@ def test_version_and_html_without_token(tmp_path, monkeypatch):
     monkeypatch.setattr(am, "WEB_DIST", dist)
     factory, holder = _factory(tmp_path)
     with TestClient(create_app(factory), base_url="http://127.0.0.1:8000") as client:
-        assert client.get("/api/version").json() == {"build": "abc123"}
+        from api.version_codigo import huella_codigo
+
+        assert client.get("/api/version").json() == {"build": "abc123", "servidor": huella_codigo()}
         r = client.get("/")
         assert holder["s"].token not in r.text and "no-store" in r.headers["cache-control"]
         assert "no-store" in client.get("/sw.js").headers["cache-control"]
