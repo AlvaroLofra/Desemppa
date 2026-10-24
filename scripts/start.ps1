@@ -1,4 +1,4 @@
-# Arranca Iuris-IA en local: compila la interfaz si hace falta, lanza el backend y abre el navegador cuando /api/version responde 200.
+# Arranca Desemppa en local: compila la interfaz si hace falta, lanza el backend y abre el navegador cuando /api/version responde 200.
 # Uso:  powershell -ExecutionPolicy Bypass -File scripts\start.ps1
 $ErrorActionPreference = "Stop"
 Set-Location (Split-Path $PSScriptRoot -Parent)
@@ -18,4 +18,6 @@ Start-Process powershell -WindowStyle Hidden -ArgumentList @(
 )
 
 # Sin --reload: en Windows el recargador puede forzar un event loop sin soporte de subprocesos.
-uv run uvicorn api.main:app --host 127.0.0.1 --port 8000
+# Escucha en todas las interfaces; lo que no venga de este equipo se rechaza hasta activar la red local en Ajustes.
+$env:IURIS_ESCUCHA_RED = "1"
+uv run uvicorn api.main:app --host 0.0.0.0 --port 8000

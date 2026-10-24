@@ -18,7 +18,7 @@ function hayProblema(proveedores: Record<string, Proveedor> | null): string | nu
   return malos.length ? `Revisa: ${malos.map((p) => p.etiqueta).join(", ")}` : null;
 }
 
-function ModeMenu({ modo, onModo }: { modo: Modo; onModo: (m: Modo) => void }) {
+function ModeMenu({ modo, onModo, permitidos }: { modo: Modo; onModo: (m: Modo) => void; permitidos: string[] }) {
   const [abierto, setAbierto] = useState(false);
   const [perfiles, setPerfiles] = useState<Perfiles | null>(null);
   const ref = useRef<HTMLDivElement>(null);
@@ -37,7 +37,8 @@ function ModeMenu({ modo, onModo }: { modo: Modo; onModo: (m: Modo) => void }) {
     };
   }, [abierto]);
 
-  const actual = MODOS.find((m) => m.id === modo) ?? MODOS[1];
+  const visibles = MODOS.filter((m) => permitidos.includes(m.id));
+  const actual = visibles.find((m) => m.id === modo) ?? visibles[0] ?? MODOS[0];
   const magistrado = (id: string) => {
     const alias = perfiles?.modos[id]?.magistrado?.model;
     return alias ? perfiles?.modelos[alias]?.etiqueta ?? alias : null;
@@ -61,7 +62,7 @@ function ModeMenu({ modo, onModo }: { modo: Modo; onModo: (m: Modo) => void }) {
           aria-label="Modo de razonamiento"
           className="fade-in absolute right-0 z-40 mt-1 w-80 rounded-2xl bg-surface p-1.5 shadow-float"
         >
-          {MODOS.map((m) => (
+          {visibles.map((m) => (
             <li key={m.id}>
               <button
                 role="option"
@@ -89,20 +90,23 @@ function ModeMenu({ modo, onModo }: { modo: Modo; onModo: (m: Modo) => void }) {
   );
 }
 
-export function TopBar({ modo, onModo, onMenu, onAjustes, enAjustes }: {
+export function TopBar({ modo, onModo, onMenu, onAjustes, enAjustes, invitado, permitidos }: {
   modo: Modo;
   onModo: (m: Modo) => void;
   onMenu: () => void;
   onAjustes: () => void;
   enAjustes: boolean;
+  invitado: boolean;
+  permitidos: string[];
 }) {
   const [proveedores, setProveedores] = useState<Record<string, Proveedor> | null>(null);
   useEffect(() => {
+    if (invitado) return;
     const load = () => api.proveedores().then(setProveedores).catch(() => setProveedores(null));
     load();
     const t = setInterval(load, 30_000);
     return () => clearInterval(t);
-  }, []);
+  }, [invitado]);
   const problema = hayProblema(proveedores);
 
   return (
@@ -110,10 +114,15 @@ export function TopBar({ modo, onModo, onMenu, onAjustes, enAjustes }: {
       <button className="icon-btn" onClick={onMenu} aria-label="Mostrar u ocultar el historial">
         <Menu className="h-5 w-5" />
       </button>
-      <span className="ml-1 text-[22px] font-normal tracking-tight text-ink">Iuris</span>
+      <span className="ml-1 text-[22px] font-normal tracking-tight text-ink">Desemppa</span>
       <div className="ml-auto flex items-center gap-1">
-        {!enAjustes && <ModeMenu modo={modo} onModo={onModo} />}
-        <button
+        {!enAjustes && permitidos.length > 1 && <ModeMenu modo={modo} onModo={onModo} permitidos={permitidos} />}
+        {!enAjustes && permitidos.length === 1 && (
+          <span className="px-3 text-sm text-ink-2" title="Modo fijado por quien comparte la app">
+            {MODOS.find((m) => m.id === permitidos[0])?.label ?? permitidos[0]}
+          </span>
+        )}
+        {!invitado && <button
           className={`icon-btn relative ${enAjustes ? "bg-surface-2 text-ink" : ""}`}
           onClick={onAjustes}
           aria-pressed={enAjustes}
@@ -123,7 +132,7 @@ export function TopBar({ modo, onModo, onMenu, onAjustes, enAjustes }: {
           <Settings className="h-5 w-5" />
           {problema && <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-warning" aria-hidden />}
           {problema && <span className="sr-only">: {problema}</span>}
-        </button>
+        </button>}
       </div>
     </header>
   );

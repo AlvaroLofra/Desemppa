@@ -29,7 +29,7 @@ export interface Triage {
 
 export interface Fuente {
   source_id: string;
-  tipo: "boe" | "sentencia" | "convenio" | "adjunto";
+  tipo: "boe" | "sentencia" | "convenio" | "adjunto" | "ue";
   titulo: string;
   url?: string | null;
   extracto: string;
@@ -93,6 +93,7 @@ export interface Fundamento {
 export interface Dictamen {
   consulta_id: string;
   banda_solidez: Banda;
+  respuesta_directa?: string;
   resumen_ciudadano: string;
   fundamentos: Fundamento[];
   cuestiones: Cuestion[];

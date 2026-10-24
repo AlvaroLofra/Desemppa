@@ -4,12 +4,14 @@ import { aplicarTema, leerTema, type Tema } from "../../lib/theme";
 import { Seccion } from "../ui/primitives";
 import { Accounts } from "./Accounts";
 import { CustomModels } from "./CustomModels";
+import { LanShare } from "./LanShare";
 import { MODOS_AJUSTES, Modes } from "./Modes";
 
 const INDICE = [
   { id: "modos", label: "Modos" },
   { id: "cuentas", label: "Cuentas y planes" },
   { id: "modelos", label: "Modelos personalizados" },
+  { id: "red", label: "Red local" },
   { id: "apariencia", label: "Apariencia" },
 ];
 
@@ -86,6 +88,10 @@ export function SettingsPage() {
         </Seccion>
         <Seccion id="modelos" titulo="Modelos personalizados" descripcion="Añade modelos que no estén en el catálogo.">
           <CustomModels proveedores={proveedores} onCambio={cargar} onMensaje={setMensaje} />
+        </Seccion>
+        <Seccion id="red" titulo="Compartir en la red local"
+                 descripcion="Deja que otras personas de tu wifi usen Desemppa desde su ordenador; todo se ejecuta en este.">
+          <LanShare onMensaje={setMensaje} />
         </Seccion>
         <Seccion id="apariencia" titulo="Apariencia">
           <div role="radiogroup" aria-label="Tema" className="inline-flex rounded-full border border-outline p-1">

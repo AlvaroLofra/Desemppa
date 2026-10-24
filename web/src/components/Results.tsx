@@ -76,7 +76,8 @@ export function Clarification({ preguntas, onResponder }: {
 // ---------- proceso (plegado por defecto) ----------
 
 const TIPO_FUENTE: Record<Fuente["tipo"], string> = {
-  boe: "Legislación", sentencia: "Jurisprudencia", convenio: "Convenio colectivo", adjunto: "Tus documentos",
+  boe: "Legislación", ue: "Derecho de la UE", sentencia: "Jurisprudencia", convenio: "Convenio colectivo",
+  adjunto: "Tus documentos",
 };
 
 function Fuentes({ fuentes, onAbrir }: { fuentes: Fuente[]; onAbrir: AbrirFuente }) {
@@ -342,6 +343,9 @@ export function Answer({ state, onAbrir }: { state: ConsultaState; onAbrir: Abri
   const d = f.dictamen;
   return (
     <article className="fade-in space-y-8" aria-label="Dictamen">
+      {d.respuesta_directa && (
+        <p className="text-xl leading-snug text-ink">{d.respuesta_directa}</p>
+      )}
       <div>
         <p className="mb-3 flex items-center gap-2 text-sm text-ink-2">
           <span className={`h-2 w-2 rounded-full ${BANDA_COLOR[d.banda_solidez]}`} aria-hidden />
@@ -399,7 +403,7 @@ export function Answer({ state, onAbrir }: { state: ConsultaState; onAbrir: Abri
 
       <Avisos avisos={d.avisos} />
       <div className="flex flex-wrap items-center gap-3 border-t border-outline pt-4">
-        <Acciones texto={d.resumen_ciudadano} />
+        <Acciones texto={[d.respuesta_directa, d.resumen_ciudadano].filter(Boolean).join("\n\n")} />
         <p className="min-w-0 flex-1 text-xs text-ink-3">
           {d.aviso_legal} Modelos: {Object.entries(d.modelos_usados).map(([r, m]) => `${r} ${m}`).join(" · ")}.
         </p>

@@ -82,6 +82,8 @@ function reducer(s: ConsultaState, a: Accion): ConsultaState {
           return { ...s, final: d, estado: d.estado, streaming: false };
         case "error":
           return { ...s, error: d.mensaje, estado: "ERROR", streaming: false };
+        case "fin":
+          return { ...s, streaming: false };
         default:
           return s;
       }
@@ -90,7 +92,7 @@ function reducer(s: ConsultaState, a: Accion): ConsultaState {
 }
 
 const EVENTOS = ["phase", "triage", "clarification_needed", "source", "debate_done", "guardrail", "deadline",
-  "quota", "final", "error"];
+  "quota", "final", "error", "fin"];
 
 export function useConsulta() {
   const [state, dispatch] = useReducer(reducer, inicial);
@@ -120,7 +122,8 @@ export function useConsulta() {
         if (Number.isFinite(seq) && seq > lastSeq.current) lastSeq.current = seq;
         const data = JSON.parse(msg.data);
         dispatch({ t: "evento", tipo, data });
-        if (tipo === "final" || tipo === "error" || tipo === "clarification_needed") cerrar();
+        // El servidor marca con «fin» el final del stream (también tras reproducir el historial completo).
+        if (tipo === "fin" || tipo === "final" || tipo === "error") cerrar();
       });
     }
     es.addEventListener("debate_delta", (ev) => {

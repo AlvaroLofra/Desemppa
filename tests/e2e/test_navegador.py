@@ -25,7 +25,10 @@ playwright_sync = pytest.importorskip("playwright.sync_api")
 pytestmark = [pytest.mark.e2e, pytest.mark.timeout(240)]
 ROOT = Path(__file__).resolve().parents[2]
 DIST = ROOT / "web" / "dist"
-CONSULTA = "El casero no me devuelve la fianza de 900 euros porque dice que tiene que pintar el piso."
+CONSULTA = (
+    "Entregué las llaves el 1 de junio de 2026 y el casero no me devuelve la fianza de 900 euros porque dice que "
+    "tiene que pintar el piso."
+)
 
 
 def _free_port() -> int:

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AlertCircle } from "lucide-react";
 import { Composer, SUGERENCIAS } from "./components/Composer";
 import { Answer, Clarification, ProcessDetails, ProgressLine, type AbrirFuente } from "./components/Results";
@@ -8,6 +8,7 @@ import { SourceViewer, type FuenteAbierta } from "./components/SourceViewer";
 import { TopBar } from "./components/TopBar";
 import type { Modo } from "./lib/types";
 import { useConsulta } from "./lib/useConsulta";
+import { api, type Sesion } from "./lib/api";
 
 function leer<T extends string>(clave: string, defecto: T): T {
   try {
@@ -28,6 +29,17 @@ export default function App() {
   const [sugerencia, setSugerencia] = useState<string | undefined>();
   const [refresco, setRefresco] = useState(0);
   const { state, nueva, abrir, responder, limpiar } = useConsulta();
+  const [sesion, setSesion] = useState<Sesion>({ rol: "dueno", modos_permitidos: ["eco", "equilibrado", "pro"] });
+  const invitado = sesion.rol === "invitado";
+
+  useEffect(() => {
+    api.sesion().then((s) => {
+      setSesion(s);
+      // Un invitado solo puede usar los modos que permita quien comparte la app (por defecto, Eco).
+      if (s.rol === "invitado" && !s.modos_permitidos.includes(modo)) setModo((s.modos_permitidos[0] ?? "eco") as Modo);
+    }).catch(() => undefined);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const cambiarModo = (m: Modo) => { setModo(m); guardar("iuris-modo", m); };
   const alternarLateral = () => setLateral((v) => { guardar("iuris-lateral", v ? "0" : "1"); return !v; });
@@ -51,11 +63,17 @@ export default function App() {
                onAbrir={(id) => { setVista("consulta"); setFuente(null); cerrarLateralEnMovil(); void abrir(id); }}
                onNueva={() => { setVista("consulta"); setFuente(null); cerrarLateralEnMovil(); limpiar(); }} />
       <div className="flex min-w-0 flex-1 flex-col">
+        {invitado && (
+          <p className="bg-surface px-4 py-1.5 text-center text-xs text-ink-2 print:hidden">
+            Estás usando Desemppa en el ordenador de otra persona: tus consultas se procesan allí y esa persona puede verlas.
+          </p>
+        )}
         <TopBar modo={modo} onModo={cambiarModo} onMenu={alternarLateral} enAjustes={vista === "ajustes"}
+                invitado={invitado} permitidos={sesion.modos_permitidos.filter((m) => m !== "auditoria")}
                 onAjustes={() => { setFuente(null); setVista((v) => (v === "ajustes" ? "consulta" : "ajustes")); }} />
         <div className="flex min-h-0 flex-1">
           <main className="flex min-w-0 flex-1 flex-col">
-            {vista === "ajustes" ? (
+            {vista === "ajustes" && !invitado ? (
               <div className="flex-1 overflow-auto scroll-thin"><SettingsPage /></div>
             ) : inicio ? (
               <div className="flex flex-1 flex-col items-center justify-center overflow-auto px-4 pb-10">

@@ -64,6 +64,7 @@ export function Sidebar({ abierta, actual, onAbrir, onNueva, refresco }: {
                         : "text-ink hover:bg-surface-2"
                     }`}
                   >
+                    {it.invitado && <span className="mr-1.5 rounded-md bg-surface-3 px-1.5 py-0.5 text-[11px] text-ink-2">Invitado</span>}
                     {it.titulo}
                   </button>
                 </li>

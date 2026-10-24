@@ -1,4 +1,4 @@
-"""Backend FastAPI local (dossier §2.4–2.5): REST + SSE, solo loopback, con token local por arranque."""
+"""Backend FastAPI local (dossier §2.4–2.5): REST + SSE con token local; opcionalmente compartido en la LAN."""
 
 from __future__ import annotations
 
@@ -23,8 +23,8 @@ from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from sse_starlette.sse import EventSourceResponse
-from starlette.middleware.trustedhost import TrustedHostMiddleware
 
+from api.red_local import INVITADO_RE, EstadoRed, RedLocalMiddleware, Rol
 from config.settings import (
     CONFIG_DIR,
     Catalog,
@@ -41,6 +41,7 @@ from connectors.boe_client import BOEClient, BOERepository
 from connectors.cendoj_fetcher import CendojRepository
 from connectors.convenios_db import ConveniosRepository
 from connectors.embeddings import Embedder, GeminiEmbedder
+from connectors.eurlex_client import EURLexError, EURLexRepository
 from connectors.pdf_extractor import extract_pdf
 from connectors.retriever import HybridRetriever
 from core.calendar_engine import CalendarEngine, CalendarioFestivos, PlazoError
@@ -60,7 +61,6 @@ from core.state import TERMINALES, ConsultaStore, Estado, EventBus
 from storage.database import open_database
 from storage.lance_schema import JurisprudenciaStore
 
-ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 # IURIS_WEB_DIST permite servir otra copia del build (lo usan los tests E2E).
 WEB_DIST = Path(os.environ.get("IURIS_WEB_DIST") or Path(__file__).resolve().parents[1] / "web" / "dist")
 MAX_UPLOAD = 20 * 1024 * 1024
@@ -176,6 +176,7 @@ def build_services(settings: Settings | None = None, catalog: Catalog | None = N
         calendar=CalendarEngine(CalendarioFestivos(con=con)),
         store=ConsultaStore(con),
         bus=EventBus(con),
+        eurlex=EURLexRepository(con),
     )
     local_token = _load_or_create_token(settings)
     return Services(
@@ -199,6 +200,12 @@ class NuevaConsulta(BaseModel):
     modo: str = "equilibrado"
     municipio_ine: str | None = Field(default=None, pattern=r"^\d{5}$")
     adjuntos: list[str] = Field(default_factory=list, max_length=5)
+
+
+class AjustesRed(BaseModel):
+    activo: bool | None = None
+    modos_permitidos: list[str] | None = Field(default=None, max_length=8)
+    tope_diario: int | None = Field(default=None, ge=1, le=200)
 
 
 class Respuesta(BaseModel):
@@ -268,7 +275,7 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         services = services_factory()
         configure_logging(services.settings.data_dir)
-        log.info("Iuris-IA arrancada; datos en %s; build %s", services.settings.data_dir, build_id())
+        log.info("Desemppa arrancada; datos en %s; build %s", services.settings.data_dir, build_id())
         if services.pipeline is not None:
             services.pipeline.store.recover_interrupted()
         app.state.services = services
@@ -280,9 +287,12 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
             for adapter in services.providers.values():
                 adapter.stop()
 
-    app = FastAPI(title="Iuris-IA", version="0.3.0", lifespan=lifespan)
-    # Protección frente a DNS rebinding: solo se aceptan peticiones dirigidas a loopback (dossier §2.5).
-    app.add_middleware(TrustedHostMiddleware, allowed_hosts=ALLOWED_HOSTS)
+    app = FastAPI(title="Desemppa", version="0.4.0", lifespan=lifespan)
+    # Quién entra y con qué rol (dueño desde este equipo, invitado desde la LAN si se ha activado) y protección
+    # frente a DNS rebinding (dossier §2.5). Ver api/red_local.py.
+    red = EstadoRed(escucha_red=os.environ.get("IURIS_ESCUCHA_RED") == "1")
+    app.state.red = red
+    app.add_middleware(RedLocalMiddleware, estado=red)
 
     def svc(request: Request) -> Services:
         return request.app.state.services  # type: ignore[no-any-return]
@@ -293,8 +303,39 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
             raise HTTPException(503, "pipeline no inicializado")
         return s.pipeline
 
+    def rol(request: Request) -> Rol:
+        valor: Rol = getattr(request.state, "rol", "dueno")
+        return valor
+
+    def token_de(request: Request) -> str:
+        return svc(request).token if rol(request) == "dueno" else red.token_invitado
+
+    def origen_de(request: Request, invitado: str | None = None) -> str:
+        """'local' para el dueño; 'lan:<id>' para un invitado (id aleatorio que guarda su navegador)."""
+        if rol(request) == "dueno":
+            return "local"
+        ident = invitado or request.headers.get("x-desemppa-invitado", "")
+        if not INVITADO_RE.match(ident):
+            raise HTTPException(400, "falta el identificador de invitado; recarga la página")
+        return f"lan:{ident}"
+
+    def solo_dueno(request: Request) -> None:
+        if rol(request) != "dueno":
+            raise HTTPException(403, "solo disponible en el ordenador donde se ejecuta Desemppa")
+
+    def comprobar_acceso(request: Request, consulta_id: str, invitado: str | None = None) -> None:
+        """Un invitado solo accede a sus propias consultas (404 para no revelar que existen otras)."""
+        if rol(request) == "dueno":
+            return
+        try:
+            propia = pipe(request).store.origen(consulta_id) == origen_de(request, invitado)
+        except KeyError:
+            propia = False
+        if not propia:
+            raise HTTPException(404, "consulta no encontrada")
+
     def require_token(request: Request, x_iuris_token: str | None = Header(default=None)) -> None:
-        if not secrets.compare_digest(x_iuris_token or "", svc(request).token):
+        if not secrets.compare_digest(x_iuris_token or "", token_de(request)):
             motivo = "ausente" if not x_iuris_token else "distinto del actual"
             log.warning(
                 "403 token %s en %s %s (navegador: %s)",
@@ -327,9 +368,41 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
     @app.get("/api/token")
     def token(request: Request) -> dict[str, str]:
         # Sin cabeceras CORS: solo una página del mismo origen (la propia app) puede leer la respuesta.
-        return {"token": svc(request).token}
+        # Un invitado recibe su propio token: el del dueño nunca sale de este ordenador.
+        return {"token": token_de(request)}
 
-    @app.get("/api/estado")
+    @app.get("/api/sesion")
+    def sesion(request: Request) -> dict[str, Any]:
+        s = svc(request)
+        if rol(request) == "dueno":
+            return {"rol": "dueno", "modos_permitidos": list(s.catalog.profiles)}
+        return {"rol": "invitado", "modos_permitidos": [m for m in s.catalog.profiles if m in red.modos_permitidos]}
+
+    @app.get("/api/red", dependencies=[Depends(solo_dueno)])
+    def estado_red(request: Request) -> dict[str, Any]:
+        s = svc(request)
+        servidor = request.scope.get("server")
+        if servidor and servidor[1]:
+            red.puerto = int(servidor[1])  # el enlace usa el puerto real en el que escucha uvicorn
+        consultas_hoy = s.pipeline.store.contar_hoy_invitados() if s.pipeline else 0
+        return {**red.resumen(), "consultas_hoy": consultas_hoy, "modos_disponibles": list(s.catalog.profiles)}
+
+    @app.put("/api/red", dependencies=[Depends(solo_dueno), Depends(require_token)])
+    def ajustar_red(body: AjustesRed, request: Request) -> dict[str, Any]:
+        s = svc(request)
+        if body.modos_permitidos is not None:
+            desconocidos = [m for m in body.modos_permitidos if m not in s.catalog.profiles]
+            if desconocidos:
+                raise HTTPException(422, f"modos desconocidos: {', '.join(desconocidos)}")
+            red.modos_permitidos = {"eco", *body.modos_permitidos}  # Eco siempre disponible
+        if body.tope_diario is not None:
+            red.tope_diario = body.tope_diario
+        if body.activo is not None:
+            red.activo = body.activo
+            log.info("Red local %s (url %s)", "ACTIVADA" if red.activo else "desactivada", red.url())
+        return estado_red(request)
+
+    @app.get("/api/estado", dependencies=[Depends(solo_dueno)])
     def estado(request: Request) -> dict[str, Any]:
         s = svc(request)
         corpus = None
@@ -366,12 +439,12 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
         }
 
     # ---------- proveedores y asignación de modelos ----------
-    @app.get("/api/proveedores")
+    @app.get("/api/proveedores", dependencies=[Depends(solo_dueno)])
     def proveedores(request: Request) -> dict[str, Any]:
         s = svc(request)
         return {pid: _estado_proveedor(s, pid) for pid in s.catalog.providers}
 
-    @app.post("/api/proveedores/{pid}/configurar", dependencies=[Depends(require_token)])
+    @app.post("/api/proveedores/{pid}/configurar", dependencies=[Depends(solo_dueno), Depends(require_token)])
     def configurar_proveedor(pid: str, body: ConfigurarProveedor, request: Request) -> dict[str, Any]:
         s = svc(request)
         if pid not in s.catalog.providers:
@@ -387,7 +460,7 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
             _reload_catalog_and_providers(s, s.catalog)
         return _estado_proveedor(s, pid)
 
-    @app.post("/api/modelos", status_code=201, dependencies=[Depends(require_token)])
+    @app.post("/api/modelos", status_code=201, dependencies=[Depends(solo_dueno), Depends(require_token)])
     def anadir_modelo(body: NuevoModelo, request: Request) -> dict[str, Any]:
         s = svc(request)
         if body.proveedor not in s.catalog.providers:
@@ -411,7 +484,7 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
         _reload_catalog_and_providers(s, nuevo)
         return {"ok": True, "alias": body.alias, "estado": "creado"}
 
-    @app.post("/api/proveedores/{pid}/detectar", dependencies=[Depends(require_token)])
+    @app.post("/api/proveedores/{pid}/detectar", dependencies=[Depends(solo_dueno), Depends(require_token)])
     async def detectar(pid: str, request: Request) -> dict[str, Any]:
         s = svc(request)
         adapter = s.providers.get(pid)
@@ -425,7 +498,7 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
             raise HTTPException(502, f"no se pudieron listar los modelos: {exc}") from exc
         return {"instalado": True, "modelos": modelos}
 
-    @app.post("/api/modelos/{alias}/probar", dependencies=[Depends(require_token)])
+    @app.post("/api/modelos/{alias}/probar", dependencies=[Depends(solo_dueno), Depends(require_token)])
     async def probar(alias: str, request: Request) -> dict[str, Any]:
         s = svc(request)
         spec = s.catalog.models.get(alias)
@@ -454,7 +527,7 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
         )
         return {"ok": ok, "latencia_ms": ms, "respuesta": texto[:200], "error": error}
 
-    @app.get("/api/ajustes/perfiles")
+    @app.get("/api/ajustes/perfiles", dependencies=[Depends(solo_dueno)])
     def perfiles(request: Request) -> dict[str, Any]:
         s = svc(request)
         defecto = load_catalog(CONFIG_DIR, user_overrides=False)
@@ -477,7 +550,7 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
             },
         }
 
-    @app.put("/api/ajustes/perfiles", dependencies=[Depends(require_token)])
+    @app.put("/api/ajustes/perfiles", dependencies=[Depends(solo_dueno), Depends(require_token)])
     def guardar_perfiles(body: dict[str, dict[str, dict[str, str]]], request: Request) -> dict[str, str]:
         s = svc(request)
         try:
@@ -487,7 +560,7 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
         _reload_catalog_and_providers(s, nuevo)
         return {"estado": "guardado"}
 
-    @app.delete("/api/ajustes/perfiles", dependencies=[Depends(require_token)])
+    @app.delete("/api/ajustes/perfiles", dependencies=[Depends(solo_dueno), Depends(require_token)])
     def restablecer_perfiles(request: Request) -> dict[str, str]:
         s = svc(request)
         reset_user_profiles()
@@ -495,7 +568,7 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
         _reload_catalog_and_providers(s, nuevo)
         return {"estado": "restablecido"}
 
-    @app.delete("/api/ajustes/modelos", dependencies=[Depends(require_token)])
+    @app.delete("/api/ajustes/modelos", dependencies=[Depends(solo_dueno), Depends(require_token)])
     def restablecer_modelos(request: Request) -> dict[str, str]:
         """Borra los modelos personalizados y las activaciones de proveedores (user_models.toml)."""
         s = svc(request)
@@ -510,13 +583,24 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
         p = pipe(request)
         if body.modo not in s.catalog.profiles:
             raise HTTPException(422, f"modo desconocido: {body.modo}")
-        consulta_id = p.store.create(body.texto, body.modo, municipio_ine=body.municipio_ine, adjuntos=body.adjuntos)
+        origen = origen_de(request)
+        if origen != "local":
+            if body.modo not in red.modos_permitidos:
+                raise HTTPException(403, f"El modo «{body.modo}» no está permitido para invitados. Usa Eco.")
+            if any(not t.done() and p.store.origen(cid) == origen for cid, t in s.tasks.items()):
+                raise HTTPException(429, "Ya tienes una consulta en curso: espera a que termine.")
+            if p.store.contar_hoy(origen) >= red.tope_diario:
+                raise HTTPException(429, f"Has alcanzado el límite de {red.tope_diario} consultas por hoy.")
+        consulta_id = p.store.create(
+            body.texto, body.modo, municipio_ine=body.municipio_ine, adjuntos=body.adjuntos, origen=origen
+        )
         _launch(s, consulta_id)
         return {"consulta_id": consulta_id}
 
     @app.post("/api/consultas/{consulta_id}/aclaraciones", dependencies=[Depends(require_token)])
     async def aclarar(consulta_id: str, body: Aclaraciones, request: Request) -> dict[str, str]:
         s, p = svc(request), pipe(request)
+        comprobar_acceso(request, consulta_id)
         try:
             c = p.store.get(consulta_id)
         except KeyError as exc:
@@ -529,11 +613,14 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
 
     @app.get("/api/consultas")
     def listar(request: Request) -> list[dict[str, Any]]:
-        return pipe(request).store.listar()
+        if rol(request) == "dueno":
+            return pipe(request).store.listar()
+        return pipe(request).store.listar(origen=origen_de(request))
 
     @app.get("/api/consultas/{consulta_id}")
     def detalle(consulta_id: str, request: Request) -> dict[str, Any]:
         p = pipe(request)
+        comprobar_acceso(request, consulta_id)
         try:
             c = p.store.get(consulta_id)
         except KeyError as exc:
@@ -556,11 +643,13 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
         request: Request,
         token: str = Query(default=""),
         after_seq: int = Query(default=0, alias="after", ge=0),
+        invitado: str | None = Query(default=None, max_length=64),
         last_event_id: str | None = Header(default=None),
     ) -> EventSourceResponse:
         s, p = svc(request), pipe(request)
-        if not secrets.compare_digest(token, s.token):
+        if not secrets.compare_digest(token, token_de(request)):
             raise HTTPException(403, "token local inválido", headers={"Clear-Site-Data": '"cache"'})
+        comprobar_acceso(request, consulta_id, invitado)
         try:
             c = p.store.get(consulta_id)
         except KeyError as exc:
@@ -578,6 +667,9 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
                 if estado_actual in TERMINALES or estado_actual == Estado.ESPERANDO_ACLARACION:
                     task = s.tasks.get(consulta_id)
                     if task is None or task.done():
+                        # «fin»: el historial está completo; el navegador cierra aquí (y no al ver una aclaración
+                        # antigua, que dejaba sin mostrar el dictamen de una consulta reabierta).
+                        yield {"event": "fin", "data": "{}"}
                         return
                 while True:
                     try:
@@ -590,6 +682,7 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
                     last = max(last, seq)
                     yield {"id": str(seq), "event": tipo, "data": json.dumps(data, ensure_ascii=False, default=str)}
                     if tipo in ("final", "error", "clarification_needed"):
+                        yield {"event": "fin", "data": "{}"}
                         return
             finally:
                 p.bus.unsubscribe(consulta_id, queue)
@@ -629,8 +722,9 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
         p = pipe(request)
         texto, titulo, url = None, source_id, None
         if consulta_id:
+            comprobar_acceso(request, consulta_id)
             c = p.store.get(consulta_id)
-            for grupo in ("articulos_boe", "sentencias", "clausulas_convenio", "extractos_adjuntos"):
+            for grupo in ("articulos_boe", "articulos_ue", "sentencias", "clausulas_convenio", "extractos_adjuntos"):
                 for f in (c.dossier or {}).get(grupo, []):
                     if f["source_id"] == source_id:
                         texto, titulo, url = f["texto_verbatim"], f["titulo"], f.get("url_oficial")
@@ -642,6 +736,13 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
             det_conv = p.convenios.detalle_clausula(source_id)
             if det_conv:
                 titulo, texto, url = det_conv["titulo"], det_conv["texto"], det_conv["url"]
+        if texto is None and source_id.startswith("EUR:") and p.eurlex is not None:
+            _, celex, art = source_id.split(":", 2)
+            try:
+                ue = await p.eurlex.get_articulo(celex, art.removeprefix("art"))
+                titulo, texto, url = f"Art. {ue.articulo} ({ue.titulo})", ue.texto, ue.url
+            except EURLexError:
+                texto = None
         if texto is None and source_id.startswith("BOE:"):
             _, id_norma, id_bloque, *_ = source_id.split(":")
             bloque = await p.boe.get_bloque(id_norma, id_bloque)
@@ -690,7 +791,9 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
     def convenios(request: Request, sector: str | None = None, territorio: str | None = None) -> list[dict[str, Any]]:
         return pipe(request).convenios.listar(sector, territorio)
 
-    @app.post("/api/jurisprudencia/importar", status_code=201, dependencies=[Depends(require_token)])
+    @app.post(
+        "/api/jurisprudencia/importar", status_code=201, dependencies=[Depends(solo_dueno), Depends(require_token)]
+    )
     async def importar(request: Request, archivo: UploadFile = File(...)) -> dict[str, Any]:
         p = pipe(request)
         data = await archivo.read(MAX_UPLOAD + 1)

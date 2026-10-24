@@ -102,6 +102,8 @@ def test_upload_txt_and_sse_replay(tmp_path):
         with client.stream("GET", f"/api/consultar/stream/{cid}", params={"token": token}) as s:
             body = "".join(s.iter_text())
         assert "event: phase" in body and "event: final" in body
+        # El historial termina con «fin»: el navegador no debe cortar en una aclaración antigua (regresión).
+        assert body.rstrip().splitlines()[-2] == "event: fin"
         det = client.get(f"/api/consultas/{cid}").json()
         assert det["adjuntos"][0]["tipo"] == "carta_despido" and "Texto de una consulta" in det["texto"]
         assert client.get("/api/consultas").json()[0]["consulta_id"] == cid
@@ -210,7 +212,10 @@ def test_crear_consulta_valida_arranca_el_analisis(tmp_path):
         r = client.post(
             "/api/consultas",
             headers={"X-Iuris-Token": s.token},
-            json={"texto": "El casero no me devuelve la fianza de 900 euros", "modo": "eco"},
+            json={
+                "texto": "Entregué las llaves el 1 de junio de 2026 y el casero no me devuelve la fianza de 900 euros",
+                "modo": "eco",
+            },
         )
         assert r.status_code == 201, r.text
         cid = r.json()["consulta_id"]

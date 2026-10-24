@@ -1,5 +1,20 @@
 let cachedToken: string | null = null;
 
+/** Identificador aleatorio de este navegador. Solo importa cuando se usa la app desde otro equipo de la red
+ *  (invitado): el servidor lo usa para mostrarle únicamente sus consultas y aplicar los límites de uso. */
+export function idInvitado(): string {
+  const clave = "desemppa-invitado";
+  try {
+    const actual = localStorage.getItem(clave);
+    if (actual && /^[A-Za-z0-9_-]{8,64}$/.test(actual)) return actual;
+    const nuevo = Array.from(crypto.getRandomValues(new Uint8Array(12)), (b) => b.toString(16).padStart(2, "0")).join("");
+    localStorage.setItem(clave, nuevo);
+    return nuevo;
+  } catch {
+    return "sin-almacenamiento";
+  }
+}
+
 /** Error HTTP con el código y la llamada que falló, para que la interfaz los muestre. */
 export class ApiError extends Error {
   constructor(readonly status: number, readonly method: string, readonly path: string, readonly detail: string) {
@@ -11,7 +26,7 @@ export class ApiError extends Error {
  *  tener cacheado de un arranque anterior). `forceRefresh` lo vuelve a pedir tras un 403. */
 export async function token(forceRefresh = false): Promise<string> {
   if (cachedToken !== null && !forceRefresh) return cachedToken;
-  const r = await fetch("/api/token", { cache: "no-store" });
+  const r = await fetch("/api/token", { cache: "no-store", headers: { "X-Desemppa-Invitado": idInvitado() } });
   if (!r.ok) throw new ApiError(r.status, "GET", "/api/token", "no se pudo obtener el token local");
   const data = await r.json();
   cachedToken = typeof data?.token === "string" ? data.token : "";
@@ -25,6 +40,7 @@ export function resetToken(): void {
 async function request<T>(path: string, init: RequestInit = {}, auth = false): Promise<T> {
   const method = (init.method ?? "GET").toUpperCase();
   const headers = new Headers(init.headers);
+  headers.set("X-Desemppa-Invitado", idInvitado());
   if (auth) headers.set("X-Iuris-Token", await token());
   let r = await fetch(path, { ...init, headers, cache: "no-store" });
   if (r.status === 403 && auth) {
@@ -68,7 +84,13 @@ export const api = {
     }, true),
   restablecerPerfiles: () => request("/api/ajustes/perfiles", { method: "DELETE" }, true),
   restablecerModelos: () => request("/api/ajustes/modelos", { method: "DELETE" }, true),
-  consultas: () => request<{ consulta_id: string; creado_en: string; modo: string; estado: string; titulo: string; banda: string | null }[]>("/api/consultas"),
+  sesion: () => request<Sesion>("/api/sesion"),
+  red: () => request<EstadoRed>("/api/red"),
+  ajustarRed: (body: { activo?: boolean; modos_permitidos?: string[]; tope_diario?: number }) =>
+    request<EstadoRed>("/api/red", {
+      method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
+    }, true),
+  consultas: () => request<{ consulta_id: string; creado_en: string; modo: string; estado: string; titulo: string; banda: string | null; invitado: boolean }[]>("/api/consultas"),
   consulta: (id: string) => request<Record<string, any>>(`/api/consultas/${id}`),
   crear: (body: { texto: string; modo: string; municipio_ine?: string | null; adjuntos: string[] }) =>
     request<{ consulta_id: string }>("/api/consultas", {
@@ -97,7 +119,7 @@ export const api = {
 };
 
 export async function streamUrl(id: string, after = 0): Promise<string> {
-  return `/api/consultar/stream/${id}?token=${encodeURIComponent(await token())}&after=${after}`;
+  return `/api/consultar/stream/${id}?token=${encodeURIComponent(await token())}&after=${after}&invitado=${idInvitado()}`;
 }
 
 export interface Proveedor {
@@ -132,4 +154,18 @@ export interface Perfiles {
   modos: Record<string, Record<string, Asignacion>>;
   por_defecto: Record<string, Record<string, Asignacion>>;
   modelos: Record<string, ModeloCatalogo>;
+}
+
+export interface Sesion { rol: "dueno" | "invitado"; modos_permitidos: string[] }
+
+export interface EstadoRed {
+  activo: boolean;
+  escucha_red: boolean;
+  ip: string | null;
+  url: string | null;
+  modos_permitidos: string[];
+  modos_disponibles: string[];
+  tope_diario: number;
+  invitados_activos: number;
+  consultas_hoy: number;
 }
