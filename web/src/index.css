@@ -5,25 +5,25 @@
 /* Sistema visual (docs/propuesta_rediseno.md §4): los componentes solo usan estos tokens. */
 @layer base {
   :root {
-    /* Claro en crema: papel cálido en lugar de blanco puro. */
-    --bg: 250 246 238;
-    --surface: 243 237 225;
-    --surface-2: 236 228 212;
-    --surface-3: 228 218 198;
-    --outline: 221 210 190;
-    --text: 43 38 32;
-    --text-2: 98 90 78;
-    --text-3: 106 98 86;
-    --accent: 31 79 181;
+    /* Claro en crema intenso (papel cálido); contraste AA verificado para todos los pares texto/fondo. */
+    --bg: 241 232 214;
+    --surface: 233 222 200;
+    --surface-2: 225 212 187;
+    --surface-3: 216 201 173;
+    --outline: 207 191 162;
+    --text: 42 36 28;
+    --text-2: 86 76 63;
+    --text-3: 94 84 70;
+    --accent: 27 70 160;
     --on-accent: 255 255 255;
-    --accent-container: 220 229 247;
+    --accent-container: 214 221 240;
     --on-accent-container: 10 34 82;
-    --danger: 179 38 30;
-    --danger-container: 252 232 230;
-    --warning: 140 80 0;
-    --warning-container: 255 240 214;
-    --success: 20 108 46;
-    --highlight: 246 231 168;
+    --danger: 163 36 28;
+    --danger-container: 243 217 210;
+    --warning: 122 70 0;
+    --warning-container: 242 223 188;
+    --success: 19 97 42;
+    --highlight: 241 220 147;
     --shadow: 0 1px 3px rgb(60 45 20 / 0.08), 0 4px 12px rgb(60 45 20 / 0.06);
     color-scheme: light;
   }
