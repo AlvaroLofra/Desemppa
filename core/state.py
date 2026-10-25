@@ -98,6 +98,73 @@ class ConsultaStore:
         )
         return {"adjunto_id": adjunto_id, "nombre": nombre, "tipo": tipo}
 
+    # ---------- biblioteca (documentos reutilizables) ----------
+    def add_documento(
+        self, nombre: str, sha256: str, texto: str, *, ocr_usado: bool, permitir_envio: bool
+    ) -> dict[str, Any]:
+        """Guarda un documento en la biblioteca. Si ya existe (mismo SHA-256) devuelve el existente."""
+        fila = self._con.execute("SELECT doc_id FROM biblioteca WHERE sha256 = ?", (sha256,)).fetchone()
+        if fila:
+            return self._documento(fila[0])
+        doc_id = uuid.uuid4().hex
+        self._con.execute(
+            """INSERT INTO biblioteca(doc_id, nombre, sha256, tipo_detectado, texto_cifrado, caracteres, ocr_usado,
+                   permitir_envio) VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+            (
+                doc_id,
+                nombre,
+                sha256,
+                tipo_adjunto(texto),
+                encrypt(texto),
+                len(texto),
+                int(ocr_usado),
+                int(permitir_envio),
+            ),
+        )
+        return self._documento(doc_id)
+
+    def _documento(self, doc_id: str) -> dict[str, Any]:
+        r = self._con.execute(
+            """SELECT doc_id, nombre, tipo_detectado, caracteres, permitir_envio, creado_en FROM biblioteca
+               WHERE doc_id = ?""",
+            (doc_id,),
+        ).fetchone()
+        if r is None:
+            raise KeyError(doc_id)
+        return {
+            "doc_id": r[0],
+            "nombre": r[1],
+            "tipo": r[2],
+            "caracteres": r[3],
+            "permitir_envio": bool(r[4]),
+            "creado_en": r[5],
+        }
+
+    def listar_biblioteca(self) -> list[dict[str, Any]]:
+        ids = [r[0] for r in self._con.execute("SELECT doc_id FROM biblioteca ORDER BY creado_en DESC, nombre")]
+        return [self._documento(i) for i in ids]
+
+    def texto_documento(self, doc_id: str) -> str:
+        r = self._con.execute("SELECT texto_cifrado FROM biblioteca WHERE doc_id = ?", (doc_id,)).fetchone()
+        if r is None:
+            raise KeyError(doc_id)
+        return decrypt(r[0])
+
+    def borrar_documento(self, doc_id: str) -> None:
+        """Lo quita de la biblioteca. Las consultas que ya lo usaron conservan su copia como adjunto."""
+        if self._con.execute("DELETE FROM biblioteca WHERE doc_id = ?", (doc_id,)).rowcount == 0:
+            raise KeyError(doc_id)
+
+    def adjuntar_documento(self, doc_id: str) -> dict[str, str]:
+        """Copia el documento como adjunto nuevo (sin consulta) para usarlo en la próxima consulta."""
+        r = self._con.execute(
+            "SELECT nombre, sha256, texto_cifrado, ocr_usado, permitir_envio FROM biblioteca WHERE doc_id = ?",
+            (doc_id,),
+        ).fetchone()
+        if r is None:
+            raise KeyError(doc_id)
+        return self.add_adjunto(r[0], r[1], decrypt(r[2]), ocr_usado=bool(r[3]), permitir_envio=bool(r[4]))
+
     # ---------- consultas ----------
     def create(
         self,

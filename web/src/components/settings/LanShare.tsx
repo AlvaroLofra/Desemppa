@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Check, Copy, Loader2 } from "lucide-react";
-import { ApiError, api, type EstadoRed } from "../../lib/api";
+import { ApiError, QR_RED_URL, api, type EstadoRed } from "../../lib/api";
 import { Switch } from "../ui/primitives";
 
 const ETIQUETA: Record<string, string> = { eco: "Eco", equilibrado: "Equilibrado", pro: "Pro", auditoria: "Auditoría" };
@@ -85,6 +85,12 @@ export function LanShare({ onMensaje }: { onMensaje: (m: string) => void }) {
           })}>
             {copiado ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}{copiado ? "Copiado" : "Copiar"}
           </button>
+          <div className="flex w-full items-center gap-4 pt-2">
+            <img src={`${QR_RED_URL}?u=${encodeURIComponent(red.url)}`} alt={`Código QR del enlace ${red.url}`}
+                 width={132} height={132} className="rounded-lg bg-white p-1" />
+            <p className="text-sm text-ink-2">Desde el móvil o la tableta: abre la cámara y apunta a este código para entrar sin teclear la
+              dirección. Tiene que estar conectado a la misma wifi.</p>
+          </div>
         </div>
       )}
 

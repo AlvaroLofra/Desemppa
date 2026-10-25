@@ -32,10 +32,13 @@ Estado de la red local: `activo`, `escucha_red` (el servidor se arrancó en `0.0
 `PUT` acepta `{"activo"?, "modos_permitidos"?, "tope_diario"? (1-200)}`. El estado vive en memoria: al reiniciar,
 la red vuelve a estar desactivada.
 
+### `GET /api/red/qr` 👤
+Código QR (SVG, generado con `segno`) del enlace para invitados. `409` si la red no está activa.
+
 ## Endpoints de Estado, Proveedores y Modelos
 
 ### `GET /api/version`
-`{"build": "<id>"}` — identificador del build actual de `web/dist/version.json`.
+`{"build": "<id>", "servidor": "<huella>"}` — build de `web/dist/version.json` y huella del código Python con el que arrancó el servidor (el lanzador sustituye un servidor antiguo).
 
 ### `GET /api/token`
 `{"token": "<hex>"}` — token local de seguridad.
@@ -83,6 +86,8 @@ Borra `config/user_models.toml` (modelos personalizados y activación de proveed
 - `GET /api/consultas` y `GET /api/consultas/{id}`: Lista el historial y recupera el detalle completo (con PII restaurado en local).
 - `GET /api/consultar/stream/{id}?token=…&after=N`: Stream SSE con replay automático desde el evento `N`. Termina siempre con el evento `fin` (el navegador cierra al recibirlo).
 - `POST /api/adjuntos` 🔒 → 201: Extrae texto de PDF/TXT en local y lo cifra con DPAPI (solo se envía al LLM si `permitir_envio=true`).
+- `GET /api/biblioteca` 👤, `POST /api/biblioteca` 👤🔒 → 201, `GET /api/biblioteca/{doc_id}` 👤, `DELETE /api/biblioteca/{doc_id}` 👤🔒: biblioteca de documentos reutilizables (texto cifrado con DPAPI; un mismo fichero, por SHA-256, no se duplica). Borrar un documento no lo quita de las consultas que ya lo usaron.
+- `POST /api/biblioteca/{doc_id}/adjuntar` 👤🔒: copia el documento como adjunto nuevo (`{"adjunto_id", "nombre", "tipo"}`) para pasarlo en `adjuntos` al crear la consulta.
 - `GET /api/fuentes?source_id=…&consulta_id=…&quote=…`: Devuelve el texto íntegro oficial de fuentes `BOE:...`, `EUR:...` (Derecho de la UE), `ROJ:...`, `CONV:...` y `DOC:...` con offsets de resaltado literal.
 - `GET /api/calendario/plazo`, `GET /api/calendario/tipos`, `GET /api/municipios?q=…`: Motor determinista de plazos procesales y buscador de los 8.131 municipios del INE.
 - `GET /api/convenios`: Lista los convenios colectivos indexados en SQLite.

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Check, ChevronDown, Menu, Settings } from "lucide-react";
+import { Check, ChevronDown, Keyboard, Menu, Settings } from "lucide-react";
 import { api, type Perfiles, type Proveedor } from "../lib/api";
 import type { Modo } from "../lib/types";
 
@@ -90,11 +90,12 @@ function ModeMenu({ modo, onModo, permitidos }: { modo: Modo; onModo: (m: Modo) 
   );
 }
 
-export function TopBar({ modo, onModo, onMenu, onAjustes, enAjustes, invitado, permitidos }: {
+export function TopBar({ modo, onModo, onMenu, onAjustes, onAyuda, enAjustes, invitado, permitidos }: {
   modo: Modo;
   onModo: (m: Modo) => void;
   onMenu: () => void;
   onAjustes: () => void;
+  onAyuda: () => void;
   enAjustes: boolean;
   invitado: boolean;
   permitidos: string[];
@@ -126,6 +127,9 @@ export function TopBar({ modo, onModo, onMenu, onAjustes, enAjustes, invitado, p
             {MODOS.find((m) => m.id === permitidos[0])?.label ?? permitidos[0]}
           </span>
         )}
+        <button className="icon-btn hidden sm:inline-flex" onClick={onAyuda} aria-label="Atajos de teclado" title="Atajos de teclado (?)">
+          <Keyboard className="h-5 w-5" />
+        </button>
         {!invitado && <button
           className={`icon-btn relative ${enAjustes ? "bg-surface-2 text-ink" : ""}`}
           onClick={onAjustes}

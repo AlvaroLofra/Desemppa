@@ -155,3 +155,111 @@ def test_copia_antigua_de_la_interfaz_se_autorrepara(page, server: Server) -> No
     page.get_by_role("heading", name="¿En qué te puedo ayudar?").wait_for(timeout=20_000)
     assert page.evaluate("sessionStorage.getItem('iuris-selfheal')") == "build-nuevo"  # limpió y recargó una vez
     _consultar_y_esperar_dictamen(page)
+
+
+# ---------- mejoras de interfaz: citas en línea, exportar, calendario, lectura, biblioteca, comparar ----------
+
+
+def test_dictamen_con_citas_en_linea_exportar_y_modo_lectura(page, server: Server) -> None:  # type: ignore[no-untyped-def]
+    _abrir(page, server)
+    _consultar_y_esperar_dictamen(page)
+    assert page.get_by_role("button", name="Ver fuente 1:").count() >= 1  # superíndice [1] en el texto
+    with page.expect_download() as dl:
+        page.get_by_role("button", name="Exportar el expediente en Markdown").click()
+    md = Path(dl.value.path()).read_text(encoding="utf-8")
+    assert md.startswith("# Expediente de Desemppa") and "## Fundamentos verificados" in md and "[1]" in md
+    page.get_by_role("button", name="Modo lectura").click()
+    page.get_by_text("Modo lectura", exact=True).wait_for()
+    assert page.get_by_role("complementary", name="Historial").count() == 0
+    page.keyboard.press("Escape")
+    page.get_by_role("complementary", name="Historial").wait_for()
+
+
+def test_atajos_de_teclado(page, server: Server) -> None:  # type: ignore[no-untyped-def]
+    _abrir(page, server)
+    page.get_by_role("heading", name="¿En qué te puedo ayudar?").click()
+    page.keyboard.press("?")
+    page.get_by_role("dialog", name="Atajos de teclado").wait_for()
+    page.keyboard.press("Escape")
+    page.keyboard.press("/")
+    assert page.evaluate("document.activeElement.getAttribute('aria-label')") == "Describe tu caso"
+
+
+def test_biblioteca_guardar_y_usar_en_una_consulta(page, server: Server, tmp_path: Path) -> None:  # type: ignore[no-untyped-def]
+    _abrir(page, server)
+    doc = tmp_path / "sentencia.txt"
+    doc.write_text("SENTENCIA. El arrendatario no responde del desgaste por el uso ordinario de la vivienda.", "utf-8")
+    page.get_by_role("button", name="Biblioteca", exact=True).click()
+    page.locator("input[type=file]").set_input_files(str(doc))
+    page.get_by_text("sentencia.txt").wait_for()
+    page.get_by_role("button", name="Nueva consulta").click()
+    page.get_by_role("button", name="Añadir desde tu biblioteca").click()
+    page.get_by_role("menuitem", name="sentencia.txt").click()
+    page.get_by_role("button", name="Quitar sentencia.txt").wait_for()  # ya es un adjunto de la consulta
+
+
+def test_comparar_dos_consultas(page, server: Server) -> None:  # type: ignore[no-untyped-def]
+    _abrir(page, server)
+    _consultar_y_esperar_dictamen(page)
+    page.get_by_role("button", name="Nueva consulta").click()
+    _consultar_y_esperar_dictamen(page)
+    page.get_by_role("button", name="Comparar consultas").click()
+    page.get_by_role("heading", name="Comparar consultas").wait_for()
+    page.get_by_text("En las dos (").wait_for()
+
+
+# ---------- accesibilidad automática ----------
+
+AXE = ROOT / "web" / "node_modules" / "axe-core" / "axe.min.js"
+
+
+def _axe(page) -> list[dict[str, object]]:  # type: ignore[no-untyped-def]
+    if not AXE.exists():
+        pytest.skip("falta axe-core: ejecuta `npm install` en web/")
+    page.add_script_tag(path=str(AXE))
+    res = page.evaluate("axe.run(document, {resultTypes: ['violations']})")
+    graves = [v for v in res["violations"] if v["impact"] in ("serious", "critical")]
+    for v in graves:
+        print(f"[axe] {v['id']} ({v['impact']}): {v['help']} -> {[n['target'] for n in v['nodes']][:5]}")
+    return graves
+
+
+def test_axe_sin_errores_graves_en_inicio_y_dictamen(page, server: Server) -> None:  # type: ignore[no-untyped-def]
+    _abrir(page, server)
+    assert _axe(page) == []
+    _consultar_y_esperar_dictamen(page)
+    assert _axe(page) == []
+
+
+def test_lighthouse_accesibilidad_y_buenas_practicas(server: Server, tmp_path: Path) -> None:
+    cli = ROOT / "web" / "node_modules" / "lighthouse" / "cli" / "index.js"
+    node = shutil.which("node")
+    if not cli.exists() or node is None:
+        pytest.skip("falta lighthouse o node: ejecuta `npm install` en web/")
+    with playwright_sync.sync_playwright() as p:
+        chrome = p.chromium.executable_path
+    salida = tmp_path / "lh.json"
+    r = subprocess.run(
+        [
+            node,
+            str(cli),
+            server.url,
+            "--only-categories=accessibility,best-practices",
+            "--output=json",
+            f"--output-path={salida}",
+            "--quiet",
+            "--chrome-flags=--headless=new --no-sandbox",
+        ],
+        env={**os.environ, "CHROME_PATH": chrome},
+        capture_output=True,
+        text=True,
+        timeout=180,
+    )
+    if not salida.exists():
+        pytest.fail(f"lighthouse no generó informe: {r.stderr[-2000:]}")
+    import json
+
+    cats = json.loads(salida.read_text(encoding="utf-8"))["categories"]
+    puntos = {k: round(v["score"] * 100) for k, v in cats.items()}
+    print(f"[lighthouse] {puntos}")
+    assert puntos["accessibility"] >= 95 and puntos["best-practices"] >= 90, puntos

@@ -116,7 +116,30 @@ export const api = {
   },
   municipios: (q: string) => request<{ codigo_ine: string; nombre: string; provincia: string }[]>(
     `/api/municipios?q=${encodeURIComponent(q)}`),
+  biblioteca: () => request<DocumentoBiblioteca[]>("/api/biblioteca"),
+  documento: (id: string) => request<DocumentoBiblioteca & { texto: string }>(`/api/biblioteca/${id}`),
+  guardarDocumento: (file: File, permitirEnvio: boolean) => {
+    const fd = new FormData();
+    fd.append("archivo", file);
+    fd.append("permitir_envio", String(permitirEnvio));
+    return request<DocumentoBiblioteca & { paginas_sin_texto: number[] }>("/api/biblioteca", { method: "POST", body: fd }, true);
+  },
+  borrarDocumento: (id: string) => request<{ ok: boolean }>(`/api/biblioteca/${id}`, { method: "DELETE" }, true),
+  adjuntarDocumento: (id: string) =>
+    request<{ adjunto_id: string; nombre: string; tipo: string }>(`/api/biblioteca/${id}/adjuntar`, { method: "POST" }, true),
 };
+
+/** URL del QR (SVG) del enlace de la red local; solo responde con la red activa. */
+export const QR_RED_URL = "/api/red/qr";
+
+export interface DocumentoBiblioteca {
+  doc_id: string;
+  nombre: string;
+  tipo: string;
+  caracteres: number;
+  permitir_envio: boolean;
+  creado_en: string;
+}
 
 export async function streamUrl(id: string, after = 0): Promise<string> {
   return `/api/consultar/stream/${id}?token=${encodeURIComponent(await token())}&after=${after}&invitado=${idInvitado()}`;

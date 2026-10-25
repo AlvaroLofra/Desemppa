@@ -18,8 +18,9 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
+import segno
 from fastapi import Depends, FastAPI, File, Form, Header, HTTPException, Query, Request, UploadFile
-from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from sse_starlette.sse import EventSourceResponse
@@ -71,6 +72,24 @@ log = logging.getLogger("iuris")
 
 # Huella del código con el que arrancó este proceso (el lanzador la compara con la del disco).
 HUELLA_SERVIDOR = huella_codigo()
+
+
+async def _leer_documento(archivo: UploadFile) -> tuple[str, str, str, bool, list[int]]:
+    """Lee y extrae el texto de un PDF o TXT subido: (nombre, sha256, texto, ocr_usado, páginas sin texto)."""
+    data = await archivo.read(MAX_UPLOAD + 1)
+    if len(data) > MAX_UPLOAD:
+        raise HTTPException(413, "máximo 20 MB")
+    nombre = archivo.filename or "documento"
+    if nombre.lower().endswith(".pdf") or data[:4] == b"%PDF":
+        ext = extract_pdf(data)
+        texto, ocr, pendientes = ext.text, ext.ocr_used, list(ext.ocr_pending)
+    elif nombre.lower().endswith((".txt", ".md")):
+        texto, ocr, pendientes = data.decode("utf-8", errors="replace"), False, []
+    else:
+        raise HTTPException(415, "formatos admitidos: PDF o TXT")
+    if not texto.strip():
+        raise HTTPException(422, "no se ha podido extraer texto (¿PDF escaneado sin OCR instalado?)")
+    return nombre, hashlib.sha256(data).hexdigest(), texto, ocr, pendientes
 
 
 def build_id() -> str | None:
@@ -407,6 +426,15 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
             log.info("Red local %s (url %s)", "ACTIVADA" if red.activo else "desactivada", red.url())
         return estado_red(request)
 
+    @app.get("/api/red/qr", dependencies=[Depends(solo_dueno)], response_model=None)
+    def qr_red(request: Request) -> Response:
+        """Código QR (SVG) del enlace para invitados, para abrirlo con el móvil sin teclear la IP."""
+        url = estado_red(request).get("url")
+        if not red.activo or not url:
+            raise HTTPException(409, "activa antes «Compartir en la red local»")
+        svg = segno.make(url, error="m").svg_inline(scale=6, border=2, dark="#1B1B1F", light="#FFFFFF")
+        return Response(svg, media_type="image/svg+xml", headers=NO_CACHE)
+
     @app.get("/api/estado", dependencies=[Depends(solo_dueno)])
     def estado(request: Request) -> dict[str, Any]:
         s = svc(request)
@@ -701,23 +729,45 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
         request: Request, archivo: UploadFile = File(...), permitir_envio: bool = Form(default=False)
     ) -> dict[str, Any]:
         p = pipe(request)
-        data = await archivo.read(MAX_UPLOAD + 1)
-        if len(data) > MAX_UPLOAD:
-            raise HTTPException(413, "máximo 20 MB")
-        nombre = archivo.filename or "documento"
-        if nombre.lower().endswith(".pdf") or data[:4] == b"%PDF":
-            ext = extract_pdf(data)
-            texto, ocr, pendientes = ext.text, ext.ocr_used, ext.ocr_pending
-        elif nombre.lower().endswith((".txt", ".md")):
-            texto, ocr, pendientes = data.decode("utf-8", errors="replace"), False, []
-        else:
-            raise HTTPException(415, "formatos admitidos: PDF o TXT")
-        if not texto.strip():
-            raise HTTPException(422, "no se ha podido extraer texto (¿PDF escaneado sin OCR instalado?)")
-        info = p.store.add_adjunto(
-            nombre, hashlib.sha256(data).hexdigest(), texto, ocr_usado=ocr, permitir_envio=permitir_envio
-        )
+        nombre, sha, texto, ocr, pendientes = await _leer_documento(archivo)
+        info = p.store.add_adjunto(nombre, sha, texto, ocr_usado=ocr, permitir_envio=permitir_envio)
         return {**info, "caracteres": len(texto), "paginas_sin_texto": pendientes, "permitir_envio": permitir_envio}
+
+    # ---------- biblioteca de documentos (solo el dueño) ----------
+    @app.get("/api/biblioteca", dependencies=[Depends(solo_dueno)])
+    def biblioteca(request: Request) -> list[dict[str, Any]]:
+        return pipe(request).store.listar_biblioteca()
+
+    @app.post("/api/biblioteca", status_code=201, dependencies=[Depends(solo_dueno), Depends(require_token)])
+    async def guardar_documento(
+        request: Request, archivo: UploadFile = File(...), permitir_envio: bool = Form(default=False)
+    ) -> dict[str, Any]:
+        nombre, sha, texto, ocr, pendientes = await _leer_documento(archivo)
+        doc = pipe(request).store.add_documento(nombre, sha, texto, ocr_usado=ocr, permitir_envio=permitir_envio)
+        return {**doc, "paginas_sin_texto": pendientes}
+
+    @app.get("/api/biblioteca/{doc_id}", dependencies=[Depends(solo_dueno)])
+    def ver_documento(doc_id: str, request: Request) -> dict[str, Any]:
+        store = pipe(request).store
+        try:
+            return {**store._documento(doc_id), "texto": store.texto_documento(doc_id)}  # noqa: SLF001
+        except KeyError as exc:
+            raise HTTPException(404, "documento no encontrado") from exc
+
+    @app.delete("/api/biblioteca/{doc_id}", dependencies=[Depends(solo_dueno), Depends(require_token)])
+    def borrar_documento(doc_id: str, request: Request) -> dict[str, bool]:
+        try:
+            pipe(request).store.borrar_documento(doc_id)
+        except KeyError as exc:
+            raise HTTPException(404, "documento no encontrado") from exc
+        return {"ok": True}
+
+    @app.post("/api/biblioteca/{doc_id}/adjuntar", dependencies=[Depends(solo_dueno), Depends(require_token)])
+    def adjuntar_documento(doc_id: str, request: Request) -> dict[str, str]:
+        try:
+            return pipe(request).store.adjuntar_documento(doc_id)
+        except KeyError as exc:
+            raise HTTPException(404, "documento no encontrado") from exc
 
     @app.get("/api/fuentes")
     async def fuente(

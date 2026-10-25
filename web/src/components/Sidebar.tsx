@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Plus } from "lucide-react";
+import { Columns2, Library, Plus } from "lucide-react";
 import { api } from "../lib/api";
 
 type Item = Awaited<ReturnType<typeof api.consultas>>[number];
@@ -14,12 +14,16 @@ function grupo(creado: string, hoy = new Date()): string {
   return "Anteriores";
 }
 
-export function Sidebar({ abierta, actual, onAbrir, onNueva, refresco }: {
+export function Sidebar({ abierta, actual, onAbrir, onNueva, refresco, vista, onBiblioteca, onComparar }: {
   abierta: boolean;
   actual: string | null;
   onAbrir: (id: string) => void;
   onNueva: () => void;
   refresco: number;
+  vista: string;
+  /** Solo el dueño del equipo tiene biblioteca. */
+  onBiblioteca?: () => void;
+  onComparar: () => void;
 }) {
   const [items, setItems] = useState<Item[]>([]);
   useEffect(() => {
@@ -45,6 +49,16 @@ export function Sidebar({ abierta, actual, onAbrir, onNueva, refresco }: {
       <div className="px-3 pb-2 pt-1">
         <button className="btn-ghost w-full justify-start bg-surface-2 px-4 text-ink" onClick={onNueva}>
           <Plus className="h-4 w-4" />Nueva consulta
+        </button>
+        {onBiblioteca && (
+          <button className={`btn-ghost mt-1 w-full justify-start px-4 ${vista === "biblioteca" ? "bg-surface-2 text-ink" : ""}`}
+                  aria-current={vista === "biblioteca" ? "page" : undefined} onClick={onBiblioteca}>
+            <Library className="h-4 w-4" />Biblioteca
+          </button>
+        )}
+        <button className={`btn-ghost mt-1 w-full justify-start px-4 ${vista === "comparar" ? "bg-surface-2 text-ink" : ""}`}
+                aria-current={vista === "comparar" ? "page" : undefined} onClick={onComparar}>
+          <Columns2 className="h-4 w-4" />Comparar consultas
         </button>
       </div>
       <nav className="flex-1 overflow-auto px-3 pb-4 scroll-thin">

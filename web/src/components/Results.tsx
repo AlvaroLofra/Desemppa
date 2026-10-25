@@ -1,14 +1,20 @@
-import { useState } from "react";
-import { AlertCircle, Check, ChevronDown, Copy, Info, Loader2, Printer, X } from "lucide-react";
+import { createContext, useContext, useState } from "react";
+import { AlertCircle, BookOpen, CalendarPlus, Check, ChevronDown, Copy, FileDown, Info, Loader2, Printer, X } from "lucide-react";
 import type { ConsultaState, Rol } from "../lib/useConsulta";
 import {
   BANDA_TEXTO, type AfirmacionVerificada, type Argumento, type Banda, type EntradaAuditoria, type Fuente, type Plazo,
   type Postulacion, type Pregunta,
 } from "../lib/types";
+import { numerarFuentes } from "../lib/citas";
+import { descargar, nombreFichero } from "../lib/descargar";
 import { diasNaturalesHasta, fechaLarga } from "../lib/highlight";
+import { plazosIcs } from "../lib/ics";
 import { MunicipioPicker, type Municipio } from "./MunicipioPicker";
 
 export type AbrirFuente = (sourceId: string, quote?: string) => void;
+
+/** true mientras se prepara la impresión o el PDF: todos los plegables se muestran abiertos. */
+export const ImprimiendoContext = createContext(false);
 
 const FASES = [
   { label: "Entendiendo tu caso", estados: ["RECIBIDA", "TRIAJE", "ESPERANDO_ACLARACION"] },
@@ -150,7 +156,7 @@ function Debate({ state, onAbrir }: { state: ConsultaState; onAbrir: AbrirFuente
           </button>
         ))}
       </div>
-      <div role="tabpanel" className="max-h-[28rem] overflow-auto pt-4 scroll-thin">
+      <div role="tabpanel" tabIndex={0} aria-label="Contenido del debate" className="max-h-[28rem] overflow-auto pt-4 scroll-thin print:max-h-none print:overflow-visible">
         {borrador && <pre className="whitespace-pre-wrap font-mono text-xs text-ink-3">{borrador.slice(-4000)}</pre>}
         {!borrador && tab !== "magistrado" && state.alegatos[tab] && (
           <div className="space-y-4">
@@ -180,13 +186,14 @@ function Debate({ state, onAbrir }: { state: ConsultaState; onAbrir: AbrirFuente
 
 function Plegable({ titulo, abiertoInicial = false, children }: { titulo: string; abiertoInicial?: boolean; children: React.ReactNode }) {
   const [abierto, setAbierto] = useState(abiertoInicial);
+  const imprimiendo = useContext(ImprimiendoContext);
   return (
     <div>
       <button className="flex items-center gap-1 text-sm text-ink-2 hover:text-ink" aria-expanded={abierto}
               onClick={() => setAbierto(!abierto)}>
         {titulo}<ChevronDown className={`h-4 w-4 transition-transform ${abierto ? "rotate-180" : ""}`} aria-hidden />
       </button>
-      {abierto && <div className="fade-in pt-3">{children}</div>}
+      {(abierto || imprimiendo) && <div className="fade-in pt-3">{children}</div>}
     </div>
   );
 }
@@ -259,11 +266,97 @@ function Postulacion({ p }: { p: Postulacion }) {
   );
 }
 
-function Plazos({ plazos }: { plazos: Plazo[] }) {
+export interface AccionesDictamen {
+  lectura: boolean;
+  onLectura: () => void;
+  onExportar: () => void;
+  onImprimir: () => void;
+}
+
+type Numeracion = Map<string, number>;
+
+/** Superíndices con el número de cada fuente citada; al pulsarlos se abre el pasaje en el visor. */
+function Refs({ citas, num, onAbrir }: { citas: AfirmacionVerificada["citas"]; num: Numeracion; onAbrir: AbrirFuente }) {
+  const vistas = new Set<string>();
+  const unicas = citas.filter((c) => !vistas.has(c.source_id) && Boolean(vistas.add(c.source_id)));
+  if (!unicas.length) return null;
+  return (
+    <>
+      {unicas.map((c) => (
+        <sup key={c.source_id}>
+          <button onClick={() => onAbrir(c.source_id, c.verbatim_quote)}
+                  title={`«${c.verbatim_quote}» — ${c.source_id}`}
+                  aria-label={`Ver fuente ${num.get(c.source_id)}: ${c.source_id}`}
+                  className="ml-0.5 rounded px-0.5 font-sans text-[11px] font-medium text-accent hover:bg-accent-container">
+            [{num.get(c.source_id)}]
+          </button>
+        </sup>
+      ))}
+    </>
+  );
+}
+
+function Etiqueta({ a }: { a: AfirmacionVerificada }) {
+  if (a.tipo !== "razonamiento") return null;
+  return (
+    <span title="Inferencia a partir de la fuente citada: la fuente no lo dice literalmente"
+          className="ml-1 rounded-md bg-surface-2 px-1.5 py-0.5 align-middle font-sans text-[11px] text-ink-2">
+      razonamiento
+    </span>
+  );
+}
+
+/** Texto compuesto solo con afirmaciones verificadas y su referencia; las inferencias se marcan como «razonamiento». */
+function TextoVerificado({ afirmaciones, num, onAbrir }: {
+  afirmaciones: AfirmacionVerificada[]; num: Numeracion; onAbrir: AbrirFuente;
+}) {
+  return (
+    <>
+      {afirmaciones.map((a, i) => (
+        <span key={i}>{a.texto}<Refs citas={a.citas} num={num} onAbrir={onAbrir} /><Etiqueta a={a} />{" "}</span>
+      ))}
+    </>
+  );
+}
+
+function ListaVerificada({ items, textos, num, onAbrir, ordenada = false, className }: {
+  items: AfirmacionVerificada[]; textos: string[]; num: Numeracion; onAbrir: AbrirFuente; ordenada?: boolean;
+  className: string;
+}) {
+  const filas = items.length
+    ? items.map((a, i) => <li key={i}>{a.texto}<Refs citas={a.citas} num={num} onAbrir={onAbrir} /><Etiqueta a={a} /></li>)
+    : textos.map((x, i) => <li key={i}>{x}</li>);
+  return ordenada ? <ol className={className}>{filas}</ol> : <ul className={className}>{filas}</ul>;
+}
+
+function BotonCalendario({ plazos, asunto, etiqueta }: { plazos: Plazo[]; asunto: string; etiqueta?: string }) {
   if (!plazos.length) return null;
+  const nombre = `plazos-${nombreFichero(asunto)}.ics`;
+  return (
+    <button className={etiqueta ? "btn-ghost px-3 text-sm" : "icon-btn h-8 w-8"}
+            title="Añadir al calendario (.ics) con avisos 7 días y 1 día antes"
+            aria-label={etiqueta ?? "Añadir este plazo al calendario"}
+            onClick={() => descargar(nombre, plazosIcs(plazos, asunto), "text/calendar")}>
+      <CalendarPlus className="h-4 w-4" aria-hidden />{etiqueta}
+    </button>
+  );
+}
+
+/** Plazos que interesa apuntar: los del usuario que no han vencido. */
+const apuntables = (plazos: Plazo[]) =>
+  plazos.filter((p) => p.titular !== "contraparte" && diasNaturalesHasta(p.fecha_limite_segura) >= 0);
+
+function Plazos({ plazos, asunto }: { plazos: Plazo[]; asunto: string }) {
+  if (!plazos.length) return null;
+  const todos = apuntables(plazos);
   return (
     <section aria-label="Plazos" className="space-y-3">
-      <h3 className="text-base font-medium text-ink">Plazos</h3>
+      <div className="flex items-center gap-2">
+        <h3 className="flex-1 text-base font-medium text-ink">Plazos</h3>
+        {todos.length > 1 && (
+          <span className="print:hidden"><BotonCalendario plazos={todos} asunto={asunto} etiqueta="Añadir todos al calendario" /></span>
+        )}
+      </div>
       {plazos.map((p) => {
         const restan = diasNaturalesHasta(p.fecha_limite_segura);
         const ajeno = p.titular === "contraparte";
@@ -271,7 +364,10 @@ function Plazos({ plazos }: { plazos: Plazo[] }) {
         const urgente = !ajeno && restan >= 0 && restan <= 7;
         return (
           <div key={p.tipo_plazo_id} className="rounded-3xl bg-surface p-5">
-            <p className="text-sm text-ink-2">{p.descripcion}</p>
+            <div className="flex items-start gap-2">
+              <p className="flex-1 text-sm text-ink-2">{p.descripcion}</p>
+              {todos.includes(p) && <span className="print:hidden"><BotonCalendario plazos={[p]} asunto={asunto} /></span>}
+            </div>
             <p className={`mt-1 text-2xl tabular-nums ${vencido || urgente ? "text-danger" : "text-ink"}`}>
               {fechaLarga(p.fecha_limite_segura)}
             </p>
@@ -291,26 +387,6 @@ function Plazos({ plazos }: { plazos: Plazo[] }) {
         );
       })}
     </section>
-  );
-}
-
-/** Texto compuesto solo con afirmaciones verificadas; las inferencias se marcan como «razonamiento». */
-function TextoVerificado({ afirmaciones, onAbrir }: { afirmaciones: AfirmacionVerificada[]; onAbrir: AbrirFuente }) {
-  return (
-    <p className="legal">
-      {afirmaciones.map((a, i) => (
-        <span key={i}>
-          {a.texto}
-          {a.tipo === "razonamiento" && a.citas[0] && (
-            <button onClick={() => onAbrir(a.citas[0].source_id, a.citas[0].verbatim_quote)}
-                    title={`Razonamiento basado en: ${a.citas.map((c) => c.source_id).join(", ")}`}
-                    className="ml-1 rounded-md bg-surface-2 px-1.5 py-0.5 align-middle font-sans text-[11px] text-ink-2 hover:text-ink">
-              razonamiento
-            </button>
-          )}{" "}
-        </span>
-      ))}
-    </p>
   );
 }
 
@@ -350,10 +426,10 @@ function Avisos({ avisos }: { avisos: string[] }) {
   );
 }
 
-function Acciones({ texto }: { texto: string }) {
+function Acciones({ texto, acciones }: { texto: string; acciones?: AccionesDictamen }) {
   const [copiado, setCopiado] = useState(false);
   return (
-    <div className="flex gap-1">
+    <div className="flex gap-1 print:hidden">
       <button className="icon-btn h-9 w-9" aria-label="Copiar respuesta" title="Copiar"
               onClick={() => navigator.clipboard?.writeText(texto).then(() => {
                 setCopiado(true);
@@ -361,16 +437,33 @@ function Acciones({ texto }: { texto: string }) {
               })}>
         {copiado ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
       </button>
-      <button className="icon-btn h-9 w-9" aria-label="Imprimir" title="Imprimir o guardar como PDF" onClick={() => window.print()}>
-        <Printer className="h-4 w-4" />
-      </button>
+      {acciones && (
+        <>
+          <button className="icon-btn h-9 w-9" aria-label="Exportar el expediente en Markdown"
+                  title="Exportar el expediente completo (.md) · Alt+E" onClick={acciones.onExportar}>
+            <FileDown className="h-4 w-4" />
+          </button>
+          <button className="icon-btn h-9 w-9" aria-label="Imprimir o guardar el expediente como PDF"
+                  title="Imprimir o guardar como PDF (con el proceso y la verificación)" onClick={acciones.onImprimir}>
+            <Printer className="h-4 w-4" />
+          </button>
+          <button className={`icon-btn h-9 w-9 ${acciones.lectura ? "bg-surface-2 text-ink" : ""}`}
+                  aria-pressed={acciones.lectura} aria-label="Modo lectura" title="Modo lectura · Alt+L"
+                  onClick={acciones.onLectura}>
+            <BookOpen className="h-4 w-4" />
+          </button>
+        </>
+      )}
     </div>
   );
 }
 
-export function Answer({ state, onAbrir }: { state: ConsultaState; onAbrir: AbrirFuente }) {
+export function Answer({ state, onAbrir, acciones }: {
+  state: ConsultaState; onAbrir: AbrirFuente; acciones?: AccionesDictamen;
+}) {
   const f = state.final;
   if (!f) return null;
+  const asunto = state.triage?.submateria_descripcion ?? state.pregunta?.slice(0, 60) ?? "Consulta";
   if (f.estado !== "CERTIFICADA" || !f.dictamen) {
     return (
       <section className="fade-in space-y-6" aria-label="Resultado">
@@ -384,49 +477,60 @@ export function Answer({ state, onAbrir }: { state: ConsultaState; onAbrir: Abri
           </div>
         </div>
         {f.postulacion && <Postulacion p={f.postulacion} />}
-        <Plazos plazos={f.plazos ?? []} />
+        <Plazos plazos={f.plazos ?? []} asunto={asunto} />
         <Avisos avisos={f.avisos ?? []} />
         {f.aviso_legal && <p className="text-xs text-ink-3">{f.aviso_legal}</p>}
+        <div className="border-t border-outline pt-4"><Acciones texto={f.mensaje ?? ""} acciones={acciones} /></div>
       </section>
     );
   }
   const d = f.dictamen;
+  const num = numerarFuentes(d);
+  const afs = d.afirmaciones ?? [];
+  const de = (s: AfirmacionVerificada["seccion"]) => afs.filter((a) => a.seccion === s);
+  const titulos = new Map(state.fuentes.map((x) => [x.source_id, x.titulo]));
+  const [respuesta, resumen, fortalezas, riesgos, pasos] = [de("respuesta"), de("resumen"), de("fortaleza"), de("riesgo"), de("paso")];
+  const hayFortalezas = fortalezas.length > 0 || d.fortalezas.length > 0;
+  const hayRiesgos = riesgos.length > 0 || d.riesgos_propios.length > 0;
   return (
     <article className="fade-in space-y-8" aria-label="Dictamen">
-      {d.respuesta_directa && (
-        <p className="text-xl leading-snug text-ink">{d.respuesta_directa}</p>
-      )}
+      {respuesta.length > 0
+        ? <p className="text-xl leading-snug text-ink"><TextoVerificado afirmaciones={respuesta} num={num} onAbrir={onAbrir} /></p>
+        : d.respuesta_directa && <p className="text-xl leading-snug text-ink">{d.respuesta_directa}</p>}
       <div>
         <p className="mb-3 flex items-center gap-2 text-sm text-ink-2">
           <span className={`h-2 w-2 rounded-full ${BANDA_COLOR[d.banda_solidez]}`} aria-hidden />
           Solidez: <span className="text-ink">{BANDA_TEXTO[d.banda_solidez]}</span>
         </p>
-        {d.afirmaciones?.some((a) => a.seccion === "resumen")
-          ? <TextoVerificado afirmaciones={d.afirmaciones.filter((a) => a.seccion === "resumen")} onAbrir={onAbrir} />
+        {resumen.length > 0
+          ? <p className="legal"><TextoVerificado afirmaciones={resumen} num={num} onAbrir={onAbrir} /></p>
           : <p className="legal whitespace-pre-line">{d.resumen_ciudadano}</p>}
       </div>
 
-      {d.pasos_inmediatos.length > 0 && (
+      {(pasos.length > 0 || d.pasos_inmediatos.length > 0) && (
         <section>
           <h3 className="mb-2 text-base font-medium text-ink">Qué hacer ahora</h3>
-          <ol className="list-decimal space-y-1.5 pl-5 text-[15px] leading-relaxed text-ink">{d.pasos_inmediatos.map((p, i) => <li key={i}>{p}</li>)}</ol>
+          <ListaVerificada items={pasos} textos={d.pasos_inmediatos} num={num} onAbrir={onAbrir} ordenada
+                           className="list-decimal space-y-1.5 pl-5 text-[15px] leading-relaxed text-ink" />
         </section>
       )}
 
-      {(d.fortalezas.length > 0 || d.riesgos_propios.length > 0) && (
+      {(hayFortalezas || hayRiesgos) && (
         <div className="grid gap-6 sm:grid-cols-2">
-          {d.fortalezas.length > 0 && (
+          {hayFortalezas && (
             <section><h3 className="mb-2 text-base font-medium text-ink">A tu favor</h3>
-              <ul className="list-disc space-y-1 pl-5 text-sm text-ink-2">{d.fortalezas.map((x, i) => <li key={i}>{x}</li>)}</ul></section>
+              <ListaVerificada items={fortalezas} textos={d.fortalezas} num={num} onAbrir={onAbrir}
+                               className="list-disc space-y-1 pl-5 text-sm text-ink-2" /></section>
           )}
-          {d.riesgos_propios.length > 0 && (
+          {hayRiesgos && (
             <section><h3 className="mb-2 text-base font-medium text-ink">Puntos débiles</h3>
-              <ul className="list-disc space-y-1 pl-5 text-sm text-ink-2">{d.riesgos_propios.map((x, i) => <li key={i}>{x}</li>)}</ul></section>
+              <ListaVerificada items={riesgos} textos={d.riesgos_propios} num={num} onAbrir={onAbrir}
+                               className="list-disc space-y-1 pl-5 text-sm text-ink-2" /></section>
           )}
         </div>
       )}
 
-      <Plazos plazos={d.plazos} />
+      <Plazos plazos={d.plazos} asunto={asunto} />
       {d.postulacion && <Postulacion p={d.postulacion} />}
 
       <section aria-label="Fundamentos verificados">
@@ -435,9 +539,9 @@ export function Answer({ state, onAbrir }: { state: ConsultaState; onAbrir: Abri
           {d.fundamentos.map((fu, i) => (
             <li key={i} className="flex gap-3">
               <button onClick={() => onAbrir(fu.source_id, fu.verbatim_quote)}
-                      aria-label={`Abrir fuente ${i + 1}: ${fu.source_id}`}
+                      aria-label={`Abrir fuente ${num.get(fu.source_id)}: ${fu.source_id}`}
                       className="mt-0.5 flex h-6 min-w-6 shrink-0 items-center justify-center rounded-full bg-accent-container px-1.5 text-xs font-medium text-on-accent-container hover:opacity-80">
-                {i + 1}
+                {num.get(fu.source_id)}
               </button>
               <div className="min-w-0">
                 <p className="text-[15px] text-ink">{fu.texto}</p>
@@ -451,12 +555,26 @@ export function Answer({ state, onAbrir }: { state: ConsultaState; onAbrir: Abri
             </li>
           ))}
         </ol>
+        {num.size > 0 && (
+          <div className="mt-5">
+            <p className="eyebrow mb-1">Fuentes citadas</p>
+            <ol className="space-y-0.5 text-sm">
+              {[...num.entries()].map(([sid, n]) => (
+                <li key={sid}>
+                  <button className="text-left text-ink-2 hover:text-ink" onClick={() => onAbrir(sid)}>
+                    <span className="mr-1.5 font-medium text-accent">[{n}]</span>{titulos.get(sid) ?? sid}
+                  </button>
+                </li>
+              ))}
+            </ol>
+          </div>
+        )}
       </section>
 
       <Avisos avisos={d.avisos} />
       {d.auditoria && d.auditoria.length > 0 && <Auditoria entradas={d.auditoria} />}
       <div className="flex flex-wrap items-center gap-3 border-t border-outline pt-4">
-        <Acciones texto={[d.respuesta_directa, d.resumen_ciudadano].filter(Boolean).join("\n\n")} />
+        <Acciones texto={[d.respuesta_directa, d.resumen_ciudadano].filter(Boolean).join("\n\n")} acciones={acciones} />
         <p className="min-w-0 flex-1 text-xs text-ink-3">
           {d.aviso_legal} Modelos: {Object.entries(d.modelos_usados).map(([r, m]) => `${r} ${m}`).join(" · ")}.
         </p>

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type DragEvent } from "react";
 import { ArrowUp, FileText, Loader2, Paperclip, X } from "lucide-react";
 import { api } from "../lib/api";
+import { SelectorBiblioteca } from "./Biblioteca";
 import { MunicipioPicker, type Municipio } from "./MunicipioPicker";
 
 interface Adjunto { adjunto_id: string; nombre: string; tipo: string; aviso?: string }
@@ -12,11 +13,13 @@ export const SUGERENCIAS = [
 ];
 
 /** Caja de texto principal. `hero`: grande y centrada (inicio); `dock`: fija al pie durante la consulta. */
-export function Composer({ onEnviar, ocupado, variante, textoInicial }: {
+export function Composer({ onEnviar, ocupado, variante, textoInicial, biblioteca = false }: {
   onEnviar: (texto: string, municipio: string | null, adjuntos: string[]) => void;
   ocupado: boolean;
   variante: "hero" | "dock";
   textoInicial?: string;
+  /** Mostrar el botón de la biblioteca (solo el dueño del equipo). */
+  biblioteca?: boolean;
 }) {
   const [texto, setTexto] = useState("");
   const [municipio, setMunicipio] = useState<Municipio | null>(null);
@@ -116,6 +119,10 @@ export function Composer({ onEnviar, ocupado, variante, textoInicial }: {
                   aria-label="Adjuntar documentos" title="Adjuntar documentos (PDF o TXT)">
             {subiendo ? <Loader2 className="h-5 w-5 animate-spin" /> : <Paperclip className="h-5 w-5" />}
           </button>
+          {biblioteca && (
+            <SelectorBiblioteca deshabilitado={adjuntos.length >= 5}
+                                onAdjuntar={(a) => setAdjuntos((x) => (x.length >= 5 ? x : [...x, a]))} />
+          )}
           <MunicipioPicker value={municipio} onChange={setMunicipio} />
           <button
             className={`ml-auto inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors ${

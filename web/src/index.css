@@ -118,3 +118,16 @@
   from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: none; }
 }
+
+/* Modo lectura: texto del dictamen más grande y aireado. */
+.lectura .legal { font-size: 19px; line-height: 1.8; }
+.lectura article > p.text-xl { font-size: 1.6rem; line-height: 1.35; }
+
+/* Imprimir o guardar como PDF: todo el expediente, no solo lo que cabe en la ventana. */
+@media print {
+  html, body, #root { height: auto !important; background: #fff !important; }
+  .overflow-auto { overflow: visible !important; }
+  .h-full, .min-h-0 { height: auto !important; min-height: 0 !important; }
+  .flex-1 { flex: none !important; }
+  details, section, li { break-inside: avoid; }
+}

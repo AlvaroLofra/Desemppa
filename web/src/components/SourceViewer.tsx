@@ -37,7 +37,7 @@ export function SourceViewer({ abierta, consultaId, onClose }: {
   const [antes, resaltado, despues] = highlightParts(data?.texto ?? "", data?.resaltado?.offsets);
   return (
     <aside aria-label="Visor de fuentes"
-           className="fade-in fixed inset-0 z-40 flex flex-col bg-bg lg:static lg:inset-auto lg:z-auto lg:my-2 lg:mr-2 lg:w-[30rem] lg:shrink-0 lg:rounded-3xl lg:bg-surface">
+           className="fade-in print:hidden fixed inset-0 z-40 flex flex-col bg-bg lg:static lg:inset-auto lg:z-auto lg:my-2 lg:mr-2 lg:w-[30rem] lg:shrink-0 lg:rounded-3xl lg:bg-surface">
       <div className="flex items-start gap-2 px-5 pb-3 pt-4">
         <div className="min-w-0 flex-1">
           <p className="text-base font-medium text-ink">{data?.titulo ?? abierta.sourceId}</p>
