@@ -105,10 +105,14 @@ def parse_bloque_xml(id_norma: str, xml: bytes) -> Bloque:
         start = parse_boe_date(v.get("fecha_vigencia")) or parse_boe_date(v.get("fecha_publicacion"))
         if start is None:
             continue
+        # Las notas editoriales del BOE («Téngase en cuenta…», «Redacción anterior: …» con el texto antiguo y
+        # «Se modifica por…») van dentro de <blockquote>: no son ley vigente y se excluyen, para que una cita
+        # copiada de la redacción anterior no pase la verificación literal.
         parts = [
             _paragraph_text(el)
             for el in v.iter()
-            if el.tag == "p" or (el.tag in ("td", "th") and el.find(".//p") is None)
+            if (el.tag == "p" or (el.tag in ("td", "th") and el.find(".//p") is None))
+            and not any(a.tag == "blockquote" for a in el.iterancestors())
         ]
         versiones.append(
             BloqueVersion(

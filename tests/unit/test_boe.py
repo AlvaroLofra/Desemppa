@@ -143,3 +143,20 @@ def test_articulo_con_guion_del_codigo_civil_catalan():
     assert _titulo_es_articulo("Artículo 121-21", "121-21") is True
     assert _titulo_es_articulo("Artículo 121-21", "121") is False
     assert _titulo_es_articulo("Artículo 36 bis", "36bis") is True
+
+
+def test_las_notas_editoriales_del_boe_no_forman_parte_del_texto():
+    xml = """<?xml version="1.0" encoding="utf-8"?><response><status><code>200</code></status><data>
+    <bloque id="a250" tipo="precepto" titulo="Artículo 250">
+      <version id_norma="BOE-A-2023-25758" fecha_publicacion="20231220" fecha_vigencia="20240320">
+        <p class="articulo">Artículo 250. Ámbito del juicio verbal.</p>
+        <p class="parrafo_2">2. Demandas cuya cuantía no exceda de quince mil euros.</p>
+        <blockquote class="soloTexto"><p class="parrafo">Téngase en cuenta que entra en vigor en 2024.</p>
+          <p class="cita_con_pleca">Redacción anterior:</p>
+          <p class="parrafo_2">"2. Demandas cuya cuantía no exceda de seis mil euros."</p>
+        </blockquote>
+        <blockquote><p class="nota_pie">Se modifica por el art. 103.44 del Real Decreto-ley 6/2023.</p></blockquote>
+      </version></bloque></data></response>""".encode()
+    texto = parse_bloque_xml("BOE-A-2000-323", xml).versiones[-1].texto
+    assert "quince mil euros" in texto
+    assert "seis mil" not in texto and "Téngase" not in texto and "Se modifica" not in texto
