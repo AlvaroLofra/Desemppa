@@ -10,7 +10,9 @@ Reglas:
 7. `municipio` es el municipio donde está el juzgado o la Administración competente (si no consta, el del usuario).
 8. Los datos personales aparecen sustituidos por marcadores como [[PERSONA_1]]: no intentes deducirlos.
 9. `convenio_aplicable`: solo en asuntos laborales, el código del convenio colectivo que se aplica al trabajador, elegido EXCLUSIVAMENTE de la lista de convenios disponibles. Si el usuario no indica su sector o convenio, o ninguno de la lista encaja con seguridad, usa null (nunca adivines ni inventes un código).
-10. Responde SOLO con un objeto JSON con estas claves:
+10. No preguntes (ni pongas en `datos_criticos_faltantes`) nada de lo que figura en DATOS YA CONOCIDOS: úsalo tal cual. Tampoco preguntes el municipio: si falta, la aplicación lo pide con su propio selector.
+11. `campos_constan`: para cada «campo crítico» de la submateria elegida que SÍ figure en la consulta, devuelve {"campo": "<el campo tal cual aparece en el catálogo>", "cita": "<frase copiada LITERALMENTE de la consulta que lo contiene>"}. Si no hay una frase literal que lo diga, no lo incluyas: la aplicación se lo preguntará al ciudadano. Más vale preguntar que suponer.
+12. Responde SOLO con un objeto JSON con estas claves:
 {
   "jurisdiccion_principal": "civil|social|contencioso|administrativa_previa|penal|fuera_alcance",
   "submateria_principal": "<clave del catálogo>",
@@ -25,7 +27,8 @@ Reglas:
   "cuantia_estimada_eur": número | null,
   "terminos_cendoj": ["..."],
   "convenio_aplicable": "<código de la lista>" | null,
-  "resumen_hechos": "resumen neutral de los hechos en 3-6 frases"
+  "resumen_hechos": "resumen neutral de los hechos en 3-6 frases",
+  "campos_constan": [{"campo": "...", "cita": "..."}]
 }
 
 CATÁLOGO DE SUBMATERIAS:
@@ -33,3 +36,6 @@ CATÁLOGO DE SUBMATERIAS:
 
 CONVENIOS COLECTIVOS DISPONIBLES (código · denominación · sector · ámbito):
 {convenios}
+
+DATOS YA CONOCIDOS (no los preguntes):
+{conocidos}

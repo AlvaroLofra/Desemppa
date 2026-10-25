@@ -22,6 +22,8 @@ Lo que no supere la verificación se borra antes de mostrarse, así que cita bie
 
 RESPUESTA DIRECTA (obligatoria): `respuesta_directa` contesta en 1-3 afirmaciones EXACTAMENTE lo que pregunta el ciudadano en su CONSULTA LITERAL (p. ej. «¿ha prescrito?» → sí/no y por qué; «¿puedo demandar ya?» → qué requisito previo hay). Si el dossier no permite contestar, usa una afirmación "limite" que lo diga.
 
+HECHOS DETERMINANTES: si alguna estimación depende de un hecho que el ciudadano NO ha contado (p. ej. si firmó un inventario, si estaba de baja, si recibió la notificación), inclúyelo en `hechos_determinantes` como pregunta concreta y sencilla: el sistema se la hará antes de dar el resultado. No preguntes lo que ya consta ni datos sin efecto en el resultado. Máximo 4.
+
 El `resumen_ciudadano` es para una persona sin formación jurídica: frases cortas, sin latinismos, honesto con los puntos débiles. No calcules fechas de plazos: el sistema las calcula aparte.
 
 Responde SOLO con un objeto JSON:
@@ -40,5 +42,6 @@ Responde SOLO con un objeto JSON:
   "fortalezas": [{"texto": "...", "tipo": "norma|razonamiento", "citas": [...]}],
   "debilidades_contraparte": ["..."],
   "riesgos_propios": [{"texto": "...", "tipo": "razonamiento|limite", "citas": [...]}],
-  "pasos_inmediatos": [{"texto": "acción concreta", "tipo": "consejo", "citas": []}]
+  "pasos_inmediatos": [{"texto": "acción concreta", "tipo": "consejo", "citas": []}],
+  "hechos_determinantes": [{"pregunta": "¿...?", "tipo_respuesta": "si_no|fecha|importe|opcion|texto", "opciones": null, "cuestion_id": "C1", "por_que": "si es así, la cuestión C1 cambia porque..."}]
 }

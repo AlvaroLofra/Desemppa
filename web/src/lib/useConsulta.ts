@@ -37,6 +37,16 @@ type Accion =
   | { t: "streaming"; v: boolean }
   | { t: "error"; msg: string };
 
+const NOMBRE_ROL: Record<string, string> = {
+  triaje: "El triaje", cribado: "El cribado", defensa: "La defensa", contraparte: "La contraparte",
+  magistrado: "El Magistrado", nli: "La verificación",
+};
+
+/** «El Magistrado lo ha resuelto X porque Y falló (motivo)», a partir del evento `quota` del servidor. */
+export function avisoSustitucion(d: { rol: string; modelo: string; previsto: string; motivo?: string }): string {
+  return `${NOMBRE_ROL[d.rol] ?? d.rol} lo ha resuelto ${d.modelo} porque ${d.previsto} falló (${d.motivo ?? "no disponible"}).`;
+}
+
 function reducer(s: ConsultaState, a: Accion): ConsultaState {
   switch (a.t) {
     case "reset":
@@ -77,9 +87,10 @@ function reducer(s: ConsultaState, a: Accion): ConsultaState {
         case "deadline":
           return { ...s, plazos: d.plazos };
         case "quota":
-          return { ...s, avisosQuota: [...s.avisosQuota, ...(d.avisos ?? [])] };
+          return { ...s, avisosQuota: [...s.avisosQuota, ...(d.previsto ? [avisoSustitucion(d)] : d.avisos ?? [])] };
         case "final":
-          return { ...s, final: d, estado: d.estado, streaming: false };
+          // El texto en crudo de los modelos (borradores) nunca se muestra tras el resultado: solo lo estructurado.
+          return { ...s, final: d, estado: d.estado, streaming: false, borradores: { defensa: "", contraparte: "", magistrado: "" } };
         case "error":
           return { ...s, error: d.mensaje, estado: "ERROR", streaming: false };
         case "fin":
@@ -176,11 +187,20 @@ export function useConsulta() {
     }
   }, [state.id, escuchar]);
 
+  const detener = useCallback(async () => {
+    if (!state.id) return;
+    try {
+      await api.cancelar(state.id);
+    } catch (e) {
+      dispatch({ t: "error", msg: (e as Error).message });
+    }
+  }, [state.id]);
+
   const limpiar = useCallback(() => {
     cerrar();
     dispatch({ t: "reset", id: null });
   }, [cerrar]);
 
   useEffect(() => cerrar, [cerrar]);
-  return { state, nueva, abrir, responder, limpiar };
+  return { state, nueva, abrir, responder, limpiar, detener };
 }

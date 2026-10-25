@@ -290,6 +290,16 @@ class CuestionLitigiosa(BaseModel):
         return self
 
 
+class HechoDeterminante(BaseModel):
+    """Hecho que el ciudadano no ha contado y que cambiaría la estimación de una cuestión."""
+
+    pregunta: str = Field(max_length=300)
+    tipo_respuesta: Literal["si_no", "fecha", "importe", "opcion", "texto"] = "texto"
+    opciones: list[str] | None = None
+    cuestion_id: str = ""
+    por_que: str = Field(default="", max_length=300)
+
+
 class ResolucionMagistradoSchema(BaseModel):
     cuestiones: list[CuestionLitigiosa] = Field(min_length=1)
     banda_propuesta: BandaSolidez
@@ -301,6 +311,7 @@ class ResolucionMagistradoSchema(BaseModel):
     debilidades_contraparte: list[str] = Field(default_factory=list)
     riesgos_propios: list[Afirmacion] = Field(default_factory=list, max_length=8)
     pasos_inmediatos: list[Afirmacion] = Field(default_factory=list, max_length=8)
+    hechos_determinantes: list[HechoDeterminante] = Field(default_factory=list, max_length=6)
 
     @field_validator("respuesta_directa", "resumen_ciudadano", "fortalezas", "riesgos_propios", mode="before")
     @classmethod
@@ -377,6 +388,24 @@ class EntradaAuditoria(BaseModel):
     motivos: list[str] = Field(default_factory=list)
 
 
+class FuenteSellada(BaseModel):
+    source_id: str
+    titulo: str
+    version: str | None = None  # redacción vigente desde (BOE)
+    sha256: str  # del texto exacto contra el que se verificaron las citas
+    url: str | None = None
+
+
+class SelloVerificacion(BaseModel):
+    """Lo necesario para que un tercero recompruebe el dictamen (benchmark/instrucciones_verificador.md)."""
+
+    verificado_en: datetime
+    fuentes: list[FuenteSellada] = Field(default_factory=list)
+    afirmaciones_mostradas: int = 0
+    afirmaciones_eliminadas: int = 0
+    modelos: dict[str, str] = Field(default_factory=dict)
+
+
 class DictamenCertificadoSchema(BaseModel):
     schema_version: Literal["1.0"] = "1.0"
     consulta_id: str
@@ -398,6 +427,8 @@ class DictamenCertificadoSchema(BaseModel):
     afirmaciones: list[AfirmacionVerificada] = Field(default_factory=list)
     auditoria: list[EntradaAuditoria] = Field(default_factory=list)
     respuesta_parcial: bool = False  # la respuesta directa no superó la verificación: se dice lo que no se sabe
+    hechos_determinantes: list[str] = Field(default_factory=list)  # hechos sin aclarar que cambiarían el resultado
+    sello: SelloVerificacion | None = None
     aviso_legal: str
     generado_en: datetime
 

@@ -68,7 +68,7 @@ def test_invitado_recibe_su_token_y_no_el_del_dueno(app):
         with _invitado(app) as inv:
             t = inv.get("/api/token").json()["token"]
             assert t != s.token and t == dueno.app.state.red.token_invitado
-            assert inv.get("/api/sesion").json() == {"rol": "invitado", "modos_permitidos": ["eco"]}
+            assert inv.get("/api/sesion").json() == {"rol": "invitado", "modos_permitidos": ["eco"], "en_curso": 0}
             # El token del dueño no sirve desde la LAN
             r = inv.post("/api/consultas", headers={"X-Iuris-Token": s.token}, json={"texto": TEXTO, "modo": "eco"})
             assert r.status_code == 403
@@ -127,3 +127,26 @@ def test_el_dueno_puede_ampliar_los_modos(app):
         assert r.json()["activo"] is False
         with _invitado(app) as inv:
             assert inv.get("/api/version").status_code == 403
+
+
+def test_detener_un_analisis_en_curso(app):
+    import time
+
+    from tests.e2e.fake_server import FakeRouter as _Fake
+
+    class Lento(_Fake):
+        async def stream(self, profile, role, request, **kw):  # type: ignore[no-untyped-def]
+            await asyncio.sleep(30)
+            async for x in super().stream(profile, role, request, **kw):
+                yield x
+
+    with _dueno(app) as cli:
+        s = cli.app.state.services
+        s.pipeline.router = Lento(s.catalog)
+        h = {"X-Iuris-Token": s.token}
+        cid = cli.post("/api/consultas", headers=h, json={"texto": TEXTO, "modo": "eco"}).json()["consulta_id"]
+        time.sleep(0.3)
+        r = cli.post(f"/api/consultas/{cid}/cancelar", headers=h)
+        assert r.status_code == 200, r.text
+        assert cli.get(f"/api/consultas/{cid}").json()["estado"] == "ERROR"
+        assert cli.post(f"/api/consultas/{cid}/cancelar", headers=h).status_code == 409

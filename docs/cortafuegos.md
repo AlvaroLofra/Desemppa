@@ -34,7 +34,8 @@ El texto que lee el ciudadano **se compone en código** solo con las afirmacione
    - fechas: solo las que constan o las calculadas por `CalendarEngine`.
 
    Las bases legales de los plazos y de la postulación cuentan como referencias permitidas.
-4. **NLI de otra familia**: si resuelve Gemini, verifica Claude (y al revés). Así no se corrige a sí mismo. Una
+4. **NLI de otra familia**: si resuelve Gemini, verifica Claude (y al revés). Así no se corrige a sí mismo. Excepción:
+   en **Eco** verifica Gemini 3.8 Flash por decisión expresa del usuario (25-10-2026), para no gastar cuota de Claude. Una
    `norma` con NEUTRAL pasa a `razonamiento`; con CONTRADICTS se elimina.
 5. **Hechos no contados** (`hechos_no_constatados`): se elimina lo que atribuye al ciudadano o a la otra parte algo
    que no dijo.
@@ -56,7 +57,24 @@ eliminadas)»**, y en los expedientes de la batería en la sección 4.
 dossier, una cita literal por afirmación, nada de normas, sentencias, cifras ni fechas ausentes, «si no consta, dilo» y
 nada de porcentajes de éxito. El prompt reduce los fallos y el código los elimina.
 
-## 5. Límites conocidos
+## 5. Más allá de cada afirmación (25-10-2026)
+- **Texto citable sin notas editoriales**: el texto del BOE excluye la «Redacción anterior», «Téngase en cuenta» y
+  «Se modifica…». Antes, una cita copiada de la redacción derogada (que el BOE incluye como nota) pasaba la
+  verificación literal.
+- **Escalado**: si el Magistrado de Flash falla la verificación dos veces, se repite con Argon (misma familia).
+- **Banda según lo verificado**: si se elimina parte de la respuesta directa o un tercio de las afirmaciones
+  jurídicas, la solidez baja un nivel. Si todas las cuestiones se estiman en contra, no puede ser favorable.
+- **Doble Magistrado (Pro)**: si dos resoluciones independientes discrepan, la solidez pasa a «disparidad de
+  criterio».
+- **Hechos determinantes**: lo que cambiaría el resultado y el ciudadano no ha contado se le pregunta (segunda ronda)
+  o se le muestra. Nunca se supone.
+- **Sello de verificación**: la versión y el SHA-256 del texto exacto de cada fuente, para recomprobarlo fuera de la
+  app.
+- **Hoja de ruta y escritos sin LLM**: los pasos son deterministas y cada uno cita literalmente su artículo (121 citas
+  comprobadas contra el BOE). Los borradores de escritos solo usan el relato del usuario y afirmaciones «norma»
+  verificadas.
+
+## 6. Límites conocidos
 - El NLI es un LLM: puede equivocarse. Por eso solo puede **degradar** una afirmación (de norma a razonamiento) o
   eliminarla, nunca añadir nada.
 - El escáner reconoce las formas habituales de citar. Una referencia escrita de forma muy rara podría no detectarse,

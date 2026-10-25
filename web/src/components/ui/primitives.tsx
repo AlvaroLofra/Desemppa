@@ -27,7 +27,9 @@ export function Switch({ checked, onChange, label, disabled }: {
   );
 }
 
-export function Dialog({ titulo, onClose, children }: { titulo: string; onClose: () => void; children: ReactNode }) {
+export function Dialog({ titulo, onClose, children, amplio = false }: {
+  titulo: string; onClose: () => void; children: ReactNode; amplio?: boolean;
+}) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const esc = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -43,7 +45,7 @@ export function Dialog({ titulo, onClose, children }: { titulo: string; onClose:
         aria-modal="true"
         aria-label={titulo}
         onMouseDown={(e) => e.stopPropagation()}
-        className="fade-in w-full max-w-md rounded-[28px] bg-surface p-6 shadow-float"
+        className={`fade-in w-full ${amplio ? "max-w-2xl" : "max-w-md"} rounded-[28px] bg-surface p-6 shadow-float`}
       >
         <div className="mb-4 flex items-center">
           <h2 className="text-xl text-ink">{titulo}</h2>

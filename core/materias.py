@@ -75,4 +75,8 @@ def id_norma(alias: str) -> str:
 
 
 def catalogo_para_prompt() -> str:
-    return "\n".join(f"- {s.clave} [{s.jurisdiccion}]: {s.descripcion}" for s in submaterias().values())
+    return "\n".join(
+        f"- {s.clave} [{s.jurisdiccion}]: {s.descripcion}"
+        + (f" · campos críticos: {'; '.join(s.campos_criticos)}" if s.campos_criticos else "")
+        for s in submaterias().values()
+    )

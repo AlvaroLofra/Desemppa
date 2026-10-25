@@ -12,6 +12,7 @@ from connectors.convenios_db import ConveniosRepository
 from connectors.retriever import HybridRetriever
 from core.calendar_engine import CalendarEngine
 from core.llm_types import LLMResult, StreamChunk
+from core.materias import submaterias
 from core.orchestrator import Orchestrator, Services
 from core.state import ConsultaStore, Estado, EventBus, TransicionInvalida
 from tests.conftest import FIXTURES
@@ -38,6 +39,16 @@ TRIAJE_OK = {
     "cuantia_estimada_eur": 900,
     "terminos_cendoj": ["fianza pintar"],
     "resumen_hechos": "El arrendador retiene la fianza de 900 euros alegando que hay que pintar la vivienda.",
+    # Los campos críticos de CIV_LAU_FIANZA «constan» (citan una palabra de todas las consultas de prueba), para que
+    # los tests de otras fases no se detengan a preguntar; las preguntas se prueban aparte.
+    "campos_constan": [
+        {"campo": c, "cita": "fianza"}
+        for c in [
+            "fecha de entrega de llaves",
+            "importe de la fianza",
+            "estado de la vivienda a la entrada (fotos o inventario)",
+        ]
+    ],
 }
 ALEGATO = lambda rol, q: {  # noqa: E731
     "rol": rol,
@@ -102,9 +113,11 @@ class ScriptedRouter:
     def __init__(self, script):
         self.script = {k: list(v) for k, v in script.items()}
         self.calls = []
+        self.systems = {}
 
     async def stream(self, profile, role, request, **kw):
         self.calls.append(role)
+        self.systems[role] = request.system
         if role == "nli":
             n = request.prompt.count("### Par")
             payload = {"resultados": [{"indice": i, "etiqueta": "ENTAILS"} for i in range(n)]}
@@ -369,6 +382,9 @@ async def test_triaje_solo_acepta_convenios_indexados(services, db, propuesto, e
         "submateria_principal": "SOC_DESPIDO_DISC",
         "ramas": [{"submateria": "SOC_DESPIDO_DISC", "jurisdiccion": "social", "peso_enrutamiento": 1.0}],
         "convenio_aplicable": propuesto,  # un código inventado por el modelo debe descartarse
+        "campos_constan": [
+            {"campo": c, "cita": "despidieron"} for c in submaterias()["SOC_DESPIDO_DISC"].campos_criticos
+        ],
     }
     s, _ = services({"triaje": [triaje]})
     cid = s.store.create("Soy camarero y me despidieron el 1 de junio de 2026.", "eco")
@@ -441,3 +457,174 @@ async def test_toda_consulta_civil_lleva_el_requisito_masc_al_dossier(services):
     t = await Orchestrator(s)._triaje(_Run(cid, "eco"))
     assert t is not None
     assert any(n.id_norma == "BOE-A-2025-76" and n.articulos == ["5", "10"] for n in t.normas_boe_objetivo)
+
+
+async def test_con_municipio_elegido_no_se_pregunta_aunque_el_modelo_lo_haga_como_texto(services):
+    from core.orchestrator import _Run
+
+    triaje = {
+        **TRIAJE_OK,
+        "municipio": None,
+        "grado_ambiguedad": 0.5,
+        "datos_criticos_faltantes": ["municipio del juzgado"],
+        "preguntas_aclaracion": [
+            {"id": "q1", "texto": "¿En qué localidad está la vivienda?", "tipo_respuesta": "texto"},
+            {"id": "q2", "texto": "¿En qué municipio está el juzgado?", "tipo_respuesta": "municipio"},
+            {"id": "q3", "texto": "¿Cuándo entregaste las llaves?", "tipo_respuesta": "texto"},
+            {"id": "q4", "texto": "¿Cuál es el importe de la fianza?", "tipo_respuesta": "importe"},
+            {"id": "q5", "texto": "¿Hiciste fotos del piso al salir?", "tipo_respuesta": "si_no"},
+        ],
+    }
+    s, router = services({"triaje": [triaje]})
+    cid = s.store.create(
+        "Entregué las llaves el 1 de junio de 2026 y no me devuelven la fianza de 900 euros.",
+        "eco",
+        municipio_ine="28079",
+    )
+    t = await Orchestrator(s)._triaje(_Run(cid, "eco"))
+    assert t is None
+    preguntas = next(d for tipo, d in _events(s, cid) if tipo == "clarification_needed")["preguntas"]
+    assert [p["id"] for p in preguntas] == ["q5"]  # municipio, fecha e importe ya constaban
+    assert "Madrid" in router.systems["triaje"] and "2026-06-01" in router.systems["triaje"]
+
+
+async def test_sin_municipio_se_pregunta_una_sola_vez(services):
+    from core.orchestrator import _Run
+
+    triaje = {
+        **TRIAJE_OK,
+        "municipio": None,
+        "preguntas_aclaracion": [
+            {"id": "q1", "texto": "¿En qué ciudad vives?", "tipo_respuesta": "texto"},
+            {"id": "q2", "texto": "¿Municipio del juzgado?", "tipo_respuesta": "municipio"},
+        ],
+    }
+    s, router = services({"triaje": [triaje]})
+    cid = s.store.create("Entregué las llaves el 1 de junio de 2026 y no me devuelven la fianza.", "eco")
+    t = await Orchestrator(s)._triaje(_Run(cid, "eco"))
+    assert t is None
+    preguntas = next(d for tipo, d in _events(s, cid) if tipo == "clarification_needed")["preguntas"]
+    municipio = [p for p in preguntas if p["tipo_respuesta"] == "municipio" or "ciudad" in p["texto"]]
+    assert [p["id"] for p in municipio] == ["q_municipio"]
+    assert "(ninguno)" not in router.systems["triaje"]  # la fecha escrita sí se pasa como conocida
+
+
+def test_campos_criticos_sin_cita_literal_se_preguntan(tmp_path):
+    """Un campo crítico solo cuenta como conocido si el modelo cita una frase LITERAL de la consulta."""
+    from core.materias import submaterias
+    from core.orchestrator import _preguntas_campos_criticos
+
+    sub = submaterias()["CIV_LAU_FIANZA"]
+    hechos = "Entregué las llaves el 1 de junio y el casero se queda los 900 euros de la fianza."
+    constan = [
+        {"campo": "importe de la fianza", "cita": "los 900 euros de la fianza"},  # literal: consta
+        {
+            "campo": "estado de la vivienda a la entrada (fotos o inventario)",
+            "cita": "hice fotos al entrar",
+        },  # inventada
+    ]
+    preguntas = _preguntas_campos_criticos(sub, constan, hechos, {"fecha": True}, [])
+    textos = [p.texto for p in preguntas]
+    assert textos == ["Indica estado de la vivienda a la entrada (fotos o inventario)"]
+
+
+def test_campo_critico_tipo_si_no(tmp_path):
+    from core.materias import submaterias
+    from core.orchestrator import _preguntas_campos_criticos
+
+    preguntas = _preguntas_campos_criticos(submaterias()["SOC_DESPIDO_IT"], [], "Me despidieron.", {}, [])
+    baja = next(p for p in preguntas if "baja" in p.texto)
+    assert baja.tipo_respuesta == "si_no"
+
+
+async def test_tras_dos_fallos_el_magistrado_se_repite_con_argon(services):
+    """Escalado dentro de la misma familia: Flash falla la verificación dos veces → una vez con Argon."""
+    from types import SimpleNamespace
+
+    falsa = "el arrendador podrá retener la fianza íntegra si la vivienda necesita pintura nueva"
+    mala = magistrado(quote_boe=falsa)
+    mala["cuestiones"][0]["fundamentos"] = mala["cuestiones"][0]["fundamentos"][:1]
+    s, router = services(
+        {
+            "triaje": [TRIAJE_OK],
+            "defensa": [ALEGATO("DEFENSA", Q_BOE)],
+            "contraparte": [ALEGATO("CONTRAPARTE", Q_BOE)],
+            "magistrado": [mala, mala, magistrado()],
+        }
+    )
+    modelos: list[object] = []
+    original = router.stream
+
+    async def stream(profile, role, request, **kw):  # type: ignore[no-untyped-def]
+        if role == "magistrado":
+            modelos.append(kw.get("modelo"))
+        async for x in original(profile, role, request, **kw):
+            yield x
+
+    router.stream = stream
+    router.resolve = lambda modo, rol: SimpleNamespace(model="agy_gemini_flash")
+    router.catalog = SimpleNamespace(models={"agy_gemini_argon": object()})
+    cid = s.store.create(
+        "Entregué las llaves el 1 de junio de 2026 y el casero no me devuelve la fianza por pintar la casa.", "eco"
+    )
+    await Orchestrator(s).run(cid)
+    assert modelos == [None, None, "agy_gemini_argon"]
+    c = s.store.get(cid)
+    assert c.estado == Estado.CERTIFICADA
+    assert any("agy_gemini_argon" in a for a in c.dictamen["dictamen"]["avisos"])
+
+
+async def test_la_banda_se_rebaja_si_el_cortafuegos_elimina_la_respuesta(services):
+    m = magistrado()
+    sid = next(c["source_id"] for a in m["respuesta_directa"] for c in a.get("citas", []))
+    m["respuesta_directa"].append(
+        {
+            "texto": "La ley obliga al casero a pagar el doble de la fianza.",
+            "tipo": "norma",
+            "citas": [
+                {"source_id": sid, "verbatim_quote": "el arrendador deberá abonar el doble de la fianza sin excepción"}
+            ],
+        }
+    )
+    s, _ = services(
+        {
+            "triaje": [TRIAJE_OK],
+            "defensa": [ALEGATO("DEFENSA", Q_BOE)],
+            "contraparte": [ALEGATO("CONTRAPARTE", Q_BOE)],
+            "magistrado": [m, m],
+        }
+    )
+    cid = s.store.create(
+        "Entregué las llaves el 1 de junio de 2026 y el casero no me devuelve la fianza por pintar la casa.", "eco"
+    )
+    await Orchestrator(s).run(cid)
+    d = s.store.get(cid).dictamen["dictamen"]
+    assert any(e["seccion"] == "respuesta" and e["resultado"] == "eliminada" for e in d["auditoria"])
+    assert any("solidez se ha rebajado" in a for a in d["avisos"])
+
+
+async def test_doble_magistrado_con_discrepancia_ajusta_la_solidez(services):
+    from types import SimpleNamespace
+
+    a_favor = magistrado()
+    en_contra = magistrado()
+    for q in en_contra["cuestiones"]:
+        q["estimacion"] = "CONTRAPARTE"
+    s, router = services(
+        {
+            "triaje": [TRIAJE_OK],
+            "defensa": [ALEGATO("DEFENSA", Q_BOE)],
+            "contraparte": [ALEGATO("CONTRAPARTE", Q_BOE)],
+            "magistrado": [a_favor, en_contra],
+        }
+    )
+    router.catalog = SimpleNamespace(profiles={"eco": SimpleNamespace(magistrado_doble=True)}, models={})
+    cid = s.store.create(
+        "Entregué las llaves el 1 de junio de 2026 y el casero no me devuelve la fianza por pintar la casa.", "eco"
+    )
+    await Orchestrator(s).run(cid)
+    d = s.store.get(cid).dictamen["dictamen"]
+    assert router.calls.count("magistrado") == 2
+    assert d["banda_solidez"] not in ("criterio_consolidado_favorable", "argumento_solido_sin_doctrina")
+    assert any("no coinciden" in a for a in d["avisos"])
+    assert d["sello"]["fuentes"] and all(len(f["sha256"]) == 64 for f in d["sello"]["fuentes"])

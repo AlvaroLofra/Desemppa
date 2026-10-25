@@ -1,8 +1,8 @@
 import { createContext, useContext, useState } from "react";
-import { AlertCircle, BookOpen, CalendarPlus, Check, ChevronDown, Copy, FileDown, Info, Loader2, Printer, X } from "lucide-react";
+import { AlertCircle, BookOpen, Square, CalendarPlus, Check, ChevronDown, Copy, FileDown, Info, Loader2, Printer, X } from "lucide-react";
 import type { ConsultaState, Rol } from "../lib/useConsulta";
 import {
-  BANDA_TEXTO, type AfirmacionVerificada, type Argumento, type Banda, type EntradaAuditoria, type Fuente, type Plazo,
+  BANDA_TEXTO, type SelloVerificacion, type AfirmacionVerificada, type Argumento, type Banda, type EntradaAuditoria, type Fuente, type Plazo,
   type Postulacion, type Pregunta,
 } from "../lib/types";
 import { numerarFuentes } from "../lib/citas";
@@ -10,6 +10,10 @@ import { descargar, nombreFichero } from "../lib/descargar";
 import { diasNaturalesHasta, fechaLarga } from "../lib/highlight";
 import { plazosIcs } from "../lib/ics";
 import { MunicipioPicker, type Municipio } from "./MunicipioPicker";
+import { DatePicker } from "./ui/DatePicker";
+import { HojaDeRuta } from "./HojaDeRuta";
+import { VistaProfesional } from "./VistaProfesional";
+import type { PasoHoja } from "../lib/api";
 
 export type AbrirFuente = (sourceId: string, quote?: string) => void;
 
@@ -24,13 +28,20 @@ const FASES = [
 ];
 
 /** Una sola línea de progreso, como el «pensando…» de Gemini. */
-export function ProgressLine({ estado, streaming }: { estado: string | null; streaming: boolean }) {
+export function ProgressLine({ estado, streaming, onDetener }: {
+  estado: string | null; streaming: boolean; onDetener?: () => void;
+}) {
   const i = FASES.findIndex((f) => estado && f.estados.includes(estado));
   if (!streaming || i < 0) return null;
   return (
     <p className="fade-in flex items-center gap-3 text-sm text-ink-2" aria-live="polite">
       <Loader2 className="h-4 w-4 animate-spin text-accent" aria-hidden />
       {FASES[i].label}…<span className="text-ink-3">Fase {i + 1} de {FASES.length}</span>
+      {onDetener && (
+        <button className="btn-ghost ml-auto px-3 py-1 text-xs" onClick={onDetener} title="Detener el análisis">
+          <Square className="h-3 w-3" aria-hidden />Detener
+        </button>
+      )}
     </p>
   );
 }
@@ -41,14 +52,18 @@ export function Clarification({ preguntas, onResponder }: {
 }) {
   const [resp, setResp] = useState<Record<string, string>>({});
   const [muni, setMuni] = useState<Municipio | null>(null);
-  const listo = preguntas.every((p) => (p.tipo_respuesta === "municipio" ? muni : resp[p.id]?.trim()));
+  const NO_SE = "No lo sé";
+  const listo = preguntas.every((p) => resp[p.id] === NO_SE || (p.tipo_respuesta === "municipio" ? muni : resp[p.id]?.trim()));
   return (
     <section className="fade-in space-y-4" aria-label="Preguntas aclaratorias">
       <p className="text-base text-ink">Antes de seguir, necesito algunos datos para no equivocarme:</p>
+      <p className="-mt-2 text-sm text-ink-2">Cuanto más precisas sean tus respuestas, más fiable será el resultado. Si no sabes algo, dilo: no se supondrá.</p>
       <div className="space-y-4 rounded-3xl bg-surface p-5">
         {preguntas.map((p) => (
-          <label key={p.id} className="block">
-            <span className="mb-2 block text-sm text-ink">{p.texto}</span>
+          <div key={p.id} className="block">
+            <span className="block text-sm text-ink">{p.texto}</span>
+            {p.motivo && <span className="mb-2 block text-xs text-ink-3">Por qué lo pregunto: {p.motivo}</span>}
+            {!p.motivo && <span className="mb-2 block" />}
             {p.tipo_respuesta === "municipio" ? (
               <MunicipioPicker value={muni} onChange={setMuni} compact arriba={false} />
             ) : p.tipo_respuesta === "si_no" ? (
@@ -60,22 +75,32 @@ export function Clarification({ preguntas, onResponder }: {
                 ))}
               </span>
             ) : p.opciones?.length ? (
-              <select className="field max-w-sm" value={resp[p.id] ?? ""}
+              <select className="field max-w-sm" value={resp[p.id] ?? ""} aria-label={p.texto}
                       onChange={(e) => setResp({ ...resp, [p.id]: e.target.value })}>
                 <option value="">Elige…</option>
                 {p.opciones.map((o) => <option key={o}>{o}</option>)}
               </select>
+            ) : p.tipo_respuesta === "fecha" ? (
+              <DatePicker value={resp[p.id] || null} label={p.texto}
+                          onChange={(f) => setResp({ ...resp, [p.id]: f ?? "" })} />
             ) : (
-              <input type={p.tipo_respuesta === "fecha" ? "date" : p.tipo_respuesta === "importe" ? "number" : "text"}
+              <input type={p.tipo_respuesta === "importe" ? "number" : "text"} aria-label={p.texto}
                      className="field max-w-sm" value={resp[p.id] ?? ""}
                      onChange={(e) => setResp({ ...resp, [p.id]: e.target.value })} />
             )}
-          </label>
+            <button type="button" aria-pressed={resp[p.id] === NO_SE}
+                    onClick={() => setResp({ ...resp, [p.id]: resp[p.id] === NO_SE ? "" : NO_SE })}
+                    className={`mt-2 rounded-full px-3 py-1 text-xs transition-colors ${
+                      resp[p.id] === NO_SE ? "bg-accent-container text-on-accent-container" : "text-ink-2 hover:bg-surface-2"}`}>
+              {NO_SE}
+            </button>
+          </div>
         ))}
         <button className="btn-primary" disabled={!listo} onClick={() => onResponder(preguntas.map((p) => ({
           pregunta: p.texto,
-          respuesta: p.tipo_respuesta === "municipio" ? `${muni?.nombre} (${muni?.provincia})` : resp[p.id] ?? "",
-          municipio_ine: p.tipo_respuesta === "municipio" ? muni?.codigo_ine : undefined,
+          respuesta: resp[p.id] === NO_SE ? NO_SE
+            : p.tipo_respuesta === "municipio" ? `${muni?.nombre} (${muni?.provincia})` : resp[p.id] ?? "",
+          municipio_ine: p.tipo_respuesta === "municipio" && resp[p.id] !== NO_SE ? muni?.codigo_ine : undefined,
         })))}>Continuar</button>
       </div>
     </section>
@@ -157,15 +182,15 @@ function Debate({ state, onAbrir }: { state: ConsultaState; onAbrir: AbrirFuente
         ))}
       </div>
       <div role="tabpanel" tabIndex={0} aria-label="Contenido del debate" className="max-h-[28rem] overflow-auto pt-4 scroll-thin print:max-h-none print:overflow-visible">
-        {borrador && <pre className="whitespace-pre-wrap font-mono text-xs text-ink-3">{borrador.slice(-4000)}</pre>}
-        {!borrador && tab !== "magistrado" && state.alegatos[tab] && (
+        {borrador && !state.final && <pre className="whitespace-pre-wrap font-mono text-xs text-ink-3 print:hidden">{borrador.slice(-4000)}</pre>}
+        {(!borrador || state.final) && tab !== "magistrado" && state.alegatos[tab] && (
           <div className="space-y-4">
             <p className="text-sm text-ink-2"><span className="font-medium text-ink">Pretensión:</span> {state.alegatos[tab]!.alegato.pretension}</p>
             <Citas args={state.alegatos[tab]!.alegato.cuestiones.flatMap((q) => q.argumentos)}
                    verif={state.alegatos[tab]!.verificacion} onAbrir={onAbrir} />
           </div>
         )}
-        {!borrador && tab === "magistrado" && state.resolucion && (
+        {(!borrador || state.final) && tab === "magistrado" && state.resolucion && (
           <div className="space-y-6">
             {state.resolucion.cuestiones.map((q) => (
               <div key={q.id}>
@@ -176,7 +201,7 @@ function Debate({ state, onAbrir }: { state: ConsultaState; onAbrir: AbrirFuente
             ))}
           </div>
         )}
-        {!borrador && !(tab === "magistrado" ? state.resolucion : state.alegatos[tab as "defensa" | "contraparte"]) && (
+        {(!borrador || state.final) && !(tab === "magistrado" ? state.resolucion : state.alegatos[tab as "defensa" | "contraparte"]) && (
           <p className="text-sm text-ink-3">Esperando turno…</p>
         )}
       </div>
@@ -390,6 +415,27 @@ function Plazos({ plazos, asunto }: { plazos: Plazo[]; asunto: string }) {
   );
 }
 
+/** Sello de verificación: versión y huella del texto de cada fuente, para recomprobar el dictamen fuera de la app. */
+function Sello({ sello }: { sello: SelloVerificacion }) {
+  return (
+    <Plegable titulo={`Sello de verificación (${sello.fuentes.length} fuentes)`}>
+      <div className="space-y-2 rounded-3xl bg-surface p-5 text-xs text-ink-2">
+        <p>Verificado el {new Date(sello.verificado_en).toLocaleString("es-ES")} · {sello.afirmaciones_mostradas} afirmaciones mostradas,
+          {" "}{sello.afirmaciones_eliminadas} eliminadas · modelos: {Object.entries(sello.modelos).map(([r, m]) => `${r} ${m}`).join(", ")}</p>
+        <ul className="space-y-1">
+          {sello.fuentes.map((f) => (
+            <li key={f.source_id} className="break-all">
+              <span className="text-ink">{f.titulo}</span>{f.version && ` · redacción vigente desde ${f.version}`}
+              <span className="block font-mono text-[11px] text-ink-3">SHA-256 {f.sha256}</span>
+            </li>
+          ))}
+        </ul>
+        <p className="text-ink-3">Cualquier persona puede descargar el texto oficial, calcular su SHA-256 y comprobar que las citas salen de ese texto exacto.</p>
+      </div>
+    </Plegable>
+  );
+}
+
 const ESTADO_AUDITORIA = { aceptada: "Verificada", reclasificada: "Pasa a razonamiento", eliminada: "Eliminada" } as const;
 
 /** «Cómo se ha verificado»: qué hizo el cortafuegos con cada afirmación (docs/cortafuegos.md). */
@@ -458,8 +504,8 @@ function Acciones({ texto, acciones }: { texto: string; acciones?: AccionesDicta
   );
 }
 
-export function Answer({ state, onAbrir, acciones }: {
-  state: ConsultaState; onAbrir: AbrirFuente; acciones?: AccionesDictamen;
+export function Answer({ state, onAbrir, acciones, hoja = [], profesional = false }: {
+  state: ConsultaState; onAbrir: AbrirFuente; acciones?: AccionesDictamen; hoja?: PasoHoja[]; profesional?: boolean;
 }) {
   const f = state.final;
   if (!f) return null;
@@ -478,6 +524,8 @@ export function Answer({ state, onAbrir, acciones }: {
         </div>
         {f.postulacion && <Postulacion p={f.postulacion} />}
         <Plazos plazos={f.plazos ?? []} asunto={asunto} />
+        <HojaDeRuta pasos={hoja} plazos={f.plazos ?? []} postulacion={f.postulacion} relato={state.pregunta ?? ""}
+                    titulos={new Map(state.fuentes.map((x) => [x.source_id, x.titulo]))} />
         <Avisos avisos={f.avisos ?? []} />
         {f.aviso_legal && <p className="text-xs text-ink-3">{f.aviso_legal}</p>}
         <div className="border-t border-outline pt-4"><Acciones texto={f.mensaje ?? ""} acciones={acciones} /></div>
@@ -507,6 +555,21 @@ export function Answer({ state, onAbrir, acciones }: {
           : <p className="legal whitespace-pre-line">{d.resumen_ciudadano}</p>}
       </div>
 
+      {!profesional && state.resolucion && state.resolucion.cuestiones.length > 1 && (
+        <section aria-label="Cuestiones de tu caso">
+          <h3 className="mb-2 text-base font-medium text-ink">Tu caso tiene {state.resolucion.cuestiones.length} cuestiones</h3>
+          <ul className="space-y-1.5 text-[15px] text-ink">
+            {state.resolucion.cuestiones.map((q) => (
+              <li key={q.id} className="flex gap-2">
+                <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${q.estimacion === "DEFENSA" ? "bg-success" : "bg-danger"}`} aria-hidden />
+                <span>{q.enunciado} <span className="text-ink-2">— {q.estimacion === "DEFENSA" ? "a tu favor" : "a favor de la otra parte"}</span></span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+      {profesional && <VistaProfesional state={state} d={d} onAbrir={onAbrir} />}
+
       {(pasos.length > 0 || d.pasos_inmediatos.length > 0) && (
         <section>
           <h3 className="mb-2 text-base font-medium text-ink">Qué hacer ahora</h3>
@@ -532,6 +595,8 @@ export function Answer({ state, onAbrir, acciones }: {
 
       <Plazos plazos={d.plazos} asunto={asunto} />
       {d.postulacion && <Postulacion p={d.postulacion} />}
+      <HojaDeRuta pasos={hoja} dictamen={d} plazos={d.plazos} postulacion={d.postulacion} relato={state.pregunta ?? ""}
+                  titulos={titulos} />
 
       <section aria-label="Fundamentos verificados">
         <h3 className="mb-3 text-base font-medium text-ink">Fundamentos verificados</h3>
@@ -571,14 +636,86 @@ export function Answer({ state, onAbrir, acciones }: {
         )}
       </section>
 
+      {d.hechos_determinantes && d.hechos_determinantes.length > 0 && (
+        <section aria-label="Lo que podría cambiar el resultado" className="rounded-3xl bg-warning-container/60 p-5">
+          <h3 className="mb-1 text-base font-medium text-ink">Lo que podría cambiar el resultado</h3>
+          <p className="mb-2 text-sm text-ink-2">No consta en tu consulta. Si puedes, reúne la prueba o vuelve a consultar con el dato:</p>
+          <ul className="list-disc space-y-1 pl-5 text-sm text-ink">{d.hechos_determinantes.map((h, i) => <li key={i}>{h}</li>)}</ul>
+        </section>
+      )}
+
       <Avisos avisos={d.avisos} />
       {d.auditoria && d.auditoria.length > 0 && <Auditoria entradas={d.auditoria} />}
+      {d.sello && <Sello sello={d.sello} />}
       <div className="flex flex-wrap items-center gap-3 border-t border-outline pt-4">
         <Acciones texto={[d.respuesta_directa, d.resumen_ciudadano].filter(Boolean).join("\n\n")} acciones={acciones} />
         <p className="min-w-0 flex-1 text-xs text-ink-3">
-          {d.aviso_legal} Modelos: {Object.entries(d.modelos_usados).map(([r, m]) => `${r} ${m}`).join(" · ")}.
+          {d.aviso_legal} Modelos usados:{" "}
+          {Object.entries(d.modelos_usados).map(([r, m], i) => (
+            <span key={r}>
+              {i > 0 && " · "}
+              {/* «modelo (en lugar de previsto: motivo)»: lo resolvió otro modelo y se destaca */}
+              <span className={m.includes("(en lugar de ") ? "font-medium text-warning" : undefined}>{r} {m}</span>
+            </span>
+          ))}.
         </p>
       </div>
     </article>
+  );
+}
+
+/** El «cómo se ha llegado» para imprimir o guardar como PDF: en prosa y con sus citas, sin pestañas ni texto en
+ *  crudo de los modelos. Solo se ve al imprimir. */
+export function ProcesoImpresion({ state }: { state: ConsultaState }) {
+  const t = state.triage;
+  const r = state.resolucion;
+  if (!state.final || (!t && !r && !state.alegatos.defensa)) return null;
+  const cita = (c: { source_id: string; verbatim_quote: string }, k: number) => (
+    <p key={k} className="ml-4 font-serif text-[13px] italic text-ink-2">«{c.verbatim_quote}» <span className="not-italic text-ink-3">({c.source_id})</span></p>
+  );
+  return (
+    <section aria-label="Cómo se ha analizado" className="hidden space-y-5 border-t border-outline pt-6 print:block">
+      <h2 className="text-lg font-medium text-ink">Cómo se ha analizado</h2>
+      {t && (
+        <div className="text-sm text-ink">
+          <p className="font-medium">Tu caso</p>
+          <p>{t.submateria_descripcion ?? t.submateria_principal} · {t.jurisdiccion_principal.replace("_", " ")}
+            {t.fecha_hechos && ` · hechos del ${fechaLarga(t.fecha_hechos)}`}</p>
+          {t.resumen_hechos && <p className="text-ink-2">{t.resumen_hechos}</p>}
+        </div>
+      )}
+      {r && (
+        <div className="space-y-3 text-sm text-ink">
+          <p className="font-medium">Razonamiento del Magistrado</p>
+          {r.cuestiones.map((q) => (
+            <div key={q.id} className="break-inside-avoid">
+              <p>{q.enunciado} — <span className="font-medium">da la razón a {q.estimacion === "DEFENSA" ? "tu posición" : "la otra parte"}</span></p>
+              {q.fundamentos.map((f, i) => (
+                <div key={i} className="mt-1"><p className="text-ink-2">{f.afirmacion}</p>{f.citas.map(cita)}</div>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
+      {(["defensa", "contraparte"] as const).map((rol) => {
+        const al = state.alegatos[rol]?.alegato;
+        if (!al) return null;
+        return (
+          <div key={rol} className="space-y-1 text-sm text-ink">
+            <p className="font-medium">{rol === "defensa" ? "Argumentos a tu favor (defensa)" : "Argumentos de la otra parte"}</p>
+            <p className="text-ink-2">Pretensión: {al.pretension}</p>
+            <ul className="list-disc pl-5 text-ink-2">
+              {al.cuestiones.flatMap((q) => q.argumentos).map((a, i) => <li key={i}>{a.afirmacion}</li>)}
+            </ul>
+          </div>
+        );
+      })}
+      {state.fuentes.length > 0 && (
+        <div className="text-sm text-ink">
+          <p className="font-medium">Fuentes consultadas</p>
+          <ul className="list-disc pl-5 text-ink-2">{state.fuentes.map((f) => <li key={f.source_id}>{f.titulo} ({f.source_id})</li>)}</ul>
+        </div>
+      )}
+    </section>
   );
 }

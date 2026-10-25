@@ -54,3 +54,7 @@ benchmark/reports/screenshots/
 
 # Resultados de la batería verificable (se regeneran con benchmark/ejecutar.py)
 benchmark/expedientes/
+
+# Copias de seguridad cifradas (scripts/copia_seguridad.py)
+data/copias/
+data/restaurado_*/

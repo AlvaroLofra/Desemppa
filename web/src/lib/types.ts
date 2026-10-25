@@ -109,6 +109,17 @@ export interface Dictamen {
   afirmaciones?: AfirmacionVerificada[];
   auditoria?: EntradaAuditoria[];
   respuesta_parcial?: boolean;
+  hechos_determinantes?: string[];
+  sello?: SelloVerificacion | null;
+}
+
+/** Para que un tercero recompruebe el dictamen: versión y huella (SHA-256) del texto exacto de cada fuente. */
+export interface SelloVerificacion {
+  verificado_en: string;
+  fuentes: { source_id: string; titulo: string; version?: string | null; sha256: string; url?: string | null }[];
+  afirmaciones_mostradas: number;
+  afirmaciones_eliminadas: number;
+  modelos: Record<string, string>;
 }
 
 export type TipoAfirmacion = "norma" | "razonamiento" | "hecho" | "consejo" | "limite";

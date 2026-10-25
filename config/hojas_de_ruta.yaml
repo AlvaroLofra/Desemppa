@@ -1,0 +1,304 @@
+# Hoja de ruta por submateria: qué pasos dar y en qué orden (dossier: Fase 2 del plan del 25-10-2026).
+# Determinista: el LLM no la escribe. Cada paso cita LITERALMENTE el artículo vigente que lo respalda; las citas se
+# comprueban contra el BOE con `uv run python scripts/verificar_hojas_de_ruta.py` (y el test `live`).
+# Redactado el 25-10-2026 a partir del texto vigente descargado del BOE ese día (sin notas editoriales).
+#
+# Campos de cada paso:
+#   titulo / que_hacer: lenguaje llano. Toda cifra debe aparecer en una de sus citas (lo comprueba un test).
+#   quien: "tu" (lo puede hacer el ciudadano) | "abogado" (según postulación) | "segun_cuantia".
+#   base: lista de {norma, articulo, cita}; cita = fragmento literal del artículo vigente.
+#   plazo: id de config/plazos.yaml cuyo cálculo (CalendarEngine) se muestra junto al paso (opcional).
+#   escrito: id del borrador que se puede generar para este paso (web/src/lib/escritos.ts) (opcional).
+#   vigente_desde: si el paso depende de una redacción reciente, solo se muestra si los hechos son de esa fecha o
+#     posteriores; sus citas se verifican contra la redacción vigente en esa fecha.
+
+pasos_comunes:
+  masc:
+    titulo: "Intentar negociar antes de demandar (obligatorio)"
+    que_hacer: >-
+      Antes de presentar la demanda tienes que haber intentado un acuerdo: negociación directa, mediación,
+      conciliación o una oferta vinculante confidencial. Guarda la prueba de que la otra parte recibió tu propuesta.
+      Si no hay respuesta en treinta días naturales desde que la recibe, el intento se da por terminado.
+    quien: tu
+    base:
+      - {norma: LOEFICIENCIA, articulo: "5", cita: "para que sea admisible la demanda se considerará requisito de procedibilidad acudir previamente a algún medio adecuado de solución de controversias"}
+      - {norma: LOEFICIENCIA, articulo: "10", cita: "podrá acreditarse el intento de negociación mediante cualquier documento que pruebe que la otra parte ha recibido la solicitud o invitación para negociar"}
+      - {norma: LOEFICIENCIA, articulo: "10", cita: "Si transcurrieran treinta días naturales a contar desde la fecha de recepción de la solicitud inicial de negociación por la otra parte"}
+    escrito: propuesta_masc
+  demanda_verbal:
+    titulo: "Demanda en el juzgado (juicio verbal)"
+    que_hacer: >-
+      Si no hay acuerdo, se demanda. Si la cuantía no supera quince mil euros se sigue el juicio verbal y, si no
+      actúas con abogado y procurador, puedes presentar una demanda sucinta con los impresos normalizados del
+      juzgado o de su sede electrónica. Comprueba en «Abogado y procurador» si en tu caso los necesitas.
+    quien: segun_cuantia
+    base:
+      - {norma: LEC, articulo: "250", cita: "Se decidirán también en el juicio verbal las demandas cuya cuantía no exceda de quince mil euros"}
+      - {norma: LEC, articulo: "437", cita: "en los juicios verbales en que no se actúe con abogado y procurador, el demandante podrá formular una demanda sucinta"}
+  monitorio:
+    titulo: "Alternativa si la deuda está documentada: proceso monitorio"
+    que_hacer: >-
+      Si reclamas una cantidad de dinero concreta, vencida y que puedes acreditar con documentos, existe el proceso
+      monitorio, que empieza con una petición (hay formulario) y para cuya presentación no hace falta abogado ni
+      procurador.
+    quien: tu
+    base:
+      - {norma: LEC, articulo: "812", cita: "pago de deuda dineraria de cualquier importe, líquida, determinada, vencida y exigible"}
+      - {norma: LEC, articulo: "814", cita: "Para la presentación de la petición inicial del procedimiento monitorio no será preciso valerse de procurador y abogado"}
+    escrito: monitorio
+  conciliacion_social:
+    titulo: "Papeleta de conciliación (obligatoria antes de la demanda)"
+    que_hacer: >-
+      Antes de demandar a la empresa hay que intentar la conciliación o mediación ante el servicio administrativo
+      correspondiente. Presentarla suspende el plazo de caducidad; si pasan treinta días hábiles sin celebrarse, el
+      trámite se da por cumplido.
+    quien: tu
+    base:
+      - {norma: LRJS, articulo: "63", cita: "Será requisito previo para la tramitación del proceso el intento de conciliación o, en su caso, de mediación ante el servicio administrativo correspondiente"}
+      - {norma: LRJS, articulo: "65", cita: "La presentación de la solicitud de conciliación o de mediación interrumpirá la prescripción o suspenderá la caducidad de acciones desde la fecha de dicha presentación"}
+      - {norma: LRJS, articulo: "65", cita: "transcurrido el plazo de treinta días hábiles sin haberse celebrado el acto de conciliación o sin haberse iniciado mediación o alcanzado acuerdo en la misma se tendrá por terminado el procedimiento y cumplido el trámite"}
+    escrito: papeleta_conciliacion
+  demanda_social:
+    titulo: "Demanda ante el Juzgado de lo Social"
+    que_hacer: >-
+      Si no hay acuerdo, se presenta la demanda por escrito (hay formularios en la oficina judicial), acompañando el
+      justificante de haber intentado la conciliación. En la demanda no se pueden alegar hechos distintos de los de
+      la conciliación. En primera instancia el abogado o graduado social es opcional.
+    quien: tu
+    base:
+      - {norma: LRJS, articulo: "80", cita: "La demanda se formulará por escrito, pudiendo utilizar los formularios y procedimientos facilitados al efecto en la oficina judicial donde deba presentarse"}
+      - {norma: LRJS, articulo: "80", cita: "En ningún caso podrán alegarse hechos distintos de los aducidos en conciliación o mediación"}
+      - {norma: LRJS, articulo: "80", cita: "A la demanda se acompañará la documentación justificativa de haber intentado la previa conciliación o mediación"}
+      - {norma: LRJS, articulo: "21", cita: "La defensa por abogado y la representación técnica por graduado social colegiado tendrá carácter facultativo en la instancia"}
+  reclamacion_consumo:
+    titulo: "Reclamar por escrito a la empresa"
+    que_hacer: >-
+      Presenta una reclamación a la empresa por su servicio de atención al cliente y guarda la clave o justificante
+      que te den. Deben responder en el plazo máximo de quince días. Si no lo resuelven, puedes acudir a una entidad
+      de resolución alternativa de litigios de consumo.
+    quien: tu
+    base:
+      - {norma: TRLGDCU, articulo: "21", cita: "deberán asegurar que éste tenga constancia de sus quejas y reclamaciones, mediante la entrega de una clave identificativa y un justificante por escrito"}
+      - {norma: TRLGDCU, articulo: "21", cita: "en todo caso, en el plazo máximo de quince días desde la presentación de la reclamación"}
+      - {norma: TRLGDCU, articulo: "21", cita: "podrá acudir a una entidad de resolución alternativa notificada a la Comisión Europea"}
+    escrito: reclamacion_empresa
+  reposicion_y_contencioso:
+    titulo: "Recurso de reposición (opcional) y, después, contencioso-administrativo"
+    que_hacer: >-
+      Contra el acto que pone fin a la vía administrativa puedes presentar recurso de reposición ante el mismo órgano
+      en el plazo de un mes, o ir directamente al contencioso-administrativo. El plazo para el recurso
+      contencioso-administrativo es de dos meses desde la notificación.
+    quien: segun_cuantia
+    base:
+      - {norma: LPAC, articulo: "123", cita: "podrán ser recurridos potestativamente en reposición ante el mismo órgano que los hubiera dictado o ser impugnados directamente ante el orden jurisdiccional contencioso-administrativo"}
+      - {norma: LPAC, articulo: "124", cita: "El plazo para la interposición del recurso de reposición será de un mes, si el acto fuera expreso"}
+      - {norma: LJCA, articulo: "46", cita: "El plazo para interponer el recurso contencioso-administrativo será de dos meses"}
+    plazo: ADM_REPOSICION_1M
+    escrito: recurso_reposicion
+
+hojas:
+  CIV_LAU_FIANZA:
+    - titulo: "Reclamar la fianza por escrito al casero"
+      que_hacer: >-
+        Pide por escrito (burofax o medio del que quede constancia) la devolución de la fianza. El saldo que deba
+        devolverte genera interés legal pasado un mes desde que entregaste las llaves.
+      quien: tu
+      base:
+        - {norma: LAU, articulo: "36", cita: "devengará el interés legal, transcurrido un mes desde la entrega de las llaves por el mismo sin que se hubiere hecho efectiva dicha restitución"}
+      plazo: CIV_FIANZA_DEVOLUCION_1M
+      escrito: requerimiento
+    - titulo: "Documento de finalización del arrendamiento"
+      que_hacer: >-
+        Al terminar el contrato, las partes deben dejar constancia por escrito del estado de la vivienda. Si no se
+        firmó ese documento, o no refleja desperfectos, se presume (salvo prueba en contrario) que la vivienda se
+        entregó en estado adecuado.
+      quien: tu
+      vigente_desde: "2026-10-08"  # LAU 36.7, añadido por el RDL 29/2026: solo para entregas desde esa fecha
+      base:
+        - {norma: LAU, articulo: "36", cita: "A la finalización del contrato, las partes deberán dejar constancia por escrito del estado de la vivienda en el momento de entrega de la posesión"}
+        - {norma: LAU, articulo: "36", cita: "En caso de no suscribirse el documento de finalización, o de que no se refleje en él desperfecto alguno, se presumirá, salvo prueba en contrario, que la vivienda fue entregada en estado adecuado de conservación"}
+    - comun: masc
+    - comun: monitorio
+    - comun: demanda_verbal
+  CIV_LAU_PRORROGA:
+    - comun: masc
+    - comun: demanda_verbal
+  CIV_DANOS_VECINO:
+    - comun: masc
+    - comun: demanda_verbal
+  CIV_LPH_IMPUGNACION:
+    - titulo: "Comprobar que puedes impugnar y el plazo"
+      que_hacer: >-
+        Pueden impugnar quienes votaron en contra, los ausentes y quienes fueron privados indebidamente del voto, y
+        hay que estar al corriente de las deudas con la comunidad (o consignarlas). La acción caduca a los tres meses
+        del acuerdo, o al año si es contrario a la ley o a los estatutos.
+      quien: tu
+      base:
+        - {norma: LPH, articulo: "18", cita: "los propietarios que hubiesen salvado su voto en la Junta, los ausentes por cualquier causa y los que indebidamente hubiesen sido privados de su derecho de voto"}
+        - {norma: LPH, articulo: "18", cita: "el propietario deberá estar al corriente en el pago de la totalidad de las deudas vencidas con la comunidad o proceder previamente a la consignación judicial de las mismas"}
+        - {norma: LPH, articulo: "18", cita: "La acción caducará a los tres meses de adoptarse el acuerdo por la Junta de propietarios, salvo que se trate de actos contrarios a la ley o a los estatutos, en cuyo caso la acción caducará al año"}
+      plazo: CIV_LPH_IMPUGNA_3M
+    - comun: masc
+    - comun: demanda_verbal
+  CIV_CONSUMO_BANCARIO:
+    - comun: reclamacion_consumo
+    - comun: masc
+    - titulo: "Demanda por condiciones generales (juicio verbal)"
+      que_hacer: >-
+        Las acciones individuales sobre condiciones generales de contratación se deciden en juicio verbal sea cual
+        sea la cuantía. Comprueba en «Abogado y procurador» si en tu caso los necesitas.
+      quien: segun_cuantia
+      base:
+        - {norma: LEC, articulo: "250", cita: "Las demandas en que se ejerciten acciones individuales relativas a condiciones generales de contratación en los casos previstos en la legislación sobre esta materia"}
+  CIV_CONSUMO_GARANTIA:
+    - comun: reclamacion_consumo
+    - comun: masc
+    - comun: demanda_verbal
+  CIV_CONSUMO_AEREO:
+    - comun: reclamacion_consumo
+    - comun: masc
+    - comun: demanda_verbal
+  CIV_FAMILIA_ALIMENTOS:
+    - titulo: "Pedir la ejecución de la sentencia (demanda ejecutiva)"
+      que_hacer: >-
+        La sentencia que fijó la pensión es un título ejecutivo. Si fue dictada por el mismo juzgado, la demanda
+        ejecutiva puede limitarse a pedir que se despache la ejecución identificando la sentencia. Para la demanda
+        ejecutiva no hace falta intentar antes una negociación. Ante impagos reiterados se pueden imponer multas
+        coercitivas.
+      quien: segun_cuantia
+      base:
+        - {norma: LEC, articulo: "517", cita: "Solo tendrán aparejada ejecución los siguientes títulos: 1.º La sentencia de condena firme"}
+        - {norma: LEC, articulo: "549", cita: "la demanda ejecutiva podrá limitarse a la solicitud de que se despache la ejecución, identificando la sentencia o resolución cuya ejecución se pretenda"}
+        - {norma: LOEFICIENCIA, articulo: "5", cita: "No será preciso acudir a un medio adecuado de solución de controversias para la interposición de una demanda ejecutiva"}
+        - {norma: LEC, articulo: "776", cita: "Al cónyuge o progenitor que incumpla de manera reiterada las obligaciones de pago de cantidad que le correspondan podrán imponérsele"}
+      plazo: CIV_EJECUCION_5A
+  SOC_DESPIDO_DISC:
+    - titulo: "Ojo al plazo: veinte días hábiles"
+      que_hacer: >-
+        Para reclamar contra el despido tienes veinte días hábiles desde el despido. Es un plazo de caducidad: no se
+        cuentan sábados, domingos ni festivos, y si se pasa no hay remedio.
+      quien: tu
+      base:
+        - {norma: LRJS, articulo: "103", cita: "dentro de los veinte días hábiles siguientes a aquél en que se hubiera producido. Dicho plazo será de caducidad a todos los efectos"}
+      plazo: SOC_DESPIDO_CADUCIDAD
+    - comun: conciliacion_social
+    - comun: demanda_social
+  SOC_DESPIDO_IT:
+    - titulo: "Ojo al plazo: veinte días hábiles"
+      que_hacer: >-
+        Para reclamar contra el despido tienes veinte días hábiles desde el despido. Es un plazo de caducidad: no se
+        cuentan sábados, domingos ni festivos, y si se pasa no hay remedio.
+      quien: tu
+      base:
+        - {norma: LRJS, articulo: "103", cita: "dentro de los veinte días hábiles siguientes a aquél en que se hubiera producido. Dicho plazo será de caducidad a todos los efectos"}
+      plazo: SOC_DESPIDO_CADUCIDAD
+    - comun: conciliacion_social
+    - comun: demanda_social
+  SOC_FALSO_AUTONOMO:
+    - comun: conciliacion_social
+    - comun: demanda_social
+  SOC_RECLAMACION_CANTIDAD:
+    - comun: conciliacion_social
+    - comun: demanda_social
+  SOC_SANCION:
+    - titulo: "Impugnar la sanción en plazo"
+      que_hacer: >-
+        La sanción se impugna con una demanda en el mismo plazo que el despido. Es la empresa quien tiene que probar
+        los hechos que te imputa.
+      quien: tu
+      base:
+        - {norma: LRJS, articulo: "114", cita: "El trabajador podrá impugnar la sanción que le hubiere sido impuesta mediante demanda, que habrá de ser presentada dentro del plazo señalado en el artículo 103"}
+        - {norma: LRJS, articulo: "114", cita: "Corresponderá al empresario probar la realidad de los hechos imputados al trabajador"}
+      plazo: SOC_SANCION_20H
+    - comun: conciliacion_social
+    - comun: demanda_social
+  SOC_VACACIONES:
+    - titulo: "Demanda directa por las vacaciones (sin conciliación previa)"
+      que_hacer: >-
+        Los procesos sobre disfrute de vacaciones están exceptuados de la conciliación previa. Si la empresa fijó la
+        fecha, tienes veinte días desde que la conociste para demandar; si no está fijada, la demanda debe
+        presentarse al menos con dos meses de antelación a la fecha que pretendes.
+      quien: tu
+      base:
+        - {norma: LRJS, articulo: "64", cita: "Se exceptúan del requisito del intento de conciliación o, en su caso, de mediación"}
+        - {norma: LRJS, articulo: "64", cita: "los relativos a la impugnación del despido colectivo por los representantes de los trabajadores, disfrute de vacaciones y a materia electoral"}
+        - {norma: LRJS, articulo: "125", cita: "el trabajador dispondrá de un plazo de veinte días, a partir de aquel en que tuviera conocimiento de dicha fecha, para presentar la demanda en el Juzgado de lo Social"}
+        - {norma: LRJS, articulo: "125", cita: "la demanda deberá presentarse, al menos, con dos meses de antelación a la fecha de disfrute pretendida por el trabajador"}
+      plazo: SOC_VACACIONES_20H
+    - comun: demanda_social
+  ADM_TRAFICO_ORA:
+    - titulo: "Decidir en veinte días naturales: pagar con reducción o alegar"
+      que_hacer: >-
+        Desde la notificación de la denuncia tienes veinte días naturales para pagar con reducción o para presentar
+        alegaciones y pruebas. Si pagas, la multa se reduce un 50 por ciento pero renuncias a alegar.
+      quien: tu
+      base:
+        - {norma: LSV, articulo: "93", cita: "el denunciado dispondrá de un plazo de veinte días naturales para realizar el pago voluntario con reducción de la sanción de multa, o para formular las alegaciones y proponer o aportar las pruebas que estime oportunas"}
+        - {norma: LSV, articulo: "94", cita: "La reducción del 50 por ciento del importe de la sanción"}
+        - {norma: LSV, articulo: "94", cita: "La renuncia a formular alegaciones. En el caso de que se formulen se tendrán por no presentadas"}
+      plazo: ADM_TRAFICO_ALEGACIONES_20N
+      escrito: alegaciones_multa
+    - titulo: "Si no alegas ni pagas"
+      que_hacer: >-
+        En muchos casos (por ejemplo, infracciones leves), si no alegas ni pagas en esos veinte días naturales, la
+        denuncia surte efecto de resolución sancionadora.
+      quien: tu
+      base:
+        - {norma: LSV, articulo: "95", cita: "Si el denunciado no formula alegaciones ni abona el importe de la multa en el plazo de veinte días naturales siguientes al de la notificación de la denuncia, ésta surtirá el efecto de acto resolutorio del procedimiento sancionador en los siguientes casos: a) Infracciones leves en todos los casos"}
+    - titulo: "Recurso contra la resolución sancionadora"
+      que_hacer: >-
+        Contra la resolución sancionadora cabe recurso de reposición, que es potestativo, en el plazo de un mes; y
+        después, el contencioso-administrativo en el plazo de dos meses.
+      quien: tu
+      base:
+        - {norma: LSV, articulo: "96", cita: "podrá interponerse recurso de reposición, con carácter potestativo, en el plazo de un mes contado desde el día siguiente al de su notificación"}
+        - {norma: LJCA, articulo: "46", cita: "El plazo para interponer el recurso contencioso-administrativo será de dos meses"}
+      escrito: recurso_reposicion
+  ADM_SANCION_MUNICIPAL:
+    - titulo: "Presentar alegaciones en el expediente"
+      que_hacer: >-
+        Antes de que se resuelva puedes presentar alegaciones y documentos; en el trámite de audiencia el plazo no es
+        inferior a diez días ni superior a quince. Mira el plazo exacto en la notificación.
+      quien: tu
+      base:
+        - {norma: LPAC, articulo: "76", cita: "Los interesados podrán, en cualquier momento del procedimiento anterior al trámite de audiencia, aducir alegaciones y aportar documentos u otros elementos de juicio"}
+        - {norma: LPAC, articulo: "82", cita: "Los interesados, en un plazo no inferior a diez días ni superior a quince, podrán alegar y presentar los documentos y justificaciones que estimen pertinentes"}
+      plazo: ADM_ALEGACIONES_10H
+      escrito: alegaciones_multa
+    - comun: reposicion_y_contencioso
+  ADM_TRIBUTARIO_LIQUIDACION:
+    - titulo: "Recurso de reposición o reclamación económico-administrativa"
+      que_hacer: >-
+        Contra la liquidación puedes presentar recurso de reposición en el plazo de un mes o, en su lugar, una
+        reclamación económico-administrativa en el plazo de un mes; el escrito puede limitarse a pedir que se tenga
+        por interpuesta.
+      quien: tu
+      base:
+        - {norma: LGT, articulo: "223", cita: "El plazo para la interposición de este recurso será de un mes contado a partir del día siguiente al de la notificación del acto recurrible"}
+        - {norma: LGT, articulo: "235", cita: "La reclamación económico-administrativa en única o primera instancia se interpondrá en el plazo de un mes a contar desde el día siguiente al de la notificación del acto impugnado"}
+        - {norma: LGT, articulo: "235", cita: "El procedimiento deberá iniciarse mediante escrito que podrá limitarse a solicitar que se tenga por interpuesta"}
+      plazo: ADM_REPOSICION_1M
+      escrito: recurso_reposicion
+    - titulo: "Después: contencioso-administrativo"
+      que_hacer: "Agotada la vía administrativa, el plazo para el recurso contencioso-administrativo es de dos meses."
+      quien: segun_cuantia
+      base:
+        - {norma: LJCA, articulo: "46", cita: "El plazo para interponer el recurso contencioso-administrativo será de dos meses"}
+  ADM_PLUSVALIA:
+    - titulo: "Recurso de reposición ante el ayuntamiento (sin abogado)"
+      que_hacer: >-
+        Contra los actos de los tributos locales solo cabe el recurso de reposición, en el plazo de un mes desde la
+        notificación. Puedes presentarlo tú: no es preceptivo abogado ni procurador.
+      quien: tu
+      base:
+        - {norma: TRLRHL, articulo: "14", cita: "sólo podrá interponerse el recurso de reposición que a continuación se regula"}
+        - {norma: TRLRHL, articulo: "14", cita: "El recurso de reposición se interpondrá dentro del plazo de un mes contado desde el día siguiente al de la notificación expresa del acto"}
+        - {norma: TRLRHL, articulo: "14", cita: "sin que sea preceptiva la intervención de abogado ni procurador"}
+      plazo: ADM_REPOSICION_1M
+      escrito: recurso_reposicion
+    - titulo: "Después: contencioso-administrativo"
+      que_hacer: "Contra la resolución del recurso de reposición, el plazo para el recurso contencioso-administrativo es de dos meses."
+      quien: segun_cuantia
+      base:
+        - {norma: TRLRHL, articulo: "14", cita: "pudiendo los interesados interponer directamente recurso contencioso-administrativo"}
+        - {norma: LJCA, articulo: "46", cita: "El plazo para interponer el recurso contencioso-administrativo será de dos meses"}

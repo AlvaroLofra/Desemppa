@@ -36,7 +36,7 @@ TRANSICIONES: dict[Estado, set[Estado]] = {
     Estado.ESPERANDO_ACLARACION: {Estado.TRIAJE, Estado.ERROR},
     Estado.INGESTA: {Estado.INGESTA_DEGRADADA, Estado.DEBATE, Estado.ERROR},
     Estado.INGESTA_DEGRADADA: {Estado.DEBATE, Estado.ERROR},
-    Estado.DEBATE: {Estado.GUARDARRAILES, Estado.ERROR},
+    Estado.DEBATE: {Estado.GUARDARRAILES, Estado.ESPERANDO_ACLARACION, Estado.ERROR},
     Estado.GUARDARRAILES: {Estado.DEBATE, Estado.CERTIFICADA, Estado.BLOQUEADA, Estado.ERROR},
     Estado.CERTIFICADA: set(),
     Estado.BLOQUEADA: set(),
@@ -71,6 +71,7 @@ class Consulta:
     pii_map: dict[str, str]
     municipio_ine: str | None
     aclaraciones: list[dict[str, str]] = field(default_factory=list)
+    rondas: int = 0  # rondas de aclaración ya respondidas (1.ª tras el triaje, 2.ª tras el debate)
     adjuntos: list[dict[str, str]] = field(default_factory=list)  # {adjunto_id, nombre, tipo, texto (seud.)}
     triage: dict[str, Any] | None = None
     dossier: dict[str, Any] | None = None
@@ -247,6 +248,7 @@ class ConsultaStore:
             pii_map=mapping,
             municipio_ine=meta.get("municipio_ine"),
             aclaraciones=meta.get("aclaraciones", []),
+            rondas=int(meta.get("rondas", 1 if meta.get("aclaraciones") else 0)),
             adjuntos=adjuntos,
             triage=_j(row[3]),
             dossier=_j(row[4]),
@@ -264,6 +266,10 @@ class ConsultaStore:
             nuevas.append({"pregunta": str(r.get("pregunta", "")), "respuesta": red.text})
         meta["mapping"] = mapping
         meta["aclaraciones"] = meta.get("aclaraciones", []) + nuevas
+        meta["rondas"] = (
+            int(meta.get("rondas", 1 if meta.get("aclaraciones") and len(meta["aclaraciones"]) > len(nuevas) else 0))
+            + 1
+        )
         if any(r.get("municipio_ine") for r in respuestas):
             meta["municipio_ine"] = next(r["municipio_ine"] for r in respuestas if r.get("municipio_ine"))
         self._save_meta(consulta_id, meta)
@@ -300,6 +306,14 @@ class ConsultaStore:
             for v in fields.values()
         ]
         self._con.execute(f"UPDATE sesiones_consultas SET {sets} WHERE consulta_id = ?", (*values, consulta_id))
+
+    def creado_en(self, consulta_id: str) -> str:
+        r = self._con.execute(
+            "SELECT creado_en FROM sesiones_consultas WHERE consulta_id = ?", (consulta_id,)
+        ).fetchone()
+        if r is None:
+            raise KeyError(consulta_id)
+        return str(r[0])
 
     def recover_interrupted(self) -> int:
         """Al arrancar: las consultas que quedaron a medias (proceso cerrado) pasan a ERROR. Las que esperan una

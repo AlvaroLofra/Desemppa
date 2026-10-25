@@ -1,3 +1,4 @@
+import type { PasoHoja } from "./api";
 import { numerarFuentes } from "./citas";
 import { BANDA_TEXTO, type AfirmacionVerificada, type Plazo, type Postulacion } from "./types";
 import type { ConsultaState } from "./useConsulta";
@@ -32,9 +33,17 @@ function postulacion(p: Postulacion | null | undefined): string[] {
     `- ${p.texto_usuario} (${p.base_legal})`, ""];
 }
 
+function hojaDeRuta(pasos: PasoHoja[]): string[] {
+  if (!pasos.length) return [];
+  return ["## Qué hacer a continuación", "", ...pasos.flatMap((p, i) => [
+    `${i + 1}. **${p.titulo}** — ${p.que_hacer}`,
+    ...p.base.map((b) => `   > «${md(b.cita)}» (art. ${b.articulo} ${b.norma})`),
+  ]), ""];
+}
+
 /** Expediente completo en Markdown: lo mismo que se ve en pantalla más el proceso, para llevarlo a un abogado o
  *  verificarlo con otro LLM. Solo usa datos del análisis (no añade nada). */
-export function expedienteMarkdown(state: ConsultaState, fecha = new Date()): string {
+export function expedienteMarkdown(state: ConsultaState, fecha = new Date(), pasos: PasoHoja[] = []): string {
   const f = state.final;
   const titulos = new Map(state.fuentes.map((x) => [x.source_id, x]));
   const L: string[] = ["# Expediente de Desemppa", "", `Generado el ${fecha.toLocaleString("es-ES")}.`, ""];
@@ -71,7 +80,7 @@ export function expedienteMarkdown(state: ConsultaState, fecha = new Date()): st
     L.push("");
   }
   if (!afs.length) L.push("## Respuesta", "", d.respuesta_directa ?? "", "", d.resumen_ciudadano, "");
-  L.push(...plazos(d.plazos), ...postulacion(d.postulacion));
+  L.push(...plazos(d.plazos), ...postulacion(d.postulacion), ...hojaDeRuta(pasos));
   L.push("## Fundamentos verificados", "");
   for (const fu of d.fundamentos) {
     L.push(`- ${ref(fu.source_id)} ${fu.texto}`, `  > «${md(fu.verbatim_quote)}»`,
@@ -109,7 +118,15 @@ export function expedienteMarkdown(state: ConsultaState, fecha = new Date()): st
     }
     L.push("");
   }
+  if (d.hechos_determinantes?.length) {
+    L.push("## Lo que podría cambiar el resultado", "", ...d.hechos_determinantes.map((h) => `- ${h}`), "");
+  }
   if (d.avisos.length) L.push("## Avisos", "", ...d.avisos.map((a) => `- ${a}`), "");
+  if (d.sello) {
+    L.push("## Sello de verificación", "", `Verificado el ${d.sello.verificado_en}. ${d.sello.afirmaciones_mostradas} afirmaciones mostradas, ${d.sello.afirmaciones_eliminadas} eliminadas.`, "",
+      "| Fuente | Versión | SHA-256 del texto verificado |", "|---|---|---|",
+      ...d.sello.fuentes.map((f) => `| ${md(f.titulo)} (\`${f.source_id}\`) | ${f.version ?? "—"} | \`${f.sha256}\` |`), "");
+  }
   L.push("---", "", d.aviso_legal, "", `Modelos: ${Object.entries(d.modelos_usados).map(([k, v]) => `${k} ${v}`).join(" · ")}`, "");
   return L.join("\n");
 }

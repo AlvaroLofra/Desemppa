@@ -68,3 +68,14 @@ Avisos:
 | "No hay jurisprudencia aplicable en el corpus local" | Aún no has importado PDFs de sentencias del CENDOJ | Descarga los PDFs de [CENDOJ](https://www.poderjudicial.es/search/indexAN.jsp) y ejecuta `uv run python scripts/importar_sentencias.py <carpeta>` |
 | Quieres cargar los 10 grandes convenios colectivos estatales | Aún no se ha ejecutado el importador BOE de convenios | Ejecuta `uv run python scripts/importar_convenios_boe.py` (verifica cada referencia contra el BOE antes de indexar) |
 | En asuntos laborales sale «No se ha identificado tu convenio colectivo» | La consulta no indica sector o convenio | Indica tu sector (p. ej. «trabajo de camarero») o el nombre del convenio |
+
+## 5. Mantenimiento
+- **Copia de seguridad cifrada** de `data/local` (consultas, biblioteca, claves):
+  `uv run python scripts/copia_seguridad.py`. Se guarda en `data/copias/` cifrada con DPAPI (solo la abre tu usuario
+  en este equipo) y se conservan las 10 últimas. Para restaurar:
+  `uv run python scripts/copia_seguridad.py --restaurar data/copias/<fichero>.bak`. Se extrae en una carpeta nueva
+  y no sobrescribe nada.
+- **Salud de los modelos**: Ajustes → «Salud de los modelos» (llamadas, fallos, respuestas vacías y tiempos).
+- **Registros**: `data/local/logs/iuris.log` rota a los 5 MB y guarda 5 ficheros.
+- **Hoja de ruta**: tras una reforma legal, `uv run python scripts/verificar_hojas_de_ruta.py` comprueba que todas
+  sus citas siguen en el texto vigente del BOE.

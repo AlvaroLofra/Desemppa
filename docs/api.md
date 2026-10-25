@@ -24,7 +24,7 @@ El invitado envía `X-Desemppa-Invitado: <id aleatorio>` (y `?invitado=` en el s
 (404 para las demás); solo puede usar los modos permitidos (403), 1 consulta en curso y un tope diario (429).
 
 ### `GET /api/sesion`
-`{"rol": "dueno" | "invitado", "modos_permitidos": [...]}`.
+`{"rol": "dueno" | "invitado", "modos_permitidos": [...], "en_curso": n}` (`en_curso`: análisis en marcha en este equipo).
 
 ### `GET /api/red` 👤 · `PUT /api/red` 👤🔒
 Estado de la red local: `activo`, `escucha_red` (el servidor se arrancó en `0.0.0.0`), `ip`, `url`,
@@ -88,6 +88,10 @@ Borra `config/user_models.toml` (modelos personalizados y activación de proveed
 - `POST /api/adjuntos` 🔒 → 201: Extrae texto de PDF/TXT en local y lo cifra con DPAPI (solo se envía al LLM si `permitir_envio=true`).
 - `GET /api/biblioteca` 👤, `POST /api/biblioteca` 👤🔒 → 201, `GET /api/biblioteca/{doc_id}` 👤, `DELETE /api/biblioteca/{doc_id}` 👤🔒: biblioteca de documentos reutilizables (texto cifrado con DPAPI; un mismo fichero, por SHA-256, no se duplica). Borrar un documento no lo quita de las consultas que ya lo usaron.
 - `POST /api/biblioteca/{doc_id}/adjuntar` 👤🔒: copia el documento como adjunto nuevo (`{"adjunto_id", "nombre", "tipo"}`) para pasarlo en `adjuntos` al crear la consulta.
+- `POST /api/consultas/{id}/cancelar` 🔒: detiene un análisis en curso (cancela la tarea y el proceso del CLI). La consulta queda en `ERROR` con el motivo.
+- `GET /api/consultas/{id}/vigencia`: artículos del BOE citados que han cambiado de redacción después de la consulta (`source_id`, `titulo`, `version_citada`, `version_actual`).
+- `GET /api/hoja-de-ruta/{submateria}`: pasos deterministas de `config/hojas_de_ruta.yaml`, cada uno con su base literal verificada.
+- `GET /api/salud?dias=7` 👤: llamadas, correctas, vacías, tiempo agotado y latencia media por modelo, y consultas por estado.
 - `GET /api/fuentes?source_id=…&consulta_id=…&quote=…`: Devuelve el texto íntegro oficial de fuentes `BOE:...`, `EUR:...` (Derecho de la UE), `ROJ:...`, `CONV:...` y `DOC:...` con offsets de resaltado literal.
 - `GET /api/calendario/plazo`, `GET /api/calendario/tipos`, `GET /api/municipios?q=…`: Motor determinista de plazos procesales y buscador de los 8.131 municipios del INE.
 - `GET /api/convenios`: Lista los convenios colectivos indexados en SQLite.

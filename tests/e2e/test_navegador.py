@@ -263,3 +263,64 @@ def test_lighthouse_accesibilidad_y_buenas_practicas(server: Server, tmp_path: P
     puntos = {k: round(v["score"] * 100) for k, v in cats.items()}
     print(f"[lighthouse] {puntos}")
     assert puntos["accessibility"] >= 95 and puntos["best-practices"] >= 90, puntos
+
+
+# ---------- fin del análisis, PDF sin texto interno y selector de fechas ----------
+
+
+def test_al_terminar_lleva_a_la_respuesta_y_avisa(page, server: Server) -> None:  # type: ignore[no-untyped-def]
+    _abrir(page, server)
+    _consultar_y_esperar_dictamen(page)
+    page.get_by_role("status").get_by_text("Ya tienes la respuesta").wait_for()
+    page.wait_for_timeout(800)  # desplazamiento suave
+    arriba = page.evaluate("document.querySelector('article[aria-label=Dictamen]').getBoundingClientRect().top")
+    assert 0 <= arriba < page.viewport_size["height"] / 2, arriba
+
+
+def test_pdf_sin_json_ni_texto_interno(page, server: Server) -> None:  # type: ignore[no-untyped-def]
+    _abrir(page, server)
+    _consultar_y_esperar_dictamen(page)
+    page.emulate_media(media="print")
+    texto = page.locator("body").inner_text()
+    assert "Cómo se ha analizado" in texto and "Razonamiento del Magistrado" in texto
+    for interno in ('{"', '"cuestiones"', '"afirmacion"', '"verbatim_quote"'):
+        assert interno not in texto, interno
+
+
+def test_selector_de_fechas_en_las_aclaraciones(page, server: Server) -> None:  # type: ignore[no-untyped-def]
+    _abrir(page, server)
+    page.get_by_label("Describe tu caso").fill(
+        "El casero no me devuelve la fianza de 900 euros porque dice que hay que pintar."
+    )
+    page.get_by_role("button", name="Analizar").click()
+    page.get_by_role("button", name="Abrir calendario").click()
+    dialogo = page.get_by_role("dialog", name="Elegir")
+    dialogo.wait_for()
+    dialogo.get_by_role("button", name="Mes anterior").click()
+    assert dialogo.get_by_role("columnheader").first.get_attribute("aria-label") == "lunes"
+    page.keyboard.press("Escape")
+    campo = page.get_by_role("textbox", name="Indica la fecha exacta")
+    campo.fill("31/02/2026")
+    campo.press("Enter")
+    page.get_by_text("Escribe la fecha como día/mes/año").wait_for()
+    campo.fill("01/06/2026")
+    campo.press("Enter")
+    assert page.get_by_role("alert").filter(has_text="día/mes/año").count() == 0
+
+
+def test_hoja_de_ruta_escrito_y_modo_profesional(page, server: Server) -> None:  # type: ignore[no-untyped-def]
+    _abrir(page, server)
+    _consultar_y_esperar_dictamen(page)
+    hoja = page.get_by_role("region", name="Qué hacer a continuación")
+    hoja.wait_for()
+    assert hoja.get_by_text("Intentar negociar antes de demandar").count() == 1
+    hoja.get_by_role("button", name="Base legal").first.click()
+    assert hoja.get_by_text("Artículo 36 · LAU").count() >= 1
+    borrador = hoja.get_by_role("button", name="Borrador del escrito")
+    if borrador.count():  # solo con solidez favorable o sólida
+        borrador.first.click()
+        texto = page.get_by_label("Texto del escrito").input_value()
+        assert "HECHOS" in texto and "FUNDAMENTOS" in texto and "[NOMBRE Y APELLIDOS]" in texto
+        page.keyboard.press("Escape")
+    page.get_by_role("button", name="Modo profesional").click()
+    page.get_by_role("region", name="Vista profesional").get_by_text("Esquema de escrito").wait_for()

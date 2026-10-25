@@ -15,6 +15,7 @@ from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
 from datetime import date
 from functools import lru_cache
+from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from typing import Any
 
@@ -50,6 +51,7 @@ from core.calendar_engine import CalendarEngine, CalendarioFestivos, PlazoError
 from core.circuit_breaker import CircuitBreaker
 from core.errors import ModelUnavailable, ProviderError
 from core.gemini_client import GeminiClient
+from core.hoja_de_ruta import aplicables as pasos_aplicables
 from core.llm_types import LLMRequest, LLMResult
 from core.normalize import fold
 from core.orchestrator import Orchestrator
@@ -110,7 +112,8 @@ def configure_logging(data_dir: Path) -> Path:
         if any(isinstance(h, logging.FileHandler) and Path(h.baseFilename) == path for h in logger.handlers):
             continue
         if handler is None:
-            handler = logging.FileHandler(path, encoding="utf-8")
+            # Rotación: 5 ficheros de 5 MB como máximo (los registros no crecen sin fin).
+            handler = RotatingFileHandler(path, maxBytes=5_000_000, backupCount=5, encoding="utf-8")
             handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s"))
         logger.addHandler(handler)
         logger.setLevel(logging.INFO)
@@ -398,9 +401,15 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
     @app.get("/api/sesion")
     def sesion(request: Request) -> dict[str, Any]:
         s = svc(request)
+        # Cola: análisis en marcha en este ordenador (cada uno usa la misma suscripción, así que se esperan).
+        en_curso = sum(1 for t in s.tasks.values() if not t.done())
         if rol(request) == "dueno":
-            return {"rol": "dueno", "modos_permitidos": list(s.catalog.profiles)}
-        return {"rol": "invitado", "modos_permitidos": [m for m in s.catalog.profiles if m in red.modos_permitidos]}
+            return {"rol": "dueno", "modos_permitidos": list(s.catalog.profiles), "en_curso": en_curso}
+        return {
+            "rol": "invitado",
+            "modos_permitidos": [m for m in s.catalog.profiles if m in red.modos_permitidos],
+            "en_curso": en_curso,
+        }
 
     @app.get("/api/red", dependencies=[Depends(solo_dueno)])
     def estado_red(request: Request) -> dict[str, Any]:
@@ -434,6 +443,42 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
             raise HTTPException(409, "activa antes «Compartir en la red local»")
         svg = segno.make(url, error="m").svg_inline(scale=6, border=2, dark="#1B1B1F", light="#FFFFFF")
         return Response(svg, media_type="image/svg+xml", headers=NO_CACHE)
+
+    @app.get("/api/salud", dependencies=[Depends(solo_dueno)])
+    def salud(request: Request, dias: int = Query(default=7, ge=1, le=90)) -> dict[str, Any]:
+        """Panel de salud: por modelo, llamadas, fallos, respuestas vacías y latencia de los últimos días."""
+        p = pipe(request)
+        con = p.store._con  # noqa: SLF001 — lectura agregada del ledger, sin tocar datos de consultas
+        filas = con.execute(
+            """SELECT modelo, proveedor, count(*), sum(ok), sum(error_tipo = 'EmptyResponse'),
+                      sum(error_tipo = 'ProviderTimeout'), avg(CASE WHEN ok THEN latencia_ms END),
+                      sum(coalesce(input_tokens, 0)), sum(coalesce(output_tokens, 0))
+               FROM llm_calls_ledger WHERE creado_en >= datetime('now', ?) GROUP BY modelo, proveedor
+               ORDER BY count(*) DESC""",
+            (f"-{dias} days",),
+        ).fetchall()
+        estados = con.execute(
+            """SELECT estado, count(*) FROM sesiones_consultas WHERE creado_en >= datetime('now', ?) GROUP BY estado""",
+            (f"-{dias} days",),
+        ).fetchall()
+        return {
+            "dias": dias,
+            "modelos": [
+                {
+                    "modelo": f[0],
+                    "proveedor": f[1],
+                    "llamadas": f[2],
+                    "correctas": f[3] or 0,
+                    "vacias": f[4] or 0,
+                    "tiempo_agotado": f[5] or 0,
+                    "latencia_media_s": round((f[6] or 0) / 1000, 1),
+                    "tokens_entrada": f[7],
+                    "tokens_salida": f[8],
+                }
+                for f in filas
+            ],
+            "consultas": {e: n for e, n in estados},
+        }
 
     @app.get("/api/estado", dependencies=[Depends(solo_dueno)])
     def estado(request: Request) -> dict[str, Any]:
@@ -567,6 +612,9 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
         return {
             "modos": {n: {r: a.model_dump() for r, a in p.roles.items()} for n, p in s.catalog.profiles.items()},
             "por_defecto": {n: {r: a.model_dump() for r, a in p.roles.items()} for n, p in defecto.profiles.items()},
+            # Política si falla el modelo de un rol: "familia" | "nunca" | "cualquiera" (config/profiles.toml).
+            "respaldo": {n: s.catalog.respaldo_de(n) for n in s.catalog.profiles},
+            "respaldo_por_defecto": {n: defecto.respaldo_de(n) for n in defecto.profiles},
             "modelos": {
                 alias: {
                     "etiqueta": m.etiqueta or alias,
@@ -584,10 +632,16 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
         }
 
     @app.put("/api/ajustes/perfiles", dependencies=[Depends(solo_dueno), Depends(require_token)])
-    def guardar_perfiles(body: dict[str, dict[str, dict[str, str]]], request: Request) -> dict[str, str]:
+    def guardar_perfiles(body: dict[str, Any], request: Request) -> dict[str, str]:
+        """Cuerpo `{modos: {modo: {rol: {model, effort}}}, respaldo: {modo: política}}`; se acepta también el
+        formato antiguo (solo el mapa de modos)."""
         s = svc(request)
+        modos = body["modos"] if "modos" in body else body
+        respaldo = body.get("respaldo") if "modos" in body else None
+        if not isinstance(modos, dict) or not isinstance(respaldo, dict | None):
+            raise HTTPException(422, "formato de perfiles no válido")
         try:
-            nuevo = save_user_profiles(body)
+            nuevo = save_user_profiles(modos, respaldo=respaldo) if respaldo else save_user_profiles(modos)
         except ValueError as exc:
             raise HTTPException(422, str(exc)) from exc
         _reload_catalog_and_providers(s, nuevo)
@@ -644,6 +698,21 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
         _launch(s, consulta_id)
         return {"consulta_id": consulta_id, "estado": "reanudada"}
 
+    @app.post("/api/consultas/{consulta_id}/cancelar", dependencies=[Depends(require_token)])
+    async def cancelar(consulta_id: str, request: Request) -> dict[str, str]:
+        """Detiene un análisis en curso: cancela la tarea (lo que mata el proceso del CLI) y lo marca como detenido."""
+        s, p = svc(request), pipe(request)
+        comprobar_acceso(request, consulta_id)
+        task = s.tasks.get(consulta_id)
+        if task is None or task.done():
+            raise HTTPException(409, "no hay ningún análisis en curso para esta consulta")
+        task.cancel()
+        await asyncio.wait([task], timeout=10)
+        mensaje = "Has detenido el análisis. Puedes volver a lanzarlo cuando quieras."
+        p.store.set_estado(consulta_id, Estado.ERROR, error=mensaje)
+        p.bus.emit(consulta_id, "error", {"mensaje": mensaje, "tipo": "Cancelada"})
+        return {"consulta_id": consulta_id, "estado": "cancelada"}
+
     @app.get("/api/consultas")
     def listar(request: Request) -> list[dict[str, Any]]:
         if rol(request) == "dueno":
@@ -669,6 +738,33 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
             "texto": p.store.restore_pii(consulta_id, c.texto_seudonimizado),
             "adjuntos": [{k: a[k] for k in ("adjunto_id", "nombre", "tipo")} for a in c.adjuntos],
         }
+
+    @app.get("/api/consultas/{consulta_id}/vigencia")
+    async def vigencia(consulta_id: str, request: Request) -> list[dict[str, Any]]:
+        """Artículos del BOE citados en el dictamen que han cambiado de redacción DESPUÉS de hacer la consulta."""
+        p = pipe(request)
+        comprobar_acceso(request, consulta_id)
+        try:
+            c = p.store.get(consulta_id)
+            creada = date.fromisoformat(p.store.creado_en(consulta_id)[:10])
+        except KeyError as exc:
+            raise HTTPException(404, "consulta no encontrada") from exc
+        final = (c.dictamen or {}).get("dictamen") or {}
+        citadas = {f["source_id"] for f in final.get("fundamentos", [])}
+        citadas |= {ci["source_id"] for a in final.get("afirmaciones", []) for ci in a.get("citas", [])}
+        cambios = []
+        for sid in sorted(x for x in citadas if x.startswith("BOE:") and x.count(":") >= 3):
+            _, id_norma_, id_bloque, version = sid.split(":", 3)
+            try:
+                bloque = await p.boe.get_bloque(id_norma_, id_bloque)
+            except Exception:  # noqa: BLE001 — sin conexión no se puede comprobar; no es un error del usuario
+                continue
+            ultima = bloque.versiones[-1].vigencia_desde if bloque.versiones else None
+            if ultima and ultima > creada and ultima.isoformat() != version:
+                cambios.append(
+                    {"source_id": sid, "titulo": bloque.titulo, "version_citada": version, "version_actual": ultima}
+                )
+        return cambios
 
     @app.get("/api/consultar/stream/{consulta_id}")
     async def stream(
@@ -710,10 +806,16 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
                     except TimeoutError:
                         yield {"event": "heartbeat", "data": "{}"}
                         continue
-                    if seq <= last and tipo not in ("token", "debate_delta"):
+                    payload = json.dumps(data, ensure_ascii=False, default=str)
+                    if tipo in ("token", "debate_delta"):
+                        # Los fragmentos no se guardan y comparten número con el siguiente evento real: sin `id` y
+                        # sin avanzar `last`, para que ese evento (p. ej. debate_done) no se descarte por repetido.
+                        yield {"event": tipo, "data": payload}
                         continue
-                    last = max(last, seq)
-                    yield {"id": str(seq), "event": tipo, "data": json.dumps(data, ensure_ascii=False, default=str)}
+                    if seq <= last:
+                        continue
+                    last = seq
+                    yield {"id": str(seq), "event": tipo, "data": payload}
                     if tipo in ("final", "error", "clarification_needed"):
                         yield {"event": "fin", "data": "{}"}
                         return
@@ -824,6 +926,12 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
         except PlazoError as exc:
             raise HTTPException(422, str(exc)) from exc
         return r.model_dump(mode="json")
+
+    @app.get("/api/hoja-de-ruta/{submateria}")
+    def hoja_ruta(submateria: str, fecha: date | None = None) -> list[dict[str, Any]]:
+        """Pasos deterministas de la submateria (config/hojas_de_ruta.yaml) aplicables a la fecha de los hechos; sin
+        LLM. El navegador los cruza con los plazos y la postulación del dictamen."""
+        return [p.model_dump(mode="json") for p in pasos_aplicables(submateria, fecha)]
 
     @app.get("/api/calendario/tipos")
     def tipos_plazo(request: Request) -> list[dict[str, str]]:

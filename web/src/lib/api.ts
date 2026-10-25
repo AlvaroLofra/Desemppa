@@ -78,9 +78,9 @@ export const api = {
     request<{ ok: boolean; latencia_ms: number; respuesta: string; error: string | null }>(
       `/api/modelos/${alias}/probar`, { method: "POST" }, true),
   perfiles: () => request<Perfiles>("/api/ajustes/perfiles"),
-  guardarPerfiles: (modos: Perfiles["modos"]) =>
+  guardarPerfiles: (modos: Perfiles["modos"], respaldo: Perfiles["respaldo"]) =>
     request("/api/ajustes/perfiles", {
-      method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(modos),
+      method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ modos, respaldo }),
     }, true),
   restablecerPerfiles: () => request("/api/ajustes/perfiles", { method: "DELETE" }, true),
   restablecerModelos: () => request("/api/ajustes/modelos", { method: "DELETE" }, true),
@@ -127,7 +127,31 @@ export const api = {
   borrarDocumento: (id: string) => request<{ ok: boolean }>(`/api/biblioteca/${id}`, { method: "DELETE" }, true),
   adjuntarDocumento: (id: string) =>
     request<{ adjunto_id: string; nombre: string; tipo: string }>(`/api/biblioteca/${id}/adjuntar`, { method: "POST" }, true),
+  cancelar: (id: string) => request<{ estado: string }>(`/api/consultas/${id}/cancelar`, { method: "POST" }, true),
+  vigencia: (id: string) => request<{ source_id: string; titulo: string; version_citada: string; version_actual: string }[]>(
+    `/api/consultas/${id}/vigencia`),
+  salud: (dias: number) => request<Salud>(`/api/salud?dias=${dias}`),
+  hojaDeRuta: (submateria: string, fecha?: string | null) => request<PasoHoja[]>(
+    `/api/hoja-de-ruta/${encodeURIComponent(submateria)}${fecha ? `?fecha=${fecha}` : ""}`),
 };
+
+export interface Salud {
+  dias: number;
+  modelos: { modelo: string; proveedor: string; llamadas: number; correctas: number; vacias: number;
+    tiempo_agotado: number; latencia_media_s: number; tokens_entrada: number; tokens_salida: number }[];
+  consultas: Record<string, number>;
+}
+
+/** Paso de la hoja de ruta determinista (config/hojas_de_ruta.yaml): cada base es una cita literal verificada. */
+export interface PasoHoja {
+  titulo: string;
+  que_hacer: string;
+  quien: "tu" | "abogado" | "segun_cuantia";
+  base: { norma: string; articulo: string; cita: string }[];
+  plazo: string | null;
+  escrito: string | null;
+  vigente_desde?: string | null;
+}
 
 /** URL del QR (SVG) del enlace de la red local; solo responde con la red activa. */
 export const QR_RED_URL = "/api/red/qr";
@@ -177,9 +201,14 @@ export interface Perfiles {
   modos: Record<string, Record<string, Asignacion>>;
   por_defecto: Record<string, Record<string, Asignacion>>;
   modelos: Record<string, ModeloCatalogo>;
+  /** Qué hacer si falla el modelo de un rol, por modo. */
+  respaldo: Record<string, Respaldo>;
+  respaldo_por_defecto: Record<string, Respaldo>;
 }
 
-export interface Sesion { rol: "dueno" | "invitado"; modos_permitidos: string[] }
+export type Respaldo = "familia" | "nunca" | "cualquiera";
+
+export interface Sesion { rol: "dueno" | "invitado"; modos_permitidos: string[]; en_curso?: number }
 
 export interface EstadoRed {
   activo: boolean;

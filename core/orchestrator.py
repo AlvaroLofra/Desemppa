@@ -3,7 +3,10 @@ guardarraíles. Emite eventos SSE por el EventBus; nunca deja que el LLM calcule
 
 from __future__ import annotations
 
+import asyncio
+import hashlib
 import logging
+import re
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, date, datetime
@@ -19,7 +22,7 @@ from connectors.eurlex_client import EURLexError, EURLexRepository
 from connectors.retriever import HybridRetriever
 from core.calendar_engine import CalendarEngine, PlazoError
 from core.errors import ProviderError
-from core.fechas_es import fecha_consta, mes_consta
+from core.fechas_es import fecha_consta, fechas_en_texto, mes_consta
 from core.firewall import Contexto, ResultadoFirewall, Seccion, escanear, verificar_afirmaciones
 from core.llm_types import LLMRequest, LLMResult
 from core.materias import Submateria, catalogo_para_prompt, id_norma, normas_aplicables, submaterias
@@ -44,6 +47,7 @@ from core.schemas import (
     EntradaAuditoria,
     ExtractoSentencia,
     FragmentoFuente,
+    FuenteSellada,
     Fundamento,
     Jurisdiccion,
     NormaObjetivo,
@@ -51,11 +55,12 @@ from core.schemas import (
     PreguntaAclaratoria,
     RamaCandidata,
     ResolucionMagistradoSchema,
+    SelloVerificacion,
     TriageOutputSchema,
 )
 from core.state import ConsultaStore, Estado, EventBus
 from core.temporal_sync import select_version
-from core.validators import EvidenciaBanda, coherent_band, find_pronosticos, verify_quote
+from core.validators import EvidenciaBanda, coherent_band, find_pronosticos, lower_band, verify_quote
 
 log = logging.getLogger(__name__)
 PROMPTS = Path(__file__).resolve().parent / "prompts"
@@ -73,6 +78,28 @@ def _prompt_rol(name: str) -> str:
 
 
 _fold = fold
+
+_MOTIVOS = {
+    "EmptyResponse": "respuesta vacía",
+    "RateLimited": "límite de peticiones",
+    "UsageLimitReached": "cuota agotada",
+    "ProviderTimeout": "tiempo agotado",
+    "ModelUnavailable": "no disponible",
+    "NotAuthenticated": "sin sesión iniciada",
+}
+
+
+def _motivo_sustitucion(avisos: list[str]) -> str:
+    """Motivo legible del primer fallo que llevó al router a otro modelo (avisos de core/router.py)."""
+    for aviso in avisos:
+        m = re.search(r"\((\w+)\)", aviso)
+        if m:
+            return _MOTIVOS.get(m.group(1), m.group(1))
+        if "circuit breaker" in aviso:
+            return "pausado tras varios fallos"
+        if "desactivado" in aviso:
+            return "proveedor desactivado"
+    return "no disponible"
 
 
 class TriageLLM(BaseModel):
@@ -92,6 +119,8 @@ class TriageLLM(BaseModel):
     terminos_cendoj: list[str] = []
     convenio_aplicable: str | None = None
     resumen_hechos: str = ""
+    # Campos críticos de la submateria que constan en la consulta, con la frase literal que lo prueba.
+    campos_constan: list[dict[str, Any]] = []
 
 
 @dataclass
@@ -114,6 +143,7 @@ class _Run:
     modo: str
     modelos: dict[str, str] = field(default_factory=dict)
     avisos: list[str] = field(default_factory=list)
+    discrepancias: list[str] = field(default_factory=list)  # cuestiones en que dos resoluciones no coinciden
 
 
 class Orchestrator:
@@ -128,8 +158,20 @@ class Orchestrator:
         self.s.store.set_estado(run.consulta_id, estado)
         self._emit(run, "phase", {"estado": estado.value})
 
+    def _modelo_previsto(self, modo: str, role: str) -> str:
+        a = self.s.router.resolve(modo, role)
+        return self.s.router.catalog.models[a.model].resolved_id(a.effort)
+
     async def _llm_json(
-        self, run: _Run, role: str, system: str, prompt: str, model: type[M], *, delta_rol: str | None = None
+        self,
+        run: _Run,
+        role: str,
+        system: str,
+        prompt: str,
+        model: type[M],
+        *,
+        delta_rol: str | None = None,
+        modelo: str | None = None,
     ) -> M:
         """Llama al rol con salida JSON y valida con Pydantic; 1 reintento con el error como feedback."""
         last_error = ""
@@ -141,17 +183,32 @@ class Orchestrator:
             async for item in self.s.router.stream(
                 run.modo,
                 role,
-                LLMRequest(system=system, prompt=full_prompt, json_mode=True),
+                LLMRequest(system=SIN_HERRAMIENTAS + system, prompt=full_prompt, json_mode=True),
                 fase=role,
                 consulta_id=run.consulta_id,
-                restartable=True,  # solo se usa el JSON final: un corte a mitad puede repetirse en otro modelo
+                restartable=True,
+                modelo=modelo,  # solo se usa el JSON final: un corte a mitad puede repetirse en otro modelo
             ):
                 if isinstance(item, LLMResult):
                     text = item.text
                     run.modelos[role] = item.model
                     if item.degradado:
+                        # Lo resolvió otro modelo: se dice cuál, en lugar de cuál y por qué (progreso y dictamen).
+                        previsto = self._modelo_previsto(run.modo, role)
+                        motivo = _motivo_sustitucion(item.avisos)
+                        run.modelos[role] = f"{item.model} (en lugar de {previsto}: {motivo})"
                         run.avisos.extend(item.avisos)
-                        self._emit(run, "quota", {"rol": role, "avisos": item.avisos, "modelo": item.model})
+                        self._emit(
+                            run,
+                            "quota",
+                            {
+                                "rol": role,
+                                "avisos": item.avisos,
+                                "modelo": item.model,
+                                "previsto": previsto,
+                                "motivo": motivo,
+                            },
+                        )
                 elif delta_rol:
                     self._emit(run, "debate_delta", {"rol": delta_rol, "text": item.text})
             try:
@@ -194,16 +251,24 @@ class Orchestrator:
         lista_convenios = "\n".join(
             f"- {c['codigo']} · {c['denominacion']} · {c['sector']} · {c['territorio']}" for c in convenios.values()
         )
+        hechos_txt = c.texto_seudonimizado + "\n" + "\n".join(str(a.get("respuesta", "")) for a in c.aclaraciones)
+        # Lo que ya se sabe (selector de municipio, fechas escritas) va al prompt para que no se vuelva a preguntar.
+        conocidos = []
+        if c.municipio_ine and (m := self.s.calendar.festivos.municipios.get(c.municipio_ine)):
+            conocidos.append(f"- Municipio del juzgado u organismo, elegido por el usuario: {m.nombre}")
+        fechas_dichas = sorted(fechas_en_texto(hechos_txt, hoy).exactas)
+        if fechas_dichas:
+            conocidos.append("- Fechas que constan en la consulta: " + ", ".join(f.isoformat() for f in fechas_dichas))
         system = (
             _prompt("triaje")
             .replace("{hoy}", hoy.isoformat())
             .replace("{catalogo}", catalogo_para_prompt())
             .replace("{convenios}", lista_convenios or "(ninguno indexado: usa null)")
+            .replace("{conocidos}", "\n".join(conocidos) or "(ninguno)")
         )
         raw = await self._llm_json(run, "triaje", system, f"CONSULTA DEL CIUDADANO:\n{texto}", TriageLLM)
         # Las fechas solo valen si el ciudadano las ha escrito (o «hoy», «ayer», «hace N días»): el modelo no puede
         # deducirlas ni calcularlas. Una fecha inventada movería el plazo (benchmark 24-10-2026, caso de Barcelona).
-        hechos_txt = c.texto_seudonimizado + "\n" + "\n".join(str(a.get("respuesta", "")) for a in c.aclaraciones)
         fecha_inicio = raw.fecha_inicio_plazo
         if fecha_inicio and not fecha_consta(fecha_inicio, hechos_txt, hoy):
             run.avisos.append(
@@ -226,10 +291,27 @@ class Orchestrator:
         municipio_ine = c.municipio_ine or self._municipio_ine(raw.municipio)
         preguntas = [
             PreguntaAclaratoria.model_validate({"tipo_respuesta": "texto", **p})
-            for p in raw.preguntas_aclaracion[:5]
+            for p in raw.preguntas_aclaracion[:6]
             if p.get("texto")
         ]
-        faltan = list(raw.datos_criticos_faltantes)
+        # El modelo a veces pregunta lo que ya se sabe (o el municipio como texto libre): se filtra por código.
+        # Las preguntas de municipio se quitan siempre; si falta, se hace solo la canónica `q_municipio`.
+        conocido = {
+            "municipio": municipio_ine is not None,
+            "fecha": fecha_inicio is not None,
+            "importe": _importe_consta(raw.cuantia_estimada_eur, hechos_txt),
+        }
+        pide_municipio = any(_dato_preguntado(p.texto, p.tipo_respuesta) == "municipio" for p in preguntas)
+        preguntas = [
+            p
+            for p in preguntas
+            if (dato := _dato_preguntado(p.texto, p.tipo_respuesta)) != "municipio" and not conocido.get(dato or "")
+        ]
+        faltan = [f for f in raw.datos_criticos_faltantes if not conocido.get(_dato_preguntado(f) or "")]
+        # Campos críticos de la submateria (catálogo): cuentan como conocidos solo si el modelo aporta una frase
+        # LITERAL de la consulta que los contiene. Los que falten se preguntan siempre («más vale preguntar»).
+        if sub:
+            preguntas += _preguntas_campos_criticos(sub, raw.campos_constan, hechos_txt, conocido, preguntas)
         if sub and sub.plazos and fecha_inicio is None:
             evento = _campo_fecha(sub)
             if not any(p.tipo_respuesta == "fecha" for p in preguntas):
@@ -241,12 +323,7 @@ class Orchestrator:
                         motivo="cálculo de plazos",
                     )
                 )
-        if (
-            sub
-            and municipio_ine is None
-            and not sub.fuera_alcance
-            and not any(p.tipo_respuesta == "municipio" for p in preguntas)
-        ):
+        if municipio_ine is None and (pide_municipio or (sub and not sub.fuera_alcance)):
             preguntas.append(
                 PreguntaAclaratoria(
                     id="q_municipio",
@@ -374,6 +451,36 @@ class Orchestrator:
             )
             return None
         return triage
+
+    def _magistrado_doble(self, run: _Run) -> bool:
+        catalogo = getattr(self.s.router, "catalog", None)
+        perfil = getattr(catalogo, "profiles", {}).get(run.modo)
+        return bool(getattr(perfil, "magistrado_doble", False))
+
+    def _pedir_hechos_determinantes(self, run: _Run, debate: dict[str, Any]) -> bool:
+        """Segunda ronda: si el Magistrado señala hechos no contados que cambiarían una estimación, se preguntan
+        antes de dar el resultado (máximo dos rondas de aclaración por consulta). Devuelve True si se ha pausado."""
+        c = self.s.store.get(run.consulta_id)
+        if c.rondas >= 2:
+            return False
+        res = ResolucionMagistradoSchema.model_validate(debate["magistrado"])
+        ya = {_fold(a.get("pregunta", "")) for a in c.aclaraciones}
+        preguntas = [
+            PreguntaAclaratoria(
+                id=f"q_det_{i}",
+                texto=h.pregunta,
+                tipo_respuesta=h.tipo_respuesta,
+                opciones=h.opciones,
+                motivo=h.por_que or "puede cambiar el resultado",
+            )
+            for i, h in enumerate(res.hechos_determinantes[:4])
+            if h.pregunta.strip() and _fold(h.pregunta) not in ya
+        ]
+        if not preguntas:
+            return False
+        self._estado(run, Estado.ESPERANDO_ACLARACION)
+        self._emit(run, "clarification_needed", {"preguntas": [p.model_dump() for p in preguntas], "ronda": 2})
+        return True
 
     # ---------- Fase 2 ----------
     async def _ingesta(self, run: _Run, triage: TriageOutputSchema, resumen: str) -> DossierIngestaSchema:
@@ -605,7 +712,12 @@ class Orchestrator:
         return out
 
     async def _debate(
-        self, run: _Run, dossier: DossierIngestaSchema, feedback: str = "", previo: dict[str, Any] | None = None
+        self,
+        run: _Run,
+        dossier: DossierIngestaSchema,
+        feedback: str = "",
+        previo: dict[str, Any] | None = None,
+        modelo_magistrado: str | None = None,
     ) -> dict[str, Any]:
         self._estado(run, Estado.DEBATE)
         c = self.s.store.get(run.consulta_id)
@@ -666,9 +778,26 @@ class Orchestrator:
         )
         if feedback:
             prompt += f"\n\nCORRECCIONES OBLIGATORIAS (verificación automática de tu resolución anterior):\n{feedback}"
-        magistrado = await self._llm_json(
-            run, "magistrado", _prompt_rol("magistrado"), prompt, ResolucionMagistradoSchema, delta_rol="magistrado"
+        llamada = self._llm_json(
+            run,
+            "magistrado",
+            _prompt_rol("magistrado"),
+            prompt,
+            ResolucionMagistradoSchema,
+            delta_rol="magistrado",
+            modelo=modelo_magistrado,
         )
+        if self._magistrado_doble(run) and not feedback:
+            # Dos resoluciones independientes en paralelo; la segunda solo sirve para medir la estabilidad.
+            magistrado, segunda = await asyncio.gather(
+                llamada,
+                self._llm_json(run, "magistrado", _prompt_rol("magistrado"), prompt, ResolucionMagistradoSchema),
+                return_exceptions=False,
+            )
+            otra = {q.id: q.estimacion for q in segunda.cuestiones}
+            run.discrepancias = [q.id for q in magistrado.cuestiones if q.id in otra and otra[q.id] != q.estimacion]
+        else:
+            magistrado = await llamada
         self._emit(run, "debate_done", {"rol": "magistrado", "resolucion": magistrado.model_dump()})
         debate = {
             "defensa": defensa.model_dump(),
@@ -787,6 +916,26 @@ class Orchestrator:
                 res = ResolucionMagistradoSchema.model_validate(debate["magistrado"])
                 fw = await self._cortafuegos(run, res, ctx)
                 fallos = self._fallos_magistrado(res, fuentes) + self._fallos_cortafuegos(fw)
+            resolver = getattr(self.s.router, "resolve", None)  # los routers simulados de los tests no lo tienen
+            escalado = _ESCALADO.get(resolver(run.modo, "magistrado").model) if resolver else None
+            if fallos and escalado and escalado in self.s.router.catalog.models:
+                # Escalado: si el modelo rápido falla dos veces la verificación, se repite una vez con el más
+                # capaz de la MISMA familia (no gasta cuota de la otra suscripción) y se avisa.
+                try:
+                    debate = await self._debate(
+                        run, dossier, feedback="\n".join(fallos[:20]), previo=debate, modelo_magistrado=escalado
+                    )
+                except ProviderError as exc:
+                    run.avisos.append(
+                        f"No se pudo repetir la resolución con un modelo más capaz ({type(exc).__name__})."
+                    )
+                else:
+                    run.avisos.append(
+                        f"La resolución no superaba la verificación y se ha repetido con {escalado} (misma familia)."
+                    )
+                    res = ResolucionMagistradoSchema.model_validate(debate["magistrado"])
+                    fw = await self._cortafuegos(run, res, ctx)
+                    fallos = self._fallos_magistrado(res, fuentes) + self._fallos_cortafuegos(fw)
             self._estado(run, Estado.GUARDARRAILES)
             self._emit(run, "guardrail", {"id": "G2-G4 (reintento)", "ok": not fallos, "detalle": fallos[:10]})
         run.avisos.extend(fw.avisos)
@@ -910,6 +1059,41 @@ class Orchestrator:
             if banda == BandaSolidez.CRITERIO_CONSOLIDADO_FAVORABLE:
                 banda = BandaSolidez.ARGUMENTO_SOLIDO_SIN_DOCTRINA
             motivos.append("Persistían citas no verificadas tras el reintento: se han descartado.")
+        # Coherencia interna: la solidez no puede ser favorable si TODAS las cuestiones se estiman a favor de la
+        # otra parte (o al revés sin avisarlo).
+        a_favor = sum(1 for q in res.cuestiones if q.estimacion == "DEFENSA")
+        favorables = (BandaSolidez.CRITERIO_CONSOLIDADO_FAVORABLE, BandaSolidez.ARGUMENTO_SOLIDO_SIN_DOCTRINA)
+        if res.cuestiones and a_favor == 0 and banda in favorables:
+            banda = BandaSolidez.DISPARIDAD_DE_CRITERIO
+            motivos.append(
+                "Incoherencia: solidez favorable con todas las cuestiones estimadas a favor de la otra parte."
+            )
+            run.avisos.append(
+                "La valoración era incoherente (todas las cuestiones a favor de la otra parte): "
+                "se ha rebajado la solidez."
+            )
+        if run.discrepancias:
+            if banda in favorables:
+                banda = BandaSolidez.DISPARIDAD_DE_CRITERIO
+            motivos.append("Dos resoluciones independientes discrepan en: " + ", ".join(run.discrepancias))
+            run.avisos.append(
+                "Dos resoluciones independientes no coinciden en "
+                + ", ".join(run.discrepancias)
+                + ": el resultado depende de cómo se interprete y la solidez se ha ajustado."
+            )
+        # La banda refleja lo que queda verificado: si el cortafuegos eliminó parte de la respuesta directa o al menos
+        # un tercio de las afirmaciones jurídicas, la solidez propuesta no está respaldada y se rebaja un nivel.
+        juridicas = [v for v in fw.veredictos if v.tipo_propuesto in ("norma", "razonamiento")]
+        quitadas = [v for v in juridicas if v.tipo_final is None]
+        if any(v.seccion == "respuesta" for v in quitadas) or (juridicas and 3 * len(quitadas) >= len(juridicas)):
+            rebajada = lower_band(banda)
+            if rebajada != banda:
+                motivos.append(
+                    f"El cortafuegos eliminó {len(quitadas)} de {len(juridicas)} afirmaciones jurídicas: "
+                    "la solidez se rebaja un nivel."
+                )
+                run.avisos.append("La solidez se ha rebajado porque parte del razonamiento no superó la verificación.")
+                banda = rebajada
         self._emit(
             run,
             "guardrail",
@@ -953,6 +1137,26 @@ class Orchestrator:
             self.s.store.save(run.consulta_id, dictamen_json=payload, banda_solidez=BandaSolidez.NO_DETERMINABLE.value)
             self._emit(run, "final", payload)
             return
+        citadas = {f.source_id for f in fundamentos} | {
+            c["source_id"] for v in fw.veredictos if v.tipo_final for c in v.citas
+        }
+        sello = SelloVerificacion(
+            verificado_en=datetime.now(UTC),
+            fuentes=[
+                FuenteSellada(
+                    source_id=sid,
+                    titulo=fuentes[sid].titulo,
+                    version=sid.rsplit(":", 1)[-1] if sid.startswith("BOE:") and sid.count(":") >= 3 else None,
+                    sha256=hashlib.sha256(fuentes[sid].texto_verbatim.encode("utf-8")).hexdigest(),
+                    url=getattr(fuentes[sid], "url_oficial", None),
+                )
+                for sid in sorted(citadas)
+                if sid in fuentes
+            ],
+            afirmaciones_mostradas=sum(1 for v in fw.veredictos if v.tipo_final is not None),
+            afirmaciones_eliminadas=sum(1 for v in fw.veredictos if v.tipo_final is None),
+            modelos=dict(run.modelos),
+        )
         dictamen = DictamenCertificadoSchema(
             consulta_id=run.consulta_id,
             modo=cast(Any, run.modo),
@@ -1008,6 +1212,8 @@ class Orchestrator:
             ]
             + auditoria_fund,
             respuesta_parcial=respuesta_parcial,
+            hechos_determinantes=[h.pregunta for h in res.hechos_determinantes][:6],
+            sello=sello,
             aviso_legal=AVISO_LEGAL,
             generado_en=datetime.now(UTC),
         )
@@ -1038,6 +1244,8 @@ class Orchestrator:
             resumen = (self.s.store.get(consulta_id).triage or {}).get("resumen_hechos") or c.texto_seudonimizado
             dossier = await self._ingesta(run, triage, resumen)
             debate = await self._debate(run, dossier)
+            if self._pedir_hechos_determinantes(run, debate):
+                return
             await self._guardarrailes(run, triage, dossier, debate)
         except Exception as exc:  # noqa: BLE001 — cualquier fallo se comunica a la UI
             log.exception("consulta %s fallida", consulta_id)
@@ -1046,6 +1254,85 @@ class Orchestrator:
             except Exception:  # noqa: BLE001
                 pass
             self._emit(run, "error", {"mensaje": str(exc)[:500], "tipo": type(exc).__name__})
+
+
+# Datos que el triaje puede preguntar, reconocidos por el tipo de respuesta o por palabras clave sobre el texto
+# plegado con `fold`. Tabla genérica: los datos críticos de cada submateria se añadirán aquí.
+_DATOS_PREGUNTABLES: dict[str, tuple[str, re.Pattern[str]]] = {
+    "municipio": ("municipio", re.compile(r"\b(municipio|localidad|ciudad|poblacion|pueblo)\b")),
+    "fecha": ("fecha", re.compile(r"\b(fecha|cuando|que dia)\b")),
+    "importe": ("importe", re.compile(r"\b(importe|cuantia|cantidad|cuanto dinero|euros)\b")),
+}
+
+
+def _dato_preguntado(texto: str, tipo_respuesta: str | None = None) -> str | None:
+    """Qué dato pide una pregunta (o una entrada de `datos_criticos_faltantes`); None si no es uno de la tabla."""
+    por_tipo = next((dato for dato, (tipo, _) in _DATOS_PREGUNTABLES.items() if tipo == tipo_respuesta), None)
+    if por_tipo:
+        return por_tipo
+    t = _fold(texto)
+    return next((dato for dato, (_, patron) in _DATOS_PREGUNTABLES.items() if patron.search(t)), None)
+
+
+def _importe_consta(cuantia: float | None, texto: str) -> bool:
+    """¿El importe que da el modelo está escrito en la consulta («900», «1.200», «1 200»)? Si no, no cuenta."""
+    if not cuantia or cuantia != int(cuantia):
+        return False
+    plano = re.sub(r"(?<=\d)[.\s](?=\d{3}\b)", "", texto)
+    return re.search(rf"(?<![\d.,]){int(cuantia)}(?![\d]|[.,]\d)", plano) is not None
+
+
+# Los modelos de los CLI (agy, claude) pueden intentar usar herramientas (ficheros, comandos), que el modo no
+# interactivo deniega y que a veces dejaban la respuesta vacía. Spike del 25-10-2026 (scripts/spike_agy_vacias.py,
+# 5 llamadas por variante con el prompt real del Magistrado): con esta instrucción la mediana fue ~36 s frente a ~68 s.
+SIN_HERRAMIENTAS = (
+    "No uses herramientas, comandos, ficheros ni búsquedas: todo lo que necesitas está en este mensaje. "
+    "Responde directamente con el JSON pedido.\n\n"
+)
+
+# Escalado del Magistrado tras dos verificaciones fallidas: siempre dentro de la misma familia.
+_ESCALADO = {"agy_gemini_flash": "agy_gemini_argon"}
+
+_TIPO_DATO: dict[str, Literal["fecha", "importe"]] = {"fecha": "fecha", "importe": "importe"}
+_SI_NO = re.compile(r"^¿(es|estas|estabas|has|hay|te|ya|se|tienes|eres|fue)\b", re.IGNORECASE)
+
+
+def _preguntas_campos_criticos(
+    sub: Submateria,
+    constan: list[dict[str, Any]],
+    hechos: str,
+    conocido: dict[str, bool],
+    ya: list[PreguntaAclaratoria],
+) -> list[PreguntaAclaratoria]:
+    """Pregunta cada campo crítico que no conste. «Consta» = el modelo cita una frase literal de la consulta que
+    lo contiene (verificada aquí) o es un dato que el código ya conoce (fecha del plazo, municipio, importe)."""
+    hechos_plano = " ".join(_fold(hechos).split())
+    probados = {
+        _fold(str(c.get("campo", "")))
+        for c in constan
+        if len(_fold(str(c.get("cita", "")))) >= 3 and " ".join(_fold(str(c["cita"])).split()) in hechos_plano
+    }
+    textos_ya = " ".join(_fold(p.texto) for p in ya)
+    out = []
+    for i, campo in enumerate(sub.campos_criticos):
+        dato = _dato_preguntado(campo)
+        if _fold(campo) in probados or (dato and conocido.get(dato)):
+            continue
+        if dato == "municipio" or (dato == "fecha" and any(p.tipo_respuesta == "fecha" for p in ya)):
+            continue  # el municipio y la fecha del plazo tienen su pregunta canónica
+        clave = next((w for w in _fold(campo).split() if len(w) > 4), _fold(campo))
+        if clave in textos_ya:
+            continue  # el modelo ya lo pregunta con otras palabras
+        si_no = campo.startswith("¿") and _SI_NO.match(_fold(campo))
+        out.append(
+            PreguntaAclaratoria(
+                id=f"q_campo_{i}",
+                texto=campo if campo.startswith("¿") else f"Indica {campo}",
+                tipo_respuesta="si_no" if si_no else _TIPO_DATO.get(dato or "", "texto"),
+                motivo="dato necesario para valorar tu caso",
+            )
+        )
+    return out
 
 
 def _campo_fecha(sub: Submateria) -> str:
