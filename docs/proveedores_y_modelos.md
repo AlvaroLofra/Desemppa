@@ -83,19 +83,59 @@ En **Ajustes → Modelos personalizados** → **Añadir modelo**:
 |---|---|---|---|---|
 | **Eco** | `agy_gemini_flash` (`low`) | `agy_gemini_flash` (`medium`) | `agy_gemini_flash` (`medium`) | `agy_gemini_flash` (`low`) |
 | **Equilibrado** (defecto) | `agy_gemini_flash` (`low`) | `agy_gemini_flash` (`medium`) | `claude_sonnet` (`medium`) | `agy_gemini_flash` (`low`) |
-| **Pro** | `agy_gemini_flash` (`low`/`medium`) | `claude_sonnet` (`medium`) | **`agy_gemini_argon` (`high`)** | `agy_gemini_flash` (`low`) |
+| **Pro** | `agy_gemini_flash` (`low`/`medium`) | `claude_sonnet` (`medium`) | **`agy_gemini_argon` (`high`)** | `agy_claude_sonnet` (`low`) |
 | **Auditoría** | `agy_gemini_flash` (`low`/`medium`) | `claude_sonnet` (`medium`) | `claude_opus` (`high`) + Auditor `agy_gemini_argon` (`high`) | `agy_gemini_flash` (`low`) |
 
-## 5. Cadenas de alternativas (fallbacks)
+## 5. Cadenas de alternativas (fallbacks) y política de respaldo
 
-Si un modelo falla, agota cuota o no tiene sesión, el router prueba el siguiente de su cadena (`config/models.toml`).
-Los proveedores desactivados se saltan sin llamarlos.
+Si un modelo falla, agota cuota o no tiene sesión, el router puede probar el siguiente de su cadena
+(`config/models.toml`). Los proveedores desactivados se saltan sin llamarlos.
 
-| Modelo | Alternativas, en orden |
+| Modelo | Cadena completa, en orden |
 |---|---|
 | `agy_gemini_flash` | `agy_claude_sonnet` → `agy_gpt_oss` → `claude_sonnet` → `gemini_flash` (API) |
 | `claude_sonnet` | `agy_claude_sonnet` → `agy_gemini_flash` → `gemini_flash` (API) |
 | `agy_gemini_argon` | `agy_claude_opus` → `claude_opus` → `claude_sonnet` → `agy_claude_sonnet` → `agy_gemini_flash` |
 
-Primero se prueba otra familia dentro del mismo plan (Antigravity) y después otro proveedor, para no gastar un salto
-en un proveedor desactivado.
+Qué parte de la cadena se usa lo decide la **política de respaldo** (`respaldo` en `config/profiles.toml`, global y
+por modo; se cambia también en Ajustes → Modos → «Si un modelo falla»):
+
+| Política | Qué prueba | Ejemplo con `agy_gemini_flash` |
+|---|---|---|
+| `familia` (por defecto) | solo modelos de la misma familia | `agy_gemini_flash` → `gemini_flash` (API, si hay clave) → `gemini_flash_lite` |
+| `nunca` | ningún otro modelo: la consulta se detiene con un aviso | `agy_gemini_flash` |
+| `cualquiera` | la cadena completa (puede gastar cuota de la otra suscripción) | la tabla de arriba |
+
+La familia se deduce del `model_id` (`gemini`, `claude`/`haiku`/`sonnet`/`opus`, `gpt`/`codex`/`o3`, …) o se fija con
+`familia = "..."` en el modelo. Claude por Antigravity y Claude por Claude Code son la misma familia, así que
+`claude_sonnet` ↔ `agy_claude_sonnet` sí se sustituyen entre sí.
+
+Además:
+- **Respuesta vacía → se repite una vez el mismo modelo** antes de pasar al siguiente (`core/router.py`). Los demás
+  errores no se repiten.
+- **Aviso visible**: cuando un rol lo resuelve otro modelo, el progreso muestra «El Magistrado lo ha resuelto X porque
+  Y falló (motivo)» y «Modelos usados» del dictamen lo marca como `modelo (en lugar de previsto: motivo)`.
+- Si la política impide seguir, el error dice qué modelos no se han usado y por qué.
+
+## 6. Respuestas vacías de Gemini Flash vía `agy` (spike del 25-10-2026)
+
+**Síntoma medido** (ledger SQLite, 24-25 oct): el Magistrado de Eco con `gemini-3.8-flash-medium` devolvió 12 respuestas
+vacías en 33 llamadas y la contraparte 3; cada una saltaba a Claude Sonnet por la cadena de respaldo. El log de `agy`
+da la causa: *«a tool required the "command" permission that headless mode cannot prompt for, so it was
+auto-denied»* (el modelo intenta ejecutar un comando y el modo no interactivo lo deniega).
+
+**Spike** (`scripts/spike_agy_vacias.py`, prompt real del Magistrado de 27.941 caracteres, 5 llamadas por variante):
+
+| Variante | Válidas | Vacías | Tiempo mediano |
+|---|---|---|---|
+| Base | 5/5 | 0 | 68 s (la primera llamada tardó 398 s) |
+| `--mode plan` | 5/5 | 0 | 60 s |
+| Instrucción «no uses herramientas» | 5/5 | 0 | 36 s |
+
+El fallo no se reprodujo en estas 15 llamadas (es intermitente: 36 % en el ledger), así que no se puede afirmar qué
+variante lo evita. Medidas tomadas, todas inocuas:
+- la instrucción `SIN_HERRAMIENTAS` se antepone a todos los roles (`core/orchestrator.py`): reduce la latencia a la mitad;
+- una respuesta vacía se repite una vez con el mismo modelo (`core/router.py`);
+- el respaldo, por defecto, no sale de la familia (sección 5) y siempre se avisa.
+
+Nunca se usa `--dangerously-skip-permissions` (lo rechaza `config/settings.py`).

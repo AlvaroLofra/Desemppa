@@ -3,8 +3,16 @@
 #   - Antigravity (Google AI Pro): Gemini 3.8 Flash (low/medium/high), Gemini 4 Argon (low/medium/high) y Claude 5.5
 #   - Claude Code (Claude Pro): Claude Haiku, Sonnet y Opus 5.5 (low/medium/high)
 # No requiere GEMINI_API_KEY. De los modelos Flash se usa únicamente Gemini 3.8 Flash variando el nivel de esfuerzo.
-# nli (verificador del cortafuegos) es SIEMPRE de otra familia que el Magistrado: un modelo no se corrige a sí mismo
-# (Gemini resuelve -> Claude verifica; Claude resuelve -> Gemini verifica). Lo comprueba tests/unit/test_settings.py.
+# nli (verificador del cortafuegos) es de otra familia que el Magistrado: un modelo no se corrige a sí mismo
+# (Gemini resuelve -> Claude verifica; Claude resuelve -> Gemini verifica). Excepción expresa del usuario (25-10-2026):
+# en Eco el verificador es Flash, para no gastar cuota de Claude. Lo comprueba tests/unit/test_settings.py.
+#
+# respaldo: qué hacer si el modelo de un rol falla (tras repetir una vez si devolvió una respuesta vacía).
+#   "familia"     solo modelos de la misma familia (Gemini -> Gemini; Claude por Antigravity <-> Claude Code)
+#   "nunca"       ninguno: la consulta falla con un aviso
+#   "cualquiera"  toda la cadena `fallbacks` de models.toml (puede gastar cuota de otra suscripción)
+# Se fija aquí para todos los modos y se puede cambiar por modo con `respaldo = "..."` (o desde Ajustes -> Modos).
+respaldo = "familia"
 
 [profiles.eco]
 label = "Eco"
@@ -14,7 +22,7 @@ cribado     = { model = "agy_gemini_flash", effort = "low" }
 defensa     = { model = "agy_gemini_flash", effort = "medium" }
 contraparte = { model = "agy_gemini_flash", effort = "medium" }
 magistrado  = { model = "agy_gemini_flash", effort = "medium" }
-nli         = { model = "agy_claude_sonnet", effort = "low" }
+nli         = { model = "agy_gemini_flash", effort = "low" }  # misma familia: decisión expresa del usuario
 
 [profiles.equilibrado]
 label = "Equilibrado"
@@ -29,6 +37,7 @@ nli         = { model = "agy_gemini_flash", effort = "low" }
 
 [profiles.pro]
 label = "Pro"
+magistrado_doble = true  # dos resoluciones independientes; si discrepan, «disparidad de criterio»
 claude_calls_per_query = 2
 triaje      = { model = "agy_gemini_flash", effort = "low" }
 cribado     = { model = "agy_gemini_flash", effort = "medium" }

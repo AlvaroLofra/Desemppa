@@ -1,4 +1,10 @@
-import type { Asignacion, Perfiles } from "../../lib/api";
+import type { Asignacion, Perfiles, Respaldo } from "../../lib/api";
+
+const RESPALDOS: { id: Respaldo; label: string; ayuda: string }[] = [
+  { id: "familia", label: "Solo de la misma familia", ayuda: "Gemini pasa a otro Gemini; Claude pasa a Claude por el otro plan" },
+  { id: "nunca", label: "Nunca", ayuda: "La consulta se detiene y te avisa" },
+  { id: "cualquiera", label: "Cualquier modelo", ayuda: "Puede gastar cuota de tu otra suscripción" },
+];
 
 export const MODOS_AJUSTES = [
   { id: "eco", label: "Eco" },
@@ -36,11 +42,13 @@ function OpcionesModelo({ perfiles }: { perfiles: Perfiles }) {
 }
 
 /** Qué modelo y esfuerzo hace cada tarea en cada modo. */
-export function Modes({ perfiles, modos, onCambiar, onTodoElModo }: {
+export function Modes({ perfiles, modos, respaldo, onCambiar, onTodoElModo, onRespaldo }: {
   perfiles: Perfiles;
   modos: Perfiles["modos"];
+  respaldo: Perfiles["respaldo"];
   onCambiar: (modo: string, rol: string, cambio: Partial<Asignacion>) => void;
   onTodoElModo: (modo: string, alias: string) => void;
+  onRespaldo: (modo: string, valor: Respaldo) => void;
 }) {
   return (
     <div className="space-y-6">
@@ -87,11 +95,25 @@ export function Modes({ perfiles, modos, onCambiar, onTodoElModo }: {
               );
             })}
           </ul>
+          <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-outline pt-3">
+            <div className="min-w-[10rem] flex-1">
+              <p className="text-sm text-ink">
+                Si un modelo falla
+                {respaldo[m.id] !== perfiles.respaldo_por_defecto[m.id] && <span className="ml-2 text-xs text-accent">modificado</span>}
+              </p>
+              <p className="text-xs text-ink-2">{RESPALDOS.find((r) => r.id === respaldo[m.id])?.ayuda}</p>
+            </div>
+            <select aria-label={`Qué hacer si falla un modelo en modo ${m.label}`} className="field w-full py-1.5 sm:w-72"
+                    value={respaldo[m.id] ?? "familia"} onChange={(e) => onRespaldo(m.id, e.target.value as Respaldo)}>
+              {RESPALDOS.map((r) => <option key={r.id} value={r.id}>{r.label}</option>)}
+            </select>
+          </div>
         </div>
       ))}
       <p className="text-xs text-ink-3">
-        Si un modelo falla, agota su cuota o su programa no tiene sesión, la consulta pasa sola a la siguiente alternativa
-        definida en <code>config/models.toml</code> y la respuesta lo indica en sus avisos.
+        Si un modelo devuelve una respuesta vacía se repite una vez. Si vuelve a fallar, agota su cuota o su programa no
+        tiene sesión, la consulta usa la alternativa que permita «Si un modelo falla» (cadena de{" "}
+        <code>config/models.toml</code>) y el resultado te dice qué modelo resolvió cada tarea.
       </p>
     </div>
   );

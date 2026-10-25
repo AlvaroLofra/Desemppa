@@ -18,6 +18,25 @@ CONFIG_DIR = ROOT / "config"
 Effort = Literal["low", "medium", "high"]
 Role = Literal["triaje", "cribado", "defensa", "contraparte", "magistrado", "nli", "auditor"]
 CORE_ROLES: tuple[Role, ...] = ("triaje", "cribado", "defensa", "contraparte", "magistrado", "nli")
+# Política de respaldo cuando un modelo falla: "familia" solo prueba modelos de la misma familia (Gemini -> Gemini,
+# Claude por Antigravity <-> Claude Code), "nunca" no prueba otro modelo y "cualquiera" sigue toda la cadena de
+# `fallbacks` de models.toml (puede gastar cuota de otra suscripción).
+Respaldo = Literal["familia", "nunca", "cualquiera"]
+RESPALDOS: tuple[Respaldo, ...] = ("familia", "nunca", "cualquiera")
+
+_FAMILIAS = (
+    ("gemini", "gemini"),
+    ("claude", "claude"),
+    ("haiku", "claude"),
+    ("sonnet", "claude"),
+    ("opus", "claude"),
+    ("gpt", "gpt"),
+    ("codex", "gpt"),
+    ("grok", "grok"),
+    ("deepseek", "deepseek"),
+    ("mistral", "mistral"),
+    ("magistral", "mistral"),
+)
 
 
 def _default_data_dir() -> Path:
@@ -102,6 +121,7 @@ class ModelSpec(BaseModel):
     timeout_s: float = 60
     output_dimensionality: int | None = None
     fallbacks: list[str] = Field(default_factory=list)
+    familia: str | None = None  # si falta, se deduce del model_id (ver `familia_modelo`)
 
     @model_validator(mode="before")
     @classmethod
@@ -113,6 +133,15 @@ class ModelSpec(BaseModel):
 
     def resolved_id(self, effort: str) -> str:
         return self.model_id.replace("{effort}", effort)
+
+    def familia_modelo(self) -> str:
+        """Familia del modelo (gemini, claude, gpt…), independiente de por qué plan o API se llame."""
+        if self.familia:
+            return self.familia
+        mid = self.model_id.lower()
+        if mid.startswith(("o3", "o4")):
+            return "gpt"
+        return next((fam for clave, fam in _FAMILIAS if clave in mid), mid)
 
 
 class RoleAssignment(BaseModel):
@@ -126,6 +155,10 @@ class Profile(BaseModel):
     default: bool = False
     optional: bool = False
     nli_cross_family: str | None = None
+    respaldo: Respaldo | None = None  # None = la política global del catálogo
+    # Dos resoluciones independientes del Magistrado; si discrepan en una cuestión, la solidez pasa a
+    # «disparidad de criterio» (mide la estabilidad del resultado a cambio de una llamada más).
+    magistrado_doble: bool = False
     roles: dict[Role, RoleAssignment]
 
 
@@ -139,6 +172,7 @@ class Catalog(BaseModel):
     models: dict[str, ModelSpec]
     profiles: dict[str, Profile]
     circuit_breaker: CircuitBreakerConfig = CircuitBreakerConfig()
+    respaldo: Respaldo = "familia"
 
     @model_validator(mode="after")
     def _referencias(self) -> Catalog:
@@ -163,8 +197,20 @@ class Catalog(BaseModel):
     def default_profile(self) -> str:
         return next((n for n, p in self.profiles.items() if p.default), next(iter(self.profiles)))
 
+    def respaldo_de(self, profile: str) -> Respaldo:
+        perfil = self.profiles.get(profile)
+        return (perfil.respaldo if perfil else None) or self.respaldo
 
-_PROFILE_META = {"label", "claude_calls_per_query", "default", "optional", "nli_cross_family"}
+
+_PROFILE_META = {
+    "label",
+    "claude_calls_per_query",
+    "default",
+    "optional",
+    "nli_cross_family",
+    "respaldo",
+    "magistrado_doble",
+}
 USER_PROFILES = "user_profiles.toml"  # asignaciones del usuario (excluido de git); se superpone a profiles.toml
 USER_MODELS = "user_models.toml"  # modelos o activaciones de proveedor personalizados por el usuario
 
@@ -184,7 +230,9 @@ def load_catalog(config_dir: Path = CONFIG_DIR, *, user_overrides: bool = True) 
     providers_raw = tomllib.loads((config_dir / "providers.toml").read_text(encoding="utf-8"))
     providers_dict: dict[str, Any] = dict(providers_raw["providers"])
     models_dict: dict[str, Any] = dict(models_raw["models"])
-    profiles = _split_profiles(tomllib.loads((config_dir / "profiles.toml").read_text(encoding="utf-8")))
+    profiles_raw = tomllib.loads((config_dir / "profiles.toml").read_text(encoding="utf-8"))
+    profiles = _split_profiles(profiles_raw)
+    respaldo = profiles_raw.get("respaldo", "familia")
     user_models_path = config_dir / USER_MODELS
     if user_overrides and user_models_path.exists():
         um_raw = tomllib.loads(user_models_path.read_text(encoding="utf-8"))
@@ -196,25 +244,42 @@ def load_catalog(config_dir: Path = CONFIG_DIR, *, user_overrides: bool = True) 
                 models_dict[alias] = {**models_dict.get(alias, {}), **m_override}
     user_path = config_dir / USER_PROFILES
     if user_overrides and user_path.exists():
-        for name, body in _split_profiles(tomllib.loads(user_path.read_text(encoding="utf-8"))).items():
+        user_raw = tomllib.loads(user_path.read_text(encoding="utf-8"))
+        respaldo = user_raw.get("respaldo", respaldo)
+        for name, body in _split_profiles(user_raw).items():
             if name in profiles:
                 profiles[name]["roles"].update(body["roles"])
+                if "respaldo" in body:
+                    profiles[name]["respaldo"] = body["respaldo"]
     return Catalog.model_validate(
         {
             "providers": providers_dict,
             "models": models_dict,
             "profiles": profiles,
             "circuit_breaker": models_raw.get("circuit_breaker", {}),
+            "respaldo": respaldo,
         }
     )
 
 
-def save_user_profiles(assignments: dict[str, dict[str, dict[str, str]]], config_dir: Path = CONFIG_DIR) -> Catalog:
-    """Valida y guarda {modo: {rol: {model, effort}}} en user_profiles.toml. Devuelve el catálogo resultante."""
-    lines = ["# Generado por la página «Modelos» de Iuris-IA. Se superpone a profiles.toml.", ""]
-    for modo, roles in assignments.items():
+def save_user_profiles(
+    assignments: dict[str, dict[str, dict[str, str]]],
+    config_dir: Path = CONFIG_DIR,
+    *,
+    respaldo: dict[str, str] | None = None,
+) -> Catalog:
+    """Valida y guarda {modo: {rol: {model, effort}}} y la política de respaldo por modo en user_profiles.toml.
+    Devuelve el catálogo resultante."""
+    respaldo = respaldo or {}
+    for valor in respaldo.values():
+        if valor not in RESPALDOS:
+            raise ValueError(f"política de respaldo desconocida: {valor!r}")
+    lines = ["# Generado por la página «Modelos» de Desemppa. Se superpone a profiles.toml.", ""]
+    for modo in dict.fromkeys([*assignments, *respaldo]):
         lines.append(f"[profiles.{modo}]")
-        for rol, a in roles.items():
+        if modo in respaldo:
+            lines.append(f'respaldo = "{respaldo[modo]}"')
+        for rol, a in assignments.get(modo, {}).items():
             lines.append(f'{rol} = {{ model = "{a["model"]}", effort = "{a["effort"]}" }}')
         lines.append("")
     path = config_dir / USER_PROFILES

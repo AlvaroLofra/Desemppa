@@ -23,7 +23,7 @@ EXPECTED = {
         "defensa": ("agy_gemini_flash", "medium"),
         "contraparte": ("agy_gemini_flash", "medium"),
         "magistrado": ("agy_gemini_flash", "medium"),
-        "nli": ("agy_claude_sonnet", "low"),  # verificador de otra familia
+        "nli": ("agy_gemini_flash", "low"),  # misma familia por decisión expresa del usuario (25-10-2026)
     },
     "equilibrado": {
         "magistrado": ("claude_sonnet", "medium"),
@@ -120,6 +120,20 @@ def test_user_profiles_overlay_save_and_reset(tmp_path):
     assert load_catalog(cfg).profiles["eco"].roles["magistrado"].model == "agy_gemini_flash"
 
 
+def test_politica_de_respaldo_global_por_modo_y_guardado(tmp_path):
+    cfg = _config_copy(tmp_path)
+    cat = load_catalog(cfg, user_overrides=False)
+    assert cat.respaldo == "familia" and all(cat.respaldo_de(m) == "familia" for m in cat.profiles)
+    cat = save_user_profiles({}, cfg, respaldo={"eco": "nunca"})
+    assert cat.respaldo_de("eco") == "nunca" and cat.respaldo_de("pro") == "familia"
+    assert cat.profiles["eco"].roles["magistrado"].model == "agy_gemini_flash"
+    with pytest.raises(ValueError, match="respaldo"):
+        save_user_profiles({}, cfg, respaldo={"eco": "a_veces"})
+    assert load_catalog(cfg).respaldo_de("eco") == "nunca"
+    reset_user_profiles(cfg)
+    assert load_catalog(cfg).respaldo_de("eco") == "familia"
+
+
 def test_settings_paths_and_loopback(tmp_path):
     s = Settings(IURIS_DATA_DIR=str(tmp_path))
     assert s.sqlite_path == tmp_path / "local_cache.db"
@@ -170,8 +184,14 @@ def _familia(alias: str) -> str:
     return alias
 
 
+# Eco usa Flash como verificador por decisión expresa del usuario (25-10-2026): no gastar cuota de Claude.
+MISMA_FAMILIA_PERMITIDA = {"eco"}
+
+
 def test_el_verificador_es_de_otra_familia_que_el_magistrado():
     cat = load_catalog(user_overrides=False)
     for nombre, perfil in cat.profiles.items():
+        if nombre in MISMA_FAMILIA_PERMITIDA:
+            continue
         mag, nli = perfil.roles["magistrado"].model, perfil.roles["nli"].model
         assert _familia(mag) != _familia(nli), f"{nombre}: {mag} se verificaría a sí mismo con {nli}"

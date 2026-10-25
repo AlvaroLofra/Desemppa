@@ -122,7 +122,7 @@ def test_ajustes_perfiles_y_configurar_proveedor(tmp_path, monkeypatch):
     import api.main as am
 
     monkeypatch.setattr(am, "CONFIG_DIR", cfg)
-    monkeypatch.setattr(am, "save_user_profiles", lambda body: cs.save_user_profiles(body, cfg))
+    monkeypatch.setattr(am, "save_user_profiles", lambda body, **k: cs.save_user_profiles(body, cfg, **k))
     monkeypatch.setattr(am, "reset_user_profiles", lambda: cs.reset_user_profiles(cfg))
     monkeypatch.setattr(
         am, "save_user_provider_or_model", lambda **k: cs.save_user_provider_or_model(config_dir=cfg, **k)
@@ -140,8 +140,16 @@ def test_ajustes_perfiles_y_configurar_proveedor(tmp_path, monkeypatch):
         assert holder["s"].router.resolve("eco", "magistrado").model == "claude_opus"
         malo = {"eco": {"magistrado": {"model": "fantasma", "effort": "low"}}}
         assert client.put("/api/ajustes/perfiles", json=malo, headers=token).status_code == 422
+        assert data["respaldo"]["eco"] == "familia" == data["respaldo_por_defecto"]["eco"]
+        con_respaldo = {"modos": nuevo, "respaldo": {"eco": "nunca"}}
+        assert client.put("/api/ajustes/perfiles", json=con_respaldo, headers=token).status_code == 200
+        assert client.get("/api/ajustes/perfiles").json()["respaldo"]["eco"] == "nunca"
+        assert holder["s"].router.catalog.respaldo_de("eco") == "nunca"
+        raro = {"modos": nuevo, "respaldo": {"eco": "a_veces"}}
+        assert client.put("/api/ajustes/perfiles", json=raro, headers=token).status_code == 422
         assert client.delete("/api/ajustes/perfiles", headers=token).status_code == 200
         assert holder["s"].router.resolve("eco", "magistrado").model == "agy_gemini_flash"
+        assert holder["s"].router.catalog.respaldo_de("eco") == "familia"
         assert client.post("/api/proveedores/nope/detectar", headers=token).status_code == 404
 
         # Configurar clave API cifrada y añadir modelo personalizado
