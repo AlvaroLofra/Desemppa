@@ -1,0 +1,37 @@
+{
+  "id": "V09",
+  "categoria": "tipico",
+  "materia_esperada": "ADM_SANCION_MUNICIPAL",
+  "consulta": "El 16 de octubre de 2026 el Ayuntamiento de Valencia me notificó el inicio de un expediente sancionador por ruidos en mi terraza. ¿Qué puedo hacer y en qué plazo?",
+  "municipio_ine": "46250",
+  "municipio_nombre": "Valencia",
+  "fecha_hechos": "2026-10-16",
+  "aclaraciones_simuladas": [],
+  "verdad": {
+    "estado_esperado": "CERTIFICADA",
+    "respuesta_esperada": "depende",
+    "articulos_clave": [
+      {
+        "norma": "LPAC",
+        "articulo": "82"
+      }
+    ],
+    "plazos": [
+      {
+        "tipo": "ADM_ALEGACIONES_10H",
+        "inicio": "2026-10-16",
+        "municipio_ine": "46250"
+      }
+    ],
+    "postulacion": {
+      "jurisdiccion": "administrativa_previa",
+      "procedimiento": "sancion_municipal",
+      "cuantia_eur": null
+    },
+    "puntos_clave": [
+      "Se pueden presentar alegaciones en el trámite de audiencia (art. 82 LPAC)",
+      "El plazo lo calcula el motor en días hábiles"
+    ],
+    "prohibido": []
+  }
+}

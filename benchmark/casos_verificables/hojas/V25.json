@@ -1,0 +1,21 @@
+{
+  "id": "V25",
+  "construida": "2026-10-25",
+  "articulos": [
+    {
+      "norma": "EUR:32004R0261",
+      "articulo": "5",
+      "source_id": "EUR:32004R0261:art5",
+      "url": "https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32004R0261",
+      "version": "Diario Oficial de la UE (texto publicado)",
+      "sha256": "ab0663ca2b587768d2525e26b33c9a95fa34cdfd2fa8a35cf342aa44bc436593",
+      "texto": "Artículo 5\nCancelación de vuelos\n1. En caso de cancelación de un vuelo:\na) el transportista aéreo encargado de efectuar el vuelo ofrecerá asistencia a los pasajeros afectados conforme al artículo 8, y\nb) el transportista aéreo encargado de efectuar el vuelo ofrecerá asistencia a los pasajeros afectados conforme a la letra a) del apartado 1 y el apartado 2 del artículo 9 así como, en caso de que se les ofrezca un transporte alternativo cuando la salida prevista del nuevo vuelo sea como mínimo al día siguiente de la salida programada del vuelo cancelado, la asistencia especificada en las letras b) y c) del apartado 1 del artículo 9, y\nc) los pasajeros afectados tendrán derecho a una compensación por parte del transportista aéreo encargado de efectuar el vuelo conforme al artículo 7, a menos que:\ni) se les informe de la cancelación al menos con dos semanas de antelación con respecto a la hora de salida prevista, o\nii) se les informe de la cancelación con una antelación de entre dos semanas y siete días con respecto a la hora de salida prevista y se les ofrezca un transporte alternativo que les permita salir con no más de dos horas de antelación con respecto a la hora de salida prevista y llegar a su destino final con menos de cuatro horas de retraso con respecto a la hora de llegada prevista, o\niii) se les informe de la cancelación con menos de siete días de antelación con respecto a la hora de salida prevista y se les ofrezca tomar otro vuelo que les permita salir con no más de una hora de antelación con respecto a la hora de salida prevista y llegar a su destino final con menos de dos horas de retraso con respecto a la hora de llegada prevista.\n2. Siempre que se informe a los pasajeros de la cancelación, deberá darse una explicación relativa a los posibles transportes alternativos.\n3. Un transportista aéreo encargado de efectuar un vuelo no está obligado a pagar una compensación conforme al artículo 7 si puede probar que la cancelación se debe a circunstancias extraordinarias que no podrían haberse evitado incluso si se hubieran tomado todas las medidas razonables.\n4. La carga de la prueba de haber informado al pasajero de la cancelación del vuelo, así como del momento en que se le ha informado, corresponderá al transportista aéreo encargado de efectuar el vuelo."
+    }
+  ],
+  "plazos": [],
+  "postulacion": {
+    "requiere_abogado": true,
+    "requiere_procurador": true,
+    "base_legal": "Arts. 23 y 31 LEC; arts. 5 y 10 LO 1/2025"
+  }
+}

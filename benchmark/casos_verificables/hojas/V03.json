@@ -1,0 +1,28 @@
+{
+  "id": "V03",
+  "construida": "2026-10-25",
+  "articulos": [
+    {
+      "norma": "ET",
+      "articulo": "29",
+      "source_id": "BOE:BOE-A-2015-11430:a29:2015-11-13",
+      "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2015-11430#a29",
+      "version": "2015-11-13",
+      "sha256": "a519603f61786b91e067a3fa5a7e3e6156f7e1232d0f1c3db419b6a80c7e936c",
+      "texto": "Artículo 29. Liquidación y pago.\n1. La liquidación y el pago del salario se harán puntual y documentalmente en la fecha y lugar convenidos o conforme a los usos y costumbres. El periodo de tiempo a que se refiere el abono de las retribuciones periódicas y regulares no podrá exceder de un mes.\nEl trabajador y, con su autorización, sus representantes legales, tendrán derecho a percibir, sin que llegue el día señalado para el pago, anticipos a cuenta del trabajo ya realizado.\nLa documentación del salario se realizará mediante la entrega al trabajador de un recibo individual y justificativo del pago del mismo. El recibo de salarios se ajustará al modelo que apruebe el Ministerio de Empleo y Seguridad Social, salvo que por convenio colectivo o, en su defecto, por acuerdo entre la empresa y los representantes de los trabajadores, se establezca otro modelo que contenga con la debida claridad y separación las diferentes percepciones del trabajador, así como las deducciones que legalmente procedan.\nLa liquidación de los salarios que correspondan a quienes presten servicios en trabajos que tengan el carácter de fijos-discontinuos, en los supuestos de conclusión de cada periodo de actividad, se llevará a cabo con sujeción a los trámites y garantías establecidos en el artículo 49.2.\n2. El derecho al salario a comisión nacerá en el momento de realizarse y pagarse el negocio, la colocación o venta en que hubiera intervenido el trabajador, liquidándose y pagándose, salvo que se hubiese pactado otra cosa, al finalizar el año.\nEl trabajador y sus representantes legales pueden pedir en cualquier momento comunicaciones de la parte de los libros referentes a tales devengos.\n3. El interés por mora en el pago del salario será el diez por ciento de lo adeudado.\n4. El salario, así como el pago delegado de las prestaciones de la Seguridad Social, podrá efectuarlo el empresario en moneda de curso legal o mediante cheque u otra modalidad de pago similar a través de entidades de crédito, previo informe al comité de empresa o delegados de personal."
+    }
+  ],
+  "plazos": [
+    {
+      "tipo": "SOC_CANTIDAD_1A",
+      "inicio": "2026-09-01",
+      "fecha_limite_segura": "2027-09-01",
+      "base_legal": "Art. 59.1 y 59.2 ET"
+    }
+  ],
+  "postulacion": {
+    "requiere_abogado": false,
+    "requiere_procurador": false,
+    "base_legal": "Arts. 18 y 21 LRJS"
+  }
+}

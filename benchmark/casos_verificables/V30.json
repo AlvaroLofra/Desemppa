@@ -1,0 +1,46 @@
+{
+  "id": "V30",
+  "categoria": "aclaracion",
+  "materia_esperada": "SOC_RECLAMACION_CANTIDAD",
+  "consulta": "Trabajo en un bar y me deben dos nóminas. ¿Qué puedo hacer?",
+  "municipio_ine": null,
+  "municipio_nombre": null,
+  "fecha_hechos": null,
+  "aclaraciones_simuladas": [
+    {
+      "pregunta_contiene": "fecha",
+      "respuesta": "La última nómina que me deben es la de septiembre de 2026, que debía cobrar el 30 de septiembre de 2026."
+    },
+    {
+      "pregunta_contiene": "municipio",
+      "respuesta": "Sevilla"
+    }
+  ],
+  "verdad": {
+    "estado_esperado": "CERTIFICADA",
+    "respuesta_esperada": "si",
+    "articulos_clave": [
+      {
+        "norma": "ET",
+        "articulo": "29"
+      }
+    ],
+    "plazos": [
+      {
+        "tipo": "SOC_CANTIDAD_1A",
+        "inicio": "2026-09-30",
+        "municipio_ine": "41091"
+      }
+    ],
+    "postulacion": {
+      "jurisdiccion": "social",
+      "procedimiento": "cantidad",
+      "cuantia_eur": null
+    },
+    "puntos_clave": [
+      "Pregunta los datos que faltan",
+      "Interés por mora del diez por ciento (art. 29.3 ET)"
+    ],
+    "prohibido": []
+  }
+}

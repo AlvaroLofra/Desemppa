@@ -1,0 +1,41 @@
+{
+  "id": "V06",
+  "categoria": "tipico",
+  "materia_esperada": "CIV_CONSUMO_GARANTIA",
+  "consulta": "El 10 de marzo de 2026 compré una lavadora nueva en una tienda de Madrid y ha dejado de funcionar. La tienda dice que hable con el fabricante. ¿Tengo derecho a que me la reparen o me la cambien?",
+  "municipio_ine": "28079",
+  "municipio_nombre": "Madrid",
+  "fecha_hechos": "2026-03-10",
+  "aclaraciones_simuladas": [],
+  "verdad": {
+    "estado_esperado": "CERTIFICADA",
+    "respuesta_esperada": "si",
+    "articulos_clave": [
+      {
+        "norma": "TRLGDCU",
+        "articulo": "114"
+      },
+      {
+        "norma": "TRLGDCU",
+        "articulo": "118"
+      }
+    ],
+    "plazos": [
+      {
+        "tipo": "CIV_CONTRACTUAL_5A",
+        "inicio": "2026-03-10",
+        "municipio_ine": "28079"
+      }
+    ],
+    "postulacion": {
+      "jurisdiccion": "civil",
+      "procedimiento": "verbal",
+      "cuantia_eur": null
+    },
+    "puntos_clave": [
+      "El vendedor responde de la falta de conformidad (art. 114 TRLGDCU)",
+      "El consumidor puede exigir la reparación o la sustitución (art. 118 TRLGDCU)"
+    ],
+    "prohibido": []
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "id": "V16",
+  "construida": "2026-10-25",
+  "articulos": [
+    {
+      "norma": "CCCAT_L1",
+      "articulo": "121-21",
+      "source_id": "BOE:BOE-A-2003-2410:a12121:2003-02-02",
+      "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2003-2410#a12121",
+      "version": "2003-02-02",
+      "sha256": "2a3513ed6d8ce383856c1d4759672b2fda3a3fe0cc7f561ccd4317d44b7e3d61",
+      "texto": "Artículo 121-21. Prescripción trienal.\nPrescriben a los tres años:\na) Las pretensiones relativas a pagos periódicos que deban efectuarse por años o plazos más breves.\nb) Las pretensiones relativas a la remuneración de prestaciones de servicios y de ejecuciones de obra.\nc) Las pretensiones de cobro del precio en las ventas al consumo.\nd) Las pretensiones derivadas de responsabilidad extracontractual."
+    }
+  ],
+  "plazos": [
+    {
+      "tipo": "CIV_EXTRACONTRACTUAL_1A",
+      "inicio": "2024-06-10",
+      "fecha_limite_segura": "2027-06-10",
+      "base_legal": "Art. 121-21 CCCat"
+    }
+  ],
+  "postulacion": {
+    "requiere_abogado": true,
+    "requiere_procurador": true,
+    "base_legal": "Arts. 23 y 31 LEC; arts. 5 y 10 LO 1/2025"
+  }
+}

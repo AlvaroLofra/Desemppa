@@ -1,0 +1,39 @@
+{
+  "id": "V17",
+  "categoria": "limite",
+  "materia_esperada": "CIV_DANOS_VECINO",
+  "consulta": "Vivo en Madrid. El 10 de junio de 2024 el piso de arriba me inundó el baño por la rotura de una tubería suya. La reparación cuesta 2.400 euros. Su aseguradora dice que ha prescrito porque ha pasado más de un año. ¿Es así?",
+  "municipio_ine": "28079",
+  "municipio_nombre": "Madrid",
+  "fecha_hechos": "2024-06-10",
+  "aclaraciones_simuladas": [],
+  "verdad": {
+    "estado_esperado": "CERTIFICADA",
+    "respuesta_esperada": "depende",
+    "articulos_clave": [
+      {
+        "norma": "CC",
+        "articulo": "1902"
+      }
+    ],
+    "plazos": [
+      {
+        "tipo": "CIV_EXTRACONTRACTUAL_1A",
+        "inicio": "2024-06-10",
+        "municipio_ine": "28079"
+      }
+    ],
+    "postulacion": {
+      "jurisdiccion": "civil",
+      "procedimiento": "verbal",
+      "cuantia_eur": 2400
+    },
+    "puntos_clave": [
+      "Con el Código Civil el plazo es de un año (art. 1968.2 CC, calculado por el motor)",
+      "La respuesta no puede afirmar sin más que no ha prescrito"
+    ],
+    "prohibido": [
+      "tres años"
+    ]
+  }
+}

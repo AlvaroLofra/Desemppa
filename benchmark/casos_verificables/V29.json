@@ -1,0 +1,46 @@
+{
+  "id": "V29",
+  "categoria": "aclaracion",
+  "materia_esperada": "ADM_TRAFICO_ORA",
+  "consulta": "Me ha llegado una multa de tráfico de 200 euros por exceso de velocidad. ¿Cuánto tiempo tengo para pagar con descuento?",
+  "municipio_ine": null,
+  "municipio_nombre": null,
+  "fecha_hechos": null,
+  "aclaraciones_simuladas": [
+    {
+      "pregunta_contiene": "fecha",
+      "respuesta": "Me la notificaron el 20 de octubre de 2026."
+    },
+    {
+      "pregunta_contiene": "municipio",
+      "respuesta": "Valencia"
+    }
+  ],
+  "verdad": {
+    "estado_esperado": "CERTIFICADA",
+    "respuesta_esperada": "depende",
+    "articulos_clave": [
+      {
+        "norma": "LSV",
+        "articulo": "95"
+      }
+    ],
+    "plazos": [
+      {
+        "tipo": "ADM_TRAFICO_ALEGACIONES_20N",
+        "inicio": "2026-10-20",
+        "municipio_ine": "46250"
+      }
+    ],
+    "postulacion": {
+      "jurisdiccion": "administrativa_previa",
+      "procedimiento": "multa_trafico",
+      "cuantia_eur": 200
+    },
+    "puntos_clave": [
+      "Pregunta la fecha de notificación",
+      "Veinte días naturales (art. 95 LSV)"
+    ],
+    "prohibido": []
+  }
+}

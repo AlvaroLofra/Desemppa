@@ -1,0 +1,28 @@
+{
+  "id": "V09",
+  "construida": "2026-10-25",
+  "articulos": [
+    {
+      "norma": "LPAC",
+      "articulo": "82",
+      "source_id": "BOE:BOE-A-2015-10565:a82:2016-10-02",
+      "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2015-10565#a82",
+      "version": "2016-10-02",
+      "sha256": "c17a0b498ba6fe4ff205e37f80b6918247af5decebb9be10d6c9b5202091e87b",
+      "texto": "Artículo 82. Trámite de audiencia.\n1. Instruidos los procedimientos, e inmediatamente antes de redactar la propuesta de resolución, se pondrán de manifiesto a los interesados o, en su caso, a sus representantes, para lo que se tendrán en cuenta las limitaciones previstas en su caso en la Ley 19/2013, de 9 de diciembre.\nLa audiencia a los interesados será anterior a la solicitud del informe del órgano competente para el asesoramiento jurídico o a la solicitud del Dictamen del Consejo de Estado u órgano consultivo equivalente de la Comunidad Autónoma, en el caso que éstos formaran parte del procedimiento.\n2. Los interesados, en un plazo no inferior a diez días ni superior a quince, podrán alegar y presentar los documentos y justificaciones que estimen pertinentes.\n3. Si antes del vencimiento del plazo los interesados manifiestan su decisión de no efectuar alegaciones ni aportar nuevos documentos o justificaciones, se tendrá por realizado el trámite.\n4. Se podrá prescindir del trámite de audiencia cuando no figuren en el procedimiento ni sean tenidos en cuenta en la resolución otros hechos ni otras alegaciones y pruebas que las aducidas por el interesado.\n5. En los procedimientos de responsabilidad patrimonial a los que se refiere el artículo 32.9 de la Ley de Régimen Jurídico del Sector Público, será necesario en todo caso dar audiencia al contratista, notificándole cuantas actuaciones se realicen en el procedimiento, al efecto de que se persone en el mismo, exponga lo que a su derecho convenga y proponga cuantos medios de prueba estime necesarios."
+    }
+  ],
+  "plazos": [
+    {
+      "tipo": "ADM_ALEGACIONES_10H",
+      "inicio": "2026-10-16",
+      "fecha_limite_segura": "2026-10-30",
+      "base_legal": "Arts. 82 y 89 Ley 39/2015"
+    }
+  ],
+  "postulacion": {
+    "requiere_abogado": false,
+    "requiere_procurador": false,
+    "base_legal": "Ley 39/2015"
+  }
+}

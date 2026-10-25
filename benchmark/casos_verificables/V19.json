@@ -1,0 +1,35 @@
+{
+  "id": "V19",
+  "categoria": "limite",
+  "materia_esperada": "CIV_CONSUMO_AEREO",
+  "consulta": "Me cancelaron el vuelo Madrid-Nueva York de ayer sin avisar con antelación. ¿Cuánto dinero me corresponde?",
+  "municipio_ine": "28079",
+  "municipio_nombre": "Madrid",
+  "fecha_hechos": null,
+  "aclaraciones_simuladas": [],
+  "verdad": {
+    "estado_esperado": "CERTIFICADA",
+    "respuesta_esperada": "depende",
+    "articulos_clave": [
+      {
+        "norma": "EUR:32004R0261",
+        "articulo": "7"
+      }
+    ],
+    "plazos": [],
+    "postulacion": {
+      "jurisdiccion": "civil",
+      "procedimiento": "verbal",
+      "cuantia_eur": null
+    },
+    "puntos_clave": [
+      "La compensación depende de la distancia: 250, 400 o 600 euros (art. 7 Reglamento 261/2004)",
+      "No afirma la distancia del vuelo si no consta en las fuentes"
+    ],
+    "prohibido": [
+      "5.8",
+      "5.7",
+      "kilómetros de distancia entre Madrid y Nueva York"
+    ]
+  }
+}

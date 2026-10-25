@@ -1,0 +1,37 @@
+{
+  "id": "V12",
+  "categoria": "tipico",
+  "materia_esperada": "ADM_PLUSVALIA",
+  "consulta": "El 10 de junio de 2026 vendí un piso en Madrid por menos de lo que me costó. El 5 de octubre de 2026 me notificaron la liquidación de la plusvalía municipal. ¿Tengo que pagarla?",
+  "municipio_ine": "28079",
+  "municipio_nombre": "Madrid",
+  "fecha_hechos": "2026-06-10",
+  "aclaraciones_simuladas": [],
+  "verdad": {
+    "estado_esperado": "CERTIFICADA",
+    "respuesta_esperada": "depende",
+    "articulos_clave": [
+      {
+        "norma": "TRLRHL",
+        "articulo": "104"
+      }
+    ],
+    "plazos": [
+      {
+        "tipo": "ADM_REPOSICION_1M",
+        "inicio": "2026-10-05",
+        "municipio_ine": "28079"
+      }
+    ],
+    "postulacion": {
+      "jurisdiccion": "administrativa_previa",
+      "procedimiento": "reposicion",
+      "cuantia_eur": null
+    },
+    "puntos_clave": [
+      "No hay sujeción si se acredita que no hubo incremento de valor (art. 104.5 TRLRHL)",
+      "Hay que acreditar los valores de compra y venta"
+    ],
+    "prohibido": []
+  }
+}

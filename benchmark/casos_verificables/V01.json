@@ -1,0 +1,45 @@
+{
+  "id": "V01",
+  "categoria": "tipico",
+  "materia_esperada": "CIV_LAU_FIANZA",
+  "consulta": "Viví de alquiler tres años en Madrid. Entregué las llaves el 1 de septiembre de 2026 y el casero no me devuelve la fianza de 900 euros porque dice que tiene que pintar, aunque solo hay el desgaste normal. ¿Me la tiene que devolver y con intereses?",
+  "municipio_ine": "28079",
+  "municipio_nombre": "Madrid",
+  "fecha_hechos": "2026-09-01",
+  "aclaraciones_simuladas": [],
+  "verdad": {
+    "estado_esperado": "CERTIFICADA",
+    "respuesta_esperada": "si",
+    "articulos_clave": [
+      {
+        "norma": "LAU",
+        "articulo": "36"
+      },
+      {
+        "norma": "CC",
+        "articulo": "1561"
+      }
+    ],
+    "plazos": [
+      {
+        "tipo": "CIV_FIANZA_DEVOLUCION_1M",
+        "inicio": "2026-09-01",
+        "municipio_ine": "28079"
+      }
+    ],
+    "postulacion": {
+      "jurisdiccion": "civil",
+      "procedimiento": "verbal",
+      "cuantia_eur": 900
+    },
+    "puntos_clave": [
+      "La fianza devenga el interés legal pasado un mes desde la entrega de llaves (art. 36.4 LAU)",
+      "El desgaste por el tiempo o uso ordinario no es imputable al inquilino (art. 1561 CC)",
+      "No hace falta abogado ni procurador para 900 €"
+    ],
+    "prohibido": [
+      "%",
+      "probabilidad"
+    ]
+  }
+}

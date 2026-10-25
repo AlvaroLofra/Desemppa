@@ -1,0 +1,37 @@
+{
+  "id": "V05",
+  "construida": "2026-10-25",
+  "articulos": [
+    {
+      "norma": "ET",
+      "articulo": "58",
+      "source_id": "BOE:BOE-A-2015-11430:a58:2015-11-13",
+      "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2015-11430#a58",
+      "version": "2015-11-13",
+      "sha256": "19676317b0068de2481b1a52259b76ec63fc23b9d96213584f63cb25b3d8ed3b",
+      "texto": "Artículo 58. Faltas y sanciones de los trabajadores.\n1. Los trabajadores podrán ser sancionados por la dirección de las empresas en virtud de incumplimientos laborales, de acuerdo con la graduación de faltas y sanciones que se establezcan en las disposiciones legales o en el convenio colectivo que sea aplicable.\n2. La valoración de las faltas y las correspondientes sanciones impuestas por la dirección de la empresa serán siempre revisables ante la jurisdicción social. La sanción de las faltas graves y muy graves requerirá comunicación escrita al trabajador, haciendo constar la fecha y los hechos que la motivan.\n3. No se podrán imponer sanciones que consistan en la reducción de la duración de las vacaciones u otra minoración de los derechos al descanso del trabajador o multa de haber."
+    },
+    {
+      "norma": "LRJS",
+      "articulo": "114",
+      "source_id": "BOE:BOE-A-2011-15936:a114:2011-12-11",
+      "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2011-15936#a114",
+      "version": "2011-12-11",
+      "sha256": "8371e2306242247e7a26699340491b229ff53723e953b1827b85fb1df563db60",
+      "texto": "Artículo 114. Impugnación de sanciones.\n1. El trabajador podrá impugnar la sanción que le hubiere sido impuesta mediante demanda, que habrá de ser presentada dentro del plazo señalado en el artículo 103.\n2. En los procesos de impugnación de sanciones por faltas graves o muy graves a los trabajadores que ostenten la condición de representante legal o sindical, la parte demandada habrá de aportar el expediente contradictorio legalmente establecido.\n3. Corresponderá al empresario probar la realidad de los hechos imputados al trabajador, y su entidad, sin que puedan ser admitidos otros motivos de oposición a la demanda que los alegados en su momento para justificar la sanción. Las alegaciones, pruebas y conclusiones deberán ser realizadas por las partes en el orden establecido para los despidos disciplinarios."
+    }
+  ],
+  "plazos": [
+    {
+      "tipo": "SOC_SANCION_20H",
+      "inicio": "2026-10-19",
+      "fecha_limite_segura": "2026-11-17",
+      "base_legal": "Art. 114 LRJS"
+    }
+  ],
+  "postulacion": {
+    "requiere_abogado": false,
+    "requiere_procurador": false,
+    "base_legal": "Arts. 18 y 21 LRJS"
+  }
+}

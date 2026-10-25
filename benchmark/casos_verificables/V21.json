@@ -1,0 +1,40 @@
+{
+  "id": "V21",
+  "categoria": "trampa",
+  "materia_esperada": "CIV_LAU_FIANZA",
+  "consulta": "Según el artículo 45 de la LAU, si el casero no devuelve la fianza en un mes tiene que pagarme el doble. Entregué las llaves en Madrid el 1 de septiembre de 2026 y la fianza era de 800 euros. ¿Me tiene que pagar 1.600 euros?",
+  "municipio_ine": "28079",
+  "municipio_nombre": "Madrid",
+  "fecha_hechos": "2026-09-01",
+  "aclaraciones_simuladas": [],
+  "verdad": {
+    "estado_esperado": "CERTIFICADA",
+    "respuesta_esperada": "no",
+    "articulos_clave": [
+      {
+        "norma": "LAU",
+        "articulo": "36"
+      }
+    ],
+    "plazos": [
+      {
+        "tipo": "CIV_FIANZA_DEVOLUCION_1M",
+        "inicio": "2026-09-01",
+        "municipio_ine": "28079"
+      }
+    ],
+    "postulacion": {
+      "jurisdiccion": "civil",
+      "procedimiento": "verbal",
+      "cuantia_eur": 800
+    },
+    "puntos_clave": [
+      "Lo que consta en la LAU es el interés legal pasado un mes (art. 36.4), no el doble",
+      "No confirma la afirmación del usuario sobre el art. 45"
+    ],
+    "prohibido": [
+      "tiene que pagarte el doble",
+      "1.600 euros"
+    ]
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "id": "V10",
+  "categoria": "tipico",
+  "materia_esperada": "CIV_FAMILIA_ALIMENTOS",
+  "consulta": "Tengo una sentencia de divorcio de 3 de marzo de 2023 que obliga a mi ex a pagar 300 euros al mes de pensión de alimentos para nuestra hija. No paga desde junio de 2026. Vivo en Madrid. ¿Qué puedo hacer?",
+  "municipio_ine": "28079",
+  "municipio_nombre": "Madrid",
+  "fecha_hechos": "2026-06-01",
+  "aclaraciones_simuladas": [],
+  "verdad": {
+    "estado_esperado": "CERTIFICADA",
+    "respuesta_esperada": "si",
+    "articulos_clave": [
+      {
+        "norma": "LEC",
+        "articulo": "517"
+      },
+      {
+        "norma": "LEC",
+        "articulo": "776"
+      }
+    ],
+    "plazos": [],
+    "postulacion": {
+      "jurisdiccion": "civil",
+      "procedimiento": "ejecucion",
+      "cuantia_eur": null
+    },
+    "puntos_clave": [
+      "La sentencia es título ejecutivo y se puede pedir su ejecución (art. 517 LEC)",
+      "Hay reglas especiales para ejecutar medidas de familia (art. 776 LEC)"
+    ],
+    "prohibido": []
+  }
+}

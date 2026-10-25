@@ -1,0 +1,34 @@
+{
+  "id": "V07",
+  "categoria": "tipico",
+  "materia_esperada": "CIV_LAU_PRORROGA",
+  "consulta": "Vivo de alquiler en Madrid con un contrato de 2023. El casero me ha dicho por WhatsApp el 10 de octubre de 2026 que me sube la renta un 15 % este año. ¿Puede hacerlo?",
+  "municipio_ine": "28079",
+  "municipio_nombre": "Madrid",
+  "fecha_hechos": "2026-10-10",
+  "aclaraciones_simuladas": [],
+  "verdad": {
+    "estado_esperado": "CERTIFICADA",
+    "respuesta_esperada": "depende",
+    "articulos_clave": [
+      {
+        "norma": "LAU",
+        "articulo": "18"
+      }
+    ],
+    "plazos": [],
+    "postulacion": {
+      "jurisdiccion": "civil",
+      "procedimiento": "verbal",
+      "cuantia_eur": null
+    },
+    "puntos_clave": [
+      "La renta solo se actualiza cada año de vigencia en los términos pactados; sin pacto expreso no hay actualización (art. 18.1 LAU, redacción vigente desde el 08-10-2026)",
+      "El incremento no puede exceder la variación del índice IRAV (art. 18.1 LAU)",
+      "La subida debe notificarse por escrito con el porcentaje aplicado (art. 18.2 LAU)"
+    ],
+    "prohibido": [
+      "probabilidad"
+    ]
+  }
+}

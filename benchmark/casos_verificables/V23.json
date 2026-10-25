@@ -1,0 +1,44 @@
+{
+  "id": "V23",
+  "categoria": "trampa",
+  "materia_esperada": "CIV_LAU_FIANZA",
+  "consulta": "Entregué las llaves de mi piso en Madrid el 31 de febrero de 2026 y el casero no me devuelve la fianza de 700 euros. ¿Hasta cuándo tenía para devolvérmela?",
+  "municipio_ine": "28079",
+  "municipio_nombre": "Madrid",
+  "fecha_hechos": null,
+  "aclaraciones_simuladas": [
+    {
+      "pregunta_contiene": "fecha",
+      "respuesta": "Me equivoqué: fue el 28 de febrero de 2026."
+    }
+  ],
+  "verdad": {
+    "estado_esperado": "CERTIFICADA",
+    "respuesta_esperada": "depende",
+    "articulos_clave": [
+      {
+        "norma": "LAU",
+        "articulo": "36"
+      }
+    ],
+    "plazos": [
+      {
+        "tipo": "CIV_FIANZA_DEVOLUCION_1M",
+        "inicio": "2026-02-28",
+        "municipio_ine": "28079"
+      }
+    ],
+    "postulacion": {
+      "jurisdiccion": "civil",
+      "procedimiento": "verbal",
+      "cuantia_eur": 700
+    },
+    "puntos_clave": [
+      "No calcula nada con una fecha imposible: pregunta o usa la fecha corregida"
+    ],
+    "prohibido": [
+      "31 de febrero de 2026 y",
+      "31/02"
+    ]
+  }
+}

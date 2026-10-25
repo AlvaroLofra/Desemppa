@@ -1,0 +1,28 @@
+{
+  "id": "V29",
+  "construida": "2026-10-25",
+  "articulos": [
+    {
+      "norma": "LSV",
+      "articulo": "95",
+      "source_id": "BOE:BOE-A-2015-11722:a95:2022-03-21",
+      "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2015-11722#a95",
+      "version": "2022-03-21",
+      "sha256": "e1f2b9dc98dc219498721b27610735aef7e6fe0b93130899a795b2169bf0e988",
+      "texto": "Artículo 95. Procedimiento sancionador ordinario.\n1. Notificada la denuncia, el interesado dispondrá de un plazo de veinte días naturales para formular las alegaciones que tenga por conveniente y proponer o aportar las pruebas que estime oportunas.\n2. Si las alegaciones formuladas aportan datos nuevos o distintos de los constatados por el agente denunciante, y siempre que se estime necesario por el instructor, se dará traslado de aquéllas al agente para que informe en el plazo de quince días naturales.\nEn todo caso, el instructor podrá acordar que se practiquen las pruebas que estime pertinentes para la averiguación y calificación de los hechos y para la determinación de las posibles responsabilidades. La denegación de la práctica de las pruebas deberá ser motivada, dejando constancia en el procedimiento sancionador.\n3. Concluida la instrucción del procedimiento sancionador, el órgano instructor elevará propuesta de resolución al órgano competente para sancionar para que dicte la resolución que proceda. Únicamente se dará traslado de la propuesta al interesado, para que pueda formular nuevas alegaciones en el plazo de quince días naturales, si figuran en el procedimiento sancionador o se han tenido en cuenta en la resolución otros hechos u otras alegaciones y pruebas diferentes a las aducidas por el interesado.\n4. Si el denunciado no formula alegaciones ni abona el importe de la multa en el plazo de veinte días naturales siguientes al de la notificación de la denuncia, ésta surtirá el efecto de acto resolutorio del procedimiento sancionador en los siguientes casos:\na) Infracciones leves en todos los casos.\nb) Infracciones graves que no supongan la detracción de puntos cuya notificación no se haya podido efectuar en el acto de la denuncia.\nc) Infracciones graves y muy graves cuya notificación se efectuase en el acto de la denuncia, supongan o no la detracción de puntos.\nEn estos supuestos, la sanción podrá ejecutarse transcurridos treinta días naturales desde la notificación de la denuncia.\nTéngase en cuenta que esta actualización del apartado 4, establecida por el art. único.29 de la Ley 18/2021, de 20 de diciembre, Ref. BOE-A-2021-21006#au, entra en vigor el 21 de marzo de 2022, según determina su disposición final cuarta.\nRedacción anterior:\n\"4. Cuando se trate de infracciones leves, de infracciones graves que no supongan la detracción de puntos, o de infracciones muy graves y graves cuya notificación se efectuase en el acto de la denuncia, si el denunciado no formula alegaciones ni abona el importe de la multa en el plazo de veinte días naturales siguientes al de la notificación de la denuncia, ésta surtirá el efecto de acto resolutorio del procedimiento sancionador. En este supuesto, la sanción podrá ejecutarse transcurridos treinta días naturales desde la notificación de la denuncia.\"\n5. La terminación del procedimiento pone fin a la vía administrativa y la sanción se podrá ejecutar desde el día siguiente al transcurso de los treinta días antes indicados.\nSe modifica el apartado 4, con efectos de 21 de marzo de 2022, por el art. único.29 de la Ley 18/2021, de 20 de diciembre. Ref. BOE-A-2021-21006#au"
+    }
+  ],
+  "plazos": [
+    {
+      "tipo": "ADM_TRAFICO_ALEGACIONES_20N",
+      "inicio": "2026-10-20",
+      "fecha_limite_segura": "2026-11-09",
+      "base_legal": "Arts. 93 y 95 RDLeg 6/2015 (Ley de Tráfico)"
+    }
+  ],
+  "postulacion": {
+    "requiere_abogado": false,
+    "requiere_procurador": false,
+    "base_legal": "Ley 39/2015"
+  }
+}

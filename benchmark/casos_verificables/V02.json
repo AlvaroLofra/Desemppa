@@ -1,0 +1,44 @@
+{
+  "id": "V02",
+  "categoria": "tipico",
+  "materia_esperada": "SOC_DESPIDO_DISC",
+  "consulta": "Trabajo de dependiente en Sevilla. El 20 de octubre de 2026 me entregaron una carta de despido disciplinario por bajo rendimiento sin concretar ningún hecho. ¿Cuánto tiempo tengo para reclamar y qué tengo que hacer?",
+  "municipio_ine": "41091",
+  "municipio_nombre": "Sevilla",
+  "fecha_hechos": "2026-10-20",
+  "aclaraciones_simuladas": [],
+  "verdad": {
+    "estado_esperado": "CERTIFICADA",
+    "respuesta_esperada": "depende",
+    "articulos_clave": [
+      {
+        "norma": "ET",
+        "articulo": "55"
+      },
+      {
+        "norma": "LRJS",
+        "articulo": "103"
+      }
+    ],
+    "plazos": [
+      {
+        "tipo": "SOC_DESPIDO_CADUCIDAD",
+        "inicio": "2026-10-20",
+        "municipio_ine": "41091"
+      }
+    ],
+    "postulacion": {
+      "jurisdiccion": "social",
+      "procedimiento": "despido",
+      "cuantia_eur": null
+    },
+    "puntos_clave": [
+      "La acción contra el despido caduca a los veinte días hábiles (art. 103 LRJS)",
+      "La carta debe expresar los hechos que motivan el despido (art. 55.1 ET)",
+      "Antes de la demanda hay que presentar la papeleta de conciliación"
+    ],
+    "prohibido": [
+      "%"
+    ]
+  }
+}

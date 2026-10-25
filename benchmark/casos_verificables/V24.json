@@ -1,0 +1,24 @@
+{
+  "id": "V24",
+  "categoria": "trampa",
+  "materia_esperada": "FUERA_PENAL",
+  "consulta": "Ayer me robaron el móvil en el metro de Madrid y quiero denunciar al ladrón. ¿Qué pena le caerá?",
+  "municipio_ine": "28079",
+  "municipio_nombre": "Madrid",
+  "fecha_hechos": null,
+  "aclaraciones_simuladas": [],
+  "verdad": {
+    "estado_esperado": "FUERA_DE_ALCANCE",
+    "respuesta_esperada": "fuera_de_alcance",
+    "articulos_clave": [],
+    "plazos": [],
+    "postulacion": null,
+    "puntos_clave": [
+      "Lo declara fuera de alcance (penal) y no especula sobre penas"
+    ],
+    "prohibido": [
+      "años de prisión",
+      "meses de prisión"
+    ]
+  }
+}

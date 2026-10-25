@@ -1,0 +1,28 @@
+{
+  "id": "V15",
+  "construida": "2026-10-25",
+  "articulos": [
+    {
+      "norma": "LRJS",
+      "articulo": "103",
+      "source_id": "BOE:BOE-A-2011-15936:a103:2024-03-20",
+      "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2011-15936#a103",
+      "version": "2024-03-20",
+      "sha256": "574cabb4b31e34936c4c87c7b385d4c13dd4d0f447a3321f34f2fecc683669e3",
+      "texto": "Artículo 103. Presentación de la demanda por despido.\n1. El trabajador podrá reclamar contra el despido, dentro de los veinte días hábiles siguientes a aquél en que se hubiera producido. Dicho plazo será de caducidad a todos los efectos y no se computarán los sábados, domingos y los festivos en la sede del órgano jurisdiccional.\n2. Si se promoviese papeleta de conciliación o solicitud de mediación o demanda por despido contra una persona a la que erróneamente se hubiere atribuido la cualidad de empresario, y se acreditase con posterioridad, sea en el juicio o en otro momento anterior del proceso, que lo era un tercero, el trabajador podrá promover nueva demanda contra éste, o ampliar la demanda si no se hubiera celebrado el juicio, sin que comience el cómputo del plazo de caducidad hasta el momento en que conste quién sea el empresario.\n3. Las normas del presente capítulo serán de aplicación a la impugnación de las decisiones empresariales de extinción de contrato con las especialidades necesarias, sin perjuicio de lo previsto en el artículo 120 y de las consecuencias sustantivas de cada tipo de extinción contractual.\n4. Cuando el trabajador manifieste que la empresa no ha tramitado su baja por despido en la Tesorería General de la Seguridad Social, el procedimiento será urgente y se le dará tramitación preferente. El acto de la vista habrá de señalarse dentro de los cinco días siguientes al de la admisión de la demanda. La sentencia se dictará en el plazo de cinco días.\n5. La tramitación procesal establecida en el apartado anterior será de aplicación a las demandas en las que se solicite la extinción de la relación laboral invocando la causa prevista en la letra b) del apartado 1 del artículo 50 del texto refundido del Estatuto de los Trabajadores.\nTéngase en cuenta que los apartados 4 y 5, añadidos por el art. 104.23 del Real Decreto-ley 6/2023, de 19 de diciembre, Ref. BOE-A-2023-25758#a1-16, entran en vigor el 20 de marzo de 2024, según determina su disposición final 9.2\nSe añaden los apartados 4 y 5 por el art. 104.23 del Real Decreto-ley 6/2023, de 19 de diciembre. Ref. BOE-A-2023-25758#a1-16\nEsta modificación entra en vigor el 20 de marzo de 2024, según establece la disposición final 9.2 del citado Real Decreto-ley.\nSe modifica, con efectos de 2 de octubre de 2016, por la disposición final 3.7 de la Ley 39/2015, de 1 de octubre. Ref. BOE-A-2015-10565#dftercera."
+    }
+  ],
+  "plazos": [
+    {
+      "tipo": "SOC_DESPIDO_CADUCIDAD",
+      "inicio": "2026-07-24",
+      "fecha_limite_segura": "2026-08-21",
+      "base_legal": "Art. 59.3 ET; arts. 103 y 65 LRJS"
+    }
+  ],
+  "postulacion": {
+    "requiere_abogado": false,
+    "requiere_procurador": false,
+    "base_legal": "Arts. 18 y 21 LRJS"
+  }
+}

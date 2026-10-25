@@ -1,0 +1,41 @@
+{
+  "id": "V04",
+  "categoria": "tipico",
+  "materia_esperada": "SOC_VACACIONES",
+  "consulta": "Trabajo en Madrid. El 15 de octubre de 2026 la empresa me comunicó que me cambia las vacaciones que tenía aprobadas para diciembre. ¿Puedo impugnarlo y en qué plazo?",
+  "municipio_ine": "28079",
+  "municipio_nombre": "Madrid",
+  "fecha_hechos": "2026-10-15",
+  "aclaraciones_simuladas": [],
+  "verdad": {
+    "estado_esperado": "CERTIFICADA",
+    "respuesta_esperada": "si",
+    "articulos_clave": [
+      {
+        "norma": "ET",
+        "articulo": "38"
+      },
+      {
+        "norma": "LRJS",
+        "articulo": "125"
+      }
+    ],
+    "plazos": [
+      {
+        "tipo": "SOC_VACACIONES_20H",
+        "inicio": "2026-10-15",
+        "municipio_ine": "28079"
+      }
+    ],
+    "postulacion": {
+      "jurisdiccion": "social",
+      "procedimiento": "vacaciones",
+      "cuantia_eur": null
+    },
+    "puntos_clave": [
+      "Las vacaciones se fijan de común acuerdo y el calendario debe conocerse con antelación (art. 38 ET)",
+      "Hay un procedimiento específico para impugnar la fecha de vacaciones (art. 125 LRJS)"
+    ],
+    "prohibido": []
+  }
+}

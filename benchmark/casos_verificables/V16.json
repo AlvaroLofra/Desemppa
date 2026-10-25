@@ -1,0 +1,40 @@
+{
+  "id": "V16",
+  "categoria": "limite",
+  "materia_esperada": "CIV_DANOS_VECINO",
+  "consulta": "Vivo en Barcelona. El 10 de junio de 2024 el piso de arriba me inundó el baño por la rotura de una tubería suya. La reparación cuesta 2.400 euros. Su aseguradora dice que ha prescrito porque ha pasado más de un año. ¿Es así?",
+  "municipio_ine": "08019",
+  "municipio_nombre": "Barcelona",
+  "fecha_hechos": "2024-06-10",
+  "aclaraciones_simuladas": [],
+  "verdad": {
+    "estado_esperado": "CERTIFICADA",
+    "respuesta_esperada": "no",
+    "articulos_clave": [
+      {
+        "norma": "CCCAT_L1",
+        "articulo": "121-21"
+      }
+    ],
+    "plazos": [
+      {
+        "tipo": "CIV_EXTRACONTRACTUAL_1A",
+        "inicio": "2024-06-10",
+        "municipio_ine": "08019"
+      }
+    ],
+    "postulacion": {
+      "jurisdiccion": "civil",
+      "procedimiento": "verbal",
+      "cuantia_eur": 2400
+    },
+    "puntos_clave": [
+      "En Cataluña la responsabilidad extracontractual prescribe a los tres años (art. 121-21 CCCat)",
+      "No ha prescrito",
+      "Por encima de 2.000 € hacen falta abogado y procurador"
+    ],
+    "prohibido": [
+      "ha prescrito."
+    ]
+  }
+}

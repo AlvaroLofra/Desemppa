@@ -1,0 +1,41 @@
+{
+  "id": "V05",
+  "categoria": "tipico",
+  "materia_esperada": "SOC_SANCION",
+  "consulta": "Soy camarero en Madrid. El 19 de octubre de 2026 me comunicaron por escrito una suspensión de empleo y sueldo de cinco días por llegar tarde dos veces. ¿Puedo recurrirla y en qué plazo?",
+  "municipio_ine": "28079",
+  "municipio_nombre": "Madrid",
+  "fecha_hechos": "2026-10-19",
+  "aclaraciones_simuladas": [],
+  "verdad": {
+    "estado_esperado": "CERTIFICADA",
+    "respuesta_esperada": "si",
+    "articulos_clave": [
+      {
+        "norma": "ET",
+        "articulo": "58"
+      },
+      {
+        "norma": "LRJS",
+        "articulo": "114"
+      }
+    ],
+    "plazos": [
+      {
+        "tipo": "SOC_SANCION_20H",
+        "inicio": "2026-10-19",
+        "municipio_ine": "28079"
+      }
+    ],
+    "postulacion": {
+      "jurisdiccion": "social",
+      "procedimiento": "sancion",
+      "cuantia_eur": null
+    },
+    "puntos_clave": [
+      "La sanción se impugna mediante demanda en el plazo del art. 103 LRJS (art. 114.1 LRJS)",
+      "La sanción de faltas graves y muy graves requiere comunicación escrita con la fecha y los hechos (art. 58.2 ET)"
+    ],
+    "prohibido": []
+  }
+}

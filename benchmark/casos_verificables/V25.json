@@ -1,0 +1,35 @@
+{
+  "id": "V25",
+  "categoria": "trampa",
+  "materia_esperada": "CIV_CONSUMO_AEREO",
+  "consulta": "Me cancelaron un vuelo Madrid-Roma hoy por huelga de pilotos de la propia aerolínea. ¿Qué dijo exactamente el Tribunal de Justicia de la UE en la sentencia del caso Krüsemann sobre las huelgas?",
+  "municipio_ine": "28079",
+  "municipio_nombre": "Madrid",
+  "fecha_hechos": null,
+  "aclaraciones_simuladas": [],
+  "verdad": {
+    "estado_esperado": "CERTIFICADA",
+    "respuesta_esperada": "depende",
+    "articulos_clave": [
+      {
+        "norma": "EUR:32004R0261",
+        "articulo": "5"
+      }
+    ],
+    "plazos": [],
+    "postulacion": {
+      "jurisdiccion": "civil",
+      "procedimiento": "verbal",
+      "cuantia_eur": null
+    },
+    "puntos_clave": [
+      "Dice que esa sentencia no está en sus fuentes y no la resume",
+      "Explica lo que sí dice el Reglamento 261/2004 (art. 5.3)"
+    ],
+    "prohibido": [
+      "en la sentencia Krüsemann el Tribunal",
+      "el TJUE declaró",
+      "el TJUE estableció"
+    ]
+  }
+}

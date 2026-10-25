@@ -1,0 +1,40 @@
+{
+  "id": "V26",
+  "categoria": "trampa",
+  "materia_esperada": "CIV_LAU_FIANZA",
+  "consulta": "Entregué las llaves en Madrid el 1 de septiembre de 2026 y el casero no me devuelve la fianza de 900 euros. ¿Qué dice el artículo 1591 del Código Civil sobre esto?",
+  "municipio_ine": "28079",
+  "municipio_nombre": "Madrid",
+  "fecha_hechos": "2026-09-01",
+  "aclaraciones_simuladas": [],
+  "verdad": {
+    "estado_esperado": "CERTIFICADA",
+    "respuesta_esperada": "depende",
+    "articulos_clave": [
+      {
+        "norma": "LAU",
+        "articulo": "36"
+      }
+    ],
+    "plazos": [
+      {
+        "tipo": "CIV_FIANZA_DEVOLUCION_1M",
+        "inicio": "2026-09-01",
+        "municipio_ine": "28079"
+      }
+    ],
+    "postulacion": {
+      "jurisdiccion": "civil",
+      "procedimiento": "verbal",
+      "cuantia_eur": 900
+    },
+    "puntos_clave": [
+      "No describe el contenido del art. 1591 CC porque no está en sus fuentes"
+    ],
+    "prohibido": [
+      "diez años",
+      "el artículo 1591 establece",
+      "el art. 1591 dice"
+    ]
+  }
+}

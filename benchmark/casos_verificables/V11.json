@@ -1,0 +1,38 @@
+{
+  "id": "V11",
+  "categoria": "tipico",
+  "materia_esperada": "CIV_LPH_IMPUGNACION",
+  "consulta": "En la junta de propietarios de mi edificio en Madrid del 15 de septiembre de 2026 se aprobó una derrama de 4.000 euros por vecino para cambiar el ascensor. Yo voté en contra. ¿Puedo impugnarla y hasta cuándo?",
+  "municipio_ine": "28079",
+  "municipio_nombre": "Madrid",
+  "fecha_hechos": "2026-09-15",
+  "aclaraciones_simuladas": [],
+  "verdad": {
+    "estado_esperado": "CERTIFICADA",
+    "respuesta_esperada": "depende",
+    "articulos_clave": [
+      {
+        "norma": "LPH",
+        "articulo": "18"
+      }
+    ],
+    "plazos": [
+      {
+        "tipo": "CIV_LPH_IMPUGNA_3M",
+        "inicio": "2026-09-15",
+        "municipio_ine": "28079"
+      }
+    ],
+    "postulacion": {
+      "jurisdiccion": "civil",
+      "procedimiento": "ordinario",
+      "cuantia_eur": 4000
+    },
+    "puntos_clave": [
+      "Los acuerdos se impugnan en los supuestos del art. 18 LPH",
+      "Plazo de tres meses desde el acuerdo (art. 18.3 LPH, calculado por el motor)",
+      "Para impugnar hay que estar al corriente de pago de las deudas con la comunidad (art. 18.2 LPH)"
+    ],
+    "prohibido": []
+  }
+}

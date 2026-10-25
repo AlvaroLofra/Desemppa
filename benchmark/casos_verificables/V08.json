@@ -1,0 +1,41 @@
+{
+  "id": "V08",
+  "categoria": "tipico",
+  "materia_esperada": "ADM_TRAFICO_ORA",
+  "consulta": "El 14 de octubre de 2026 me notificaron una multa de 90 euros del Ayuntamiento de Madrid por aparcar en zona ORA sin tique. El parquímetro no funcionaba. ¿Recurro o pago con descuento? ¿Qué plazo tengo?",
+  "municipio_ine": "28079",
+  "municipio_nombre": "Madrid",
+  "fecha_hechos": "2026-10-14",
+  "aclaraciones_simuladas": [],
+  "verdad": {
+    "estado_esperado": "CERTIFICADA",
+    "respuesta_esperada": "depende",
+    "articulos_clave": [
+      {
+        "norma": "LSV",
+        "articulo": "94"
+      },
+      {
+        "norma": "LSV",
+        "articulo": "95"
+      }
+    ],
+    "plazos": [
+      {
+        "tipo": "ADM_TRAFICO_ALEGACIONES_20N",
+        "inicio": "2026-10-14",
+        "municipio_ine": "28079"
+      }
+    ],
+    "postulacion": {
+      "jurisdiccion": "administrativa_previa",
+      "procedimiento": "multa_trafico",
+      "cuantia_eur": 90
+    },
+    "puntos_clave": [
+      "Plazo de veinte días naturales para alegar o pagar con reducción (art. 95 LSV)",
+      "El pago con reducción termina el procedimiento y supone renunciar a alegar (art. 94 LSV)"
+    ],
+    "prohibido": []
+  }
+}

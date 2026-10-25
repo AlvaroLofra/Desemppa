@@ -1,0 +1,40 @@
+{
+  "id": "V18",
+  "categoria": "limite",
+  "materia_esperada": "CIV_CONSUMO_AEREO",
+  "consulta": "Tenía un vuelo Madrid-París hoy a las 8:00 y cuatro horas antes la aerolínea lo canceló por una huelga de su propio personal. Me ofrecieron volar mañana. ¿Me corresponde la compensación de 250 euros?",
+  "municipio_ine": "28079",
+  "municipio_nombre": "Madrid",
+  "fecha_hechos": null,
+  "aclaraciones_simuladas": [],
+  "verdad": {
+    "estado_esperado": "CERTIFICADA",
+    "respuesta_esperada": "si",
+    "articulos_clave": [
+      {
+        "norma": "EUR:32004R0261",
+        "articulo": "7"
+      },
+      {
+        "norma": "EUR:32004R0261",
+        "articulo": "5"
+      }
+    ],
+    "plazos": [],
+    "postulacion": {
+      "jurisdiccion": "civil",
+      "procedimiento": "verbal",
+      "cuantia_eur": 250
+    },
+    "puntos_clave": [
+      "Compensación de 250 euros para vuelos de hasta 1.500 km (art. 7.1.a Reglamento 261/2004)",
+      "La aerolínea solo se libra si prueba circunstancias extraordinarias (art. 5.3)",
+      "No inventa doctrina del TJUE que no está en el corpus"
+    ],
+    "prohibido": [
+      "Krüsemann",
+      "C-195/17",
+      "C-28/20"
+    ]
+  }
+}

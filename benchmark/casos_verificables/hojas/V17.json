@@ -1,0 +1,28 @@
+{
+  "id": "V17",
+  "construida": "2026-10-25",
+  "articulos": [
+    {
+      "norma": "CC",
+      "articulo": "1902",
+      "source_id": "BOE:BOE-A-1889-4763:art1902:1889-08-16",
+      "url": "https://www.boe.es/buscar/act.php?id=BOE-A-1889-4763#art1902",
+      "version": "1889-08-16",
+      "sha256": "49a7547d7adaf1f4a78969194a578485c591db90e6f5b134cf389f0e9e4f4d56",
+      "texto": "Artículo 1902.\nEl que por acción u omisión causa daño a otro, interviniendo culpa o negligencia, está obligado a reparar el daño causado."
+    }
+  ],
+  "plazos": [
+    {
+      "tipo": "CIV_EXTRACONTRACTUAL_1A",
+      "inicio": "2024-06-10",
+      "fecha_limite_segura": "2025-06-10",
+      "base_legal": "Art. 1968.2 CC"
+    }
+  ],
+  "postulacion": {
+    "requiere_abogado": true,
+    "requiere_procurador": true,
+    "base_legal": "Arts. 23 y 31 LEC; arts. 5 y 10 LO 1/2025"
+  }
+}

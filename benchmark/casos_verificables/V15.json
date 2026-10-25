@@ -1,0 +1,40 @@
+{
+  "id": "V15",
+  "categoria": "limite",
+  "materia_esperada": "SOC_DESPIDO_DISC",
+  "consulta": "Me despidieron en Madrid el 24 de julio de 2026 con una carta de despido disciplinario. No he hecho nada todavía. ¿Puedo reclamar ahora?",
+  "municipio_ine": "28079",
+  "municipio_nombre": "Madrid",
+  "fecha_hechos": "2026-07-24",
+  "aclaraciones_simuladas": [],
+  "verdad": {
+    "estado_esperado": "CERTIFICADA",
+    "respuesta_esperada": "no",
+    "articulos_clave": [
+      {
+        "norma": "LRJS",
+        "articulo": "103"
+      }
+    ],
+    "plazos": [
+      {
+        "tipo": "SOC_DESPIDO_CADUCIDAD",
+        "inicio": "2026-07-24",
+        "municipio_ine": "28079"
+      }
+    ],
+    "postulacion": {
+      "jurisdiccion": "social",
+      "procedimiento": "despido",
+      "cuantia_eur": null
+    },
+    "puntos_clave": [
+      "El plazo de veinte días hábiles ya ha vencido (el motor da la fecha límite)",
+      "En el despido el mes de agosto cuenta como hábil"
+    ],
+    "prohibido": [
+      "todavía estás a tiempo",
+      "aún estás a tiempo"
+    ]
+  }
+}

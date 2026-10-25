@@ -1,0 +1,36 @@
+{
+  "id": "V14",
+  "categoria": "limite",
+  "materia_esperada": "CIV_LAU_FIANZA",
+  "consulta": "Entregué las llaves de mi piso de alquiler en Madrid el 1 de septiembre de 2026 y el casero no me devuelve la fianza de 2.000 euros. ¿Necesito abogado para reclamarla?",
+  "municipio_ine": "28079",
+  "municipio_nombre": "Madrid",
+  "fecha_hechos": "2026-09-01",
+  "aclaraciones_simuladas": [],
+  "verdad": {
+    "estado_esperado": "CERTIFICADA",
+    "respuesta_esperada": "no",
+    "articulos_clave": [
+      {
+        "norma": "LAU",
+        "articulo": "36"
+      }
+    ],
+    "plazos": [
+      {
+        "tipo": "CIV_FIANZA_DEVOLUCION_1M",
+        "inicio": "2026-09-01",
+        "municipio_ine": "28079"
+      }
+    ],
+    "postulacion": {
+      "jurisdiccion": "civil",
+      "procedimiento": "verbal",
+      "cuantia_eur": 2000
+    },
+    "puntos_clave": [
+      "Hasta 2.000 € se puede actuar sin abogado ni procurador"
+    ],
+    "prohibido": []
+  }
+}

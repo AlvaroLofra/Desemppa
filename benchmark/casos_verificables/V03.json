@@ -1,0 +1,39 @@
+{
+  "id": "V03",
+  "categoria": "tipico",
+  "materia_esperada": "SOC_RECLAMACION_CANTIDAD",
+  "consulta": "Trabajo en una tienda en Valencia y la empresa no me ha pagado las nóminas de julio y agosto de 2026, en total 3.000 euros. ¿Tengo derecho a algún recargo por el retraso? ¿Hasta cuándo puedo reclamar?",
+  "municipio_ine": "46250",
+  "municipio_nombre": "Valencia",
+  "fecha_hechos": "2026-09-01",
+  "aclaraciones_simuladas": [],
+  "verdad": {
+    "estado_esperado": "CERTIFICADA",
+    "respuesta_esperada": "si",
+    "articulos_clave": [
+      {
+        "norma": "ET",
+        "articulo": "29"
+      }
+    ],
+    "plazos": [
+      {
+        "tipo": "SOC_CANTIDAD_1A",
+        "inicio": "2026-09-01",
+        "municipio_ine": "46250"
+      }
+    ],
+    "postulacion": {
+      "jurisdiccion": "social",
+      "procedimiento": "cantidad",
+      "cuantia_eur": 3000
+    },
+    "puntos_clave": [
+      "El interés por mora en el pago del salario es el diez por ciento de lo adeudado (art. 29.3 ET)",
+      "Plazo de un año para reclamar cantidades (art. 59 ET, calculado por el motor)"
+    ],
+    "prohibido": [
+      "%  de probabilidad"
+    ]
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "id": "V20",
+  "categoria": "limite",
+  "materia_esperada": "SOC_DESPIDO_DISC",
+  "consulta": "Ayer, 23 de octubre de 2026, mi jefe me dijo de palabra que no volviera más al trabajo, sin darme ninguna carta. Trabajo en Madrid. ¿Es un despido? ¿Qué plazo tengo?",
+  "municipio_ine": "28079",
+  "municipio_nombre": "Madrid",
+  "fecha_hechos": "2026-10-23",
+  "aclaraciones_simuladas": [],
+  "verdad": {
+    "estado_esperado": "CERTIFICADA",
+    "respuesta_esperada": "si",
+    "articulos_clave": [
+      {
+        "norma": "ET",
+        "articulo": "55"
+      },
+      {
+        "norma": "LRJS",
+        "articulo": "103"
+      }
+    ],
+    "plazos": [
+      {
+        "tipo": "SOC_DESPIDO_CADUCIDAD",
+        "inicio": "2026-10-23",
+        "municipio_ine": "28079"
+      }
+    ],
+    "postulacion": {
+      "jurisdiccion": "social",
+      "procedimiento": "despido",
+      "cuantia_eur": null
+    },
+    "puntos_clave": [
+      "El despido debe notificarse por escrito con los hechos (art. 55.1 ET)",
+      "Plazo de veinte días hábiles (art. 103 LRJS)"
+    ],
+    "prohibido": []
+  }
+}

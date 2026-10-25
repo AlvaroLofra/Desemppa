@@ -51,3 +51,6 @@ config/user_profiles.toml
 config/user_models.toml
 .vite/
 benchmark/reports/screenshots/
+
+# Resultados de la batería verificable (se regeneran con benchmark/ejecutar.py)
+benchmark/expedientes/

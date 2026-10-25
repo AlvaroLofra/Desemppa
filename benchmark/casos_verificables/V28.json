@@ -1,0 +1,46 @@
+{
+  "id": "V28",
+  "categoria": "aclaracion",
+  "materia_esperada": "SOC_DESPIDO_DISC",
+  "consulta": "Me han despedido y no estoy de acuerdo con los motivos de la carta. ¿Qué plazo tengo?",
+  "municipio_ine": null,
+  "municipio_nombre": null,
+  "fecha_hechos": null,
+  "aclaraciones_simuladas": [
+    {
+      "pregunta_contiene": "fecha",
+      "respuesta": "Me notificaron el despido el 21 de octubre de 2026."
+    },
+    {
+      "pregunta_contiene": "municipio",
+      "respuesta": "Madrid"
+    }
+  ],
+  "verdad": {
+    "estado_esperado": "CERTIFICADA",
+    "respuesta_esperada": "depende",
+    "articulos_clave": [
+      {
+        "norma": "LRJS",
+        "articulo": "103"
+      }
+    ],
+    "plazos": [
+      {
+        "tipo": "SOC_DESPIDO_CADUCIDAD",
+        "inicio": "2026-10-21",
+        "municipio_ine": "28079"
+      }
+    ],
+    "postulacion": {
+      "jurisdiccion": "social",
+      "procedimiento": "despido",
+      "cuantia_eur": null
+    },
+    "puntos_clave": [
+      "Pregunta la fecha y el municipio antes de calcular",
+      "Veinte días hábiles (art. 103 LRJS)"
+    ],
+    "prohibido": []
+  }
+}

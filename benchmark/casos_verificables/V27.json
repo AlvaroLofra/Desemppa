@@ -1,0 +1,42 @@
+{
+  "id": "V27",
+  "categoria": "aclaracion",
+  "materia_esperada": "CIV_LAU_FIANZA",
+  "consulta": "El casero de mi antiguo piso en Madrid no me devuelve la fianza de 1.000 euros. ¿Qué hago?",
+  "municipio_ine": "28079",
+  "municipio_nombre": "Madrid",
+  "fecha_hechos": null,
+  "aclaraciones_simuladas": [
+    {
+      "pregunta_contiene": "fecha",
+      "respuesta": "Le entregué las llaves el 1 de agosto de 2026."
+    }
+  ],
+  "verdad": {
+    "estado_esperado": "CERTIFICADA",
+    "respuesta_esperada": "si",
+    "articulos_clave": [
+      {
+        "norma": "LAU",
+        "articulo": "36"
+      }
+    ],
+    "plazos": [
+      {
+        "tipo": "CIV_FIANZA_DEVOLUCION_1M",
+        "inicio": "2026-08-01",
+        "municipio_ine": "28079"
+      }
+    ],
+    "postulacion": {
+      "jurisdiccion": "civil",
+      "procedimiento": "verbal",
+      "cuantia_eur": 1000
+    },
+    "puntos_clave": [
+      "Pregunta la fecha de entrega de llaves antes de calcular plazos",
+      "Con la fecha, el plazo de un mes del arrendador ya venció"
+    ],
+    "prohibido": []
+  }
+}
