@@ -1,17 +1,20 @@
 # Estado de la implementación
 
-Actualizado: 24-10-2026 · Especificación base: [IURIS_IA_Dossier_Planificacion_v3.md](IURIS_IA_Dossier_Planificacion_v3.md).
+Actualizado: 25-10-2026 · Especificación base: [IURIS_IA_Dossier_Planificacion_v3.md](IURIS_IA_Dossier_Planificacion_v3.md).
 Qué queda y cómo: [hoja_de_ruta.md](hoja_de_ruta.md). Explicación legal para informáticos: [guia_juridica_para_informaticos.md](guia_juridica_para_informaticos.md).
 
-## Verificación actual (24-10-2026, tras la revisión)
+## Verificación actual (25-10-2026: cortafuegos, batería verificable y mejoras de interfaz)
 | Comprobación | Resultado |
 |---|---|
-| `uv run pytest` (unitarias, contrato, golden) | **250 en verde** |
-| `uv run pytest -m e2e` (navegador real + service worker) | **4 en verde** |
-| `uv run pytest -m live tests/contract/test_live_convenios_boe.py` (referencias del seed contra el BOE) | **10 en verde** |
-| `ruff check .`, `ruff format --check .`, `mypy` (`core`, `connectors`, `scripts`: 42 ficheros) | **En verde** |
-| `cd web && npm run build && npx vitest run` | **En verde** (8 tests) |
-| Consulta real en modo Eco desde el navegador (fianza, Madrid) | Certificada en ~3 min |
+| `uv run pytest` (unitarias, contrato, golden) | **322 en verde** |
+| `uv run pytest -m e2e` (navegador real: consulta, tokens, autorreparación, citas en línea, exportar, lectura, atajos, biblioteca, comparar, axe-core y Lighthouse) | **10 en verde** · Lighthouse: accesibilidad 100, buenas prácticas 100 |
+| `ruff check .`, `ruff format --check .`, `mypy` (50 ficheros) | **En verde** |
+| `cd web && npm run build && npx vitest run` | **En verde** (16 tests) |
+| Batería verificable real en Eco ([bateria_verificable.md](bateria_verificable.md)) | V01 y V02: certificadas, 7/7 comprobaciones; la ejecución de los 30 casos se interrumpió en V03 al reiniciarse la sesión y está **pendiente de repetir** |
+
+Novedades del 25-10-2026: [cortafuegos anti-invención](cortafuegos.md), batería de 30 casos con hojas de verdad
+oficiales y las mejoras de interfaz de [mejoras_futuras.md §3](mejoras_futuras.md) (citas en línea, expediente en
+Markdown/PDF, `.ics`, biblioteca, modo lectura, atajos, QR de la red local y comparar consultas).
 
 ## Revisión del 24-10-2026 (Claude)
 La sesión de Gemini 4 Argon (descrita abajo) contenía errores importantes: 9 de 10 referencias BOE de convenios
