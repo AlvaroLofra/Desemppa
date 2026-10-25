@@ -132,9 +132,18 @@ auto-denied»* (el modelo intenta ejecutar un comando y el modo no interactivo l
 | `--mode plan` | 5/5 | 0 | 60 s |
 | Instrucción «no uses herramientas» | 5/5 | 0 | 36 s |
 
-El fallo no se reprodujo en estas 15 llamadas (es intermitente: 36 % en el ledger), así que no se puede afirmar qué
-variante lo evita. Medidas tomadas, todas inocuas:
-- la instrucción `SIN_HERRAMIENTAS` se antepone a todos los roles (`core/orchestrator.py`): reduce la latencia a la mitad;
+Con ese prompt el fallo no se reprodujo en esas 15 llamadas. Un segundo spike (sesión paralela del mismo día, prompt de
+corrección del Magistrado, 10 llamadas por variante) sí lo reprodujo:
+
+| Variante | Válidas | Vacías | Tiempo agotado |
+|---|---|---|---|
+| Base | 5/10 | 1 | 4 |
+| `--mode plan` | sin efecto con `-p` | | |
+| Instrucción «no tienes herramientas» antepuesta al sistema | **10/10** | 0 | 0 |
+
+Medidas tomadas:
+- `prefijo_sistema` de `antigravity_cli` en `config/providers.toml`: la instrucción va delante de toda llamada a `agy`
+  (`core/providers/cli_adapter.py`);
 - una respuesta vacía se repite una vez con el mismo modelo (`core/router.py`);
 - el respaldo, por defecto, no sale de la familia (sección 5) y siempre se avisa.
 

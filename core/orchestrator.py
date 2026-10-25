@@ -183,7 +183,7 @@ class Orchestrator:
             async for item in self.s.router.stream(
                 run.modo,
                 role,
-                LLMRequest(system=SIN_HERRAMIENTAS + system, prompt=full_prompt, json_mode=True),
+                LLMRequest(system=system, prompt=full_prompt, json_mode=True),
                 fase=role,
                 consulta_id=run.consulta_id,
                 restartable=True,
@@ -1281,14 +1281,6 @@ def _importe_consta(cuantia: float | None, texto: str) -> bool:
     plano = re.sub(r"(?<=\d)[.\s](?=\d{3}\b)", "", texto)
     return re.search(rf"(?<![\d.,]){int(cuantia)}(?![\d]|[.,]\d)", plano) is not None
 
-
-# Los modelos de los CLI (agy, claude) pueden intentar usar herramientas (ficheros, comandos), que el modo no
-# interactivo deniega y que a veces dejaban la respuesta vacía. Spike del 25-10-2026 (scripts/spike_agy_vacias.py,
-# 5 llamadas por variante con el prompt real del Magistrado): con esta instrucción la mediana fue ~36 s frente a ~68 s.
-SIN_HERRAMIENTAS = (
-    "No uses herramientas, comandos, ficheros ni búsquedas: todo lo que necesitas está en este mensaje. "
-    "Responde directamente con el JSON pedido.\n\n"
-)
 
 # Escalado del Magistrado tras dos verificaciones fallidas: siempre dentro de la misma familia.
 _ESCALADO = {"agy_gemini_flash": "agy_gemini_argon"}

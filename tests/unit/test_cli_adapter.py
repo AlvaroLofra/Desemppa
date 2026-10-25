@@ -123,7 +123,11 @@ async def test_agy_ndjson_stdin_inline_system_and_effort_in_model(make_adapter):
     assert args[args.index("--model") + 1] == "gemini-3.8-flash-medium"
     assert args[-1] == "-p=" and "--print-timeout" in args
     msg = json.loads(procs[0].stdin.getvalue().decode("utf-8"))
-    assert msg["event"] == "user" and msg["message"]["content"].startswith("eres un jurista")
+    # La instrucción «sin herramientas» va delante del system: evita las respuestas vacías de Flash.
+    content = msg["message"]["content"]
+    assert msg["event"] == "user" and content.startswith("INSTRUCCIÓN DE EJECUCIÓN: no tienes herramientas.")
+    assert "no leas ni escribas ficheros y no busques" in content  # la barra de TOML une las líneas
+    assert "se te pide.\n\neres un jurista" in content
     assert msg["message"]["content"].endswith("consulta")
     assert isinstance(items[-1], LLMResult) and "caducidad" in items[-1].text
 

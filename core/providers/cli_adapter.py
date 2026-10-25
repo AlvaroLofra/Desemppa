@@ -149,13 +149,14 @@ class CliAdapter:
         args = [self.resolve_exe(), *_fill(self.spec.args, values)]
         temps: list[Path] = []
         prompt = request.prompt
-        if request.system:
+        system = self.spec.prefijo_sistema + request.system
+        if system:
             if self.spec.system_prompt == "file" and self.spec.system_prompt_args:
-                path = self._temp(request.system, ".md")
+                path = self._temp(system, ".md")
                 temps.append(path)
                 args += _fill(self.spec.system_prompt_args, {"system_file": str(path)})
             else:
-                prompt = f"{request.system}\n\n---\n\n{prompt}"
+                prompt = f"{system}\n\n---\n\n{prompt}"
         if request.response_schema and self.spec.json_schema_args:
             path = self._temp(json.dumps(request.response_schema, ensure_ascii=False), ".json")
             temps.append(path)

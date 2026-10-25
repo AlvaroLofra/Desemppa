@@ -21,6 +21,15 @@ ejecutable = "agy"
 args = ["--model", "{model}", "--input-format", "stream-json", "--output-format", "stream-json",
         "--disable-slash-commands", "--print-timeout", "{timeout_inner}s", "-p="]
 system_prompt = "inline"
+# Gemini Flash intenta a veces ejecutar un comando; el modo no interactivo se lo deniega y agy devuelve una respuesta
+# vacía o se queda colgado hasta el timeout. Con esta instrucción delante respondieron 10 de 10 llamadas reales del
+# Magistrado, frente a 5 de 10 sin ella (`--mode plan` no tiene efecto con -p). Spike del 25-10-2026 en
+# docs/proveedores_y_modelos.md §6. Nunca --dangerously-skip-permissions (config/settings.py lo rechaza).
+prefijo_sistema = """INSTRUCCIÓN DE EJECUCIÓN: no tienes herramientas. No ejecutes comandos, no leas ni escribas \
+ficheros y no busques en la web. Todo lo que necesitas está en este mensaje. Responde directamente con lo que se te \
+pide.
+
+"""
 stdin = "agy_ndjson"
 parser = "agy_stream_json"
 json_schema_args = ["--json-schema", "{schema_file}"]

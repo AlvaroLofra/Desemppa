@@ -89,6 +89,8 @@ class ProviderSpec(BaseModel):
     args: list[str] = Field(default_factory=list)
     system_prompt: Literal["file", "inline"] = "inline"
     system_prompt_args: list[str] = Field(default_factory=list)
+    # Se antepone a la instrucción de sistema de cada llamada (p. ej. «no tienes herramientas» para agy).
+    prefijo_sistema: str = ""
     stdin: Literal["text", "agy_ndjson"] = "text"
     parser: str | None = None
     json_schema_args: list[str] = Field(default_factory=list)
