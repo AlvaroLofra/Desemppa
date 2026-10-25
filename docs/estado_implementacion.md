@@ -15,6 +15,7 @@ Qué queda y cómo: [hoja_de_ruta.md](hoja_de_ruta.md). Explicación legal para 
 Novedades del 25-10-2026: [cortafuegos anti-invención](cortafuegos.md), batería de 30 casos con hojas de verdad
 oficiales y las mejoras de interfaz de [mejoras_futuras.md §3](mejoras_futuras.md) (citas en línea, expediente en
 Markdown/PDF, `.ics`, biblioteca, modo lectura, atajos, QR de la red local y comparar consultas).
+- **Optimización de contexto y navegación quirúrgica (25-10-2026)**: Creados `.claudeignore` y [mapa_codigo.md](mapa_codigo.md), e incorporado el *Protocolo de Sesiones Quirúrgicas* en `CLAUDE.md` y `GEMINI.md` para evitar búsquedas globales y lecturas recursivas.
 
 ## Revisión del 24-10-2026 (Claude)
 La sesión de Gemini 4 Argon (descrita abajo) contenía errores importantes: 9 de 10 referencias BOE de convenios

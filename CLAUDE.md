@@ -32,8 +32,9 @@
 
 Cuando inicies una nueva sesión, consulta directamente estos ficheros según la tarea:
 
-1. **Estado actual y qué falta por hacer**:
+1. **Estado actual, navegación quirúrgica y qué falta por hacer**:
    - [`docs/estado_implementacion.md`](docs/estado_implementacion.md) — Qué está implementado, qué se corrigió en la última sesión y resultados de la suite de tests.
+   - [`docs/mapa_codigo.md`](docs/mapa_codigo.md) — Mapa de navegación quirúrgica (a qué fichero acudir directamente sin búsquedas exploratorias).
    - [`docs/hoja_de_ruta.md`](docs/hoja_de_ruta.md) — Tareas completadas y próximos pasos priorizados.
    - [`docs/mejoras_futuras.md`](docs/mejoras_futuras.md) — Mejoras futuras priorizadas (precisión jurídica, proceso, interfaz, operación).
 2. **Traducción de conceptos legales para informáticos y estrategia**:
@@ -76,3 +77,12 @@ Cuando inicies una nueva sesión, consulta directamente estos ficheros según la
    uv run pytest -m e2e -q
    uv run pytest -m live tests/contract/test_live_convenios_boe.py -q   # si tocas data/convenios_seed.yaml
    ```
+
+---
+
+## 4. Protocolo de Sesiones Quirúrgicas (1 sesión = 1 tarea acotada)
+
+1. **Prohibición de exploración global:** La IA tiene prohibido hacer `grep_search` en toda la carpeta o leer múltiples ficheros sin necesidad. Debe consultar [`docs/mapa_codigo.md`](docs/mapa_codigo.md) e ir directo al archivo involucrado.
+2. **Lectura obligatoria al iniciar sesión (y nada más):** Solo leer [`docs/estado_implementacion.md`](docs/estado_implementacion.md) para saber en qué punto se quedó la sesión anterior. No reanalizar el repositorio.
+3. **Comandos estrictamente silenciosos:** Ejecutar siempre con flags que no inunden el contexto de tokens: `uv run pytest -q`, `uv run ruff check .`, `git status -s`.
+4. **Cierre de sesión:** Al terminar la tarea, actualizar con 2 líneas [`docs/estado_implementacion.md`](docs/estado_implementacion.md) resumiendo el cambio exacto para que la siguiente sesión lo recoja al vuelo.

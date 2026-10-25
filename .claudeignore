@@ -1,0 +1,30 @@
+# Benchmarks, reportes masivos y evidencias gráficas
+benchmark/reports/*.json
+benchmark/reports/screenshots/
+benchmark/cases_live/
+benchmark/cases/
+
+# Medios, renders y diseño
+media/
+Renders/
+web/public/fonts/
+
+# Datos locales y persistencia binaria
+storage/lancedb_store/
+data/local/
+*.lance/
+*.db
+*.bin
+*.log
+
+# Documentación histórica archivada
+docs/historico_v2/
+docs/informe_revision_*.md
+
+# Cachés y temporales
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+htmlcov/
+web/dist/
+web/node_modules/
