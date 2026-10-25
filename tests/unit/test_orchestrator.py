@@ -628,3 +628,31 @@ async def test_doble_magistrado_con_discrepancia_ajusta_la_solidez(services):
     assert d["banda_solidez"] not in ("criterio_consolidado_favorable", "argumento_solido_sin_doctrina")
     assert any("no coinciden" in a for a in d["avisos"])
     assert d["sello"]["fuentes"] and all(len(f["sha256"]) == 64 for f in d["sello"]["fuentes"])
+
+
+async def test_preguntas_aclaracion_nunca_superan_el_limite(services):
+    from core.orchestrator import _Run
+
+    triaje = {
+        **TRIAJE_OK,
+        "fecha_hechos": None,
+        "fecha_inicio_plazo": None,
+        "municipio": None,
+        "grado_ambiguedad": 0.8,
+        "campos_constan": [],
+        "preguntas_aclaracion": [
+            {"id": f"q{i}", "texto": f"¿Detalle adicional relevante número {i}?", "tipo_respuesta": "texto"}
+            for i in range(1, 7)
+        ],
+    }
+    s, _ = services({"triaje": [triaje]})
+    cid = s.store.create("El casero no me devuelve el dinero.", "eco")
+    t = await Orchestrator(s)._triaje(_Run(cid, "eco"))
+    assert t is None
+    assert s.store.get(cid).estado == Estado.ESPERANDO_ACLARACION
+    preguntas = next(d for tipo, d in _events(s, cid) if tipo == "clarification_needed")["preguntas"]
+    assert len(preguntas) == 5
+    ids = [p["id"] for p in preguntas]
+    assert ids[:2] == ["q_fecha", "q_municipio"]
+    assert all(i.startswith("q_campo_") for i in ids[2:4])
+    assert ids[4] == "q1"

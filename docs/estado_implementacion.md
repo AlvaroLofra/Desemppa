@@ -68,3 +68,6 @@ ha rediseñado según [propuesta_rediseno.md](propuesta_rediseno.md).
 | Interfaz PWA rediseñada (claro/oscuro, respuesta primero, citas numeradas con panel de fuente, proceso plegable) | ✅ | `web/` |
 | Privacidad: seudonimización, DPAPI, consentimiento de adjuntos | ✅ | `core/pii_redactor.py`, `core/secure_store.py` |
 | Benchmark ciego (purga, permutaciones, rúbrica) | ✅ arnés · ⏳ casos reales adicionales | `benchmark/` |
+
+- **Corrección de límite de `preguntas_aclaracion` en triaje (25-10-2026)**: Priorizadas las preguntas en `Orchestrator._triaje` (`q_fecha`/`q_municipio` → `q_campo_*` → preguntas del modelo) con recorte estricto `[:5]`, y ampliado `max_length=6` como buffer defensivo en `TriageOutputSchema` (`core/schemas.py`).
+- **Cobertura de regresión**: Añadido `test_preguntas_aclaracion_nunca_superan_el_limite` en `tests/unit/test_orchestrator.py`.

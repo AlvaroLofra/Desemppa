@@ -289,9 +289,9 @@ class Orchestrator:
             principal = "FUERA_PENAL" if raw.jurisdiccion_principal == "penal" else None
         sub: Submateria | None = cat.get(principal) if principal else None
         municipio_ine = c.municipio_ine or self._municipio_ine(raw.municipio)
-        preguntas = [
+        candidatas_modelo = [
             PreguntaAclaratoria.model_validate({"tipo_respuesta": "texto", **p})
-            for p in raw.preguntas_aclaracion[:6]
+            for p in raw.preguntas_aclaracion
             if p.get("texto")
         ]
         # El modelo a veces pregunta lo que ya se sabe (o el municipio como texto libre): se filtra por código.
@@ -301,21 +301,18 @@ class Orchestrator:
             "fecha": fecha_inicio is not None,
             "importe": _importe_consta(raw.cuantia_estimada_eur, hechos_txt),
         }
-        pide_municipio = any(_dato_preguntado(p.texto, p.tipo_respuesta) == "municipio" for p in preguntas)
-        preguntas = [
+        pide_municipio = any(_dato_preguntado(p.texto, p.tipo_respuesta) == "municipio" for p in candidatas_modelo)
+        preguntas_modelo = [
             p
-            for p in preguntas
+            for p in candidatas_modelo
             if (dato := _dato_preguntado(p.texto, p.tipo_respuesta)) != "municipio" and not conocido.get(dato or "")
-        ]
+        ][:4]
         faltan = [f for f in raw.datos_criticos_faltantes if not conocido.get(_dato_preguntado(f) or "")]
-        # Campos críticos de la submateria (catálogo): cuentan como conocidos solo si el modelo aporta una frase
-        # LITERAL de la consulta que los contiene. Los que falten se preguntan siempre («más vale preguntar»).
-        if sub:
-            preguntas += _preguntas_campos_criticos(sub, raw.campos_constan, hechos_txt, conocido, preguntas)
+        esenciales: list[PreguntaAclaratoria] = []
         if sub and sub.plazos and fecha_inicio is None:
             evento = _campo_fecha(sub)
-            if not any(p.tipo_respuesta == "fecha" for p in preguntas):
-                preguntas.append(
+            if not any(p.tipo_respuesta == "fecha" for p in preguntas_modelo):
+                esenciales.append(
                     PreguntaAclaratoria(
                         id="q_fecha",
                         texto=f"Indica la fecha exacta (día, mes y año): {evento}",
@@ -324,7 +321,7 @@ class Orchestrator:
                     )
                 )
         if municipio_ine is None and (pide_municipio or (sub and not sub.fuera_alcance)):
-            preguntas.append(
+            esenciales.append(
                 PreguntaAclaratoria(
                     id="q_municipio",
                     texto="¿En qué municipio está el juzgado o el organismo (o, si no lo sabes, tu municipio)?",
@@ -332,6 +329,14 @@ class Orchestrator:
                     motivo="festivos locales del calendario",
                 )
             )
+        # Campos críticos de la submateria (catálogo): cuentan como conocidos solo si el modelo aporta una frase
+        # LITERAL de la consulta que los contiene. Los que falten se preguntan siempre («más vale preguntar»).
+        criticos = (
+            _preguntas_campos_criticos(sub, raw.campos_constan, hechos_txt, conocido, esenciales + preguntas_modelo)
+            if sub
+            else []
+        )
+        preguntas = (esenciales + criticos + preguntas_modelo)[:5]
         if raw.grado_ambiguedad >= 0.35 and not preguntas:
             preguntas.append(
                 PreguntaAclaratoria(

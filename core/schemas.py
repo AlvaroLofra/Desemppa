@@ -123,7 +123,7 @@ class TriageOutputSchema(BaseModel):
     ramas: list[RamaCandidata] = Field(min_length=1, max_length=4)
     grado_ambiguedad: float = Field(ge=0, le=1)
     requiere_aclaracion: bool = False
-    preguntas_aclaracion: list[PreguntaAclaratoria] = Field(default_factory=list, max_length=5)
+    preguntas_aclaracion: list[PreguntaAclaratoria] = Field(default_factory=list, max_length=6)
     datos_criticos_faltantes: list[str] = Field(default_factory=list)
     fecha_hechos: date | None = None
     municipio_ine_organo: CodigoINE | None = None
