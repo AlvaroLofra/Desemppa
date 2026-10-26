@@ -72,6 +72,8 @@ def test_qr_solo_con_la_red_activa(app):  # noqa: F811
         r = dueno.get("/api/red/qr")
         assert r.status_code == 200 and r.headers["content-type"].startswith("image/svg+xml")
         assert r.text.lstrip().startswith("<svg")
+        # Sin el espacio de nombres SVG, un <img> no pinta la imagen (fallo real del 25-10-2026).
+        assert 'xmlns="http://www.w3.org/2000/svg"' in r.text
 
 
 def test_aviso_de_reforma_de_un_articulo_citado(app):  # noqa: F811
@@ -129,3 +131,30 @@ def test_panel_de_salud(app):  # noqa: F811
         with _invitado(app) as inv:
             _activar(cli)
             assert inv.get("/api/salud").status_code == 403
+
+
+def test_asistente_de_jurisprudencia_importa_y_resume(app):  # noqa: F811
+    from pathlib import Path
+
+    fixture = Path(__file__).resolve().parents[1] / "fixtures" / "sentencias" / "sap_fianza_sintetica.txt"
+    with _dueno(app) as cli:
+        antes = cli.get("/api/jurisprudencia/resumen").json()
+        assert antes["total"] == 0 and antes["buscador"].startswith("https://www.poderjudicial.es/")
+        fianza = next(m for m in antes["materias"] if m["clave"] == "CIV_LAU_FIANZA")
+        assert fianza["terminos"] and fianza["sentencias"] == 0
+        r = cli.post(
+            "/api/jurisprudencia/importar",
+            headers={"X-Iuris-Token": cli.app.state.services.token},
+            files={"archivo": ("s.txt", fixture.read_bytes(), "text/plain")},
+        )
+        assert r.status_code == 201, r.text
+        despues = cli.get("/api/jurisprudencia/resumen").json()
+        assert despues["total"] == 1 and despues["ultimas"][0]["roj"] == r.json()["roj"]
+        assert next(m for m in despues["materias"] if m["clave"] == "CIV_LAU_FIANZA")["sentencias"] == 1
+
+
+def test_invitado_no_ve_el_asistente_de_jurisprudencia(app):  # noqa: F811
+    with _dueno(app) as dueno:
+        _activar(dueno)
+        with _invitado(app) as inv:
+            assert inv.get("/api/jurisprudencia/resumen").status_code == 403

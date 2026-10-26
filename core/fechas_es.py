@@ -64,6 +64,25 @@ def fechas_en_texto(texto: str, hoy: date) -> FechasTexto:
     return out
 
 
+_VACIAS_EVENTO = {"fecha", "exacta", "del", "de", "la", "el", "los", "las", "o", "y", "en", "que", "su", "tu"}
+
+
+def fecha_del_evento(texto: str, evento: str, hoy: date) -> date | None:
+    """La fecha que el usuario escribe en la MISMA frase que el evento del plazo («El 10 de marzo compré…» para
+    «fecha de compra o entrega»). Solo si hay exactamente una candidata; nunca se calcula ni se deduce otra cosa."""
+    raices = {w[:5] for w in re.findall(r"[a-z]+", fold(evento)) if len(w) > 3 and w not in _VACIAS_EVENTO}
+    if not raices:
+        return None
+    candidatas: set[date] = set()
+    for frase in re.split(r"[.;:!?\n]+", texto):
+        palabras = {w[:5] for w in re.findall(r"[a-z]+", fold(frase))}
+        if raices & palabras:
+            exactas = fechas_en_texto(frase, hoy).exactas
+            if len(exactas) == 1:
+                candidatas |= exactas
+    return next(iter(candidatas)) if len(candidatas) == 1 else None
+
+
 def fecha_consta(f: date, texto: str, hoy: date) -> bool:
     """¿La fecha exacta aparece (o se deduce sin cálculo de calendario: «hoy», «ayer», «hace N días»)?"""
     return f in fechas_en_texto(texto, hoy).exactas

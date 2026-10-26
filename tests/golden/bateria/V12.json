@@ -1,0 +1,531 @@
+{
+ "caso": {
+  "id": "V12",
+  "categoria": "tipico",
+  "materia_esperada": "ADM_PLUSVALIA",
+  "consulta": "El 10 de junio de 2026 vendí un piso en Madrid por menos de lo que me costó. El 5 de octubre de 2026 me notificaron la liquidación de la plusvalía municipal. ¿Tengo que pagarla?",
+  "municipio_ine": "28079",
+  "municipio_nombre": "Madrid",
+  "fecha_hechos": "2026-06-10",
+  "aclaraciones_simuladas": [],
+  "verdad": {
+   "estado_esperado": "CERTIFICADA",
+   "respuesta_esperada": "depende",
+   "articulos_clave": [
+    {
+     "norma": "TRLRHL",
+     "articulo": "104"
+    }
+   ],
+   "plazos": [
+    {
+     "tipo": "ADM_REPOSICION_1M",
+     "inicio": "2026-10-05",
+     "municipio_ine": "28079"
+    }
+   ],
+   "postulacion": {
+    "jurisdiccion": "administrativa_previa",
+    "procedimiento": "reposicion",
+    "cuantia_eur": null
+   },
+   "puntos_clave": [
+    "No hay sujeción si se acredita que no hubo incremento de valor (art. 104.5 TRLRHL)",
+    "Hay que acreditar los valores de compra y venta"
+   ],
+   "prohibido": []
+  }
+ },
+ "hoja": {
+  "id": "V12",
+  "construida": "2026-10-25",
+  "articulos": [
+   {
+    "norma": "TRLRHL",
+    "articulo": "104",
+    "source_id": "BOE:BOE-A-2004-4214:a104:2022-03-23",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2004-4214#a104",
+    "version": "2022-03-23",
+    "sha256": "5896f642ed8cd4f68fbbd5cd0b3b70baf6da1b6d4b6e28052c6fe305a876c3ff",
+    "texto": "Artículo 104. Naturaleza y hecho imponible. Supuestos de no sujeción.\n1. El Impuesto sobre el Incremento de Valor de los Terrenos de Naturaleza Urbana es un tributo directo que grava el incremento de valor que experimenten dichos terrenos y se ponga de manifiesto a consecuencia de la transmisión de la propiedad de los terrenos por cualquier título o de la constitución o transmisión de cualquier derecho real de goce, limitativo del dominio, sobre los referidos terrenos.\n2. No está sujeto a este impuesto el incremento de valor que experimenten los terrenos que tengan la consideración de rústicos a efectos del Impuesto sobre Bienes Inmuebles. En consecuencia con ello, está sujeto el incremento de valor que experimenten los terrenos que deban tener la consideración de urbanos, a efectos de dicho Impuesto sobre Bienes Inmuebles, con independencia de que estén o no contemplados como tales en el Catastro o en el padrón de aquél. A los efectos de este impuesto, estará asimismo sujeto a éste el incremento de valor que experimenten los terrenos integrados en los bienes inmuebles clasificados como de características especiales a efectos del Impuesto sobre Bienes Inmuebles.\n3. No se producirá la sujeción al impuesto en los supuestos de aportaciones de bienes y derechos realizadas por los cónyuges a la sociedad conyugal, adjudicaciones que a su favor y en pago de ellas se verifiquen y transmisiones que se hagan a los cónyuges en pago de sus haberes comunes.\nTampoco se producirá la sujeción al impuesto en los supuestos de transmisiones de bienes inmuebles entre cónyuges o a favor de los hijos, como consecuencia del cumplimiento de sentencias en los casos de nulidad, separación o divorcio matrimonial, sea cual sea el régimen económico matrimonial. Asimismo, no se producirá la sujeción al impuesto en los supuestos de transmisiones de bienes inmuebles a título lucrativo en beneficio de las hijas, hijos, menores o personas con discapacidad sujetas a patria potestad, tutela o con medidas de apoyo para el adecuado ejercicio de su capacidad jurídica, cuyo ejercicio se llevará a cabo por las mujeres fallecidas como consecuencia de violencia contra la mujer, en los términos en que se defina por la ley o por los instrumentos internacionales ratificados por España, cuando estas transmisiones lucrativas traigan causa del referido fallecimiento.\n4. No se devengará el impuesto con ocasión de las aportaciones o transmisiones de bienes inmuebles efectuadas a la Sociedad de Gestión de Activos Procedentes de la Reestructuración Bancaria, S.A. regulada en la disposición adicional séptima de la Ley 9/2012, de 14 de noviembre, de reestructuración y resolución de entidades de crédito, que se le hayan transferido, de acuerdo con lo establecido en el artículo 48 del Real Decreto 1559/2012, de 15 de noviembre, por el que se establece el régimen jurídico de las sociedades de gestión de activos.\nNo se producirá el devengo del impuesto con ocasión de las aportaciones o transmisiones realizadas por la Sociedad de Gestión de Activos Procedentes de la Reestructuración Bancaria, S.A., a entidades participadas directa o indirectamente por dicha Sociedad en al menos el 50 por ciento del capital, fondos propios, resultados o derechos de voto de la entidad participada en el momento inmediatamente anterior a la transmisión, o como consecuencia de la misma.\nNo se devengará el impuesto con ocasión de las aportaciones o transmisiones realizadas por la Sociedad de Gestión de Activos Procedentes de la Reestructuración Bancaria, S.A., o por las entidades constituidas por esta para cumplir con su objeto social, a los fondos de activos bancarios, a que se refiere la disposición adicional décima de la Ley 9/2012, de 14 de noviembre.\nNo se devengará el impuesto por las aportaciones o transmisiones que se produzcan entre los citados Fondos durante el período de tiempo de mantenimiento de la exposición del Fondo de Reestructuración Ordenada Bancaria a los Fondos, previsto en el apartado 10 de dicha disposición adicional décima.\nEn la posterior transmisión de los inmuebles se entenderá que el número de años a lo largo de los cuales se ha puesto de manifiesto el incremento de valor de los terrenos no se ha interrumpido por causa de la transmisión derivada de las operaciones previstas en este apartado.\n5. No se producirá la sujeción al impuesto en las transmisiones de terrenos respecto de los cuales se constate la inexistencia de incremento de valor por diferencia entre los valores de dichos terrenos en las fechas de transmisión y adquisición.\nPara ello, el interesado en acreditar la inexistencia de incremento de valor deberá declarar la transmisión, así como aportar los títulos que documenten la transmisión y la adquisición, entendiéndose por interesados, a estos efectos, las personas o entidades a que se refiere el artículo 106.\nPara constatar la inexistencia de incremento de valor, como valor de transmisión o de adquisición del terreno se tomará en cada caso el mayor de los siguientes valores, sin que a estos efectos puedan computarse los gastos o tributos que graven dichas operaciones: el que conste en el título que documente la operación o el comprobado, en su caso, por la Administración tributaria.\nCuando se trate de la transmisión de un inmueble en el que haya suelo y construcción, se tomará como valor del suelo a estos efectos el que resulte de aplicar la proporción que represente en la fecha de devengo del impuesto el valor catastral del terreno respecto del valor catastral total y esta proporción se aplicará tanto al valor de transmisión como, en su caso, al de adquisición.\nSi la adquisición o la transmisión hubiera sido a título lucrativo se aplicarán las reglas de los párrafos anteriores tomando, en su caso, por el primero de los dos valores a comparar señalados anteriormente, el declarado en el Impuesto sobre Sucesiones y Donaciones.\nEn la posterior transmisión de los inmuebles a los que se refiere este apartado, para el cómputo del número de años a lo largo de los cuales se ha puesto de manifiesto el incremento de valor de los terrenos, no se tendrá en cuenta el periodo anterior a su adquisición. Lo dispuesto en este párrafo no será de aplicación en los supuestos de aportaciones o transmisiones de bienes inmuebles que resulten no sujetas en virtud de lo dispuesto en el apartado 3 de este artículo o en la disposición adicional segunda de la Ley 27/2014, de 27 de noviembre, del Impuesto sobre Sociedades."
+   }
+  ],
+  "plazos": [
+   {
+    "tipo": "ADM_REPOSICION_1M",
+    "inicio": "2026-10-05",
+    "fecha_limite_segura": "2026-11-05",
+    "base_legal": "Art. 124 Ley 39/2015; art. 30.4 y 30.5"
+   }
+  ],
+  "postulacion": {
+   "requiere_abogado": false,
+   "requiere_procurador": false,
+   "base_legal": "Ley 39/2015"
+  }
+ },
+ "resultado": {
+  "consulta_id": "f935dcce-3944-460a-b07d-3c1bf599f771",
+  "modo": "eco",
+  "fecha": "2026-10-25",
+  "estado": "CERTIFICADA",
+  "duracion_s": 253,
+  "aclaraciones": [
+   {
+    "pregunta": "Indica fechas y valores de compra y venta",
+    "respuesta": "No lo sé"
+   },
+   {
+    "pregunta": "¿Dispones de las escrituras notariales donde constan los precios de compra y de venta del piso?",
+    "respuesta": "No lo sé"
+   }
+  ],
+  "dictamen": {
+   "estado": "CERTIFICADA",
+   "dictamen": {
+    "schema_version": "1.0",
+    "consulta_id": "f935dcce-3944-460a-b07d-3c1bf599f771",
+    "modo": "eco",
+    "modelos_usados": {
+     "triaje": "gemini-3.8-flash-low",
+     "defensa": "gemini-3.8-flash-medium",
+     "contraparte": "gemini-3.8-flash-medium",
+     "magistrado": "gemini-3.8-flash-medium"
+    },
+    "banda_solidez": "riesgo_probatorio_alto",
+    "respuesta_directa": "No tienes que pagar el impuesto si se constata que no existió incremento de valor entre la compra y la venta del piso. Para que no te exijan el pago debes recurrir la liquidación aportando los títulos que justifiquen los precios de transmisión y adquisición.",
+    "resumen_ciudadano": "La ley contempla que la venta no queda sujeta al impuesto si se constata que no hubo incremento de valor del terreno. Para que se reconozca que no procede el tributo es imprescindible aportar los documentos que justifiquen el precio de compra y el de venta. En la consulta no constan las cifras de las operaciones ni la disponibilidad de las escrituras.",
+    "fundamentos": [
+     {
+      "texto": "La norma establece que no existirá sujeción al impuesto si se constata que no hubo incremento de valor comparando las fechas de transmisión y adquisición.",
+      "source_id": "BOE:BOE-A-2004-4214:a104:2022-03-23",
+      "verbatim_quote": "No se producirá la sujeción al impuesto en las transmisiones de terrenos respecto de los cuales se constate la inexistencia de incremento de valor por diferencia entre los valores de dichos terrenos en las fechas de transmisión y adquisición.",
+      "fuzzy_score": 100.0,
+      "nli": "ENTAILS",
+      "offsets": [
+       4321,
+       4563
+      ]
+     },
+     {
+      "texto": "Para hacer valer la no sujeción por inexistencia de incremento de valor la norma exige aportar los títulos que documenten la transmisión y la adquisición.",
+      "source_id": "BOE:BOE-A-2004-4214:a104:2022-03-23",
+      "verbatim_quote": "Para ello, el interesado en acreditar la inexistencia de incremento de valor deberá declarar la transmisión, así como aportar los títulos que documenten la transmisión y la adquisición, entendiéndose por interesados, a estos efectos, las personas o entidades a que se refiere el artículo 106.",
+      "fuzzy_score": 100.0,
+      "nli": "ENTAILS",
+      "offsets": [
+       4564,
+       4856
+      ]
+     }
+    ],
+    "cuestiones": [
+     {
+      "id": "C1",
+      "enunciado": "Procedencia del supuesto de no sujeción al impuesto por inexistencia de incremento de valor en la transmisión del inmueble.",
+      "tipo": "calificacion_juridica",
+      "estimacion": "DEFENSA",
+      "fundamentos": [
+       {
+        "afirmacion": "La norma establece que no existirá sujeción al impuesto si se constata que no hubo incremento de valor comparando las fechas de transmisión y adquisición.",
+        "citas": [
+         {
+          "source_id": "BOE:BOE-A-2004-4214:a104:2022-03-23",
+          "verbatim_quote": "No se producirá la sujeción al impuesto en las transmisiones de terrenos respecto de los cuales se constate la inexistencia de incremento de valor por diferencia entre los valores de dichos terrenos en las fechas de transmisión y adquisición."
+         }
+        ]
+       },
+       {
+        "afirmacion": "Para hacer valer la no sujeción por inexistencia de incremento de valor la norma exige aportar los títulos que documenten la transmisión y la adquisición.",
+        "citas": [
+         {
+          "source_id": "BOE:BOE-A-2004-4214:a104:2022-03-23",
+          "verbatim_quote": "Para ello, el interesado en acreditar la inexistencia de incremento de valor deberá declarar la transmisión, así como aportar los títulos que documenten la transmisión y la adquisición, entendiéndose por interesados, a estos efectos, las personas o entidades a que se refiere el artículo 106."
+         }
+        ]
+       }
+      ],
+      "importe_estimado_eur": null,
+      "fundamento_cuantia": null
+     }
+    ],
+    "fortalezas": [
+     "La ley determina la no sujeción al impuesto en las transmisiones donde no se aprecie incremento de valor entre la fecha de adquisición y la de transmisión.",
+     "Para constatar si existió o no incremento de valor se toma como referencia el valor que conste en el título de la operación o el comprobado por la Administración."
+    ],
+    "debilidades_contraparte": [],
+    "riesgos_propios": [
+     "Si no se aportan los títulos que acrediten las operaciones de adquisición y transmisión la liquidación tributaria resultará exigible.",
+     "No constan los valores de transmisión y adquisición ni las copias de las escrituras para contrastar las cifras."
+    ],
+    "pasos_inmediatos": [
+     "Localiza las escrituras notariales de compra y de venta del piso para justificar los valores declarados.",
+     "Revisa la notificación de la liquidación para identificar el plazo y la vía de recurso procedente."
+    ],
+    "plazos": [
+     {
+      "tipo_plazo_id": "ADM_REPOSICION_1M",
+      "descripcion": "Recurso potestativo de reposición",
+      "naturaleza": "administrativo",
+      "tipo_computo": "meses_fecha_a_fecha",
+      "titular": "usuario",
+      "fecha_inicio": "2026-10-05",
+      "fecha_limite_segura": "2026-11-05",
+      "dia_gracia_hasta": null,
+      "dias_habiles_restantes": null,
+      "festivos_no_verificados": [],
+      "municipio_ine": "28079",
+      "base_legal": "Art. 124 Ley 39/2015; art. 30.4 y 30.5",
+      "suspensiones": [],
+      "avisos": [
+       "Festivos locales del municipio no cargados para ese año: confirma las 2 fiestas locales en el boletín oficial de la provincia."
+      ],
+      "validado_juridicamente": false
+     }
+    ],
+    "postulacion": {
+     "requiere_abogado": false,
+     "requiere_procurador": false,
+     "bloquea_escritos": false,
+     "base_legal": "Ley 39/2015",
+     "texto_usuario": "Las alegaciones y los recursos administrativos (reposición, alzada) no requieren abogado."
+    },
+    "avisos": [
+     "Faltan datos tras la aclaración: Indica fechas y valores de compra y venta",
+     "Artículo 107 (BOE-A-2004-4214): se aplica la redacción vigente el 10/06/2026 (desde 28/01/2026). Reformado después, por primera vez el 01/10/2026 (BOE-A-2026-20266). Revisar disposiciones transitorias.",
+     "No hay jurisprudencia aplicable en el corpus local: la valoración se apoya solo en la ley. Se ha encolado una búsqueda para ampliar el corpus."
+    ],
+    "guardarrailes": {
+     "G1_schema": true,
+     "G2_G3_citas": true,
+     "G4_sin_pronosticos": true,
+     "G5_nli": true,
+     "G6_banda": true,
+     "G8_plazos": true,
+     "G9_postulacion": true
+    },
+    "afirmaciones": [
+     {
+      "seccion": "respuesta",
+      "texto": "No tienes que pagar el impuesto si se constata que no existió incremento de valor entre la compra y la venta del piso.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2004-4214:a104:2022-03-23",
+        "verbatim_quote": "No se producirá la sujeción al impuesto en las transmisiones de terrenos respecto de los cuales se constate la inexistencia de incremento de valor por diferencia entre los valores de dichos terrenos en las fechas de transmisión y adquisición.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "respuesta",
+      "texto": "Para que no te exijan el pago debes recurrir la liquidación aportando los títulos que justifiquen los precios de transmisión y adquisición.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2004-4214:a104:2022-03-23",
+        "verbatim_quote": "Para ello, el interesado en acreditar la inexistencia de incremento de valor deberá declarar la transmisión, así como aportar los títulos que documenten la transmisión y la adquisición, entendiéndose por interesados, a estos efectos, las personas o entidades a que se refiere el artículo 106.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "resumen",
+      "texto": "La ley contempla que la venta no queda sujeta al impuesto si se constata que no hubo incremento de valor del terreno.",
+      "tipo": "norma",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2004-4214:a104:2022-03-23",
+        "verbatim_quote": "No se producirá la sujeción al impuesto en las transmisiones de terrenos respecto de los cuales se constate la inexistencia de incremento de valor por diferencia entre los valores de dichos terrenos en las fechas de transmisión y adquisición.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "resumen",
+      "texto": "Para que se reconozca que no procede el tributo es imprescindible aportar los documentos que justifiquen el precio de compra y el de venta.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2004-4214:a104:2022-03-23",
+        "verbatim_quote": "Para ello, el interesado en acreditar la inexistencia de incremento de valor deberá declarar la transmisión, así como aportar los títulos que documenten la transmisión y la adquisición, entendiéndose por interesados, a estos efectos, las personas o entidades a que se refiere el artículo 106.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "resumen",
+      "texto": "En la consulta no constan las cifras de las operaciones ni la disponibilidad de las escrituras.",
+      "tipo": "limite",
+      "citas": []
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "La ley determina la no sujeción al impuesto en las transmisiones donde no se aprecie incremento de valor entre la fecha de adquisición y la de transmisión.",
+      "tipo": "norma",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2004-4214:a104:2022-03-23",
+        "verbatim_quote": "No se producirá la sujeción al impuesto en las transmisiones de terrenos respecto de los cuales se constate la inexistencia de incremento de valor por diferencia entre los valores de dichos terrenos en las fechas de transmisión y adquisición.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "Para constatar si existió o no incremento de valor se toma como referencia el valor que conste en el título de la operación o el comprobado por la Administración.",
+      "tipo": "norma",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2004-4214:a104:2022-03-23",
+        "verbatim_quote": "Para constatar la inexistencia de incremento de valor, como valor de transmisión o de adquisición del terreno se tomará en cada caso el mayor de los siguientes valores, sin que a estos efectos puedan computarse los gastos o tributos que graven dichas operaciones: el que conste en el título que documente la operación o el comprobado, en su caso, por la Administración tributaria.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "Si no se aportan los títulos que acrediten las operaciones de adquisición y transmisión la liquidación tributaria resultará exigible.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2004-4214:a104:2022-03-23",
+        "verbatim_quote": "Para ello, el interesado en acreditar la inexistencia de incremento de valor deberá declarar la transmisión, así como aportar los títulos que documenten la transmisión y la adquisición, entendiéndose por interesados, a estos efectos, las personas o entidades a que se refiere el artículo 106.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "No constan los valores de transmisión y adquisición ni las copias de las escrituras para contrastar las cifras.",
+      "tipo": "limite",
+      "citas": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Localiza las escrituras notariales de compra y de venta del piso para justificar los valores declarados.",
+      "tipo": "consejo",
+      "citas": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Revisa la notificación de la liquidación para identificar el plazo y la vía de recurso procedente.",
+      "tipo": "consejo",
+      "citas": []
+     }
+    ],
+    "auditoria": [
+     {
+      "seccion": "respuesta",
+      "texto": "No tienes que pagar el impuesto si se constata que no existió incremento de valor entre la compra y la venta del piso.",
+      "tipo_propuesto": "razonamiento",
+      "resultado": "aceptada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "BOE:BOE-A-2004-4214:a104:2022-03-23"
+      ],
+      "nli": "NEUTRAL",
+      "motivos": []
+     },
+     {
+      "seccion": "respuesta",
+      "texto": "Para que no te exijan el pago debes recurrir la liquidación aportando los títulos que justifiquen los precios de transmisión y adquisición.",
+      "tipo_propuesto": "razonamiento",
+      "resultado": "aceptada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "BOE:BOE-A-2004-4214:a104:2022-03-23"
+      ],
+      "nli": "NEUTRAL",
+      "motivos": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "La ley contempla que la venta no queda sujeta al impuesto si se constata que no hubo incremento de valor del terreno.",
+      "tipo_propuesto": "norma",
+      "resultado": "aceptada",
+      "tipo_final": "norma",
+      "citas_verificadas": [
+       "BOE:BOE-A-2004-4214:a104:2022-03-23"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "Para que se reconozca que no procede el tributo es imprescindible aportar los documentos que justifiquen el precio de compra y el de venta.",
+      "tipo_propuesto": "razonamiento",
+      "resultado": "aceptada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "BOE:BOE-A-2004-4214:a104:2022-03-23"
+      ],
+      "nli": "NEUTRAL",
+      "motivos": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "En la consulta no constan las cifras de las operaciones ni la disponibilidad de las escrituras.",
+      "tipo_propuesto": "limite",
+      "resultado": "aceptada",
+      "tipo_final": "limite",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "La ley determina la no sujeción al impuesto en las transmisiones donde no se aprecie incremento de valor entre la fecha de adquisición y la de transmisión.",
+      "tipo_propuesto": "norma",
+      "resultado": "aceptada",
+      "tipo_final": "norma",
+      "citas_verificadas": [
+       "BOE:BOE-A-2004-4214:a104:2022-03-23"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "Para constatar si existió o no incremento de valor se toma como referencia el valor que conste en el título de la operación o el comprobado por la Administración.",
+      "tipo_propuesto": "norma",
+      "resultado": "aceptada",
+      "tipo_final": "norma",
+      "citas_verificadas": [
+       "BOE:BOE-A-2004-4214:a104:2022-03-23"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "Si no se aportan los títulos que acrediten las operaciones de adquisición y transmisión la liquidación tributaria resultará exigible.",
+      "tipo_propuesto": "razonamiento",
+      "resultado": "aceptada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "BOE:BOE-A-2004-4214:a104:2022-03-23"
+      ],
+      "nli": "NEUTRAL",
+      "motivos": []
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "No constan los valores de transmisión y adquisición ni las copias de las escrituras para contrastar las cifras.",
+      "tipo_propuesto": "limite",
+      "resultado": "aceptada",
+      "tipo_final": "limite",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Localiza las escrituras notariales de compra y de venta del piso para justificar los valores declarados.",
+      "tipo_propuesto": "consejo",
+      "resultado": "aceptada",
+      "tipo_final": "consejo",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Revisa la notificación de la liquidación para identificar el plazo y la vía de recurso procedente.",
+      "tipo_propuesto": "consejo",
+      "resultado": "aceptada",
+      "tipo_final": "consejo",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     }
+    ],
+    "respuesta_parcial": false,
+    "hechos_determinantes": [],
+    "motivos_banda": [],
+    "sello": {
+     "verificado_en": "2026-10-25T18:38:28.294447Z",
+     "fuentes": [
+      {
+       "source_id": "BOE:BOE-A-2004-4214:a104:2022-03-23",
+       "titulo": "Artículo 104 TRLRHL",
+       "version": "2022-03-23",
+       "sha256": "a11853a84a71950eb055ae850eb9caadb888ad126631de3e200ab63a5e3790f4",
+       "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2004-4214#a104"
+      }
+     ],
+     "afirmaciones_mostradas": 11,
+     "afirmaciones_eliminadas": 0,
+     "modelos": {
+      "triaje": "gemini-3.8-flash-low",
+      "defensa": "gemini-3.8-flash-medium",
+      "contraparte": "gemini-3.8-flash-medium",
+      "magistrado": "gemini-3.8-flash-medium"
+     }
+    },
+    "aviso_legal": "Desemppa es una herramienta personal de información jurídica y apoyo a la autodefensa. No es asesoramiento profesional ni sustituye a un abogado colegiado. Verifica los plazos y las citas en las fuentes oficiales enlazadas antes de actuar. Si no tienes recursos, puedes solicitar asistencia jurídica gratuita (Ley 1/1996) en el Colegio de Abogados de tu partido judicial.",
+    "generado_en": "2026-10-25T18:38:28.294447Z"
+   },
+   "banda_texto": "Depende de lo que puedas demostrar"
+  },
+  "mensaje": null,
+  "triage": {
+   "schema_version": "1.0",
+   "consulta_id": "f935dcce-3944-460a-b07d-3c1bf599f771",
+   "jurisdiccion_principal": "administrativa_previa",
+   "submateria_principal": "ADM_PLUSVALIA",
+   "ramas": [
+    {
+     "submateria": "ADM_PLUSVALIA",
+     "jurisdiccion": "administrativa_previa",
+     "peso_enrutamiento": 1.0,
+     "justificacion": "Impugnación de liquidación tributaria municipal por el Impuesto sobre el Incremento de Valor de los Terrenos de Naturaleza Urbana (IIVTNU) alegando inexistencia de incremento de valor (pérdidas en la transmisión)."
+    }
+   ],
+   "grado_ambiguedad": 0.2,
+   "requiere_aclaracion": false,
+   "preguntas_aclaracion": [],
+   "datos_criticos_faltantes": [],
+   "fecha_hechos": "2026-06-10",
+   "municipio_ine_organo": "28079",
+   "vecindad_civil": "comun",
+   "cuantia_estimada_eur": null,
+   "alertas_plazo": [
+    {
+     "tipo_plazo_id": "ADM_REPOSICION_1M",
+     "fecha_inicio_computo": "2026-10-05",
+     "evento_inicio": "fechas y valores de compra y venta"
+    }
+   ],
+   "normas_boe_objetivo": [
+    {
+     "id_norma": "BOE-A-2004-4214",
+     "articulos": [
+      "104",
+      "107",
+      "110"
+     ],
+     "motivo": "TRLRHL"
+    }
+   ],
+   "terminos_cendoj": [
+    "plusvalía municipal",
+    "IIVTNU",
+    "inexistencia de incremento de valor",
+    "pérdida patrimonial",
+    "liquidación tributaria"
+   ],
+   "convenio_aplicable": null,
+   "competencia_local": false,
+   "resumen_hechos": "El ciudadano transmitió un inmueble en Madrid el 10 de junio de 2026, manifestando haberlo vendido por un precio inferior al de adquisición. El 5 de octubre de 2026 recibió la notificación de la liquidación del Impuesto sobre el Incremento de Valor de los Terrenos de Naturaleza Urbana (plusvalía municipal). Plantea si tiene la obligación de satisfacer dicho tributo al haberse producido minusvalía."
+  },
+  "fuentes": {
+   "BOE:BOE-A-2004-4214:a104:2022-03-23": {
+    "titulo": "Artículo 104 TRLRHL",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2004-4214#a104",
+    "texto": "Artículo 104. Naturaleza y hecho imponible. Supuestos de no sujeción.\n1. El Impuesto sobre el Incremento de Valor de los Terrenos de Naturaleza Urbana es un tributo directo que grava el incremento de valor que experimenten dichos terrenos y se ponga de manifiesto a consecuencia de la transmisión de la propiedad de los terrenos por cualquier título o de la constitución o transmisión de cualquier derecho real de goce, limitativo del dominio, sobre los referidos terrenos.\n2. No está sujeto a este impuesto el incremento de valor que experimenten los terrenos que tengan la consideración de rústicos a efectos del Impuesto sobre Bienes Inmuebles. En consecuencia con ello, está sujeto el incremento de valor que experimenten los terrenos que deban tener la consideración de urbanos, a efectos de dicho Impuesto sobre Bienes Inmuebles, con independencia de que estén o no contemplados como tales en el Catastro o en el padrón de aquél. A los efectos de este impuesto, estará asimismo sujeto a éste el incremento de valor que experimenten los terrenos integrados en los bienes inmuebles clasificados como de características especiales a efectos del Impuesto sobre Bienes Inmuebles.\n3. No se producirá la sujeción al impuesto en los supuestos de aportaciones de bienes y derechos realizadas por los cónyuges a la sociedad conyugal, adjudicaciones que a su favor y en pago de ellas se verifiquen y transmisiones que se hagan a los cónyuges en pago de sus haberes comunes.\nTampoco se producirá la sujeción al impuesto en los supuestos de transmisiones de bienes inmuebles entre cónyuges o a favor de los hijos, como consecuencia del cumplimiento de sentencias en los casos de nulidad, separación o divorcio matrimonial, sea cual sea el régimen económico matrimonial. Asimismo, no se producirá la sujeción al impuesto en los supuestos de transmisiones de bienes inmuebles a título lucrativo en beneficio de las hijas, hijos, menores o personas con discapacidad sujetas a patria potestad, tutela o con medidas de apoyo para el adecuado ejercicio de su capacidad jurídica, cuyo ejercicio se llevará a cabo por las mujeres fallecidas como consecuencia de violencia contra la mujer, en los términos en que se defina por la ley o por los instrumentos internacionales ratificados por España, cuando estas transmisiones lucrativas traigan causa del referido fallecimiento.\n4. No se devengará el impuesto con ocasión de las aportaciones o transmisiones de bienes inmuebles efectuadas a la Sociedad de Gestión de Activos Procedentes de la Reestructuración Bancaria, S.A. regulada en la disposición adicional séptima de la Ley 9/2012, de 14 de noviembre, de reestructuración y resolución de entidades de crédito, que se le hayan transferido, de acuerdo con lo establecido en el artículo 48 del Real Decreto 1559/2012, de 15 de noviembre, por el que se establece el régimen jurídico de las sociedades de gestión de activos.\nNo se producirá el devengo del impuesto con ocasión de las aportaciones o transmisiones realizadas por la Sociedad de Gestión de Activos Procedentes de la Reestructuración Bancaria, S.A., a entidades participadas directa o indirectamente por dicha Sociedad en al menos el 50 por ciento del capital, fondos propios, resultados o derechos de voto de la entidad participada en el momento inmediatamente anterior a la transmisión, o como consecuencia de la misma.\nNo se devengará el impuesto con ocasión de las aportaciones o transmisiones realizadas por la Sociedad de Gestión de Activos Procedentes de la Reestructuración Bancaria, S.A., o por las entidades constituidas por esta para cumplir con su objeto social, a los fondos de activos bancarios, a que se refiere la disposición adicional décima de la Ley 9/2012, de 14 de noviembre.\nNo se devengará el impuesto por las aportaciones o transmisiones que se produzcan entre los citados Fondos durante el período de tiempo de mantenimiento de la exposición del Fondo de Reestructuración Ordenada Bancaria a los Fondos, previsto en el apartado 10 de dicha disposición adicional décima.\nEn la posterior transmisión de los inmuebles se entenderá que el número de años a lo largo de los cuales se ha puesto de manifiesto el incremento de valor de los terrenos no se ha interrumpido por causa de la transmisión derivada de las operaciones previstas en este apartado.\n5. No se producirá la sujeción al impuesto en las transmisiones de terrenos respecto de los cuales se constate la inexistencia de incremento de valor por diferencia entre los valores de dichos terrenos en las fechas de transmisión y adquisición.\nPara ello, el interesado en acreditar la inexistencia de incremento de valor deberá declarar la transmisión, así como aportar los títulos que documenten la transmisión y la adquisición, entendiéndose por interesados, a estos efectos, las personas o entidades a que se refiere el artículo 106.\nPara constatar la inexistencia de incremento de valor, como valor de transmisión o de adquisición del terreno se tomará en cada caso el mayor de los siguientes valores, sin que a estos efectos puedan computarse los gastos o tributos que graven dichas operaciones: el que conste en el título que documente la operación o el comprobado, en su caso, por la Administración tributaria.\nCuando se trate de la transmisión de un inmueble en el que haya suelo y construcción, se tomará como valor del suelo a estos efectos el que resulte de aplicar la proporción que represente en la fecha de devengo del impuesto el valor catastral del terreno respecto del valor catastral total y esta proporción se aplicará tanto al valor de transmisión como, en su caso, al de adquisición.\nSi la adquisición o la transmisión hubiera sido a título lucrativo se aplicarán las reglas de los párrafos anteriores tomando, en su caso, por el primero de los dos valores a comparar señalados anteriormente, el declarado en el Impuesto sobre Sucesiones y Donaciones.\nEn la posterior transmisión de los inmuebles a los que se refiere este apartado, para el cómputo del número"
+   }
+  }
+ },
+ "origen": "20261025_1843_eco"
+}

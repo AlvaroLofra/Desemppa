@@ -1,0 +1,596 @@
+{
+ "caso": {
+  "id": "V18",
+  "categoria": "limite",
+  "materia_esperada": "CIV_CONSUMO_AEREO",
+  "consulta": "Tenía un vuelo Madrid-París hoy a las 8:00 y cuatro horas antes la aerolínea lo canceló por una huelga de su propio personal. Me ofrecieron volar mañana. ¿Me corresponde la compensación de 250 euros?",
+  "municipio_ine": "28079",
+  "municipio_nombre": "Madrid",
+  "fecha_hechos": null,
+  "aclaraciones_simuladas": [],
+  "verdad": {
+   "estado_esperado": "CERTIFICADA",
+   "respuesta_esperada": "si",
+   "articulos_clave": [
+    {
+     "norma": "EUR:32004R0261",
+     "articulo": "7"
+    },
+    {
+     "norma": "EUR:32004R0261",
+     "articulo": "5"
+    }
+   ],
+   "plazos": [],
+   "postulacion": {
+    "jurisdiccion": "civil",
+    "procedimiento": "verbal",
+    "cuantia_eur": 250
+   },
+   "puntos_clave": [
+    "Compensación de 250 euros para vuelos de hasta 1.500 km (art. 7.1.a Reglamento 261/2004)",
+    "La aerolínea solo se libra si prueba circunstancias extraordinarias (art. 5.3)",
+    "No inventa doctrina del TJUE que no está en el corpus"
+   ],
+   "prohibido": [
+    "Krüsemann",
+    "C-195/17",
+    "C-28/20"
+   ]
+  }
+ },
+ "hoja": {
+  "id": "V18",
+  "construida": "2026-10-25",
+  "articulos": [
+   {
+    "norma": "EUR:32004R0261",
+    "articulo": "7",
+    "source_id": "EUR:32004R0261:art7",
+    "url": "https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32004R0261",
+    "version": "Diario Oficial de la UE (texto publicado)",
+    "sha256": "e8f3de92eecdfed26ea1597ee339fca34abb264e72d86bf0e659ba95819f1fda",
+    "texto": "Artículo 7\nDerecho a compensación\n1. Cuando se haga referencia al presente artículo, los pasajeros recibirán una compensación por valor de:\na) 250 euros para vuelos de hasta 1500 kilómetros;\nb) 400 euros para todos los vuelos intracomunitarios de más de 1500 kilómetros y para todos los demás vuelos de entre 1500 y 3500 kilómetros;\nc) 600 euros para todos los vuelos no comprendidos en a) o b).\nLa distancia se determinará tomando como base el último destino al que el pasajero llegará con retraso en relación con la hora prevista debido a la denegación de embarque o a la cancelación.\n2. En caso de que, con arreglo al artículo 8, se ofrezca a los pasajeros la posibilidad de ser conducidos hasta el destino final en un transporte alternativo con una diferencia en la hora de llegada respecto a la prevista para el vuelo inicialmente reservado:\na) que no sea superior a dos horas, para todos los vuelos de 1500 kilómetros o menos, o\nb) que no sea superior a tres horas, para todos los vuelos intracomunitarios de más de 1500 kilómetros y para todos los demás vuelos de entre 1500 y 3500 kilómetros, o\nc) que no sea superior a cuatro horas, para todos los vuelos no comprendidos en a) o en b),\nel transportista aéreo encargado de efectuar el vuelo podrá reducir en un 50 % la compensación prevista en el apartado 1.\n3. La compensación a que hace referencia el apartado 1 se abonará en metálico, por transferencia bancaria electrónica, transferencia bancaria, cheque o, previo acuerdo firmado por el pasajero, bonos de viaje u otros servicios.\n4. Las distancias indicadas en los apartados 1 y 2 se calcularán en función del método de la ruta ortodrómica."
+   },
+   {
+    "norma": "EUR:32004R0261",
+    "articulo": "5",
+    "source_id": "EUR:32004R0261:art5",
+    "url": "https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32004R0261",
+    "version": "Diario Oficial de la UE (texto publicado)",
+    "sha256": "ab0663ca2b587768d2525e26b33c9a95fa34cdfd2fa8a35cf342aa44bc436593",
+    "texto": "Artículo 5\nCancelación de vuelos\n1. En caso de cancelación de un vuelo:\na) el transportista aéreo encargado de efectuar el vuelo ofrecerá asistencia a los pasajeros afectados conforme al artículo 8, y\nb) el transportista aéreo encargado de efectuar el vuelo ofrecerá asistencia a los pasajeros afectados conforme a la letra a) del apartado 1 y el apartado 2 del artículo 9 así como, en caso de que se les ofrezca un transporte alternativo cuando la salida prevista del nuevo vuelo sea como mínimo al día siguiente de la salida programada del vuelo cancelado, la asistencia especificada en las letras b) y c) del apartado 1 del artículo 9, y\nc) los pasajeros afectados tendrán derecho a una compensación por parte del transportista aéreo encargado de efectuar el vuelo conforme al artículo 7, a menos que:\ni) se les informe de la cancelación al menos con dos semanas de antelación con respecto a la hora de salida prevista, o\nii) se les informe de la cancelación con una antelación de entre dos semanas y siete días con respecto a la hora de salida prevista y se les ofrezca un transporte alternativo que les permita salir con no más de dos horas de antelación con respecto a la hora de salida prevista y llegar a su destino final con menos de cuatro horas de retraso con respecto a la hora de llegada prevista, o\niii) se les informe de la cancelación con menos de siete días de antelación con respecto a la hora de salida prevista y se les ofrezca tomar otro vuelo que les permita salir con no más de una hora de antelación con respecto a la hora de salida prevista y llegar a su destino final con menos de dos horas de retraso con respecto a la hora de llegada prevista.\n2. Siempre que se informe a los pasajeros de la cancelación, deberá darse una explicación relativa a los posibles transportes alternativos.\n3. Un transportista aéreo encargado de efectuar un vuelo no está obligado a pagar una compensación conforme al artículo 7 si puede probar que la cancelación se debe a circunstancias extraordinarias que no podrían haberse evitado incluso si se hubieran tomado todas las medidas razonables.\n4. La carga de la prueba de haber informado al pasajero de la cancelación del vuelo, así como del momento en que se le ha informado, corresponderá al transportista aéreo encargado de efectuar el vuelo."
+   }
+  ],
+  "plazos": [],
+  "postulacion": {
+   "requiere_abogado": false,
+   "requiere_procurador": false,
+   "base_legal": "Arts. 23.2.1º y 31.2.1º LEC; arts. 5 y 10 LO 1/2025"
+  }
+ },
+ "resultado": {
+  "consulta_id": "d79670f6-8d7e-46f7-a9c8-000f8d2bf909",
+  "modo": "eco",
+  "fecha": "2026-10-25",
+  "estado": "CERTIFICADA",
+  "duracion_s": 274,
+  "aclaraciones": [
+   {
+    "pregunta": "¿Ha presentado ya una reclamación formal por escrito ante la compañía aérea?",
+    "respuesta": "No lo sé"
+   }
+  ],
+  "dictamen": {
+   "estado": "CERTIFICADA",
+   "dictamen": {
+    "schema_version": "1.0",
+    "consulta_id": "d79670f6-8d7e-46f7-a9c8-000f8d2bf909",
+    "modo": "eco",
+    "modelos_usados": {
+     "triaje": "gemini-3.8-flash-low",
+     "defensa": "gemini-3.8-flash-medium",
+     "contraparte": "gemini-3.8-flash-medium",
+     "magistrado": "gemini-3.8-flash-medium"
+    },
+    "banda_solidez": "disparidad_de_criterio",
+    "respuesta_directa": "Sí le corresponde la compensación económica de 250 euros al haberse cancelado el vuelo cuatro horas antes de la salida y ofrecerse una reubicación para el día siguiente. La compañía aérea únicamente quedaría liberada del pago si demuestra que la cancelación derivó de circunstancias extraordinarias que no pudieron evitarse con medidas razonables.",
+    "resumen_ciudadano": "La aerolínea le canceló el vuelo cuatro horas antes de la salida programada y le propuso viajar al día siguiente. La normativa europea reconoce una compensación económica de 250 euros si avisan con tan poco margen y el vuelo alternativo se retrasa respecto al previsto. Para formular una demanda civil en el juzgado resulta legalmente preceptivo acudir previamente a un medio adecuado de solución de controversias.",
+    "fundamentos": [
+     {
+      "texto": "La norma reconoce a los pasajeros el derecho a percibir una compensación económica si la cancelación se comunica con menos de siete días de antelación y la alternativa ofrecida no cumple con los límites de horario legalmente previstos.",
+      "source_id": "EUR:32004R0261:art5",
+      "verbatim_quote": "los pasajeros afectados tendrán derecho a una compensación por parte del transportista aéreo encargado de efectuar el vuelo conforme al artículo 7, a menos que:",
+      "fuzzy_score": 100.0,
+      "nli": "NEUTRAL",
+      "offsets": [
+       644,
+       804
+      ]
+     },
+     {
+      "texto": "La normativa impone expresamente a la compañía aérea la carga de probar que la cancelación se debió a circunstancias extraordinarias que no pudieron evitarse mediante medidas razonables.",
+      "source_id": "EUR:32004R0261:art5",
+      "verbatim_quote": "Un transportista aéreo encargado de efectuar un vuelo no está obligado a pagar una compensación conforme al artículo 7 si puede probar que la cancelación se debe a circunstancias extraordinarias que no podrían haberse evitado incluso si se hubieran tomado todas las medidas razonables.",
+      "fuzzy_score": 100.0,
+      "nli": "ENTAILS",
+      "offsets": [
+       1815,
+       2100
+      ]
+     }
+    ],
+    "cuestiones": [
+     {
+      "id": "C1",
+      "enunciado": "Procedencia del derecho a percibir la compensación económica de 250 euros por cancelación comunicada con cuatro horas de antelación.",
+      "tipo": "calificacion_juridica",
+      "estimacion": "DEFENSA",
+      "fundamentos": [
+       {
+        "afirmacion": "La norma reconoce a los pasajeros el derecho a percibir una compensación económica si la cancelación se comunica con menos de siete días de antelación y la alternativa ofrecida no cumple con los límites de horario legalmente previstos.",
+        "citas": [
+         {
+          "source_id": "EUR:32004R0261:art5",
+          "verbatim_quote": "los pasajeros afectados tendrán derecho a una compensación por parte del transportista aéreo encargado de efectuar el vuelo conforme al artículo 7, a menos que:"
+         },
+         {
+          "source_id": "EUR:32004R0261:art5",
+          "verbatim_quote": "se les informe de la cancelación con menos de siete días de antelación con respecto a la hora de salida prevista y se les ofrezca tomar otro vuelo que les permita salir con no más de una hora de antelación con respecto a la hora de salida prevista y llegar a su destino final con menos de dos horas de retraso con respecto a la hora de llegada prevista."
+         }
+        ]
+       }
+      ],
+      "importe_estimado_eur": null,
+      "fundamento_cuantia": null
+     },
+     {
+      "id": "C2",
+      "enunciado": "Carga probatoria de la concurrencia de circunstancias extraordinarias inevitables para eximir a la aerolínea de la compensación.",
+      "tipo": "calificacion_juridica",
+      "estimacion": "DEFENSA",
+      "fundamentos": [
+       {
+        "afirmacion": "La normativa impone expresamente a la compañía aérea la carga de probar que la cancelación se debió a circunstancias extraordinarias que no pudieron evitarse mediante medidas razonables.",
+        "citas": [
+         {
+          "source_id": "EUR:32004R0261:art5",
+          "verbatim_quote": "Un transportista aéreo encargado de efectuar un vuelo no está obligado a pagar una compensación conforme al artículo 7 si puede probar que la cancelación se debe a circunstancias extraordinarias que no podrían haberse evitado incluso si se hubieran tomado todas las medidas razonables."
+         }
+        ]
+       }
+      ],
+      "importe_estimado_eur": null,
+      "fundamento_cuantia": null
+     }
+    ],
+    "fortalezas": [
+     "La norma contempla el derecho a compensación económica cuando se avisa con menos de siete días de antelación y la alternativa horaria ofrecida difiere ampliamente de la programada.",
+     "La carga de acreditar que existieron circunstancias extraordinarias que no pudieron ser evitadas recae sobre la aerolínea."
+    ],
+    "debilidades_contraparte": [],
+    "riesgos_propios": [
+     "Si la compañía aérea probara que la huelga fue imprevisible e inevitable aun habiendo adoptado todas las medidas razonables, podría eludir el pago de la compensación.",
+     "No consta en el expediente si ya se ha remitido una reclamación formal por escrito ante la aerolínea solicitando la indemnización."
+    ],
+    "pasos_inmediatos": [
+     "Presenta una reclamación formal por escrito ante la aerolínea solicitando la compensación y conserva el justificante.",
+     "Guarda la confirmación de la reserva original, el aviso de cancelación recibido y la comunicación de reubicación."
+    ],
+    "plazos": [
+     {
+      "tipo_plazo_id": "CIV_CONTRACTUAL_5A",
+      "descripcion": "Acciones personales sin plazo especial (contratos)",
+      "naturaleza": "prescripcion",
+      "tipo_computo": "anios_fecha_a_fecha",
+      "titular": "usuario",
+      "fecha_inicio": "2026-10-25",
+      "fecha_limite_segura": "2031-10-25",
+      "dia_gracia_hasta": null,
+      "dias_habiles_restantes": null,
+      "festivos_no_verificados": [],
+      "municipio_ine": "28079",
+      "base_legal": "Art. 1964.2 CC (Ley 42/2015)",
+      "suspensiones": [],
+      "avisos": [
+       "Festivos locales del municipio no cargados para ese año: confirma las 2 fiestas locales en el boletín oficial de la provincia.",
+       "🔎 Criterio con jurisprudencia cambiante: confírmalo con un profesional.",
+       "Régimen transitorio para obligaciones nacidas antes del 7-10-2015."
+      ],
+      "validado_juridicamente": false
+     }
+    ],
+    "postulacion": {
+     "requiere_abogado": false,
+     "requiere_procurador": false,
+     "bloquea_escritos": false,
+     "base_legal": "Arts. 23.2.1º y 31.2.1º LEC; arts. 5 y 10 LO 1/2025",
+     "texto_usuario": "En asuntos civiles de hasta 2.000 € puedes actuar por ti mismo, sin abogado ni procurador. Antes de demandar, la LO 1/2025 (art. 5) exige haber intentado negociar (mediación, conciliación, oferta vinculante confidencial o negociación directa entre las partes) y poder acreditarlo por escrito (art. 10): basta un documento firmado por ambas partes o, en su defecto, uno que pruebe que la otra parte recibió tu invitación o propuesta para negociar y pudo leerla entera (p. ej., burofax con certificación de contenido). Si no contesta en 30 días naturales desde que la recibe, el intento se da por terminado sin acuerdo."
+    },
+    "avisos": [
+     "El Reglamento (CE) 261/2004 se cita con su texto publicado en el Diario Oficial de la UE. La jurisprudencia del Tribunal de Justicia de la UE sobre «circunstancias extraordinarias» no está en el corpus local: compruébala antes de reclamar.",
+     "No hay jurisprudencia aplicable en el corpus local: la valoración se apoya solo en la ley. Se ha encolado una búsqueda para ampliar el corpus.",
+     "Materia con jurisprudencia cambiante (🔎).",
+     "Alguna afirmación no se deduce literalmente de la norma (inferencia)."
+    ],
+    "guardarrailes": {
+     "G1_schema": true,
+     "G2_G3_citas": true,
+     "G4_sin_pronosticos": true,
+     "G5_nli": true,
+     "G6_banda": true,
+     "G8_plazos": true,
+     "G9_postulacion": true
+    },
+    "afirmaciones": [
+     {
+      "seccion": "respuesta",
+      "texto": "Sí le corresponde la compensación económica de 250 euros al haberse cancelado el vuelo cuatro horas antes de la salida y ofrecerse una reubicación para el día siguiente.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "EUR:32004R0261:art5",
+        "verbatim_quote": "los pasajeros afectados tendrán derecho a una compensación por parte del transportista aéreo encargado de efectuar el vuelo conforme al artículo 7, a menos que:",
+        "score": 100.0
+       },
+       {
+        "source_id": "EUR:32004R0261:art7",
+        "verbatim_quote": "250 euros para vuelos de hasta 1500 kilómetros;",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "respuesta",
+      "texto": "La compañía aérea únicamente quedaría liberada del pago si demuestra que la cancelación derivó de circunstancias extraordinarias que no pudieron evitarse con medidas razonables.",
+      "tipo": "norma",
+      "citas": [
+       {
+        "source_id": "EUR:32004R0261:art5",
+        "verbatim_quote": "Un transportista aéreo encargado de efectuar un vuelo no está obligado a pagar una compensación conforme al artículo 7 si puede probar que la cancelación se debe a circunstancias extraordinarias que no podrían haberse evitado incluso si se hubieran tomado todas las medidas razonables.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "resumen",
+      "texto": "La aerolínea le canceló el vuelo cuatro horas antes de la salida programada y le propuso viajar al día siguiente.",
+      "tipo": "hecho",
+      "citas": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "La normativa europea reconoce una compensación económica de 250 euros si avisan con tan poco margen y el vuelo alternativo se retrasa respecto al previsto.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "EUR:32004R0261:art5",
+        "verbatim_quote": "los pasajeros afectados tendrán derecho a una compensación por parte del transportista aéreo encargado de efectuar el vuelo conforme al artículo 7, a menos que:",
+        "score": 100.0
+       },
+       {
+        "source_id": "EUR:32004R0261:art7",
+        "verbatim_quote": "250 euros para vuelos de hasta 1500 kilómetros;",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "resumen",
+      "texto": "Para formular una demanda civil en el juzgado resulta legalmente preceptivo acudir previamente a un medio adecuado de solución de controversias.",
+      "tipo": "norma",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2025-76:a5:2025-04-03",
+        "verbatim_quote": "En el orden jurisdiccional civil, con carácter general, para que sea admisible la demanda se considerará requisito de procedibilidad acudir previamente a algún medio adecuado de solución de controversias de los previstos en el artículo 2.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "La norma contempla el derecho a compensación económica cuando se avisa con menos de siete días de antelación y la alternativa horaria ofrecida difiere ampliamente de la programada.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "EUR:32004R0261:art5",
+        "verbatim_quote": "se les informe de la cancelación con menos de siete días de antelación con respecto a la hora de salida prevista y se les ofrezca tomar otro vuelo que les permita salir con no más de una hora de antelación con respecto a la hora de salida prevista y llegar a su destino final con menos de dos horas de retraso con respecto a la hora de llegada prevista.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "La carga de acreditar que existieron circunstancias extraordinarias que no pudieron ser evitadas recae sobre la aerolínea.",
+      "tipo": "norma",
+      "citas": [
+       {
+        "source_id": "EUR:32004R0261:art5",
+        "verbatim_quote": "Un transportista aéreo encargado de efectuar un vuelo no está obligado a pagar una compensación conforme al artículo 7 si puede probar que la cancelación se debe a circunstancias extraordinarias que no podrían haberse evitado incluso si se hubieran tomado todas las medidas razonables.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "Si la compañía aérea probara que la huelga fue imprevisible e inevitable aun habiendo adoptado todas las medidas razonables, podría eludir el pago de la compensación.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "EUR:32004R0261:art5",
+        "verbatim_quote": "Un transportista aéreo encargado de efectuar un vuelo no está obligado a pagar una compensación conforme al artículo 7 si puede probar que la cancelación se debe a circunstancias extraordinarias que no podrían haberse evitado incluso si se hubieran tomado todas las medidas razonables.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "No consta en el expediente si ya se ha remitido una reclamación formal por escrito ante la aerolínea solicitando la indemnización.",
+      "tipo": "limite",
+      "citas": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Presenta una reclamación formal por escrito ante la aerolínea solicitando la compensación y conserva el justificante.",
+      "tipo": "consejo",
+      "citas": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Guarda la confirmación de la reserva original, el aviso de cancelación recibido y la comunicación de reubicación.",
+      "tipo": "consejo",
+      "citas": []
+     }
+    ],
+    "auditoria": [
+     {
+      "seccion": "respuesta",
+      "texto": "Sí le corresponde la compensación económica de 250 euros al haberse cancelado el vuelo cuatro horas antes de la salida y ofrecerse una reubicación para el día siguiente.",
+      "tipo_propuesto": "razonamiento",
+      "resultado": "aceptada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "EUR:32004R0261:art5",
+       "EUR:32004R0261:art7"
+      ],
+      "nli": "NEUTRAL",
+      "motivos": []
+     },
+     {
+      "seccion": "respuesta",
+      "texto": "La compañía aérea únicamente quedaría liberada del pago si demuestra que la cancelación derivó de circunstancias extraordinarias que no pudieron evitarse con medidas razonables.",
+      "tipo_propuesto": "norma",
+      "resultado": "aceptada",
+      "tipo_final": "norma",
+      "citas_verificadas": [
+       "EUR:32004R0261:art5"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "La aerolínea le canceló el vuelo cuatro horas antes de la salida programada y le propuso viajar al día siguiente.",
+      "tipo_propuesto": "hecho",
+      "resultado": "aceptada",
+      "tipo_final": "hecho",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "La normativa europea reconoce una compensación económica de 250 euros si avisan con tan poco margen y el vuelo alternativo se retrasa respecto al previsto.",
+      "tipo_propuesto": "razonamiento",
+      "resultado": "aceptada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "EUR:32004R0261:art5",
+       "EUR:32004R0261:art7"
+      ],
+      "nli": "NEUTRAL",
+      "motivos": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "Para formular una demanda civil en el juzgado resulta legalmente preceptivo acudir previamente a un medio adecuado de solución de controversias.",
+      "tipo_propuesto": "norma",
+      "resultado": "aceptada",
+      "tipo_final": "norma",
+      "citas_verificadas": [
+       "BOE:BOE-A-2025-76:a5:2025-04-03"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "La norma contempla el derecho a compensación económica cuando se avisa con menos de siete días de antelación y la alternativa horaria ofrecida difiere ampliamente de la programada.",
+      "tipo_propuesto": "norma",
+      "resultado": "reclasificada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "EUR:32004R0261:art5"
+      ],
+      "nli": "NEUTRAL",
+      "motivos": [
+       "la fuente no lo dice literalmente: se muestra como razonamiento"
+      ]
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "La carga de acreditar que existieron circunstancias extraordinarias que no pudieron ser evitadas recae sobre la aerolínea.",
+      "tipo_propuesto": "norma",
+      "resultado": "aceptada",
+      "tipo_final": "norma",
+      "citas_verificadas": [
+       "EUR:32004R0261:art5"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "Si la compañía aérea probara que la huelga fue imprevisible e inevitable aun habiendo adoptado todas las medidas razonables, podría eludir el pago de la compensación.",
+      "tipo_propuesto": "razonamiento",
+      "resultado": "aceptada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "EUR:32004R0261:art5"
+      ],
+      "nli": "NEUTRAL",
+      "motivos": []
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "No consta en el expediente si ya se ha remitido una reclamación formal por escrito ante la aerolínea solicitando la indemnización.",
+      "tipo_propuesto": "limite",
+      "resultado": "aceptada",
+      "tipo_final": "limite",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Presenta una reclamación formal por escrito ante la aerolínea solicitando la compensación y conserva el justificante.",
+      "tipo_propuesto": "consejo",
+      "resultado": "aceptada",
+      "tipo_final": "consejo",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Guarda la confirmación de la reserva original, el aviso de cancelación recibido y la comunicación de reubicación.",
+      "tipo_propuesto": "consejo",
+      "resultado": "aceptada",
+      "tipo_final": "consejo",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     }
+    ],
+    "respuesta_parcial": false,
+    "hechos_determinantes": [],
+    "motivos_banda": [
+     "Materia con jurisprudencia cambiante (🔎).",
+     "Alguna afirmación no se deduce literalmente de la norma (inferencia)."
+    ],
+    "sello": {
+     "verificado_en": "2026-10-25T19:11:44.594920Z",
+     "fuentes": [
+      {
+       "source_id": "BOE:BOE-A-2025-76:a5:2025-04-03",
+       "titulo": "Artículo 5 LOEFICIENCIA",
+       "version": "2025-04-03",
+       "sha256": "a09598f4168fdde5e234ad76fdab6fb176fecfddcf02b21833b3124c518db206",
+       "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2025-76#a5"
+      },
+      {
+       "source_id": "EUR:32004R0261:art5",
+       "titulo": "Art. 5 Reglamento (CE) 261/2004 (Cancelación de vuelos)",
+       "version": null,
+       "sha256": "ab0663ca2b587768d2525e26b33c9a95fa34cdfd2fa8a35cf342aa44bc436593",
+       "url": "https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32004R0261"
+      },
+      {
+       "source_id": "EUR:32004R0261:art7",
+       "titulo": "Art. 7 Reglamento (CE) 261/2004 (Derecho a compensación)",
+       "version": null,
+       "sha256": "e8f3de92eecdfed26ea1597ee339fca34abb264e72d86bf0e659ba95819f1fda",
+       "url": "https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32004R0261"
+      }
+     ],
+     "afirmaciones_mostradas": 11,
+     "afirmaciones_eliminadas": 0,
+     "modelos": {
+      "triaje": "gemini-3.8-flash-low",
+      "defensa": "gemini-3.8-flash-medium",
+      "contraparte": "gemini-3.8-flash-medium",
+      "magistrado": "gemini-3.8-flash-medium"
+     }
+    },
+    "aviso_legal": "Desemppa es una herramienta personal de información jurídica y apoyo a la autodefensa. No es asesoramiento profesional ni sustituye a un abogado colegiado. Verifica los plazos y las citas en las fuentes oficiales enlazadas antes de actuar. Si no tienes recursos, puedes solicitar asistencia jurídica gratuita (Ley 1/1996) en el Colegio de Abogados de tu partido judicial.",
+    "generado_en": "2026-10-25T19:11:44.594920Z"
+   },
+   "banda_texto": "Incierto: no hay un criterio único"
+  },
+  "mensaje": null,
+  "triage": {
+   "schema_version": "1.0",
+   "consulta_id": "d79670f6-8d7e-46f7-a9c8-000f8d2bf909",
+   "jurisdiccion_principal": "civil",
+   "submateria_principal": "CIV_CONSUMO_AEREO",
+   "ramas": [
+    {
+     "submateria": "CIV_CONSUMO_AEREO",
+     "jurisdiccion": "civil",
+     "peso_enrutamiento": 1.0,
+     "justificacion": "Reclamación de compensación económica por cancelación de vuelo comercial regulada por el Reglamento (CE) 261/2004 en el ámbito civil/mercantil."
+    }
+   ],
+   "grado_ambiguedad": 0.0,
+   "requiere_aclaracion": false,
+   "preguntas_aclaracion": [],
+   "datos_criticos_faltantes": [],
+   "fecha_hechos": "2026-10-25",
+   "municipio_ine_organo": "28079",
+   "vecindad_civil": "comun",
+   "cuantia_estimada_eur": 250.0,
+   "alertas_plazo": [
+    {
+     "tipo_plazo_id": "CIV_CONTRACTUAL_5A",
+     "fecha_inicio_computo": "2026-10-25",
+     "evento_inicio": "número de vuelo y fecha"
+    }
+   ],
+   "normas_boe_objetivo": [
+    {
+     "id_norma": "BOE-A-2007-20555",
+     "articulos": [
+      "21"
+     ],
+     "motivo": "TRLGDCU"
+    },
+    {
+     "id_norma": "BOE-A-2025-76",
+     "articulos": [
+      "5",
+      "10"
+     ],
+     "motivo": "LOEFICIENCIA"
+    }
+   ],
+   "terminos_cendoj": [
+    "Reglamento 261/2004",
+    "cancelación de vuelo",
+    "compensación",
+    "huelga personal propio",
+    "circunstancias extraordinarias"
+   ],
+   "convenio_aplicable": null,
+   "competencia_local": false,
+   "resumen_hechos": "El pasajero tenía programado un vuelo de Madrid a París para el 25 de octubre de 2026 a las 8:00. Cuatro horas antes de la salida programada, la compañía aérea canceló el vuelo justificándolo en una huelga de su propio personal. La aerolínea ofreció reubicación en un vuelo para el día siguiente. El usuario consulta si tiene derecho a la compensación reglamentaria de 250 euros."
+  },
+  "fuentes": {
+   "BOE:BOE-A-2025-76:a5:2025-04-03": {
+    "titulo": "Artículo 5 LOEFICIENCIA",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2025-76#a5",
+    "texto": "Artículo 5. Requisito de procedibilidad.\n1. En el orden jurisdiccional civil, con carácter general, para que sea admisible la demanda se considerará requisito de procedibilidad acudir previamente a algún medio adecuado de solución de controversias de los previstos en el artículo 2. Para entender cumplido este requisito habrá de existir una identidad entre el objeto de la negociación y el objeto del litigio, aun cuando las pretensiones que pudieran ejercitarse, en su caso, en vía judicial sobre dicho objeto pudieran variar.\nSe considerará cumplido este requisito si se acude previamente a la mediación, a la conciliación o a la opinión neutral de una persona experta independiente, si se formula una oferta vinculante confidencial o si se emplea cualquier otro tipo de actividad negociadora, reconocida en esta u otras leyes, estatales o autonómicas, pero que cumpla lo previsto en las secciones 1.ª y 2 ª, de este capítulo o en una ley sectorial. Singularmente, se considerará cumplido el requisito cuando la actividad negociadora se desarrolle directamente por las partes, o entre sus abogados o abogadas bajo sus directrices y con su conformidad, así como en los supuestos en que las partes hayan recurrido a un proceso de Derecho colaborativo.\n2. Se exigirá actividad negociadora previa a la vía jurisdiccional como requisito de procedibilidad en todos los procesos declarativos del libro II y en los procesos especiales del libro IV de la Ley 1/2000, de 7 de enero, de Enjuiciamiento Civil, con excepción de los que tengan por objeto las siguientes materias:\na) la tutela judicial civil de derechos fundamentales;\nb) la adopción de las medidas previstas en el artículo 158 del Código Civil;\nc) la adopción de medidas judiciales de apoyo a las personas con discapacidad;\nd) la filiación, paternidad y maternidad;\ne) la tutela sumaria de la tenencia o de la posesión de una cosa o derecho por quien haya sido despojado de ellas o perturbado en su disfrute;\nf) la pretensión de que el tribunal resuelva, con carácter sumario, la demolición o derribo de obra, edificio, árbol, columna o cualquier otro objeto análogo en estado de ruina y que amenace causar daños a quien demande;\ng) el ingreso de menores con problemas de conducta en centros de protección específicos, la entrada en domicilios y restantes lugares para la ejecución forzosa de medidas de protección de menores o la restitución o retorno de menores en los supuestos de sustracción internacional;\nh) el juicio cambiario.\n3. No será preciso acudir a un medio adecuado de solución de controversias para la interposición de una demanda ejecutiva, la solicitud de medidas cautelares previas a la demanda, la solicitud de diligencias preliminares ni para la iniciación de expedientes de jurisdicción voluntaria, con excepción de los expedientes de intervención judicial en los casos de desacuerdo conyugal y en la administración de bienes gananciales, así como de los de intervención judicial en caso de desacuerdo en el ejercicio de la patria potestad. Tampoco será preciso acudir a un medio adecuado de solución de controversias para presentar la petición de requerimiento europeo de pago conforme al Reglamento (CE) n.º 1896/2006 del Parlamento Europeo y del Consejo, de 12 de diciembre de 2006, por el que se establece un proceso monitorio europeo, o solicitar el inicio de un proceso europeo de escasa cuantía, conforme al Reglamento (CE) n.º 861/2007 del Parlamento Europeo y del Consejo, de 11 de julio de 2007, por el que se establece un proceso europeo de escasa cuantía.\n4. La iniciativa de acudir a los medios adecuados de solución de controversias puede proceder de una de las partes, de ambas de común acuerdo o bien de una decisión judicial o del letrado o la letrada de la Administración de Justicia de derivación de las partes a este tipo de medios.\nPara el caso de que todas las partes plantearan acudir a un medio adecuado de solución de controversias y no existiera acuerdo sobre cuál de ellos utilizar, se empleará aquel que se haya propuesto antes temporalmente."
+   },
+   "EUR:32004R0261:art5": {
+    "titulo": "Art. 5 Reglamento (CE) 261/2004 (Cancelación de vuelos)",
+    "url": "https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32004R0261",
+    "texto": "Artículo 5\nCancelación de vuelos\n1. En caso de cancelación de un vuelo:\na) el transportista aéreo encargado de efectuar el vuelo ofrecerá asistencia a los pasajeros afectados conforme al artículo 8, y\nb) el transportista aéreo encargado de efectuar el vuelo ofrecerá asistencia a los pasajeros afectados conforme a la letra a) del apartado 1 y el apartado 2 del artículo 9 así como, en caso de que se les ofrezca un transporte alternativo cuando la salida prevista del nuevo vuelo sea como mínimo al día siguiente de la salida programada del vuelo cancelado, la asistencia especificada en las letras b) y c) del apartado 1 del artículo 9, y\nc) los pasajeros afectados tendrán derecho a una compensación por parte del transportista aéreo encargado de efectuar el vuelo conforme al artículo 7, a menos que:\ni) se les informe de la cancelación al menos con dos semanas de antelación con respecto a la hora de salida prevista, o\nii) se les informe de la cancelación con una antelación de entre dos semanas y siete días con respecto a la hora de salida prevista y se les ofrezca un transporte alternativo que les permita salir con no más de dos horas de antelación con respecto a la hora de salida prevista y llegar a su destino final con menos de cuatro horas de retraso con respecto a la hora de llegada prevista, o\niii) se les informe de la cancelación con menos de siete días de antelación con respecto a la hora de salida prevista y se les ofrezca tomar otro vuelo que les permita salir con no más de una hora de antelación con respecto a la hora de salida prevista y llegar a su destino final con menos de dos horas de retraso con respecto a la hora de llegada prevista.\n2. Siempre que se informe a los pasajeros de la cancelación, deberá darse una explicación relativa a los posibles transportes alternativos.\n3. Un transportista aéreo encargado de efectuar un vuelo no está obligado a pagar una compensación conforme al artículo 7 si puede probar que la cancelación se debe a circunstancias extraordinarias que no podrían haberse evitado incluso si se hubieran tomado todas las medidas razonables.\n4. La carga de la prueba de haber informado al pasajero de la cancelación del vuelo, así como del momento en que se le ha informado, corresponderá al transportista aéreo encargado de efectuar el vuelo."
+   },
+   "EUR:32004R0261:art7": {
+    "titulo": "Art. 7 Reglamento (CE) 261/2004 (Derecho a compensación)",
+    "url": "https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32004R0261",
+    "texto": "Artículo 7\nDerecho a compensación\n1. Cuando se haga referencia al presente artículo, los pasajeros recibirán una compensación por valor de:\na) 250 euros para vuelos de hasta 1500 kilómetros;\nb) 400 euros para todos los vuelos intracomunitarios de más de 1500 kilómetros y para todos los demás vuelos de entre 1500 y 3500 kilómetros;\nc) 600 euros para todos los vuelos no comprendidos en a) o b).\nLa distancia se determinará tomando como base el último destino al que el pasajero llegará con retraso en relación con la hora prevista debido a la denegación de embarque o a la cancelación.\n2. En caso de que, con arreglo al artículo 8, se ofrezca a los pasajeros la posibilidad de ser conducidos hasta el destino final en un transporte alternativo con una diferencia en la hora de llegada respecto a la prevista para el vuelo inicialmente reservado:\na) que no sea superior a dos horas, para todos los vuelos de 1500 kilómetros o menos, o\nb) que no sea superior a tres horas, para todos los vuelos intracomunitarios de más de 1500 kilómetros y para todos los demás vuelos de entre 1500 y 3500 kilómetros, o\nc) que no sea superior a cuatro horas, para todos los vuelos no comprendidos en a) o en b),\nel transportista aéreo encargado de efectuar el vuelo podrá reducir en un 50 % la compensación prevista en el apartado 1.\n3. La compensación a que hace referencia el apartado 1 se abonará en metálico, por transferencia bancaria electrónica, transferencia bancaria, cheque o, previo acuerdo firmado por el pasajero, bonos de viaje u otros servicios.\n4. Las distancias indicadas en los apartados 1 y 2 se calcularán en función del método de la ruta ortodrómica."
+   }
+  }
+ },
+ "origen": "20261025_1843_eco"
+}

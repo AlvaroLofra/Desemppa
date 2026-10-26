@@ -8,6 +8,7 @@ Uso:
     uv run python benchmark/ejecutar.py --modo eco --casos todos
     uv run python benchmark/ejecutar.py --casos limite          # tipico | limite | trampa | aclaracion
     uv run python benchmark/ejecutar.py --casos V05 V16 --base http://127.0.0.1:8010
+    uv run python benchmark/ejecutar.py --reanudar benchmark/expedientes/20261025_1900_eco   # salta los ya hechos
 """
 
 from __future__ import annotations
@@ -80,16 +81,19 @@ def ejecutar_caso(cli: httpx.Client, caso: dict[str, Any], modo: str) -> dict[st
     r.raise_for_status()
     cid = r.json()["consulta_id"]
     aclaraciones: list[dict[str, Any]] = []
+    rondas = 0
     c: dict[str, Any] = {}
     while time.monotonic() - t0 < 1500:
         c = cli.get(f"/api/consultas/{cid}").json()
         if c["estado"] == "ESPERANDO_ACLARACION":
-            if aclaraciones:  # solo hay una ronda; si vuelve a pedir, se termina
+            # Como mucho dos rondas (triaje y hechos determinantes tras el debate); si pide una tercera, se termina.
+            if rondas >= 2:
                 break
-            aclaraciones = _responder(cli, caso, _preguntas(cli, cid, token))
-            cli.post(
-                f"/api/consultas/{cid}/aclaraciones", headers=h, json={"respuestas": aclaraciones}
-            ).raise_for_status()
+            nuevas = _responder(cli, caso, _preguntas(cli, cid, token))
+            aclaraciones += nuevas
+            rondas += 1
+            cli.post(f"/api/consultas/{cid}/aclaraciones", headers=h, json={"respuestas": nuevas}).raise_for_status()
+            time.sleep(3)  # que el servidor salga de ESPERANDO_ACLARACION antes de volver a mirar
         elif c["estado"] in TERMINALES:
             break
         time.sleep(6)
@@ -123,15 +127,25 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--modo", default="eco")
     ap.add_argument("--casos", nargs="+", default=["todos"])
     ap.add_argument("--base", default="http://127.0.0.1:8000")
+    ap.add_argument("--reanudar", type=Path, help="carpeta de una ejecución anterior: salta los casos ya evaluados")
+    ap.add_argument("--pausa", type=int, default=0, help="segundos de espera entre casos (cuota de los modelos)")
     args = ap.parse_args(argv)
     casos = [json.loads(f.read_text(encoding="utf-8")) for f in sorted(CASOS.glob("V*.json"))]
     sel = set(args.casos)
     if "todos" not in sel:
         casos = [c for c in casos if c["id"] in sel or c["categoria"] in sel]
-    destino = SALIDA / f"{datetime.now():%Y%m%d_%H%M}_{args.modo}"
+    destino = args.reanudar or SALIDA / f"{datetime.now():%Y%m%d_%H%M}_{args.modo}"
     filas = []
     with httpx.Client(base_url=args.base, timeout=60) as cli:
-        for caso in casos:
+        for n, caso in enumerate(casos):
+            hecho = destino / caso["id"] / "evaluacion.json"
+            if args.reanudar and hecho.exists():
+                exp = json.loads((destino / caso["id"] / "expediente.json").read_text(encoding="utf-8"))
+                filas.append((caso, exp["resultado"], json.loads(hecho.read_text(encoding="utf-8"))))
+                print(f"[{caso['id']}] ya evaluado: se reutiliza", flush=True)
+                continue
+            if n and args.pausa:
+                time.sleep(args.pausa)
             hoja_f = CASOS / "hojas" / f"{caso['id']}.json"
             hoja = json.loads(hoja_f.read_text(encoding="utf-8")) if hoja_f.exists() else None
             print(f"[{caso['id']}] {caso['categoria']} · {caso['materia_esperada']} ...", flush=True)

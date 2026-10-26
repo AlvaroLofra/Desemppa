@@ -3,7 +3,18 @@
 Actualizado: 24-10-2026.
 
 ## 1. Arrancar la aplicación
-- **Doble clic en `INICIAR_DESEMPPA.bat`** (recomendado; `INICIAR_IURIS_IA.bat` sigue funcionando y lo llama).
+- **Recomendado (desde el 25-10-2026): app de escritorio.**
+  1. Una sola vez, doble clic en `INSTALAR_DESEMPPA.bat`. Comprueba que estén uv y Node, instala las dependencias,
+     compila la interfaz y crea el acceso directo «Desemppa» con icono en el Escritorio y en el menú Inicio.
+  2. Después, abre la app con ese icono. Aparece una pantalla de carga mientras arranca el servidor (sin `--reload`,
+     en `0.0.0.0:8000`) y luego Desemppa se abre en **su propia ventana**.
+  3. Al cerrar la ventana, la app sigue en la bandeja, junto al reloj. Para cerrarla del todo: clic derecho en el
+     icono → **Salir**.
+  4. Si ya había un Desemppa con el código actual en marcha, lo reutiliza y no lo cierra al salir.
+  5. El registro del servidor está en `data/local/servidor.log`.
+  6. **No arranques dos servidores a la vez sobre la misma carpeta de datos.** Al arrancar, cada servidor marca como
+     «interrumpidas» las consultas que estuvieran a medias.
+- **Alternativa: doble clic en `INICIAR_DESEMPPA.bat`** (abre el navegador; `INICIAR_IURIS_IA.bat` sigue funcionando y lo llama).
   Hace, en orden:
   1. Si el puerto 8000 ya está en uso, `scripts/comprobar_servidor.py` mira quién lo ocupa:
      - si es un Desemppa **con el código actual** (la huella `servidor` de `/api/version` coincide), solo abre el

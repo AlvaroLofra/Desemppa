@@ -9,7 +9,7 @@ etiqueta = "Gemini 3.8 Flash (Plan Antigravity)"
 provider = "antigravity_cli"
 model_id = "gemini-3.8-flash-{effort}"
 efforts = ["low", "medium", "high"]
-timeout_s = 240
+timeout_s = 300
 fallbacks = ["agy_claude_sonnet", "agy_gpt_oss", "claude_sonnet", "gemini_flash"]
 
 [models.agy_gemini_argon]

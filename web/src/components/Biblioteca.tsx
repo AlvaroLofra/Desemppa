@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type DragEvent } from "react";
 import { FileText, Library, Loader2, Plus, Trash2, Upload, X } from "lucide-react";
 import { api, type DocumentoBiblioteca } from "../lib/api";
+import { Jurisprudencia } from "./Jurisprudencia";
 
 const TIPO_DOC: Record<string, string> = {
   nomina: "Nómina", contrato: "Contrato", carta_despido: "Carta de despido", sancion: "Sanción o multa", otro: "Documento",
@@ -68,7 +69,7 @@ export function Biblioteca({ onMensaje }: { onMensaje: (m: string) => void }) {
            className={`rounded-3xl border-2 border-dashed p-6 text-center transition-colors ${arrastrando ? "border-accent bg-accent-container/40" : "border-outline"}`}>
         <Upload className="mx-auto h-6 w-6 text-ink-3" aria-hidden />
         <p className="mt-2 text-sm text-ink-2">Arrastra aquí PDF o TXT, o</p>
-        <input ref={fileRef} type="file" accept=".pdf,.txt,.md" multiple hidden onChange={(e) => e.target.files && subir(e.target.files)} />
+        <input ref={fileRef} type="file" accept=".pdf,.txt,.md" multiple hidden aria-label="Añadir documentos a la biblioteca" onChange={(e) => e.target.files && subir(e.target.files)} />
         <button className="btn-tonal mt-3" onClick={() => fileRef.current?.click()} disabled={subiendo}>
           {subiendo ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}Añadir documentos
         </button>
@@ -101,6 +102,8 @@ export function Biblioteca({ onMensaje }: { onMensaje: (m: string) => void }) {
           ))}
         </ul>
       )}
+
+      <Jurisprudencia onMensaje={onMensaje} />
 
       {abierto && (
         <section aria-label={`Texto de ${abierto.nombre}`} className="rounded-3xl bg-surface p-5">

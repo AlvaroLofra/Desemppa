@@ -1,0 +1,632 @@
+{
+ "caso": {
+  "id": "V29",
+  "categoria": "aclaracion",
+  "materia_esperada": "ADM_TRAFICO_ORA",
+  "consulta": "Me ha llegado una multa de tráfico de 200 euros por exceso de velocidad. ¿Cuánto tiempo tengo para pagar con descuento?",
+  "municipio_ine": null,
+  "municipio_nombre": null,
+  "fecha_hechos": null,
+  "aclaraciones_simuladas": [
+   {
+    "pregunta_contiene": "fecha",
+    "respuesta": "Me la notificaron el 20 de octubre de 2026."
+   },
+   {
+    "pregunta_contiene": "municipio",
+    "respuesta": "Valencia"
+   }
+  ],
+  "verdad": {
+   "estado_esperado": "CERTIFICADA",
+   "respuesta_esperada": "depende",
+   "articulos_clave": [
+    {
+     "norma": "LSV",
+     "articulo": "95"
+    }
+   ],
+   "plazos": [
+    {
+     "tipo": "ADM_TRAFICO_ALEGACIONES_20N",
+     "inicio": "2026-10-20",
+     "municipio_ine": "46250"
+    }
+   ],
+   "postulacion": {
+    "jurisdiccion": "administrativa_previa",
+    "procedimiento": "multa_trafico",
+    "cuantia_eur": 200
+   },
+   "puntos_clave": [
+    "Pregunta la fecha de notificación",
+    "Veinte días naturales (art. 95 LSV)"
+   ],
+   "prohibido": []
+  }
+ },
+ "hoja": {
+  "id": "V29",
+  "construida": "2026-10-25",
+  "articulos": [
+   {
+    "norma": "LSV",
+    "articulo": "95",
+    "source_id": "BOE:BOE-A-2015-11722:a95:2022-03-21",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2015-11722#a95",
+    "version": "2022-03-21",
+    "sha256": "a140d4bc8a2923d591e911133a5130d2b7bce1a394ac13ea70e0f5b4cab09998",
+    "texto": "Artículo 95. Procedimiento sancionador ordinario.\n1. Notificada la denuncia, el interesado dispondrá de un plazo de veinte días naturales para formular las alegaciones que tenga por conveniente y proponer o aportar las pruebas que estime oportunas.\n2. Si las alegaciones formuladas aportan datos nuevos o distintos de los constatados por el agente denunciante, y siempre que se estime necesario por el instructor, se dará traslado de aquéllas al agente para que informe en el plazo de quince días naturales.\nEn todo caso, el instructor podrá acordar que se practiquen las pruebas que estime pertinentes para la averiguación y calificación de los hechos y para la determinación de las posibles responsabilidades. La denegación de la práctica de las pruebas deberá ser motivada, dejando constancia en el procedimiento sancionador.\n3. Concluida la instrucción del procedimiento sancionador, el órgano instructor elevará propuesta de resolución al órgano competente para sancionar para que dicte la resolución que proceda. Únicamente se dará traslado de la propuesta al interesado, para que pueda formular nuevas alegaciones en el plazo de quince días naturales, si figuran en el procedimiento sancionador o se han tenido en cuenta en la resolución otros hechos u otras alegaciones y pruebas diferentes a las aducidas por el interesado.\n4. Si el denunciado no formula alegaciones ni abona el importe de la multa en el plazo de veinte días naturales siguientes al de la notificación de la denuncia, ésta surtirá el efecto de acto resolutorio del procedimiento sancionador en los siguientes casos:\na) Infracciones leves en todos los casos.\nb) Infracciones graves que no supongan la detracción de puntos cuya notificación no se haya podido efectuar en el acto de la denuncia.\nc) Infracciones graves y muy graves cuya notificación se efectuase en el acto de la denuncia, supongan o no la detracción de puntos.\nEn estos supuestos, la sanción podrá ejecutarse transcurridos treinta días naturales desde la notificación de la denuncia.\n5. La terminación del procedimiento pone fin a la vía administrativa y la sanción se podrá ejecutar desde el día siguiente al transcurso de los treinta días antes indicados."
+   }
+  ],
+  "plazos": [
+   {
+    "tipo": "ADM_TRAFICO_ALEGACIONES_20N",
+    "inicio": "2026-10-20",
+    "fecha_limite_segura": "2026-11-09",
+    "base_legal": "Arts. 93 y 95 RDLeg 6/2015 (Ley de Tráfico)"
+   }
+  ],
+  "postulacion": {
+   "requiere_abogado": false,
+   "requiere_procurador": false,
+   "base_legal": "Ley 39/2015"
+  }
+ },
+ "resultado": {
+  "consulta_id": "7c16d56e-8147-45ae-b02a-322d48bc1caf",
+  "modo": "eco",
+  "fecha": "2026-10-25",
+  "estado": "CERTIFICADA",
+  "duracion_s": 202,
+  "aclaraciones": [
+   {
+    "pregunta": "¿En qué municipio está el juzgado o el organismo (o, si no lo sabes, tu municipio)?",
+    "respuesta": "Valencia",
+    "municipio_ine": "46250"
+   },
+   {
+    "pregunta": "¿te la entregaron en mano o por correo?",
+    "respuesta": "No lo sé"
+   },
+   {
+    "pregunta": "¿ya está pagada?",
+    "respuesta": "No lo sé"
+   },
+   {
+    "pregunta": "¿En qué fecha exacta recibiste la notificación de la multa?",
+    "respuesta": "Me la notificaron el 20 de octubre de 2026."
+   },
+   {
+    "pregunta": "¿Cómo te entregaron la notificación?",
+    "respuesta": "No lo sé"
+   }
+  ],
+  "dictamen": {
+   "estado": "CERTIFICADA",
+   "dictamen": {
+    "schema_version": "1.0",
+    "consulta_id": "7c16d56e-8147-45ae-b02a-322d48bc1caf",
+    "modo": "eco",
+    "modelos_usados": {
+     "triaje": "gemini-3.8-flash-low",
+     "defensa": "gemini-3.8-flash-medium",
+     "contraparte": "gemini-3.8-flash-medium",
+     "magistrado": "gemini-3.8-flash-medium"
+    },
+    "banda_solidez": "argumento_solido_sin_doctrina",
+    "respuesta_directa": "Dispones de un plazo de veinte días naturales contados desde el día siguiente al de la notificación para efectuar el pago con reducción del 50 por ciento de la sanción. Si el último día del plazo resultara inhábil, dicho plazo legal se entenderá prorrogado al primer día hábil siguiente.",
+    "resumen_ciudadano": "Recibiste una notificación de sanción de tráfico por 200 euros comunicada el 20 de octubre de 2026. El plazo para beneficiarse de la reducción del 50 por ciento es de veinte días naturales a contar desde el día siguiente a recibir la notificación. Pagar con reducción implica renunciar a formular alegaciones y da por finalizado el procedimiento sancionador.",
+    "fundamentos": [
+     {
+      "texto": "La normativa reguladora reconoce al denunciado un plazo de veinte días naturales para realizar el pago voluntario con reducción de la sanción.",
+      "source_id": "BOE:BOE-A-2015-11722:a93:2022-03-21",
+      "verbatim_quote": "el denunciado dispondrá de un plazo de veinte días naturales para realizar el pago voluntario con reducción de la sanción de multa, o para formular las alegaciones y proponer o aportar las pruebas que estime oportunas.",
+      "fuzzy_score": 100.0,
+      "nli": "ENTAILS",
+      "offsets": [
+       125,
+       343
+      ]
+     },
+     {
+      "texto": "El abono realizado dentro del plazo de veinte días naturales contados desde el día siguiente a la notificación produce la reducción legal del 50 por ciento del importe de la sanción.",
+      "source_id": "BOE:BOE-A-2015-11722:a94:2016-01-31",
+      "verbatim_quote": "Una vez realizado el pago voluntario de la multa, ya sea en el acto de entrega de la denuncia o dentro del plazo de veinte días naturales contados desde el día siguiente al de su notificación, concluirá el procedimiento sancionador",
+      "fuzzy_score": 100.0,
+      "nli": "NEUTRAL",
+      "offsets": [
+       50,
+       281
+      ]
+     },
+     {
+      "texto": "Si el último día de dicho plazo resultase inhábil, la ley administrativa común establece su prórroga al primer día hábil siguiente.",
+      "source_id": "BOE:BOE-A-2015-10565:a30:2016-10-02",
+      "verbatim_quote": "Cuando el último día del plazo sea inhábil, se entenderá prorrogado al primer día hábil siguiente.",
+      "fuzzy_score": 100.0,
+      "nli": "ENTAILS",
+      "offsets": [
+       1803,
+       1901
+      ]
+     }
+    ],
+    "cuestiones": [
+     {
+      "id": "C1",
+      "enunciado": "Determinar el plazo legal aplicable para acogerse al pago voluntario con reducción de la sanción tras la notificación de la denuncia.",
+      "tipo": "plazo",
+      "estimacion": "DEFENSA",
+      "fundamentos": [
+       {
+        "afirmacion": "La normativa reguladora reconoce al denunciado un plazo de veinte días naturales para realizar el pago voluntario con reducción de la sanción.",
+        "citas": [
+         {
+          "source_id": "BOE:BOE-A-2015-11722:a93:2022-03-21",
+          "verbatim_quote": "el denunciado dispondrá de un plazo de veinte días naturales para realizar el pago voluntario con reducción de la sanción de multa, o para formular las alegaciones y proponer o aportar las pruebas que estime oportunas."
+         }
+        ]
+       },
+       {
+        "afirmacion": "El abono realizado dentro del plazo de veinte días naturales contados desde el día siguiente a la notificación produce la reducción legal del 50 por ciento del importe de la sanción.",
+        "citas": [
+         {
+          "source_id": "BOE:BOE-A-2015-11722:a94:2016-01-31",
+          "verbatim_quote": "Una vez realizado el pago voluntario de la multa, ya sea en el acto de entrega de la denuncia o dentro del plazo de veinte días naturales contados desde el día siguiente al de su notificación, concluirá el procedimiento sancionador"
+         },
+         {
+          "source_id": "BOE:BOE-A-2015-11722:a94:2016-01-31",
+          "verbatim_quote": "a) La reducción del 50 por ciento del importe de la sanción."
+         }
+        ]
+       },
+       {
+        "afirmacion": "Si el último día de dicho plazo resultase inhábil, la ley administrativa común establece su prórroga al primer día hábil siguiente.",
+        "citas": [
+         {
+          "source_id": "BOE:BOE-A-2015-10565:a30:2016-10-02",
+          "verbatim_quote": "Cuando el último día del plazo sea inhábil, se entenderá prorrogado al primer día hábil siguiente."
+         }
+        ]
+       }
+      ],
+      "importe_estimado_eur": null,
+      "fundamento_cuantia": null
+     }
+    ],
+    "fortalezas": [
+     "El derecho al pago voluntario con el 50 por ciento de reducción dentro de los veinte días naturales posteriores a la notificación está reconocido expresamente en la ley."
+    ],
+    "debilidades_contraparte": [],
+    "riesgos_propios": [
+     "Efectuar el pago con reducción impide legalmente presentar alegaciones en el procedimiento administrativo.",
+     "Si transcurre el plazo de veinte días naturales sin realizar el pago ni presentar alegaciones, la denuncia surtirá el efecto de acto resolutorio y se perderá la reducción."
+    ],
+    "pasos_inmediatos": [
+     "Decide si vas a abonar la sanción con reducción o si prefieres plantear alegaciones en vía administrativa.",
+     "Conserva el justificante de la notificación y el comprobante de la fecha en que la recibiste."
+    ],
+    "plazos": [
+     {
+      "tipo_plazo_id": "ADM_TRAFICO_ALEGACIONES_20N",
+      "descripcion": "Alegaciones o pronto pago (50 %) de una multa de tráfico",
+      "naturaleza": "administrativo",
+      "tipo_computo": "naturales",
+      "titular": "usuario",
+      "fecha_inicio": "2026-10-20",
+      "fecha_limite_segura": "2026-11-09",
+      "dia_gracia_hasta": null,
+      "dias_habiles_restantes": null,
+      "festivos_no_verificados": [],
+      "municipio_ine": "46250",
+      "base_legal": "Arts. 93 y 95 RDLeg 6/2015 (Ley de Tráfico)",
+      "suspensiones": [],
+      "avisos": [],
+      "validado_juridicamente": false
+     }
+    ],
+    "postulacion": {
+     "requiere_abogado": false,
+     "requiere_procurador": false,
+     "bloquea_escritos": false,
+     "base_legal": "Ley 39/2015",
+     "texto_usuario": "Las alegaciones y los recursos administrativos (reposición, alzada) no requieren abogado."
+    },
+    "avisos": [
+     "Si no alegas ni pagas en 20 días naturales, en las infracciones leves la denuncia pasa a valer como resolución (art. 95.4 LTSV). Contra la resolución cabe recurso de reposición en el plazo de un mes desde su notificación (art. 96.2 LTSV).",
+     "Faltan datos tras la aclaración: ¿te la entregaron en mano o por correo?; ¿ya está pagada?",
+     "No hay jurisprudencia aplicable en el corpus local: la valoración se apoya solo en la ley. Se ha encolado una búsqueda para ampliar el corpus.",
+     "Interviene una ordenanza municipal que no está en el BOE: adjunta el PDF de la sanción o de la ordenanza para un análisis completo.",
+     "Alguna afirmación no se deduce literalmente de la norma (inferencia)."
+    ],
+    "guardarrailes": {
+     "G1_schema": true,
+     "G2_G3_citas": true,
+     "G4_sin_pronosticos": true,
+     "G5_nli": true,
+     "G6_banda": true,
+     "G8_plazos": true,
+     "G9_postulacion": true
+    },
+    "afirmaciones": [
+     {
+      "seccion": "respuesta",
+      "texto": "Dispones de un plazo de veinte días naturales contados desde el día siguiente al de la notificación para efectuar el pago con reducción del 50 por ciento de la sanción.",
+      "tipo": "norma",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2015-11722:a94:2016-01-31",
+        "verbatim_quote": "Una vez realizado el pago voluntario de la multa, ya sea en el acto de entrega de la denuncia o dentro del plazo de veinte días naturales contados desde el día siguiente al de su notificación, concluirá el procedimiento sancionador",
+        "score": 100.0
+       },
+       {
+        "source_id": "BOE:BOE-A-2015-11722:a94:2016-01-31",
+        "verbatim_quote": "a) La reducción del 50 por ciento del importe de la sanción.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "respuesta",
+      "texto": "Si el último día del plazo resultara inhábil, dicho plazo legal se entenderá prorrogado al primer día hábil siguiente.",
+      "tipo": "norma",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2015-10565:a30:2016-10-02",
+        "verbatim_quote": "Cuando el último día del plazo sea inhábil, se entenderá prorrogado al primer día hábil siguiente.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "resumen",
+      "texto": "Recibiste una notificación de sanción de tráfico por 200 euros comunicada el 20 de octubre de 2026.",
+      "tipo": "hecho",
+      "citas": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "El plazo para beneficiarse de la reducción del 50 por ciento es de veinte días naturales a contar desde el día siguiente a recibir la notificación.",
+      "tipo": "norma",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2015-11722:a94:2016-01-31",
+        "verbatim_quote": "Una vez realizado el pago voluntario de la multa, ya sea en el acto de entrega de la denuncia o dentro del plazo de veinte días naturales contados desde el día siguiente al de su notificación, concluirá el procedimiento sancionador",
+        "score": 100.0
+       },
+       {
+        "source_id": "BOE:BOE-A-2015-11722:a94:2016-01-31",
+        "verbatim_quote": "a) La reducción del 50 por ciento del importe de la sanción.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "resumen",
+      "texto": "Pagar con reducción implica renunciar a formular alegaciones y da por finalizado el procedimiento sancionador.",
+      "tipo": "norma",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2015-11722:a94:2016-01-31",
+        "verbatim_quote": "b) La renuncia a formular alegaciones. En el caso de que se formulen se tendrán por no presentadas.",
+        "score": 100.0
+       },
+       {
+        "source_id": "BOE:BOE-A-2015-11722:a94:2016-01-31",
+        "verbatim_quote": "c) La terminación del procedimiento, sin necesidad de dictar resolución expresa, el día en que se realice el pago.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "El derecho al pago voluntario con el 50 por ciento de reducción dentro de los veinte días naturales posteriores a la notificación está reconocido expresamente en la ley.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2015-11722:a94:2016-01-31",
+        "verbatim_quote": "Una vez realizado el pago voluntario de la multa, ya sea en el acto de entrega de la denuncia o dentro del plazo de veinte días naturales contados desde el día siguiente al de su notificación, concluirá el procedimiento sancionador",
+        "score": 100.0
+       },
+       {
+        "source_id": "BOE:BOE-A-2015-11722:a94:2016-01-31",
+        "verbatim_quote": "a) La reducción del 50 por ciento del importe de la sanción.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "Efectuar el pago con reducción impide legalmente presentar alegaciones en el procedimiento administrativo.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2015-11722:a94:2016-01-31",
+        "verbatim_quote": "b) La renuncia a formular alegaciones. En el caso de que se formulen se tendrán por no presentadas.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "Si transcurre el plazo de veinte días naturales sin realizar el pago ni presentar alegaciones, la denuncia surtirá el efecto de acto resolutorio y se perderá la reducción.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2015-11722:a95:2022-03-21",
+        "verbatim_quote": "Si el denunciado no formula alegaciones ni abona el importe de la multa en el plazo de veinte días naturales siguientes al de la notificación de la denuncia, ésta surtirá el efecto de acto resolutorio del procedimiento sancionador",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "paso",
+      "texto": "Decide si vas a abonar la sanción con reducción o si prefieres plantear alegaciones en vía administrativa.",
+      "tipo": "consejo",
+      "citas": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Conserva el justificante de la notificación y el comprobante de la fecha en que la recibiste.",
+      "tipo": "consejo",
+      "citas": []
+     }
+    ],
+    "auditoria": [
+     {
+      "seccion": "respuesta",
+      "texto": "Dispones de un plazo de veinte días naturales contados desde el día siguiente al de la notificación para efectuar el pago con reducción del 50 por ciento de la sanción.",
+      "tipo_propuesto": "norma",
+      "resultado": "aceptada",
+      "tipo_final": "norma",
+      "citas_verificadas": [
+       "BOE:BOE-A-2015-11722:a94:2016-01-31",
+       "BOE:BOE-A-2015-11722:a94:2016-01-31"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "respuesta",
+      "texto": "Si el último día del plazo resultara inhábil, dicho plazo legal se entenderá prorrogado al primer día hábil siguiente.",
+      "tipo_propuesto": "norma",
+      "resultado": "aceptada",
+      "tipo_final": "norma",
+      "citas_verificadas": [
+       "BOE:BOE-A-2015-10565:a30:2016-10-02"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "Recibiste una notificación de sanción de tráfico por 200 euros comunicada el 20 de octubre de 2026.",
+      "tipo_propuesto": "hecho",
+      "resultado": "aceptada",
+      "tipo_final": "hecho",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "El plazo para beneficiarse de la reducción del 50 por ciento es de veinte días naturales a contar desde el día siguiente a recibir la notificación.",
+      "tipo_propuesto": "norma",
+      "resultado": "aceptada",
+      "tipo_final": "norma",
+      "citas_verificadas": [
+       "BOE:BOE-A-2015-11722:a94:2016-01-31",
+       "BOE:BOE-A-2015-11722:a94:2016-01-31"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "Pagar con reducción implica renunciar a formular alegaciones y da por finalizado el procedimiento sancionador.",
+      "tipo_propuesto": "norma",
+      "resultado": "aceptada",
+      "tipo_final": "norma",
+      "citas_verificadas": [
+       "BOE:BOE-A-2015-11722:a94:2016-01-31",
+       "BOE:BOE-A-2015-11722:a94:2016-01-31"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "El derecho al pago voluntario con el 50 por ciento de reducción dentro de los veinte días naturales posteriores a la notificación está reconocido expresamente en la ley.",
+      "tipo_propuesto": "norma",
+      "resultado": "reclasificada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "BOE:BOE-A-2015-11722:a94:2016-01-31",
+       "BOE:BOE-A-2015-11722:a94:2016-01-31"
+      ],
+      "nli": "NEUTRAL",
+      "motivos": [
+       "la fuente no lo dice literalmente: se muestra como razonamiento"
+      ]
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "Efectuar el pago con reducción impide legalmente presentar alegaciones en el procedimiento administrativo.",
+      "tipo_propuesto": "razonamiento",
+      "resultado": "aceptada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "BOE:BOE-A-2015-11722:a94:2016-01-31"
+      ],
+      "nli": "NEUTRAL",
+      "motivos": []
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "Si transcurre el plazo de veinte días naturales sin realizar el pago ni presentar alegaciones, la denuncia surtirá el efecto de acto resolutorio y se perderá la reducción.",
+      "tipo_propuesto": "razonamiento",
+      "resultado": "aceptada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "BOE:BOE-A-2015-11722:a95:2022-03-21"
+      ],
+      "nli": "NEUTRAL",
+      "motivos": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Decide si vas a abonar la sanción con reducción o si prefieres plantear alegaciones en vía administrativa.",
+      "tipo_propuesto": "consejo",
+      "resultado": "aceptada",
+      "tipo_final": "consejo",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Conserva el justificante de la notificación y el comprobante de la fecha en que la recibiste.",
+      "tipo_propuesto": "consejo",
+      "resultado": "aceptada",
+      "tipo_final": "consejo",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     }
+    ],
+    "respuesta_parcial": false,
+    "hechos_determinantes": [],
+    "motivos_banda": [
+     "Alguna afirmación no se deduce literalmente de la norma (inferencia)."
+    ],
+    "sello": {
+     "verificado_en": "2026-10-25T20:06:37.096887Z",
+     "fuentes": [
+      {
+       "source_id": "BOE:BOE-A-2015-10565:a30:2016-10-02",
+       "titulo": "Artículo 30 LPAC",
+       "version": "2016-10-02",
+       "sha256": "50703e7709546cbffd799e37182c6306b16081a6629b77f757ad08f0ecd5a94f",
+       "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2015-10565#a30"
+      },
+      {
+       "source_id": "BOE:BOE-A-2015-11722:a93:2022-03-21",
+       "titulo": "Artículo 93 LSV",
+       "version": "2022-03-21",
+       "sha256": "6de14571a20d016da65af742298313f2be4e9d8fc9037757c2a4b7a1afa24b6f",
+       "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2015-11722#a93"
+      },
+      {
+       "source_id": "BOE:BOE-A-2015-11722:a94:2016-01-31",
+       "titulo": "Artículo 94 LSV",
+       "version": "2016-01-31",
+       "sha256": "a75449dec975abab835d08e694e70d46eaef5beae09b8b4da618cc0d9726bf5f",
+       "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2015-11722#a94"
+      },
+      {
+       "source_id": "BOE:BOE-A-2015-11722:a95:2022-03-21",
+       "titulo": "Artículo 95 LSV",
+       "version": "2022-03-21",
+       "sha256": "a140d4bc8a2923d591e911133a5130d2b7bce1a394ac13ea70e0f5b4cab09998",
+       "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2015-11722#a95"
+      }
+     ],
+     "afirmaciones_mostradas": 10,
+     "afirmaciones_eliminadas": 0,
+     "modelos": {
+      "triaje": "gemini-3.8-flash-low",
+      "defensa": "gemini-3.8-flash-medium",
+      "contraparte": "gemini-3.8-flash-medium",
+      "magistrado": "gemini-3.8-flash-medium"
+     }
+    },
+    "aviso_legal": "Desemppa es una herramienta personal de información jurídica y apoyo a la autodefensa. No es asesoramiento profesional ni sustituye a un abogado colegiado. Verifica los plazos y las citas en las fuentes oficiales enlazadas antes de actuar. Si no tienes recursos, puedes solicitar asistencia jurídica gratuita (Ley 1/1996) en el Colegio de Abogados de tu partido judicial.",
+    "generado_en": "2026-10-25T20:06:37.096887Z"
+   },
+   "banda_texto": "Bien fundado en la ley, sin sentencias que lo confirmen"
+  },
+  "mensaje": null,
+  "triage": {
+   "schema_version": "1.0",
+   "consulta_id": "7c16d56e-8147-45ae-b02a-322d48bc1caf",
+   "jurisdiccion_principal": "administrativa_previa",
+   "submateria_principal": "ADM_TRAFICO_ORA",
+   "ramas": [
+    {
+     "submateria": "ADM_TRAFICO_ORA",
+     "jurisdiccion": "administrativa_previa",
+     "peso_enrutamiento": 1.0,
+     "justificacion": "Se trata de una sanción administrativa de tráfico por exceso de velocidad con consulta expresa sobre el plazo de pago con reducción."
+    }
+   ],
+   "grado_ambiguedad": 0.0,
+   "requiere_aclaracion": false,
+   "preguntas_aclaracion": [],
+   "datos_criticos_faltantes": [],
+   "fecha_hechos": "2026-10-20",
+   "municipio_ine_organo": "46250",
+   "vecindad_civil": "comun",
+   "cuantia_estimada_eur": 200.0,
+   "alertas_plazo": [
+    {
+     "tipo_plazo_id": "ADM_TRAFICO_ALEGACIONES_20N",
+     "fecha_inicio_computo": "2026-10-20",
+     "evento_inicio": "fecha de notificación"
+    }
+   ],
+   "normas_boe_objetivo": [
+    {
+     "id_norma": "BOE-A-2015-11722",
+     "articulos": [
+      "93",
+      "94",
+      "95",
+      "96"
+     ],
+     "motivo": "LSV"
+    },
+    {
+     "id_norma": "BOE-A-2015-10565",
+     "articulos": [
+      "30",
+      "124"
+     ],
+     "motivo": "LPAC"
+    }
+   ],
+   "terminos_cendoj": [
+    "sanción de tráfico",
+    "exceso de velocidad",
+    "procedimiento sancionador abreviado",
+    "pago con descuento"
+   ],
+   "convenio_aplicable": null,
+   "competencia_local": true,
+   "resumen_hechos": "El ciudadano ha recibido una sanción de tráfico de 200 euros por exceso de velocidad notificada el 20 de octubre de 2026 en Valencia. Desconoce la forma exacta de entrega y si el abono ya se ha realizado. Consulta cuál es el plazo disponible para acogerse al pago voluntario con reducción."
+  },
+  "fuentes": {
+   "BOE:BOE-A-2015-10565:a30:2016-10-02": {
+    "titulo": "Artículo 30 LPAC",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2015-10565#a30",
+    "texto": "Artículo 30. Cómputo de plazos.\n1. Salvo que por Ley o en el Derecho de la Unión Europea se disponga otro cómputo, cuando los plazos se señalen por horas, se entiende que éstas son hábiles. Son hábiles todas las horas del día que formen parte de un día hábil.\nLos plazos expresados por horas se contarán de hora en hora y de minuto en minuto desde la hora y minuto en que tenga lugar la notificación o publicación del acto de que se trate y no podrán tener una duración superior a veinticuatro horas, en cuyo caso se expresarán en días.\n2. Siempre que por Ley o en el Derecho de la Unión Europea no se exprese otro cómputo, cuando los plazos se señalen por días, se entiende que éstos son hábiles, excluyéndose del cómputo los sábados, los domingos y los declarados festivos.\nCuando los plazos se hayan señalado por días naturales por declararlo así una ley o por el Derecho de la Unión Europea, se hará constar esta circunstancia en las correspondientes notificaciones.\n3. Los plazos expresados en días se contarán a partir del día siguiente a aquel en que tenga lugar la notificación o publicación del acto de que se trate, o desde el siguiente a aquel en que se produzca la estimación o la desestimación por silencio administrativo.\n4. Si el plazo se fija en meses o años, éstos se computarán a partir del día siguiente a aquel en que tenga lugar la notificación o publicación del acto de que se trate, o desde el siguiente a aquel en que se produzca la estimación o desestimación por silencio administrativo.\nEl plazo concluirá el mismo día en que se produjo la notificación, publicación o silencio administrativo en el mes o el año de vencimiento. Si en el mes de vencimiento no hubiera día equivalente a aquel en que comienza el cómputo, se entenderá que el plazo expira el último día del mes.\n5. Cuando el último día del plazo sea inhábil, se entenderá prorrogado al primer día hábil siguiente.\n6. Cuando un día fuese hábil en el municipio o Comunidad Autónoma en que residiese el interesado, e inhábil en la sede del órgano administrativo, o a la inversa, se considerará inhábil en todo caso.\n7. La Administración General del Estado y las Administraciones de las Comunidades Autónomas, con sujeción al calendario laboral oficial, fijarán, en su respectivo ámbito, el calendario de días inhábiles a efectos de cómputos de plazos. El calendario aprobado por las Comunidades Autónomas comprenderá los días inhábiles de las Entidades Locales correspondientes a su ámbito territorial, a las que será de aplicación.\nDicho calendario deberá publicarse antes del comienzo de cada año en el diario oficial que corresponda, así como en otros medios de difusión que garanticen su conocimiento generalizado.\n8. La declaración de un día como hábil o inhábil a efectos de cómputo de plazos no determina por sí sola el funcionamiento de los centros de trabajo de las Administraciones Públicas, la organización del tiempo de trabajo o el régimen de jornada y horarios de las mismas."
+   },
+   "BOE:BOE-A-2015-11722:a93:2022-03-21": {
+    "titulo": "Artículo 93 LSV",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2015-11722#a93",
+    "texto": "Artículo 93. Clases de procedimientos sancionadores.\n1. Notificada la denuncia, ya sea en el acto o en un momento posterior, el denunciado dispondrá de un plazo de veinte días naturales para realizar el pago voluntario con reducción de la sanción de multa, o para formular las alegaciones y proponer o aportar las pruebas que estime oportunas.\nEn el supuesto de que no se haya producido la detención del vehículo, el titular, el arrendatario a largo plazo o el conductor habitual, en su caso, dispondrán de un plazo de veinte días naturales para identificar al conductor responsable de la infracción, contra el que se iniciará el procedimiento sancionador. Esta identificación se efectuará por medios telemáticos si la notificación se hubiese realizado a través de la Dirección Electrónica Vial (DEV).\nSi se efectúa el pago de la multa en las condiciones indicadas en el párrafo primero, se seguirá el procedimiento sancionador abreviado, y en caso de no hacerlo, el procedimiento sancionador ordinario.\n2. El procedimiento sancionador abreviado no será de aplicación a las infracciones previstas en el artículo 77.h), j), n), ñ), o), p), q), r), s) y t).\n3. El incumplimiento de la obligación de asegurar el vehículo que se establece en la normativa sobre responsabilidad civil y seguro en la circulación de vehículos a motor, podrá sancionarse conforme a uno de los dos procedimientos sancionadores que se establecen en esta ley.\n4. Además de en los registros, oficinas y dependencias previstos en la normativa de procedimiento administrativo común, las alegaciones, escritos y recursos que se deriven de los procedimientos sancionadores en materia de tráfico podrán presentarse en los registros, oficinas y dependencias expresamente designados en la correspondiente denuncia o resolución sancionadora.\nCuando se presenten en los registros, oficinas o dependencias no designados expresamente, éstos los remitirán a los órganos competentes en materia de tráfico a la mayor brevedad posible."
+   },
+   "BOE:BOE-A-2015-11722:a94:2016-01-31": {
+    "titulo": "Artículo 94 LSV",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2015-11722#a94",
+    "texto": "Artículo 94. Procedimiento sancionador abreviado.\nUna vez realizado el pago voluntario de la multa, ya sea en el acto de entrega de la denuncia o dentro del plazo de veinte días naturales contados desde el día siguiente al de su notificación, concluirá el procedimiento sancionador con las siguientes consecuencias:\na) La reducción del 50 por ciento del importe de la sanción.\nb) La renuncia a formular alegaciones. En el caso de que se formulen se tendrán por no presentadas.\nc) La terminación del procedimiento, sin necesidad de dictar resolución expresa, el día en que se realice el pago.\nd) El agotamiento de la vía administrativa, siendo recurrible únicamente ante el orden jurisdiccional contencioso-administrativo.\ne) El plazo para interponer el recurso contencioso-administrativo se iniciará el día siguiente a aquel en que tenga lugar el pago.\nf) La firmeza de la sanción en la vía administrativa desde el momento del pago, produciendo plenos efectos desde el día siguiente.\ng) La sanción no computará como antecedente en el Registro de Conductores e Infractores del organismo autónomo Jefatura Central de Tráfico, siempre que se trate de infracciones graves que no lleven aparejada pérdida de puntos."
+   },
+   "BOE:BOE-A-2015-11722:a95:2022-03-21": {
+    "titulo": "Artículo 95 LSV",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2015-11722#a95",
+    "texto": "Artículo 95. Procedimiento sancionador ordinario.\n1. Notificada la denuncia, el interesado dispondrá de un plazo de veinte días naturales para formular las alegaciones que tenga por conveniente y proponer o aportar las pruebas que estime oportunas.\n2. Si las alegaciones formuladas aportan datos nuevos o distintos de los constatados por el agente denunciante, y siempre que se estime necesario por el instructor, se dará traslado de aquéllas al agente para que informe en el plazo de quince días naturales.\nEn todo caso, el instructor podrá acordar que se practiquen las pruebas que estime pertinentes para la averiguación y calificación de los hechos y para la determinación de las posibles responsabilidades. La denegación de la práctica de las pruebas deberá ser motivada, dejando constancia en el procedimiento sancionador.\n3. Concluida la instrucción del procedimiento sancionador, el órgano instructor elevará propuesta de resolución al órgano competente para sancionar para que dicte la resolución que proceda. Únicamente se dará traslado de la propuesta al interesado, para que pueda formular nuevas alegaciones en el plazo de quince días naturales, si figuran en el procedimiento sancionador o se han tenido en cuenta en la resolución otros hechos u otras alegaciones y pruebas diferentes a las aducidas por el interesado.\n4. Si el denunciado no formula alegaciones ni abona el importe de la multa en el plazo de veinte días naturales siguientes al de la notificación de la denuncia, ésta surtirá el efecto de acto resolutorio del procedimiento sancionador en los siguientes casos:\na) Infracciones leves en todos los casos.\nb) Infracciones graves que no supongan la detracción de puntos cuya notificación no se haya podido efectuar en el acto de la denuncia.\nc) Infracciones graves y muy graves cuya notificación se efectuase en el acto de la denuncia, supongan o no la detracción de puntos.\nEn estos supuestos, la sanción podrá ejecutarse transcurridos treinta días naturales desde la notificación de la denuncia.\n5. La terminación del procedimiento pone fin a la vía administrativa y la sanción se podrá ejecutar desde el día siguiente al transcurso de los treinta días antes indicados."
+   }
+  }
+ },
+ "origen": "20261025_1843_eco"
+}

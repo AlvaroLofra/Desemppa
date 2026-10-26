@@ -1,0 +1,711 @@
+{
+ "caso": {
+  "id": "V09",
+  "categoria": "tipico",
+  "materia_esperada": "ADM_SANCION_MUNICIPAL",
+  "consulta": "El 16 de octubre de 2026 el Ayuntamiento de Valencia me notificó el inicio de un expediente sancionador por ruidos en mi terraza. ¿Qué puedo hacer y en qué plazo?",
+  "municipio_ine": "46250",
+  "municipio_nombre": "Valencia",
+  "fecha_hechos": "2026-10-16",
+  "aclaraciones_simuladas": [],
+  "verdad": {
+   "estado_esperado": "CERTIFICADA",
+   "respuesta_esperada": "depende",
+   "articulos_clave": [
+    {
+     "norma": "LPAC",
+     "articulo": "82"
+    }
+   ],
+   "plazos": [
+    {
+     "tipo": "ADM_ALEGACIONES_10H",
+     "inicio": "2026-10-16",
+     "municipio_ine": "46250"
+    }
+   ],
+   "postulacion": {
+    "jurisdiccion": "administrativa_previa",
+    "procedimiento": "sancion_municipal",
+    "cuantia_eur": null
+   },
+   "puntos_clave": [
+    "Se pueden presentar alegaciones en el trámite de audiencia (art. 82 LPAC)",
+    "El plazo lo calcula el motor en días hábiles"
+   ],
+   "prohibido": []
+  }
+ },
+ "hoja": {
+  "id": "V09",
+  "construida": "2026-10-25",
+  "articulos": [
+   {
+    "norma": "LPAC",
+    "articulo": "82",
+    "source_id": "BOE:BOE-A-2015-10565:a82:2016-10-02",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2015-10565#a82",
+    "version": "2016-10-02",
+    "sha256": "c17a0b498ba6fe4ff205e37f80b6918247af5decebb9be10d6c9b5202091e87b",
+    "texto": "Artículo 82. Trámite de audiencia.\n1. Instruidos los procedimientos, e inmediatamente antes de redactar la propuesta de resolución, se pondrán de manifiesto a los interesados o, en su caso, a sus representantes, para lo que se tendrán en cuenta las limitaciones previstas en su caso en la Ley 19/2013, de 9 de diciembre.\nLa audiencia a los interesados será anterior a la solicitud del informe del órgano competente para el asesoramiento jurídico o a la solicitud del Dictamen del Consejo de Estado u órgano consultivo equivalente de la Comunidad Autónoma, en el caso que éstos formaran parte del procedimiento.\n2. Los interesados, en un plazo no inferior a diez días ni superior a quince, podrán alegar y presentar los documentos y justificaciones que estimen pertinentes.\n3. Si antes del vencimiento del plazo los interesados manifiestan su decisión de no efectuar alegaciones ni aportar nuevos documentos o justificaciones, se tendrá por realizado el trámite.\n4. Se podrá prescindir del trámite de audiencia cuando no figuren en el procedimiento ni sean tenidos en cuenta en la resolución otros hechos ni otras alegaciones y pruebas que las aducidas por el interesado.\n5. En los procedimientos de responsabilidad patrimonial a los que se refiere el artículo 32.9 de la Ley de Régimen Jurídico del Sector Público, será necesario en todo caso dar audiencia al contratista, notificándole cuantas actuaciones se realicen en el procedimiento, al efecto de que se persone en el mismo, exponga lo que a su derecho convenga y proponga cuantos medios de prueba estime necesarios."
+   }
+  ],
+  "plazos": [
+   {
+    "tipo": "ADM_ALEGACIONES_10H",
+    "inicio": "2026-10-16",
+    "fecha_limite_segura": "2026-10-30",
+    "base_legal": "Arts. 82 y 89 Ley 39/2015"
+   }
+  ],
+  "postulacion": {
+   "requiere_abogado": false,
+   "requiere_procurador": false,
+   "base_legal": "Ley 39/2015"
+  }
+ },
+ "resultado": {
+  "consulta_id": "434e8291-6aaf-4fe1-b88a-9833c0321f08",
+  "modo": "eco",
+  "fecha": "2026-10-25",
+  "estado": "CERTIFICADA",
+  "duracion_s": 392,
+  "aclaraciones": [
+   {
+    "pregunta": "¿Cuántos días de plazo para alegaciones se indican en la notificación del inicio del expediente recibida?",
+    "respuesta": "No lo sé"
+   },
+   {
+    "pregunta": "¿Aparece en la notificación alguna medición acústica o acta de la policía local?",
+    "respuesta": "No lo sé"
+   }
+  ],
+  "dictamen": {
+   "estado": "CERTIFICADA",
+   "dictamen": {
+    "schema_version": "1.0",
+    "consulta_id": "434e8291-6aaf-4fe1-b88a-9833c0321f08",
+    "modo": "eco",
+    "modelos_usados": {
+     "triaje": "gemini-3.8-flash-low",
+     "defensa": "gemini-3.8-flash-medium",
+     "contraparte": "gemini-3.8-flash-medium",
+     "magistrado": "gemini-3.8-flash-medium"
+    },
+    "banda_solidez": "argumento_solido_sin_doctrina",
+    "respuesta_directa": "Puede formular alegaciones y presentar los documentos o justificaciones que estime oportunos para su defensa. El plazo legal general para formular alegaciones se sitúa entre un mínimo de diez días y un máximo de quince. El cómputo de dicho plazo comienza a partir del día siguiente al de la notificación del acto recibido.",
+    "resumen_ciudadano": "El 16 de octubre de 2026 recibió la notificación de inicio de un expediente sancionador municipal por ruidos. La ley le otorga el derecho a formular alegaciones en un plazo de diez a quince días hábiles contados desde el día siguiente a la notificación. La Administración no puede sancionarle válidamente sin demostrar la existencia real de los hechos denunciados y su culpabilidad. No consta en el expediente si la notificación aportada incorpora informe técnico o acta de medición acústica.",
+    "fundamentos": [
+     {
+      "texto": "La normativa reguladora del procedimiento administrativo reconoce a los interesados el derecho a formular alegaciones y aportar documentos en un plazo de diez a quince días.",
+      "source_id": "BOE:BOE-A-2015-10565:a82:2016-10-02",
+      "verbatim_quote": "Los interesados, en un plazo no inferior a diez días ni superior a quince, podrán alegar y presentar los documentos y justificaciones que estimen pertinentes.",
+      "fuzzy_score": 100.0,
+      "nli": "NEUTRAL",
+      "offsets": [
+       614,
+       772
+      ]
+     },
+     {
+      "texto": "El cómputo de los plazos por días se realiza a partir del día siguiente al de la notificación y excluye los días inhábiles.",
+      "source_id": "BOE:BOE-A-2015-10565:a30:2016-10-02",
+      "verbatim_quote": "Los plazos expresados en días se contarán a partir del día siguiente a aquel en que tenga lugar la notificación o publicación del acto de que se trate, o desde el siguiente a aquel en que se produzca la estimación o la desestimación por silencio administrativo.",
+      "fuzzy_score": 100.0,
+      "nli": "NEUTRAL",
+      "offsets": [
+       974,
+       1235
+      ]
+     },
+     {
+      "texto": "Para sancionar en vía administrativa es preceptivo acreditar la responsabilidad de la persona infractora a título de dolo o culpa.",
+      "source_id": "BOE:BOE-A-2015-10566:a28:2016-10-02",
+      "verbatim_quote": "Sólo podrán ser sancionadas por hechos constitutivos de infracción administrativa las personas físicas y jurídicas, así como, cuando una Ley les reconozca capacidad de obrar, los grupos de afectados, las uniones y entidades sin personalidad jurídica y los patrimonios independientes o autónomos, que resulten responsables de los mismos a título de dolo o culpa.",
+      "fuzzy_score": 100.0,
+      "nli": "ENTAILS",
+      "offsets": [
+       33,
+       394
+      ]
+     },
+     {
+      "texto": "La propuesta de resolución administrativa exige motivar de forma expresa los hechos que se consideren probados y valorar las pruebas practicadas.",
+      "source_id": "BOE:BOE-A-2015-10565:a89:2016-10-02",
+      "verbatim_quote": "En la propuesta de resolución se fijarán de forma motivada los hechos que se consideren probados y su exacta calificación jurídica, se determinará la infracción que, en su caso, aquéllos constituyan, la persona o personas responsables y la sanción que se proponga, la valoración de las pruebas practicadas, en especial aquellas que constituyan los fundamentos básicos de la decisión, así como las medidas provisionales que, en su caso, se hubieran adoptado.",
+      "fuzzy_score": 100.0,
+      "nli": "ENTAILS",
+      "offsets": [
+       1201,
+       1658
+      ]
+     }
+    ],
+    "cuestiones": [
+     {
+      "id": "C1",
+      "enunciado": "Procedencia del derecho a formular alegaciones y cómputo del plazo frente al acuerdo de iniciación",
+      "tipo": "plazo",
+      "estimacion": "DEFENSA",
+      "fundamentos": [
+       {
+        "afirmacion": "La normativa reguladora del procedimiento administrativo reconoce a los interesados el derecho a formular alegaciones y aportar documentos en un plazo de diez a quince días.",
+        "citas": [
+         {
+          "source_id": "BOE:BOE-A-2015-10565:a82:2016-10-02",
+          "verbatim_quote": "Los interesados, en un plazo no inferior a diez días ni superior a quince, podrán alegar y presentar los documentos y justificaciones que estimen pertinentes."
+         }
+        ]
+       },
+       {
+        "afirmacion": "El cómputo de los plazos por días se realiza a partir del día siguiente al de la notificación y excluye los días inhábiles.",
+        "citas": [
+         {
+          "source_id": "BOE:BOE-A-2015-10565:a30:2016-10-02",
+          "verbatim_quote": "Los plazos expresados en días se contarán a partir del día siguiente a aquel en que tenga lugar la notificación o publicación del acto de que se trate, o desde el siguiente a aquel en que se produzca la estimación o la desestimación por silencio administrativo."
+         },
+         {
+          "source_id": "BOE:BOE-A-2015-10565:a30:2016-10-02",
+          "verbatim_quote": "Siempre que por Ley o en el Derecho de la Unión Europea no se exprese otro cómputo, cuando los plazos se señalen por días, se entiende que éstos son hábiles, excluyéndose del cómputo los sábados, los domingos y los declarados festivos."
+         }
+        ]
+       }
+      ],
+      "importe_estimado_eur": null,
+      "fundamento_cuantia": null
+     },
+     {
+      "id": "C2",
+      "enunciado": "Exigencia de acreditación de los hechos y principio de culpabilidad para la imposición de sanciones",
+      "tipo": "calificacion_juridica",
+      "estimacion": "DEFENSA",
+      "fundamentos": [
+       {
+        "afirmacion": "Para sancionar en vía administrativa es preceptivo acreditar la responsabilidad de la persona infractora a título de dolo o culpa.",
+        "citas": [
+         {
+          "source_id": "BOE:BOE-A-2015-10566:a28:2016-10-02",
+          "verbatim_quote": "Sólo podrán ser sancionadas por hechos constitutivos de infracción administrativa las personas físicas y jurídicas, así como, cuando una Ley les reconozca capacidad de obrar, los grupos de afectados, las uniones y entidades sin personalidad jurídica y los patrimonios independientes o autónomos, que resulten responsables de los mismos a título de dolo o culpa."
+         }
+        ]
+       },
+       {
+        "afirmacion": "La propuesta de resolución administrativa exige motivar de forma expresa los hechos que se consideren probados y valorar las pruebas practicadas.",
+        "citas": [
+         {
+          "source_id": "BOE:BOE-A-2015-10565:a89:2016-10-02",
+          "verbatim_quote": "En la propuesta de resolución se fijarán de forma motivada los hechos que se consideren probados y su exacta calificación jurídica, se determinará la infracción que, en su caso, aquéllos constituyan, la persona o personas responsables y la sanción que se proponga, la valoración de las pruebas practicadas, en especial aquellas que constituyan los fundamentos básicos de la decisión, así como las medidas provisionales que, en su caso, se hubieran adoptado."
+         }
+        ]
+       }
+      ],
+      "importe_estimado_eur": null,
+      "fundamento_cuantia": null
+     }
+    ],
+    "fortalezas": [
+     "Sólo pueden imponerse sanciones por infracción administrativa a quienes resulten legalmente responsables a título de dolo o culpa.",
+     "La resolución sancionadora exige obligatoriamente fijar de forma motivada los hechos probados y la valoración de las pruebas practicadas."
+    ],
+    "debilidades_contraparte": [],
+    "riesgos_propios": [
+     "Si la Administración incorpora durante la instrucción pruebas que justifiquen la infracción y la responsabilidad, formulará propuesta de sanción.",
+     "No consta si la Administración dispone de informes o pruebas que aún no hayan sido puestos de manifiesto en el expediente."
+    ],
+    "pasos_inmediatos": [
+     "Revise el documento notificado para comprobar si menciona anexos o diligencias de prueba.",
+     "Elabore y registre un escrito de alegaciones solicitando el archivo por falta de prueba de los hechos denunciados."
+    ],
+    "plazos": [
+     {
+      "tipo_plazo_id": "ADM_ALEGACIONES_10H",
+      "descripcion": "Alegaciones al acuerdo de inicio de un procedimiento sancionador",
+      "naturaleza": "administrativo",
+      "tipo_computo": "habiles_administrativo",
+      "titular": "usuario",
+      "fecha_inicio": "2026-10-16",
+      "fecha_limite_segura": "2026-10-30",
+      "dia_gracia_hasta": null,
+      "dias_habiles_restantes": 5,
+      "festivos_no_verificados": [],
+      "municipio_ine": "46250",
+      "base_legal": "Arts. 82 y 89 Ley 39/2015",
+      "suspensiones": [],
+      "avisos": [
+       "Festivos locales del municipio no cargados para ese año: confirma las 2 fiestas locales en el boletín oficial de la provincia.",
+       "Comprobar el plazo concreto que indica la notificación (entre 10 y 15 días)."
+      ],
+      "validado_juridicamente": false
+     },
+     {
+      "tipo_plazo_id": "ADM_REPOSICION_1M",
+      "descripcion": "Recurso potestativo de reposición",
+      "naturaleza": "administrativo",
+      "tipo_computo": "meses_fecha_a_fecha",
+      "titular": "usuario",
+      "fecha_inicio": "2026-10-16",
+      "fecha_limite_segura": "2026-11-16",
+      "dia_gracia_hasta": null,
+      "dias_habiles_restantes": null,
+      "festivos_no_verificados": [],
+      "municipio_ine": "46250",
+      "base_legal": "Art. 124 Ley 39/2015; art. 30.4 y 30.5",
+      "suspensiones": [],
+      "avisos": [
+       "Festivos locales del municipio no cargados para ese año: confirma las 2 fiestas locales en el boletín oficial de la provincia."
+      ],
+      "validado_juridicamente": false
+     }
+    ],
+    "postulacion": {
+     "requiere_abogado": false,
+     "requiere_procurador": false,
+     "bloquea_escritos": false,
+     "base_legal": "Ley 39/2015",
+     "texto_usuario": "Las alegaciones y los recursos administrativos (reposición, alzada) no requieren abogado."
+    },
+    "avisos": [
+     "No hay jurisprudencia aplicable en el corpus local: la valoración se apoya solo en la ley. Se ha encolado una búsqueda para ampliar el corpus.",
+     "Interviene una ordenanza municipal que no está en el BOE: adjunta el PDF de la sanción o de la ordenanza para un análisis completo.",
+     "Alguna afirmación no se deduce literalmente de la norma (inferencia)."
+    ],
+    "guardarrailes": {
+     "G1_schema": true,
+     "G2_G3_citas": true,
+     "G4_sin_pronosticos": true,
+     "G5_nli": true,
+     "G6_banda": true,
+     "G8_plazos": true,
+     "G9_postulacion": true
+    },
+    "afirmaciones": [
+     {
+      "seccion": "respuesta",
+      "texto": "Puede formular alegaciones y presentar los documentos o justificaciones que estime oportunos para su defensa.",
+      "tipo": "norma",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2015-10565:a82:2016-10-02",
+        "verbatim_quote": "Los interesados, en un plazo no inferior a diez días ni superior a quince, podrán alegar y presentar los documentos y justificaciones que estimen pertinentes.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "respuesta",
+      "texto": "El plazo legal general para formular alegaciones se sitúa entre un mínimo de diez días y un máximo de quince.",
+      "tipo": "norma",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2015-10565:a82:2016-10-02",
+        "verbatim_quote": "Los interesados, en un plazo no inferior a diez días ni superior a quince, podrán alegar y presentar los documentos y justificaciones que estimen pertinentes.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "respuesta",
+      "texto": "El cómputo de dicho plazo comienza a partir del día siguiente al de la notificación del acto recibido.",
+      "tipo": "norma",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2015-10565:a30:2016-10-02",
+        "verbatim_quote": "Los plazos expresados en días se contarán a partir del día siguiente a aquel en que tenga lugar la notificación o publicación del acto de que se trate, o desde el siguiente a aquel en que se produzca la estimación o la desestimación por silencio administrativo.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "resumen",
+      "texto": "El 16 de octubre de 2026 recibió la notificación de inicio de un expediente sancionador municipal por ruidos.",
+      "tipo": "hecho",
+      "citas": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "La ley le otorga el derecho a formular alegaciones en un plazo de diez a quince días hábiles contados desde el día siguiente a la notificación.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2015-10565:a82:2016-10-02",
+        "verbatim_quote": "Los interesados, en un plazo no inferior a diez días ni superior a quince, podrán alegar y presentar los documentos y justificaciones que estimen pertinentes.",
+        "score": 100.0
+       },
+       {
+        "source_id": "BOE:BOE-A-2015-10565:a30:2016-10-02",
+        "verbatim_quote": "Los plazos expresados en días se contarán a partir del día siguiente a aquel en que tenga lugar la notificación o publicación del acto de que se trate, o desde el siguiente a aquel en que se produzca la estimación o la desestimación por silencio administrativo.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "resumen",
+      "texto": "La Administración no puede sancionarle válidamente sin demostrar la existencia real de los hechos denunciados y su culpabilidad.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2015-10566:a28:2016-10-02",
+        "verbatim_quote": "Sólo podrán ser sancionadas por hechos constitutivos de infracción administrativa las personas físicas y jurídicas, así como, cuando una Ley les reconozca capacidad de obrar, los grupos de afectados, las uniones y entidades sin personalidad jurídica y los patrimonios independientes o autónomos, que resulten responsables de los mismos a título de dolo o culpa.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "resumen",
+      "texto": "No consta en el expediente si la notificación aportada incorpora informe técnico o acta de medición acústica.",
+      "tipo": "limite",
+      "citas": []
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "Sólo pueden imponerse sanciones por infracción administrativa a quienes resulten legalmente responsables a título de dolo o culpa.",
+      "tipo": "norma",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2015-10566:a28:2016-10-02",
+        "verbatim_quote": "Sólo podrán ser sancionadas por hechos constitutivos de infracción administrativa las personas físicas y jurídicas, así como, cuando una Ley les reconozca capacidad de obrar, los grupos de afectados, las uniones y entidades sin personalidad jurídica y los patrimonios independientes o autónomos, que resulten responsables de los mismos a título de dolo o culpa.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "La resolución sancionadora exige obligatoriamente fijar de forma motivada los hechos probados y la valoración de las pruebas practicadas.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2015-10565:a89:2016-10-02",
+        "verbatim_quote": "En la propuesta de resolución se fijarán de forma motivada los hechos que se consideren probados y su exacta calificación jurídica, se determinará la infracción que, en su caso, aquéllos constituyan, la persona o personas responsables y la sanción que se proponga, la valoración de las pruebas practicadas, en especial aquellas que constituyan los fundamentos básicos de la decisión, así como las medidas provisionales que, en su caso, se hubieran adoptado.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "Si la Administración incorpora durante la instrucción pruebas que justifiquen la infracción y la responsabilidad, formulará propuesta de sanción.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2015-10565:a89:2016-10-02",
+        "verbatim_quote": "En el caso de procedimientos de carácter sancionador, una vez concluida la instrucción del procedimiento, el órgano instructor formulará una propuesta de resolución que deberá ser notificada a los interesados.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "No consta si la Administración dispone de informes o pruebas que aún no hayan sido puestos de manifiesto en el expediente.",
+      "tipo": "limite",
+      "citas": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Revise el documento notificado para comprobar si menciona anexos o diligencias de prueba.",
+      "tipo": "consejo",
+      "citas": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Elabore y registre un escrito de alegaciones solicitando el archivo por falta de prueba de los hechos denunciados.",
+      "tipo": "consejo",
+      "citas": []
+     }
+    ],
+    "auditoria": [
+     {
+      "seccion": "respuesta",
+      "texto": "Puede formular alegaciones y presentar los documentos o justificaciones que estime oportunos para su defensa.",
+      "tipo_propuesto": "norma",
+      "resultado": "aceptada",
+      "tipo_final": "norma",
+      "citas_verificadas": [
+       "BOE:BOE-A-2015-10565:a82:2016-10-02"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "respuesta",
+      "texto": "El plazo legal general para formular alegaciones se sitúa entre un mínimo de diez días y un máximo de quince.",
+      "tipo_propuesto": "norma",
+      "resultado": "aceptada",
+      "tipo_final": "norma",
+      "citas_verificadas": [
+       "BOE:BOE-A-2015-10565:a82:2016-10-02"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "respuesta",
+      "texto": "El cómputo de dicho plazo comienza a partir del día siguiente al de la notificación del acto recibido.",
+      "tipo_propuesto": "norma",
+      "resultado": "aceptada",
+      "tipo_final": "norma",
+      "citas_verificadas": [
+       "BOE:BOE-A-2015-10565:a30:2016-10-02"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "El 16 de octubre de 2026 recibió la notificación de inicio de un expediente sancionador municipal por ruidos.",
+      "tipo_propuesto": "hecho",
+      "resultado": "aceptada",
+      "tipo_final": "hecho",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "La ley le otorga el derecho a formular alegaciones en un plazo de diez a quince días hábiles contados desde el día siguiente a la notificación.",
+      "tipo_propuesto": "norma",
+      "resultado": "reclasificada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "BOE:BOE-A-2015-10565:a82:2016-10-02",
+       "BOE:BOE-A-2015-10565:a30:2016-10-02"
+      ],
+      "nli": "NEUTRAL",
+      "motivos": [
+       "la fuente no lo dice literalmente: se muestra como razonamiento"
+      ]
+     },
+     {
+      "seccion": "resumen",
+      "texto": "La Administración no puede sancionarle válidamente sin demostrar la existencia real de los hechos denunciados y su culpabilidad.",
+      "tipo_propuesto": "razonamiento",
+      "resultado": "aceptada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "BOE:BOE-A-2015-10566:a28:2016-10-02"
+      ],
+      "nli": "NEUTRAL",
+      "motivos": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "No consta en el expediente si la notificación aportada incorpora informe técnico o acta de medición acústica.",
+      "tipo_propuesto": "limite",
+      "resultado": "aceptada",
+      "tipo_final": "limite",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "Sólo pueden imponerse sanciones por infracción administrativa a quienes resulten legalmente responsables a título de dolo o culpa.",
+      "tipo_propuesto": "norma",
+      "resultado": "aceptada",
+      "tipo_final": "norma",
+      "citas_verificadas": [
+       "BOE:BOE-A-2015-10566:a28:2016-10-02"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "La resolución sancionadora exige obligatoriamente fijar de forma motivada los hechos probados y la valoración de las pruebas practicadas.",
+      "tipo_propuesto": "norma",
+      "resultado": "reclasificada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "BOE:BOE-A-2015-10565:a89:2016-10-02"
+      ],
+      "nli": "NEUTRAL",
+      "motivos": [
+       "la fuente no lo dice literalmente: se muestra como razonamiento"
+      ]
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "Si la Administración incorpora durante la instrucción pruebas que justifiquen la infracción y la responsabilidad, formulará propuesta de sanción.",
+      "tipo_propuesto": "razonamiento",
+      "resultado": "aceptada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "BOE:BOE-A-2015-10565:a89:2016-10-02"
+      ],
+      "nli": "NEUTRAL",
+      "motivos": []
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "No consta si la Administración dispone de informes o pruebas que aún no hayan sido puestos de manifiesto en el expediente.",
+      "tipo_propuesto": "limite",
+      "resultado": "aceptada",
+      "tipo_final": "limite",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Revise el documento notificado para comprobar si menciona anexos o diligencias de prueba.",
+      "tipo_propuesto": "consejo",
+      "resultado": "aceptada",
+      "tipo_final": "consejo",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Elabore y registre un escrito de alegaciones solicitando el archivo por falta de prueba de los hechos denunciados.",
+      "tipo_propuesto": "consejo",
+      "resultado": "aceptada",
+      "tipo_final": "consejo",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     }
+    ],
+    "respuesta_parcial": false,
+    "hechos_determinantes": [
+     "¿Se encontraba alguna persona en el inmueble durante el día y hora atribuidos a la infracción?"
+    ],
+    "motivos_banda": [
+     "Alguna afirmación no se deduce literalmente de la norma (inferencia)."
+    ],
+    "sello": {
+     "verificado_en": "2026-10-25T18:25:51.726224Z",
+     "fuentes": [
+      {
+       "source_id": "BOE:BOE-A-2015-10565:a30:2016-10-02",
+       "titulo": "Artículo 30 LPAC",
+       "version": "2016-10-02",
+       "sha256": "50703e7709546cbffd799e37182c6306b16081a6629b77f757ad08f0ecd5a94f",
+       "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2015-10565#a30"
+      },
+      {
+       "source_id": "BOE:BOE-A-2015-10565:a82:2016-10-02",
+       "titulo": "Artículo 82 LPAC",
+       "version": "2016-10-02",
+       "sha256": "c17a0b498ba6fe4ff205e37f80b6918247af5decebb9be10d6c9b5202091e87b",
+       "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2015-10565#a82"
+      },
+      {
+       "source_id": "BOE:BOE-A-2015-10565:a89:2016-10-02",
+       "titulo": "Artículo 89 LPAC",
+       "version": "2016-10-02",
+       "sha256": "2973179913f68388250f5cb087c7475b75d3b8eb4e92902f5727d71a0805cb34",
+       "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2015-10565#a89"
+      },
+      {
+       "source_id": "BOE:BOE-A-2015-10566:a28:2016-10-02",
+       "titulo": "Artículo 28 LRJSP",
+       "version": "2016-10-02",
+       "sha256": "1885ca3d8cdbc7c545041d1ab72bcb03db42bfc0712ff5f1d5c9aa0d05dc12c9",
+       "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2015-10566#a28"
+      }
+     ],
+     "afirmaciones_mostradas": 13,
+     "afirmaciones_eliminadas": 0,
+     "modelos": {
+      "triaje": "gemini-3.8-flash-low",
+      "defensa": "gemini-3.8-flash-medium",
+      "contraparte": "gemini-3.8-flash-medium",
+      "magistrado": "gemini-3.8-flash-medium"
+     }
+    },
+    "aviso_legal": "Desemppa es una herramienta personal de información jurídica y apoyo a la autodefensa. No es asesoramiento profesional ni sustituye a un abogado colegiado. Verifica los plazos y las citas en las fuentes oficiales enlazadas antes de actuar. Si no tienes recursos, puedes solicitar asistencia jurídica gratuita (Ley 1/1996) en el Colegio de Abogados de tu partido judicial.",
+    "generado_en": "2026-10-25T18:25:51.727270Z"
+   },
+   "banda_texto": "Bien fundado en la ley, sin sentencias que lo confirmen"
+  },
+  "mensaje": null,
+  "triage": {
+   "schema_version": "1.0",
+   "consulta_id": "434e8291-6aaf-4fe1-b88a-9833c0321f08",
+   "jurisdiccion_principal": "administrativa_previa",
+   "submateria_principal": "ADM_SANCION_MUNICIPAL",
+   "ramas": [
+    {
+     "submateria": "ADM_SANCION_MUNICIPAL",
+     "jurisdiccion": "administrativa_previa",
+     "peso_enrutamiento": 1.0,
+     "justificacion": "Procedimiento sancionador iniciado por un ayuntamiento por infracción de ordenanza municipal relativa a ruidos en terraza."
+    }
+   ],
+   "grado_ambiguedad": 0.0,
+   "requiere_aclaracion": false,
+   "preguntas_aclaracion": [],
+   "datos_criticos_faltantes": [],
+   "fecha_hechos": "2026-10-16",
+   "municipio_ine_organo": "46250",
+   "vecindad_civil": "comun",
+   "cuantia_estimada_eur": null,
+   "alertas_plazo": [
+    {
+     "tipo_plazo_id": "ADM_ALEGACIONES_10H",
+     "fecha_inicio_computo": "2026-10-16",
+     "evento_inicio": "fecha de notificación"
+    },
+    {
+     "tipo_plazo_id": "ADM_REPOSICION_1M",
+     "fecha_inicio_computo": "2026-10-16",
+     "evento_inicio": "fecha de notificación"
+    }
+   ],
+   "normas_boe_objetivo": [
+    {
+     "id_norma": "BOE-A-2015-10565",
+     "articulos": [
+      "30",
+      "82",
+      "89",
+      "124"
+     ],
+     "motivo": "LPAC"
+    },
+    {
+     "id_norma": "BOE-A-2015-10566",
+     "articulos": [
+      "25",
+      "26",
+      "27",
+      "28"
+     ],
+     "motivo": "LRJSP"
+    }
+   ],
+   "terminos_cendoj": [
+    "sanción administrativa",
+    "ordenanza municipal ruidos",
+    "iniciación expediente sancionador",
+    "pliego de cargos",
+    "alegaciones"
+   ],
+   "convenio_aplicable": null,
+   "competencia_local": true,
+   "resumen_hechos": "El ciudadano fue notificado el 16 de octubre de 2026 por el Ayuntamiento de Valencia sobre el inicio de un expediente sancionador por ruidos en su terraza. Desconoce los días exactos concedidos para alegaciones y si consta acta de medición acústica en la notificación. Consulta las opciones de actuación y el plazo legal disponible."
+  },
+  "fuentes": {
+   "BOE:BOE-A-2015-10565:a30:2016-10-02": {
+    "titulo": "Artículo 30 LPAC",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2015-10565#a30",
+    "texto": "Artículo 30. Cómputo de plazos.\n1. Salvo que por Ley o en el Derecho de la Unión Europea se disponga otro cómputo, cuando los plazos se señalen por horas, se entiende que éstas son hábiles. Son hábiles todas las horas del día que formen parte de un día hábil.\nLos plazos expresados por horas se contarán de hora en hora y de minuto en minuto desde la hora y minuto en que tenga lugar la notificación o publicación del acto de que se trate y no podrán tener una duración superior a veinticuatro horas, en cuyo caso se expresarán en días.\n2. Siempre que por Ley o en el Derecho de la Unión Europea no se exprese otro cómputo, cuando los plazos se señalen por días, se entiende que éstos son hábiles, excluyéndose del cómputo los sábados, los domingos y los declarados festivos.\nCuando los plazos se hayan señalado por días naturales por declararlo así una ley o por el Derecho de la Unión Europea, se hará constar esta circunstancia en las correspondientes notificaciones.\n3. Los plazos expresados en días se contarán a partir del día siguiente a aquel en que tenga lugar la notificación o publicación del acto de que se trate, o desde el siguiente a aquel en que se produzca la estimación o la desestimación por silencio administrativo.\n4. Si el plazo se fija en meses o años, éstos se computarán a partir del día siguiente a aquel en que tenga lugar la notificación o publicación del acto de que se trate, o desde el siguiente a aquel en que se produzca la estimación o desestimación por silencio administrativo.\nEl plazo concluirá el mismo día en que se produjo la notificación, publicación o silencio administrativo en el mes o el año de vencimiento. Si en el mes de vencimiento no hubiera día equivalente a aquel en que comienza el cómputo, se entenderá que el plazo expira el último día del mes.\n5. Cuando el último día del plazo sea inhábil, se entenderá prorrogado al primer día hábil siguiente.\n6. Cuando un día fuese hábil en el municipio o Comunidad Autónoma en que residiese el interesado, e inhábil en la sede del órgano administrativo, o a la inversa, se considerará inhábil en todo caso.\n7. La Administración General del Estado y las Administraciones de las Comunidades Autónomas, con sujeción al calendario laboral oficial, fijarán, en su respectivo ámbito, el calendario de días inhábiles a efectos de cómputos de plazos. El calendario aprobado por las Comunidades Autónomas comprenderá los días inhábiles de las Entidades Locales correspondientes a su ámbito territorial, a las que será de aplicación.\nDicho calendario deberá publicarse antes del comienzo de cada año en el diario oficial que corresponda, así como en otros medios de difusión que garanticen su conocimiento generalizado.\n8. La declaración de un día como hábil o inhábil a efectos de cómputo de plazos no determina por sí sola el funcionamiento de los centros de trabajo de las Administraciones Públicas, la organización del tiempo de trabajo o el régimen de jornada y horarios de las mismas."
+   },
+   "BOE:BOE-A-2015-10565:a82:2016-10-02": {
+    "titulo": "Artículo 82 LPAC",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2015-10565#a82",
+    "texto": "Artículo 82. Trámite de audiencia.\n1. Instruidos los procedimientos, e inmediatamente antes de redactar la propuesta de resolución, se pondrán de manifiesto a los interesados o, en su caso, a sus representantes, para lo que se tendrán en cuenta las limitaciones previstas en su caso en la Ley 19/2013, de 9 de diciembre.\nLa audiencia a los interesados será anterior a la solicitud del informe del órgano competente para el asesoramiento jurídico o a la solicitud del Dictamen del Consejo de Estado u órgano consultivo equivalente de la Comunidad Autónoma, en el caso que éstos formaran parte del procedimiento.\n2. Los interesados, en un plazo no inferior a diez días ni superior a quince, podrán alegar y presentar los documentos y justificaciones que estimen pertinentes.\n3. Si antes del vencimiento del plazo los interesados manifiestan su decisión de no efectuar alegaciones ni aportar nuevos documentos o justificaciones, se tendrá por realizado el trámite.\n4. Se podrá prescindir del trámite de audiencia cuando no figuren en el procedimiento ni sean tenidos en cuenta en la resolución otros hechos ni otras alegaciones y pruebas que las aducidas por el interesado.\n5. En los procedimientos de responsabilidad patrimonial a los que se refiere el artículo 32.9 de la Ley de Régimen Jurídico del Sector Público, será necesario en todo caso dar audiencia al contratista, notificándole cuantas actuaciones se realicen en el procedimiento, al efecto de que se persone en el mismo, exponga lo que a su derecho convenga y proponga cuantos medios de prueba estime necesarios."
+   },
+   "BOE:BOE-A-2015-10565:a89:2016-10-02": {
+    "titulo": "Artículo 89 LPAC",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2015-10565#a89",
+    "texto": "Artículo 89. Propuesta de resolución en los procedimientos de carácter sancionador.\n1. El órgano instructor resolverá la finalización del procedimiento, con archivo de las actuaciones, sin que sea necesaria la formulación de la propuesta de resolución, cuando en la instrucción procedimiento se ponga de manifiesto que concurre alguna de las siguientes circunstancias:\na) La inexistencia de los hechos que pudieran constituir la infracción.\nb) Cuando los hechos no resulten acreditados.\nc) Cuando los hechos probados no constituyan, de modo manifiesto, infracción administrativa.\nd) Cuando no exista o no se haya podido identificar a la persona o personas responsables o bien aparezcan exentos de responsabilidad.\ne) Cuando se concluyera, en cualquier momento, que ha prescrito la infracción.\n2. En el caso de procedimientos de carácter sancionador, una vez concluida la instrucción del procedimiento, el órgano instructor formulará una propuesta de resolución que deberá ser notificada a los interesados. La propuesta de resolución deberá indicar la puesta de manifiesto del procedimiento y el plazo para formular alegaciones y presentar los documentos e informaciones que se estimen pertinentes.\n3. En la propuesta de resolución se fijarán de forma motivada los hechos que se consideren probados y su exacta calificación jurídica, se determinará la infracción que, en su caso, aquéllos constituyan, la persona o personas responsables y la sanción que se proponga, la valoración de las pruebas practicadas, en especial aquellas que constituyan los fundamentos básicos de la decisión, así como las medidas provisionales que, en su caso, se hubieran adoptado. Cuando la instrucción concluya la inexistencia de infracción o responsabilidad y no se haga uso de la facultad prevista en el apartado primero, la propuesta declarará esa circunstancia."
+   },
+   "BOE:BOE-A-2015-10566:a28:2016-10-02": {
+    "titulo": "Artículo 28 LRJSP",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2015-10566#a28",
+    "texto": "Artículo 28. Responsabilidad.\n1. Sólo podrán ser sancionadas por hechos constitutivos de infracción administrativa las personas físicas y jurídicas, así como, cuando una Ley les reconozca capacidad de obrar, los grupos de afectados, las uniones y entidades sin personalidad jurídica y los patrimonios independientes o autónomos, que resulten responsables de los mismos a título de dolo o culpa.\n2. Las responsabilidades administrativas que se deriven de la comisión de una infracción serán compatibles con la exigencia al infractor de la reposición de la situación alterada por el mismo a su estado originario, así como con la indemnización por los daños y perjuicios causados, que será determinada y exigida por el órgano al que corresponda el ejercicio de la potestad sancionadora. De no satisfacerse la indemnización en el plazo que al efecto se determine en función de su cuantía, se procederá en la forma prevista en el artículo 101 de la Ley del Procedimiento Administrativo Común de las Administraciones Públicas.\n3. Cuando el cumplimiento de una obligación establecida por una norma con rango de Ley corresponda a varias personas conjuntamente, responderán de forma solidaria de las infracciones que, en su caso, se cometan y de las sanciones que se impongan. No obstante, cuando la sanción sea pecuniaria y sea posible se individualizará en la resolución en función del grado de participación de cada responsable.\n4. Las leyes reguladoras de los distintos regímenes sancionadores podrán tipificar como infracción el incumplimiento de la obligación de prevenir la comisión de infracciones administrativas por quienes se hallen sujetos a una relación de dependencia o vinculación. Asimismo, podrán prever los supuestos en que determinadas personas responderán del pago de las sanciones pecuniarias impuestas a quienes de ellas dependan o estén vinculadas."
+   }
+  }
+ },
+ "origen": "20261025_1843_eco"
+}

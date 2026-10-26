@@ -1,0 +1,616 @@
+{
+ "caso": {
+  "id": "V04",
+  "categoria": "tipico",
+  "materia_esperada": "SOC_VACACIONES",
+  "consulta": "Trabajo en Madrid. El 15 de octubre de 2026 la empresa me comunicó que me cambia las vacaciones que tenía aprobadas para diciembre. ¿Puedo impugnarlo y en qué plazo?",
+  "municipio_ine": "28079",
+  "municipio_nombre": "Madrid",
+  "fecha_hechos": "2026-10-15",
+  "aclaraciones_simuladas": [],
+  "verdad": {
+   "estado_esperado": "CERTIFICADA",
+   "respuesta_esperada": "si",
+   "articulos_clave": [
+    {
+     "norma": "ET",
+     "articulo": "38"
+    },
+    {
+     "norma": "LRJS",
+     "articulo": "125"
+    }
+   ],
+   "plazos": [
+    {
+     "tipo": "SOC_VACACIONES_20H",
+     "inicio": "2026-10-15",
+     "municipio_ine": "28079"
+    }
+   ],
+   "postulacion": {
+    "jurisdiccion": "social",
+    "procedimiento": "vacaciones",
+    "cuantia_eur": null
+   },
+   "puntos_clave": [
+    "Las vacaciones se fijan de común acuerdo y el calendario debe conocerse con antelación (art. 38 ET)",
+    "Hay un procedimiento específico para impugnar la fecha de vacaciones (art. 125 LRJS)"
+   ],
+   "prohibido": []
+  }
+ },
+ "hoja": {
+  "id": "V04",
+  "construida": "2026-10-25",
+  "articulos": [
+   {
+    "norma": "ET",
+    "articulo": "38",
+    "source_id": "BOE:BOE-A-2015-11430:a38:2015-11-13",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2015-11430#a38",
+    "version": "2015-11-13",
+    "sha256": "57dc628b0213eb017a4a6919dc8f09f6e3ff5569f0cc6e4e7ee340808e46ecd0",
+    "texto": "Artículo 38. Vacaciones anuales.\n1. El periodo de vacaciones anuales retribuidas, no sustituible por compensación económica, será el pactado en convenio colectivo o contrato individual. En ningún caso la duración será inferior a treinta días naturales.\n2. El periodo o periodos de su disfrute se fijará de común acuerdo entre el empresario y el trabajador, de conformidad con lo establecido en su caso en los convenios colectivos sobre planificación anual de las vacaciones.\nEn caso de desacuerdo entre las partes, la jurisdicción social fijará la fecha que para el disfrute corresponda y su decisión será irrecurrible. El procedimiento será sumario y preferente.\n3. El calendario de vacaciones se fijará en cada empresa. El trabajador conocerá las fechas que le correspondan dos meses antes, al menos, del comienzo del disfrute.\nCuando el periodo de vacaciones fijado en el calendario de vacaciones de la empresa al que se refiere el párrafo anterior coincida en el tiempo con una incapacidad temporal derivada del embarazo, el parto o la lactancia natural o con el periodo de suspensión del contrato de trabajo previsto en los apartados 4, 5 y 7 del artículo 48, se tendrá derecho a disfrutar las vacaciones en fecha distinta a la de la incapacidad temporal o a la del disfrute del permiso que por aplicación de dicho precepto le correspondiera, al finalizar el periodo de suspensión, aunque haya terminado el año natural a que correspondan.\nEn el supuesto de que el periodo de vacaciones coincida con una incapacidad temporal por contingencias distintas a las señaladas en el párrafo anterior que imposibilite al trabajador disfrutarlas, total o parcialmente, durante el año natural a que corresponden, el trabajador podrá hacerlo una vez finalice su incapacidad y siempre que no hayan transcurrido más de dieciocho meses a partir del final del año en que se hayan originado."
+   },
+   {
+    "norma": "LRJS",
+    "articulo": "125",
+    "source_id": "BOE:BOE-A-2011-15936:a125:2011-12-11",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2011-15936#a125",
+    "version": "2011-12-11",
+    "sha256": "e87e3c9ed7bcc16b6118c71698faccc8205eae724f8d6099c9d0d182d190f9dd",
+    "texto": "Artículo 125. Fijación de vacaciones.\nEl procedimiento para la fijación individual o plural de la fecha de disfrute de las vacaciones se regirá por las reglas siguientes:\na) Cuando la fecha esté precisada en convenio colectivo, o por acuerdo entre el empresario y los representantes de los trabajadores, o hubiera sido fijada unilateralmente por aquél, el trabajador dispondrá de un plazo de veinte días, a partir de aquel en que tuviera conocimiento de dicha fecha, para presentar la demanda en el Juzgado de lo Social.\nb) Cuando no estuviera señalada la fecha de disfrute de las vacaciones, la demanda deberá presentarse, al menos, con dos meses de antelación a la fecha de disfrute pretendida por el trabajador.\nc) Si una vez iniciado el proceso se produjera la fijación de las fechas de disfrute de conformidad con lo previsto en el artículo 38 del Texto Refundido de la Ley del Estatuto de los Trabajadores, no se interrumpirá la continuación del procedimiento.\nd) Cuando el objeto del debate verse sobre preferencias atribuidas a determinados trabajadores, éstos también deberán ser demandados."
+   }
+  ],
+  "plazos": [
+   {
+    "tipo": "SOC_VACACIONES_20H",
+    "inicio": "2026-10-15",
+    "fecha_limite_segura": "2026-11-13",
+    "base_legal": "Art. 125 LRJS"
+   }
+  ],
+  "postulacion": {
+   "requiere_abogado": false,
+   "requiere_procurador": false,
+   "base_legal": "Arts. 18 y 21 LRJS"
+  }
+ },
+ "resultado": {
+  "consulta_id": "7015a6cb-c401-4645-8361-43cb6f49ce59",
+  "modo": "eco",
+  "fecha": "2026-10-25",
+  "estado": "CERTIFICADA",
+  "duracion_s": 196,
+  "aclaraciones": [
+   {
+    "pregunta": "¿Dispones de prueba documental o comunicación escrita que acredite la aprobación previa de las vacaciones de diciembre?",
+    "respuesta": "No lo sé"
+   }
+  ],
+  "dictamen": {
+   "estado": "CERTIFICADA",
+   "dictamen": {
+    "schema_version": "1.0",
+    "consulta_id": "7015a6cb-c401-4645-8361-43cb6f49ce59",
+    "modo": "eco",
+    "modelos_usados": {
+     "triaje": "gemini-3.8-flash-low",
+     "defensa": "gemini-3.8-flash-medium",
+     "contraparte": "gemini-3.8-flash-medium",
+     "magistrado": "gemini-3.8-flash-medium"
+    },
+    "banda_solidez": "argumento_solido_sin_doctrina",
+    "respuesta_directa": "Sí puedes impugnar la decisión empresarial ante la jurisdicción social en caso de desacuerdo con las fechas. El plazo legal para presentar la demanda en el Juzgado de lo Social es de veinte días a partir de aquel en que tuviste conocimiento de la fecha.",
+    "resumen_ciudadano": "La empresa te comunicó el cambio de tus vacaciones el 15 de octubre de 2026. Las vacaciones deben acordarse obligatoriamente de común acuerdo y no imponerse unilateralmente. Si no hay acuerdo sobre las fechas, el juzgado se encarga de resolver la controversia mediante un proceso urgente. La ley concede veinte días desde que se conoce la fecha fijada por la empresa para interponer la demanda judicial.",
+    "fundamentos": [
+     {
+      "texto": "Las vacaciones deben acordarse entre ambas partes y, en caso de discrepancia, la jurisdicción social es la encargada de fijar la fecha definitiva.",
+      "source_id": "BOE:BOE-A-2015-11430:a38:2015-11-13",
+      "verbatim_quote": "El periodo o periodos de su disfrute se fijará de común acuerdo entre el empresario y el trabajador, de conformidad con lo establecido en su caso en los convenios colectivos sobre planificación anual de las vacaciones.",
+      "fuzzy_score": 100.0,
+      "nli": "NEUTRAL",
+      "offsets": [
+       256,
+       474
+      ]
+     },
+     {
+      "texto": "Cuando la fecha de vacaciones ha sido determinada unilateralmente por la empresa, el trabajador cuenta con un plazo de veinte días desde que tuvo conocimiento de la misma para demandar.",
+      "source_id": "BOE:BOE-A-2011-15936:a125:2011-12-11",
+      "verbatim_quote": "Cuando la fecha esté precisada en convenio colectivo, o por acuerdo entre el empresario y los representantes de los trabajadores, o hubiera sido fijada unilateralmente por aquél, el trabajador dispondrá de un plazo de veinte días, a partir de aquel en que tuviera conocimiento de dicha fecha, para presentar la demanda en el Juzgado de lo Social.",
+      "fuzzy_score": 100.0,
+      "nli": "ENTAILS",
+      "offsets": [
+       174,
+       520
+      ]
+     }
+    ],
+    "cuestiones": [
+     {
+      "id": "C1",
+      "enunciado": "Determinación de si el trabajador puede impugnar ante los tribunales la modificación de las vacaciones fijada por la empresa.",
+      "tipo": "calificacion_juridica",
+      "estimacion": "DEFENSA",
+      "fundamentos": [
+       {
+        "afirmacion": "Las vacaciones deben acordarse entre ambas partes y, en caso de discrepancia, la jurisdicción social es la encargada de fijar la fecha definitiva.",
+        "citas": [
+         {
+          "source_id": "BOE:BOE-A-2015-11430:a38:2015-11-13",
+          "verbatim_quote": "El periodo o periodos de su disfrute se fijará de común acuerdo entre el empresario y el trabajador, de conformidad con lo establecido en su caso en los convenios colectivos sobre planificación anual de las vacaciones."
+         },
+         {
+          "source_id": "BOE:BOE-A-2015-11430:a38:2015-11-13",
+          "verbatim_quote": "En caso de desacuerdo entre las partes, la jurisdicción social fijará la fecha que para el disfrute corresponda y su decisión será irrecurrible. El procedimiento será sumario y preferente."
+         }
+        ]
+       }
+      ],
+      "importe_estimado_eur": null,
+      "fundamento_cuantia": null
+     },
+     {
+      "id": "C2",
+      "enunciado": "Plazo legal disponible para presentar la demanda judicial frente a la fijación o cambio unilateral de las vacaciones.",
+      "tipo": "plazo",
+      "estimacion": "DEFENSA",
+      "fundamentos": [
+       {
+        "afirmacion": "Cuando la fecha de vacaciones ha sido determinada unilateralmente por la empresa, el trabajador cuenta con un plazo de veinte días desde que tuvo conocimiento de la misma para demandar.",
+        "citas": [
+         {
+          "source_id": "BOE:BOE-A-2011-15936:a125:2011-12-11",
+          "verbatim_quote": "Cuando la fecha esté precisada en convenio colectivo, o por acuerdo entre el empresario y los representantes de los trabajadores, o hubiera sido fijada unilateralmente por aquél, el trabajador dispondrá de un plazo de veinte días, a partir de aquel en que tuviera conocimiento de dicha fecha, para presentar la demanda en el Juzgado de lo Social."
+         }
+        ]
+       }
+      ],
+      "importe_estimado_eur": null,
+      "fundamento_cuantia": null
+     }
+    ],
+    "fortalezas": [
+     "El periodo de disfrute requiere por mandato legal el común acuerdo entre la empresa y el trabajador.",
+     "La ley regula un procedimiento sumario, urgente y preferente específico para fijar las vacaciones ante discrepancias."
+    ],
+    "debilidades_contraparte": [],
+    "riesgos_propios": [
+     "Si no se presentara la demanda dentro del plazo de veinte días desde la comunicación, la impugnación judicial podría decaer.",
+     "No consta en el relato la existencia de un justificante previo de concesión de las fechas iniciales."
+    ],
+    "pasos_inmediatos": [
+     "Reúne la comunicación del cambio de vacaciones y cualquier correo o mensaje previo relativo a la solicitud.",
+     "Comprueba los registros internos de la empresa para buscar constancia de la petición inicial."
+    ],
+    "plazos": [
+     {
+      "tipo_plazo_id": "SOC_VACACIONES_20H",
+      "descripcion": "Impugnar la fecha de disfrute de vacaciones",
+      "naturaleza": "caducidad",
+      "tipo_computo": "habiles_social_caducidad",
+      "titular": "usuario",
+      "fecha_inicio": "2026-10-15",
+      "fecha_limite_segura": "2026-11-13",
+      "dia_gracia_hasta": null,
+      "dias_habiles_restantes": 14,
+      "festivos_no_verificados": [],
+      "municipio_ine": "28079",
+      "base_legal": "Art. 125 LRJS",
+      "suspensiones": [],
+      "avisos": [
+       "Festivos locales del municipio no cargados para ese año: confirma las 2 fiestas locales en el boletín oficial de la provincia."
+      ],
+      "validado_juridicamente": false
+     }
+    ],
+    "postulacion": {
+     "requiere_abogado": false,
+     "requiere_procurador": false,
+     "bloquea_escritos": false,
+     "base_legal": "Arts. 18 y 21 LRJS",
+     "texto_usuario": "En la primera instancia social puedes comparecer por ti mismo, aunque es muy recomendable contar con abogado, graduado social o sindicato. Antes de la demanda es obligatoria la papeleta de conciliación (SMAC)."
+    },
+    "avisos": [
+     "No se ha identificado tu convenio colectivo (indica tu sector o convenio en la consulta): el análisis no cita cláusulas de convenio.",
+     "No hay jurisprudencia aplicable en el corpus local: la valoración se apoya solo en la ley. Se ha encolado una búsqueda para ampliar el corpus.",
+     "Alguna afirmación no se deduce literalmente de la norma (inferencia)."
+    ],
+    "guardarrailes": {
+     "G1_schema": true,
+     "G2_G3_citas": true,
+     "G4_sin_pronosticos": true,
+     "G5_nli": true,
+     "G6_banda": true,
+     "G8_plazos": true,
+     "G9_postulacion": true
+    },
+    "afirmaciones": [
+     {
+      "seccion": "respuesta",
+      "texto": "Sí puedes impugnar la decisión empresarial ante la jurisdicción social en caso de desacuerdo con las fechas.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2015-11430:a38:2015-11-13",
+        "verbatim_quote": "En caso de desacuerdo entre las partes, la jurisdicción social fijará la fecha que para el disfrute corresponda y su decisión será irrecurrible. El procedimiento será sumario y preferente.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "respuesta",
+      "texto": "El plazo legal para presentar la demanda en el Juzgado de lo Social es de veinte días a partir de aquel en que tuviste conocimiento de la fecha.",
+      "tipo": "norma",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2011-15936:a125:2011-12-11",
+        "verbatim_quote": "Cuando la fecha esté precisada en convenio colectivo, o por acuerdo entre el empresario y los representantes de los trabajadores, o hubiera sido fijada unilateralmente por aquél, el trabajador dispondrá de un plazo de veinte días, a partir de aquel en que tuviera conocimiento de dicha fecha, para presentar la demanda en el Juzgado de lo Social.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "resumen",
+      "texto": "La empresa te comunicó el cambio de tus vacaciones el 15 de octubre de 2026.",
+      "tipo": "hecho",
+      "citas": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "Las vacaciones deben acordarse obligatoriamente de común acuerdo y no imponerse unilateralmente.",
+      "tipo": "norma",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2015-11430:a38:2015-11-13",
+        "verbatim_quote": "El periodo o periodos de su disfrute se fijará de común acuerdo entre el empresario y el trabajador, de conformidad con lo establecido en su caso en los convenios colectivos sobre planificación anual de las vacaciones.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "resumen",
+      "texto": "Si no hay acuerdo sobre las fechas, el juzgado se encarga de resolver la controversia mediante un proceso urgente.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2015-11430:a38:2015-11-13",
+        "verbatim_quote": "En caso de desacuerdo entre las partes, la jurisdicción social fijará la fecha que para el disfrute corresponda y su decisión será irrecurrible. El procedimiento será sumario y preferente.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "resumen",
+      "texto": "La ley concede veinte días desde que se conoce la fecha fijada por la empresa para interponer la demanda judicial.",
+      "tipo": "norma",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2011-15936:a125:2011-12-11",
+        "verbatim_quote": "Cuando la fecha esté precisada en convenio colectivo, o por acuerdo entre el empresario y los representantes de los trabajadores, o hubiera sido fijada unilateralmente por aquél, el trabajador dispondrá de un plazo de veinte días, a partir de aquel en que tuviera conocimiento de dicha fecha, para presentar la demanda en el Juzgado de lo Social.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "El periodo de disfrute requiere por mandato legal el común acuerdo entre la empresa y el trabajador.",
+      "tipo": "norma",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2015-11430:a38:2015-11-13",
+        "verbatim_quote": "El periodo o periodos de su disfrute se fijará de común acuerdo entre el empresario y el trabajador, de conformidad con lo establecido en su caso en los convenios colectivos sobre planificación anual de las vacaciones.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "La ley regula un procedimiento sumario, urgente y preferente específico para fijar las vacaciones ante discrepancias.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2015-11430:a38:2015-11-13",
+        "verbatim_quote": "En caso de desacuerdo entre las partes, la jurisdicción social fijará la fecha que para el disfrute corresponda y su decisión será irrecurrible. El procedimiento será sumario y preferente.",
+        "score": 100.0
+       },
+       {
+        "source_id": "BOE:BOE-A-2011-15936:a126:2011-12-11",
+        "verbatim_quote": "El procedimiento será urgente y se le dará tramitación preferente. El acto de la vista habrá de señalarse por el secretario judicial dentro de los cinco días siguientes al de la admisión de la demanda. La sentencia, que no tendrá recurso, deberá ser dictada en el plazo de tres días.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "Si no se presentara la demanda dentro del plazo de veinte días desde la comunicación, la impugnación judicial podría decaer.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2011-15936:a125:2011-12-11",
+        "verbatim_quote": "Cuando la fecha esté precisada en convenio colectivo, o por acuerdo entre el empresario y los representantes de los trabajadores, o hubiera sido fijada unilateralmente por aquél, el trabajador dispondrá de un plazo de veinte días, a partir de aquel en que tuviera conocimiento de dicha fecha, para presentar la demanda en el Juzgado de lo Social.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "No consta en el relato la existencia de un justificante previo de concesión de las fechas iniciales.",
+      "tipo": "limite",
+      "citas": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Reúne la comunicación del cambio de vacaciones y cualquier correo o mensaje previo relativo a la solicitud.",
+      "tipo": "consejo",
+      "citas": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Comprueba los registros internos de la empresa para buscar constancia de la petición inicial.",
+      "tipo": "consejo",
+      "citas": []
+     }
+    ],
+    "auditoria": [
+     {
+      "seccion": "respuesta",
+      "texto": "Sí puedes impugnar la decisión empresarial ante la jurisdicción social en caso de desacuerdo con las fechas.",
+      "tipo_propuesto": "razonamiento",
+      "resultado": "aceptada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "BOE:BOE-A-2015-11430:a38:2015-11-13"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "respuesta",
+      "texto": "El plazo legal para presentar la demanda en el Juzgado de lo Social es de veinte días a partir de aquel en que tuviste conocimiento de la fecha.",
+      "tipo_propuesto": "norma",
+      "resultado": "aceptada",
+      "tipo_final": "norma",
+      "citas_verificadas": [
+       "BOE:BOE-A-2011-15936:a125:2011-12-11"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "La empresa te comunicó el cambio de tus vacaciones el 15 de octubre de 2026.",
+      "tipo_propuesto": "hecho",
+      "resultado": "aceptada",
+      "tipo_final": "hecho",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "Las vacaciones deben acordarse obligatoriamente de común acuerdo y no imponerse unilateralmente.",
+      "tipo_propuesto": "norma",
+      "resultado": "aceptada",
+      "tipo_final": "norma",
+      "citas_verificadas": [
+       "BOE:BOE-A-2015-11430:a38:2015-11-13"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "Si no hay acuerdo sobre las fechas, el juzgado se encarga de resolver la controversia mediante un proceso urgente.",
+      "tipo_propuesto": "razonamiento",
+      "resultado": "aceptada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "BOE:BOE-A-2015-11430:a38:2015-11-13"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "La ley concede veinte días desde que se conoce la fecha fijada por la empresa para interponer la demanda judicial.",
+      "tipo_propuesto": "norma",
+      "resultado": "aceptada",
+      "tipo_final": "norma",
+      "citas_verificadas": [
+       "BOE:BOE-A-2011-15936:a125:2011-12-11"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "El periodo de disfrute requiere por mandato legal el común acuerdo entre la empresa y el trabajador.",
+      "tipo_propuesto": "norma",
+      "resultado": "aceptada",
+      "tipo_final": "norma",
+      "citas_verificadas": [
+       "BOE:BOE-A-2015-11430:a38:2015-11-13"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "La ley regula un procedimiento sumario, urgente y preferente específico para fijar las vacaciones ante discrepancias.",
+      "tipo_propuesto": "razonamiento",
+      "resultado": "aceptada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "BOE:BOE-A-2015-11430:a38:2015-11-13",
+       "BOE:BOE-A-2011-15936:a126:2011-12-11"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "Si no se presentara la demanda dentro del plazo de veinte días desde la comunicación, la impugnación judicial podría decaer.",
+      "tipo_propuesto": "razonamiento",
+      "resultado": "aceptada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "BOE:BOE-A-2011-15936:a125:2011-12-11"
+      ],
+      "nli": "NEUTRAL",
+      "motivos": []
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "No consta en el relato la existencia de un justificante previo de concesión de las fechas iniciales.",
+      "tipo_propuesto": "limite",
+      "resultado": "aceptada",
+      "tipo_final": "limite",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Reúne la comunicación del cambio de vacaciones y cualquier correo o mensaje previo relativo a la solicitud.",
+      "tipo_propuesto": "consejo",
+      "resultado": "aceptada",
+      "tipo_final": "consejo",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Comprueba los registros internos de la empresa para buscar constancia de la petición inicial.",
+      "tipo_propuesto": "consejo",
+      "resultado": "aceptada",
+      "tipo_final": "consejo",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     }
+    ],
+    "respuesta_parcial": false,
+    "hechos_determinantes": [],
+    "motivos_banda": [
+     "Alguna afirmación no se deduce literalmente de la norma (inferencia)."
+    ],
+    "sello": {
+     "verificado_en": "2026-10-25T17:58:54.447838Z",
+     "fuentes": [
+      {
+       "source_id": "BOE:BOE-A-2011-15936:a125:2011-12-11",
+       "titulo": "Artículo 125 LRJS",
+       "version": "2011-12-11",
+       "sha256": "e87e3c9ed7bcc16b6118c71698faccc8205eae724f8d6099c9d0d182d190f9dd",
+       "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2011-15936#a125"
+      },
+      {
+       "source_id": "BOE:BOE-A-2011-15936:a126:2011-12-11",
+       "titulo": "Artículo 126 LRJS",
+       "version": "2011-12-11",
+       "sha256": "6093bb5162c46eb6c241ca7282b36a3c93ee11a99e466bbc3f7a3b2285c77a2e",
+       "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2011-15936#a126"
+      },
+      {
+       "source_id": "BOE:BOE-A-2015-11430:a38:2015-11-13",
+       "titulo": "Artículo 38 ET",
+       "version": "2015-11-13",
+       "sha256": "57dc628b0213eb017a4a6919dc8f09f6e3ff5569f0cc6e4e7ee340808e46ecd0",
+       "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2015-11430#a38"
+      }
+     ],
+     "afirmaciones_mostradas": 12,
+     "afirmaciones_eliminadas": 0,
+     "modelos": {
+      "triaje": "gemini-3.8-flash-low",
+      "defensa": "gemini-3.8-flash-medium",
+      "contraparte": "gemini-3.8-flash-medium",
+      "magistrado": "gemini-3.8-flash-medium"
+     }
+    },
+    "aviso_legal": "Desemppa es una herramienta personal de información jurídica y apoyo a la autodefensa. No es asesoramiento profesional ni sustituye a un abogado colegiado. Verifica los plazos y las citas en las fuentes oficiales enlazadas antes de actuar. Si no tienes recursos, puedes solicitar asistencia jurídica gratuita (Ley 1/1996) en el Colegio de Abogados de tu partido judicial.",
+    "generado_en": "2026-10-25T17:58:54.447838Z"
+   },
+   "banda_texto": "Bien fundado en la ley, sin sentencias que lo confirmen"
+  },
+  "mensaje": null,
+  "triage": {
+   "schema_version": "1.0",
+   "consulta_id": "7015a6cb-c401-4645-8361-43cb6f49ce59",
+   "jurisdiccion_principal": "social",
+   "submateria_principal": "SOC_VACACIONES",
+   "ramas": [
+    {
+     "submateria": "SOC_VACACIONES",
+     "jurisdiccion": "social",
+     "peso_enrutamiento": 1.0,
+     "justificacion": "La consulta versa sobre la modificación unilateral del período de vacaciones fijado o aprobado por la empresa en el ámbito de una relación laboral."
+    }
+   ],
+   "grado_ambiguedad": 0.0,
+   "requiere_aclaracion": false,
+   "preguntas_aclaracion": [],
+   "datos_criticos_faltantes": [],
+   "fecha_hechos": "2026-10-15",
+   "municipio_ine_organo": "28079",
+   "vecindad_civil": "comun",
+   "cuantia_estimada_eur": null,
+   "alertas_plazo": [
+    {
+     "tipo_plazo_id": "SOC_VACACIONES_20H",
+     "fecha_inicio_computo": "2026-10-15",
+     "evento_inicio": "fecha en que conociste el calendario de vacaciones"
+    }
+   ],
+   "normas_boe_objetivo": [
+    {
+     "id_norma": "BOE-A-2015-11430",
+     "articulos": [
+      "38"
+     ],
+     "motivo": "ET"
+    },
+    {
+     "id_norma": "BOE-A-2011-15936",
+     "articulos": [
+      "125",
+      "126"
+     ],
+     "motivo": "LRJS"
+    }
+   ],
+   "terminos_cendoj": [
+    "fijación de vacaciones",
+    "modificación de vacaciones",
+    "impugnación vacaciones plazo",
+    "artículo 125 LRJS",
+    "artículo 38 Estatuto de los Trabajadores"
+   ],
+   "convenio_aplicable": null,
+   "competencia_local": false,
+   "resumen_hechos": "El trabajador presta servicios en Madrid. El 15 de octubre de 2026 la empresa le comunicó la modificación de las vacaciones que tenía previamente concedidas para el mes de diciembre. El interesado consulta sobre la posibilidad legal de impugnar dicha decisión empresarial y el plazo del que dispone para ello. Consta desconocimiento sobre la existencia de justificante escrito de la autorización inicial."
+  },
+  "fuentes": {
+   "BOE:BOE-A-2011-15936:a125:2011-12-11": {
+    "titulo": "Artículo 125 LRJS",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2011-15936#a125",
+    "texto": "Artículo 125. Fijación de vacaciones.\nEl procedimiento para la fijación individual o plural de la fecha de disfrute de las vacaciones se regirá por las reglas siguientes:\na) Cuando la fecha esté precisada en convenio colectivo, o por acuerdo entre el empresario y los representantes de los trabajadores, o hubiera sido fijada unilateralmente por aquél, el trabajador dispondrá de un plazo de veinte días, a partir de aquel en que tuviera conocimiento de dicha fecha, para presentar la demanda en el Juzgado de lo Social.\nb) Cuando no estuviera señalada la fecha de disfrute de las vacaciones, la demanda deberá presentarse, al menos, con dos meses de antelación a la fecha de disfrute pretendida por el trabajador.\nc) Si una vez iniciado el proceso se produjera la fijación de las fechas de disfrute de conformidad con lo previsto en el artículo 38 del Texto Refundido de la Ley del Estatuto de los Trabajadores, no se interrumpirá la continuación del procedimiento.\nd) Cuando el objeto del debate verse sobre preferencias atribuidas a determinados trabajadores, éstos también deberán ser demandados."
+   },
+   "BOE:BOE-A-2011-15936:a126:2011-12-11": {
+    "titulo": "Artículo 126 LRJS",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2011-15936#a126",
+    "texto": "Artículo 126. Urgencia del procedimiento.\nEl procedimiento será urgente y se le dará tramitación preferente. El acto de la vista habrá de señalarse por el secretario judicial dentro de los cinco días siguientes al de la admisión de la demanda. La sentencia, que no tendrá recurso, deberá ser dictada en el plazo de tres días."
+   },
+   "BOE:BOE-A-2015-11430:a38:2015-11-13": {
+    "titulo": "Artículo 38 ET",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2015-11430#a38",
+    "texto": "Artículo 38. Vacaciones anuales.\n1. El periodo de vacaciones anuales retribuidas, no sustituible por compensación económica, será el pactado en convenio colectivo o contrato individual. En ningún caso la duración será inferior a treinta días naturales.\n2. El periodo o periodos de su disfrute se fijará de común acuerdo entre el empresario y el trabajador, de conformidad con lo establecido en su caso en los convenios colectivos sobre planificación anual de las vacaciones.\nEn caso de desacuerdo entre las partes, la jurisdicción social fijará la fecha que para el disfrute corresponda y su decisión será irrecurrible. El procedimiento será sumario y preferente.\n3. El calendario de vacaciones se fijará en cada empresa. El trabajador conocerá las fechas que le correspondan dos meses antes, al menos, del comienzo del disfrute.\nCuando el periodo de vacaciones fijado en el calendario de vacaciones de la empresa al que se refiere el párrafo anterior coincida en el tiempo con una incapacidad temporal derivada del embarazo, el parto o la lactancia natural o con el periodo de suspensión del contrato de trabajo previsto en los apartados 4, 5 y 7 del artículo 48, se tendrá derecho a disfrutar las vacaciones en fecha distinta a la de la incapacidad temporal o a la del disfrute del permiso que por aplicación de dicho precepto le correspondiera, al finalizar el periodo de suspensión, aunque haya terminado el año natural a que correspondan.\nEn el supuesto de que el periodo de vacaciones coincida con una incapacidad temporal por contingencias distintas a las señaladas en el párrafo anterior que imposibilite al trabajador disfrutarlas, total o parcialmente, durante el año natural a que corresponden, el trabajador podrá hacerlo una vez finalice su incapacidad y siempre que no hayan transcurrido más de dieciocho meses a partir del final del año en que se hayan originado."
+   }
+  }
+ },
+ "origen": "20261025_1843_eco"
+}

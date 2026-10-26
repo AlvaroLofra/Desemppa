@@ -1,0 +1,789 @@
+{
+ "caso": {
+  "id": "V11",
+  "categoria": "tipico",
+  "materia_esperada": "CIV_LPH_IMPUGNACION",
+  "consulta": "En la junta de propietarios de mi edificio en Madrid del 15 de septiembre de 2026 se aprobó una derrama de 4.000 euros por vecino para cambiar el ascensor. Yo voté en contra. ¿Puedo impugnarla y hasta cuándo?",
+  "municipio_ine": "28079",
+  "municipio_nombre": "Madrid",
+  "fecha_hechos": "2026-09-15",
+  "aclaraciones_simuladas": [],
+  "verdad": {
+   "estado_esperado": "CERTIFICADA",
+   "respuesta_esperada": "depende",
+   "articulos_clave": [
+    {
+     "norma": "LPH",
+     "articulo": "18"
+    }
+   ],
+   "plazos": [
+    {
+     "tipo": "CIV_LPH_IMPUGNA_3M",
+     "inicio": "2026-09-15",
+     "municipio_ine": "28079"
+    }
+   ],
+   "postulacion": {
+    "jurisdiccion": "civil",
+    "procedimiento": "ordinario",
+    "cuantia_eur": 4000
+   },
+   "puntos_clave": [
+    "Los acuerdos se impugnan en los supuestos del art. 18 LPH",
+    "Plazo de tres meses desde el acuerdo (art. 18.3 LPH, calculado por el motor)",
+    "Para impugnar hay que estar al corriente de pago de las deudas con la comunidad (art. 18.2 LPH)"
+   ],
+   "prohibido": []
+  }
+ },
+ "hoja": {
+  "id": "V11",
+  "construida": "2026-10-25",
+  "articulos": [
+   {
+    "norma": "LPH",
+    "articulo": "18",
+    "source_id": "BOE:BOE-A-1960-10906:adieciocho:1999-04-28",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-1960-10906#adieciocho",
+    "version": "1999-04-28",
+    "sha256": "fb9bd71dc0777e2b4915ba76f0af328509a5259d809f3023a210522aff57663d",
+    "texto": "Artículo dieciocho.\n1. Los acuerdos de la Junta de Propietarios serán impugnables ante los tribunales de conformidad con lo establecido en la legislación procesal general, en los siguientes supuestos:\na) Cuando sean contrarios a la ley o a los estatutos de la comunidad de propietarios.\nb) Cuando resulten gravemente lesivos para los intereses de la propia comunidad en beneficio de uno o varios propietarios.\nc) Cuando supongan un grave perjuicio para algún propietario que no tenga obligación jurídica de soportarlo o se hayan adoptado con abuso de derecho.\n2. Estarán legitimados para la impugnación de estos acuerdos los propietarios que hubiesen salvado su voto en la Junta, los ausentes por cualquier causa y los que indebidamente hubiesen sido privados de su derecho de voto. Para impugnar los acuerdos de la Junta el propietario deberá estar al corriente en el pago de la totalidad de las deudas vencidas con la comunidad o proceder previamente a la consignación judicial de las mismas. Esta regla no será de aplicación para la impugnación de los acuerdos de la Junta relativos al establecimiento o alteración de las cuotas de participación a que se refiere el artículo 9 entre los propietarios.\n3. La acción caducará a los tres meses de adoptarse el acuerdo por la Junta de propietarios, salvo que se trate de actos contrarios a la ley o a los estatutos, en cuyo caso la acción caducará al año. Para los propietarios ausentes dicho plazo se computará a partir de la comunicación del acuerdo conforme al procedimiento establecido en el artículo 9.\n4. La impugnación de los acuerdos de la Junta no suspenderá su ejecución, salvo que el juez así lo disponga con carácter cautelar, a solicitud del demandante, oída la comunidad de propietarios."
+   }
+  ],
+  "plazos": [
+   {
+    "tipo": "CIV_LPH_IMPUGNA_3M",
+    "inicio": "2026-09-15",
+    "fecha_limite_segura": "2026-12-15",
+    "base_legal": "Art. 18.3 LPH"
+   }
+  ],
+  "postulacion": {
+   "requiere_abogado": true,
+   "requiere_procurador": true,
+   "base_legal": "Arts. 23 y 31 LEC; arts. 5 y 10 LO 1/2025"
+  }
+ },
+ "resultado": {
+  "consulta_id": "d1310ba7-9c7d-42ab-89b6-c5e32800cace",
+  "modo": "eco",
+  "fecha": "2026-10-25",
+  "estado": "CERTIFICADA",
+  "duracion_s": 265,
+  "aclaraciones": [
+   {
+    "pregunta": "¿estás al corriente de pago?",
+    "respuesta": "No lo sé"
+   },
+   {
+    "pregunta": "¿es contrario a la ley o los estatutos?",
+    "respuesta": "No lo sé"
+   },
+   {
+    "pregunta": "¿Ha remitido a la comunidad una propuesta o solicitud formal por escrito para iniciar una negociación previa?",
+    "respuesta": "No lo sé"
+   }
+  ],
+  "dictamen": {
+   "estado": "CERTIFICADA",
+   "dictamen": {
+    "schema_version": "1.0",
+    "consulta_id": "d1310ba7-9c7d-42ab-89b6-c5e32800cace",
+    "modo": "eco",
+    "modelos_usados": {
+     "triaje": "gemini-3.8-flash-low",
+     "defensa": "gemini-3.8-flash-medium",
+     "contraparte": "gemini-3.8-flash-medium",
+     "magistrado": "gemini-3.8-flash-medium"
+    },
+    "banda_solidez": "argumento_solido_sin_doctrina",
+    "respuesta_directa": "Puedes impugnar judicialmente el acuerdo por haber votado en contra en la junta, siempre que estés al corriente de pago de las deudas vencidas con la comunidad o procedas a su previa consignación. El plazo para impugnar es de tres meses desde la adopción del acuerdo, o de un año si se funda en que el acuerdo es contrario a la ley o a los estatutos. Antes de acudir al juzgado es legalmente obligatorio intentar una actividad negociadora previa con la comunidad y justificarla por escrito.",
+    "resumen_ciudadano": "Votaste en contra del acuerdo de la derrama de 4.000 euros en la reunión de propietarios. Haber votado en contra te otorga el derecho legal a impugnar la decisión ante el juzgado. Para que tu demanda sea admitida es imprescindible estar al corriente en todos los pagos de la comunidad o consignar las deudas. El plazo de caducidad fijado por ley es de tres meses de forma ordinaria, o de un año si el acuerdo vulnera la ley o las normas estatutarias. La ley exige realizar un intento documentado de mediación o negociación con la comunidad antes de demandar.",
+    "fundamentos": [
+     {
+      "texto": "La ley reconoce legitimación para impugnar los acuerdos comunitarios a los propietarios que hubiesen salvado su voto en la junta, exigiendo estar al corriente de pago de las deudas vencidas o consignarlas judicialmente.",
+      "source_id": "BOE:BOE-A-1960-10906:adieciocho:1999-04-28",
+      "verbatim_quote": "Estarán legitimados para la impugnación de estos acuerdos los propietarios que hubiesen salvado su voto en la Junta, los ausentes por cualquier causa y los que indebidamente hubiesen sido privados de su derecho de voto.",
+      "fuzzy_score": 100.0,
+      "nli": "NEUTRAL",
+      "offsets": [
+       563,
+       782
+      ]
+     },
+     {
+      "texto": "La acción de impugnación caduca con carácter general a los tres meses de adoptarse el acuerdo, o al año si se trata de actos contrarios a la ley o a los estatutos.",
+      "source_id": "BOE:BOE-A-1960-10906:adieciocho:1999-04-28",
+      "verbatim_quote": "La acción caducará a los tres meses de adoptarse el acuerdo por la Junta de propietarios, salvo que se trate de actos contrarios a la ley o a los estatutos, en cuyo caso la acción caducará al año.",
+      "fuzzy_score": 100.0,
+      "nli": "ENTAILS",
+      "offsets": [
+       1207,
+       1403
+      ]
+     },
+     {
+      "texto": "Para la admisión de la demanda civil se exige acudir previamente a un medio adecuado de solución de controversias y acreditar documentalmente dicho intento negociador.",
+      "source_id": "BOE:BOE-A-2025-76:a5:2025-04-03",
+      "verbatim_quote": "En el orden jurisdiccional civil, con carácter general, para que sea admisible la demanda se considerará requisito de procedibilidad acudir previamente a algún medio adecuado de solución de controversias de los previstos en el artículo 2.",
+      "fuzzy_score": 100.0,
+      "nli": "NEUTRAL",
+      "offsets": [
+       44,
+       282
+      ]
+     },
+     {
+      "texto": "Para la admisión de la demanda civil se exige acudir previamente a un medio adecuado de solución de controversias y acreditar documentalmente dicho intento negociador.",
+      "source_id": "BOE:BOE-A-2025-76:a1-2:2025-04-03",
+      "verbatim_quote": "A los efectos de acreditar que se ha intentado una actividad negociadora previa y cumplir el requisito de procedibilidad, dicha actividad negociadora o el intento de la misma deberá ser recogida documentalmente.",
+      "fuzzy_score": 100.0,
+      "nli": "NEUTRAL",
+      "offsets": [
+       95,
+       306
+      ]
+     }
+    ],
+    "cuestiones": [
+     {
+      "id": "C1",
+      "enunciado": "Procedencia de la impugnación del acuerdo y legitimación activa del propietario que votó en contra",
+      "tipo": "legitimacion",
+      "estimacion": "DEFENSA",
+      "fundamentos": [
+       {
+        "afirmacion": "La ley reconoce legitimación para impugnar los acuerdos comunitarios a los propietarios que hubiesen salvado su voto en la junta, exigiendo estar al corriente de pago de las deudas vencidas o consignarlas judicialmente.",
+        "citas": [
+         {
+          "source_id": "BOE:BOE-A-1960-10906:adieciocho:1999-04-28",
+          "verbatim_quote": "Estarán legitimados para la impugnación de estos acuerdos los propietarios que hubiesen salvado su voto en la Junta, los ausentes por cualquier causa y los que indebidamente hubiesen sido privados de su derecho de voto."
+         },
+         {
+          "source_id": "BOE:BOE-A-1960-10906:adieciocho:1999-04-28",
+          "verbatim_quote": "Para impugnar los acuerdos de la Junta el propietario deberá estar al corriente en el pago de la totalidad de las deudas vencidas con la comunidad o proceder previamente a la consignación judicial de las mismas."
+         }
+        ]
+       }
+      ],
+      "importe_estimado_eur": null,
+      "fundamento_cuantia": null
+     },
+     {
+      "id": "C2",
+      "enunciado": "Plazo legal aplicable para el ejercicio de la acción de impugnación",
+      "tipo": "plazo",
+      "estimacion": "DEFENSA",
+      "fundamentos": [
+       {
+        "afirmacion": "La acción de impugnación caduca con carácter general a los tres meses de adoptarse el acuerdo, o al año si se trata de actos contrarios a la ley o a los estatutos.",
+        "citas": [
+         {
+          "source_id": "BOE:BOE-A-1960-10906:adieciocho:1999-04-28",
+          "verbatim_quote": "La acción caducará a los tres meses de adoptarse el acuerdo por la Junta de propietarios, salvo que se trate de actos contrarios a la ley o a los estatutos, en cuyo caso la acción caducará al año."
+         }
+        ]
+       }
+      ],
+      "importe_estimado_eur": null,
+      "fundamento_cuantia": null
+     },
+     {
+      "id": "C3",
+      "enunciado": "Exigibilidad del intento previo de negociación como requisito de procedibilidad de la demanda civil",
+      "tipo": "calificacion_juridica",
+      "estimacion": "CONTRAPARTE",
+      "fundamentos": [
+       {
+        "afirmacion": "Para la admisión de la demanda civil se exige acudir previamente a un medio adecuado de solución de controversias y acreditar documentalmente dicho intento negociador.",
+        "citas": [
+         {
+          "source_id": "BOE:BOE-A-2025-76:a5:2025-04-03",
+          "verbatim_quote": "En el orden jurisdiccional civil, con carácter general, para que sea admisible la demanda se considerará requisito de procedibilidad acudir previamente a algún medio adecuado de solución de controversias de los previstos en el artículo 2."
+         },
+         {
+          "source_id": "BOE:BOE-A-2025-76:a1-2:2025-04-03",
+          "verbatim_quote": "A los efectos de acreditar que se ha intentado una actividad negociadora previa y cumplir el requisito de procedibilidad, dicha actividad negociadora o el intento de la misma deberá ser recogida documentalmente."
+         }
+        ]
+       }
+      ],
+      "importe_estimado_eur": null,
+      "fundamento_cuantia": null
+     }
+    ],
+    "fortalezas": [
+     "Haber votado en contra en la reunión otorga legitimación legal para impugnar los acuerdos adoptados.",
+     "La ley permite impugnar cuando el acuerdo suponga un grave perjuicio sin obligación jurídica de soportarlo o exista abuso de derecho."
+    ],
+    "debilidades_contraparte": [],
+    "riesgos_propios": [
+     "Si no estuvieras al corriente de pago de las deudas comunitarias vencidas ni las consignaras, la impugnación no prosperará.",
+     "Presentar la demanda judicial no suspende automáticamente la ejecución de la derrama ni el cobro acordado salvo que el juez decrete una medida cautelar.",
+     "No consta en el dossier la concurrencia de mayorías específicas exigidas para la validez de los acuerdos en la junta."
+    ],
+    "pasos_inmediatos": [
+     "Comprueba los recibos comunitarios para confirmar que no existen cuotas o deudas vencidas pendientes de pago.",
+     "Remite a la administración de la comunidad una solicitud formal por escrito para iniciar una vía negociadora previa.",
+     "Conserva copia sellada o resguardo de recepción del escrito dirigido a la comunidad."
+    ],
+    "plazos": [
+     {
+      "tipo_plazo_id": "CIV_LPH_IMPUGNA_3M",
+      "descripcion": "Impugnar un acuerdo de la comunidad de propietarios",
+      "naturaleza": "caducidad",
+      "tipo_computo": "meses_fecha_a_fecha",
+      "titular": "usuario",
+      "fecha_inicio": "2026-09-15",
+      "fecha_limite_segura": "2026-12-15",
+      "dia_gracia_hasta": null,
+      "dias_habiles_restantes": null,
+      "festivos_no_verificados": [],
+      "municipio_ine": "28079",
+      "base_legal": "Art. 18.3 LPH",
+      "suspensiones": [],
+      "avisos": [
+       "Festivos locales del municipio no cargados para ese año: confirma las 2 fiestas locales en el boletín oficial de la provincia.",
+       "1 año si el acuerdo es contrario a la ley o a los estatutos (CIV_LPH_IMPUGNA_1A)."
+      ],
+      "validado_juridicamente": false
+     },
+     {
+      "tipo_plazo_id": "CIV_LPH_IMPUGNA_1A",
+      "descripcion": "Impugnar un acuerdo comunitario contrario a la ley o los estatutos",
+      "naturaleza": "caducidad",
+      "tipo_computo": "anios_fecha_a_fecha",
+      "titular": "usuario",
+      "fecha_inicio": "2026-09-15",
+      "fecha_limite_segura": "2027-09-15",
+      "dia_gracia_hasta": null,
+      "dias_habiles_restantes": null,
+      "festivos_no_verificados": [],
+      "municipio_ine": "28079",
+      "base_legal": "Art. 18.3 LPH",
+      "suspensiones": [],
+      "avisos": [
+       "Festivos locales del municipio no cargados para ese año: confirma las 2 fiestas locales en el boletín oficial de la provincia."
+      ],
+      "validado_juridicamente": false
+     }
+    ],
+    "postulacion": {
+     "requiere_abogado": true,
+     "requiere_procurador": true,
+     "bloquea_escritos": true,
+     "base_legal": "Arts. 23 y 31 LEC; arts. 5 y 10 LO 1/2025",
+     "texto_usuario": "Este asunto supera los 2.000 €: la ley exige abogado y procurador. La herramienta te informa, pero no redactará escritos para el juzgado. Antes de demandar, la LO 1/2025 (art. 5) exige haber intentado negociar (mediación, conciliación, oferta vinculante confidencial o negociación directa entre las partes) y poder acreditarlo por escrito (art. 10): basta un documento firmado por ambas partes o, en su defecto, uno que pruebe que la otra parte recibió tu invitación o propuesta para negociar y pudo leerla entera (p. ej., burofax con certificación de contenido). Si no contesta en 30 días naturales desde que la recibe, el intento se da por terminado sin acuerdo."
+    },
+    "avisos": [
+     "Faltan datos tras la aclaración: ¿estás al corriente de pago?; ¿es contrario a la ley o los estatutos?",
+     "No hay jurisprudencia aplicable en el corpus local: la valoración se apoya solo en la ley. Se ha encolado una búsqueda para ampliar el corpus.",
+     "Alguna afirmación no se deduce literalmente de la norma (inferencia)."
+    ],
+    "guardarrailes": {
+     "G1_schema": true,
+     "G2_G3_citas": true,
+     "G4_sin_pronosticos": true,
+     "G5_nli": true,
+     "G6_banda": true,
+     "G8_plazos": true,
+     "G9_postulacion": true
+    },
+    "afirmaciones": [
+     {
+      "seccion": "respuesta",
+      "texto": "Puedes impugnar judicialmente el acuerdo por haber votado en contra en la junta, siempre que estés al corriente de pago de las deudas vencidas con la comunidad o procedas a su previa consignación.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-1960-10906:adieciocho:1999-04-28",
+        "verbatim_quote": "Estarán legitimados para la impugnación de estos acuerdos los propietarios que hubiesen salvado su voto en la Junta, los ausentes por cualquier causa y los que indebidamente hubiesen sido privados de su derecho de voto.",
+        "score": 100.0
+       },
+       {
+        "source_id": "BOE:BOE-A-1960-10906:adieciocho:1999-04-28",
+        "verbatim_quote": "Para impugnar los acuerdos de la Junta el propietario deberá estar al corriente en el pago de la totalidad de las deudas vencidas con la comunidad o proceder previamente a la consignación judicial de las mismas.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "respuesta",
+      "texto": "El plazo para impugnar es de tres meses desde la adopción del acuerdo, o de un año si se funda en que el acuerdo es contrario a la ley o a los estatutos.",
+      "tipo": "norma",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-1960-10906:adieciocho:1999-04-28",
+        "verbatim_quote": "La acción caducará a los tres meses de adoptarse el acuerdo por la Junta de propietarios, salvo que se trate de actos contrarios a la ley o a los estatutos, en cuyo caso la acción caducará al año.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "respuesta",
+      "texto": "Antes de acudir al juzgado es legalmente obligatorio intentar una actividad negociadora previa con la comunidad y justificarla por escrito.",
+      "tipo": "norma",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2025-76:a5:2025-04-03",
+        "verbatim_quote": "En el orden jurisdiccional civil, con carácter general, para que sea admisible la demanda se considerará requisito de procedibilidad acudir previamente a algún medio adecuado de solución de controversias de los previstos en el artículo 2.",
+        "score": 100.0
+       },
+       {
+        "source_id": "BOE:BOE-A-2025-76:a1-2:2025-04-03",
+        "verbatim_quote": "A los efectos de acreditar que se ha intentado una actividad negociadora previa y cumplir el requisito de procedibilidad, dicha actividad negociadora o el intento de la misma deberá ser recogida documentalmente.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "resumen",
+      "texto": "Votaste en contra del acuerdo de la derrama de 4.000 euros en la reunión de propietarios.",
+      "tipo": "hecho",
+      "citas": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "Haber votado en contra te otorga el derecho legal a impugnar la decisión ante el juzgado.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-1960-10906:adieciocho:1999-04-28",
+        "verbatim_quote": "Estarán legitimados para la impugnación de estos acuerdos los propietarios que hubiesen salvado su voto en la Junta, los ausentes por cualquier causa y los que indebidamente hubiesen sido privados de su derecho de voto.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "resumen",
+      "texto": "Para que tu demanda sea admitida es imprescindible estar al corriente en todos los pagos de la comunidad o consignar las deudas.",
+      "tipo": "norma",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-1960-10906:adieciocho:1999-04-28",
+        "verbatim_quote": "Para impugnar los acuerdos de la Junta el propietario deberá estar al corriente en el pago de la totalidad de las deudas vencidas con la comunidad o proceder previamente a la consignación judicial de las mismas.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "resumen",
+      "texto": "El plazo de caducidad fijado por ley es de tres meses de forma ordinaria, o de un año si el acuerdo vulnera la ley o las normas estatutarias.",
+      "tipo": "norma",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-1960-10906:adieciocho:1999-04-28",
+        "verbatim_quote": "La acción caducará a los tres meses de adoptarse el acuerdo por la Junta de propietarios, salvo que se trate de actos contrarios a la ley o a los estatutos, en cuyo caso la acción caducará al año.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "resumen",
+      "texto": "La ley exige realizar un intento documentado de mediación o negociación con la comunidad antes de demandar.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2025-76:a5:2025-04-03",
+        "verbatim_quote": "En el orden jurisdiccional civil, con carácter general, para que sea admisible la demanda se considerará requisito de procedibilidad acudir previamente a algún medio adecuado de solución de controversias de los previstos en el artículo 2.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "Haber votado en contra en la reunión otorga legitimación legal para impugnar los acuerdos adoptados.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-1960-10906:adieciocho:1999-04-28",
+        "verbatim_quote": "Estarán legitimados para la impugnación de estos acuerdos los propietarios que hubiesen salvado su voto en la Junta, los ausentes por cualquier causa y los que indebidamente hubiesen sido privados de su derecho de voto.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "La ley permite impugnar cuando el acuerdo suponga un grave perjuicio sin obligación jurídica de soportarlo o exista abuso de derecho.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-1960-10906:adieciocho:1999-04-28",
+        "verbatim_quote": "Cuando supongan un grave perjuicio para algún propietario que no tenga obligación jurídica de soportarlo o se hayan adoptado con abuso de derecho.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "Si no estuvieras al corriente de pago de las deudas comunitarias vencidas ni las consignaras, la impugnación no prosperará.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-1960-10906:adieciocho:1999-04-28",
+        "verbatim_quote": "Para impugnar los acuerdos de la Junta el propietario deberá estar al corriente en el pago de la totalidad de las deudas vencidas con la comunidad o proceder previamente a la consignación judicial de las mismas.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "Presentar la demanda judicial no suspende automáticamente la ejecución de la derrama ni el cobro acordado salvo que el juez decrete una medida cautelar.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-1960-10906:adieciocho:1999-04-28",
+        "verbatim_quote": "La impugnación de los acuerdos de la Junta no suspenderá su ejecución, salvo que el juez así lo disponga con carácter cautelar, a solicitud del demandante, oída la comunidad de propietarios.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "No consta en el dossier la concurrencia de mayorías específicas exigidas para la validez de los acuerdos en la junta.",
+      "tipo": "limite",
+      "citas": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Comprueba los recibos comunitarios para confirmar que no existen cuotas o deudas vencidas pendientes de pago.",
+      "tipo": "consejo",
+      "citas": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Remite a la administración de la comunidad una solicitud formal por escrito para iniciar una vía negociadora previa.",
+      "tipo": "consejo",
+      "citas": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Conserva copia sellada o resguardo de recepción del escrito dirigido a la comunidad.",
+      "tipo": "consejo",
+      "citas": []
+     }
+    ],
+    "auditoria": [
+     {
+      "seccion": "respuesta",
+      "texto": "Puedes impugnar judicialmente el acuerdo por haber votado en contra en la junta, siempre que estés al corriente de pago de las deudas vencidas con la comunidad o procedas a su previa consignación.",
+      "tipo_propuesto": "razonamiento",
+      "resultado": "aceptada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "BOE:BOE-A-1960-10906:adieciocho:1999-04-28",
+       "BOE:BOE-A-1960-10906:adieciocho:1999-04-28"
+      ],
+      "nli": "NEUTRAL",
+      "motivos": []
+     },
+     {
+      "seccion": "respuesta",
+      "texto": "El plazo para impugnar es de tres meses desde la adopción del acuerdo, o de un año si se funda en que el acuerdo es contrario a la ley o a los estatutos.",
+      "tipo_propuesto": "norma",
+      "resultado": "aceptada",
+      "tipo_final": "norma",
+      "citas_verificadas": [
+       "BOE:BOE-A-1960-10906:adieciocho:1999-04-28"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "respuesta",
+      "texto": "Antes de acudir al juzgado es legalmente obligatorio intentar una actividad negociadora previa con la comunidad y justificarla por escrito.",
+      "tipo_propuesto": "norma",
+      "resultado": "aceptada",
+      "tipo_final": "norma",
+      "citas_verificadas": [
+       "BOE:BOE-A-2025-76:a5:2025-04-03",
+       "BOE:BOE-A-2025-76:a1-2:2025-04-03"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "Votaste en contra del acuerdo de la derrama de 4.000 euros en la reunión de propietarios.",
+      "tipo_propuesto": "hecho",
+      "resultado": "aceptada",
+      "tipo_final": "hecho",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "Haber votado en contra te otorga el derecho legal a impugnar la decisión ante el juzgado.",
+      "tipo_propuesto": "razonamiento",
+      "resultado": "aceptada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "BOE:BOE-A-1960-10906:adieciocho:1999-04-28"
+      ],
+      "nli": "NEUTRAL",
+      "motivos": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "Para que tu demanda sea admitida es imprescindible estar al corriente en todos los pagos de la comunidad o consignar las deudas.",
+      "tipo_propuesto": "norma",
+      "resultado": "aceptada",
+      "tipo_final": "norma",
+      "citas_verificadas": [
+       "BOE:BOE-A-1960-10906:adieciocho:1999-04-28"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "El plazo de caducidad fijado por ley es de tres meses de forma ordinaria, o de un año si el acuerdo vulnera la ley o las normas estatutarias.",
+      "tipo_propuesto": "norma",
+      "resultado": "aceptada",
+      "tipo_final": "norma",
+      "citas_verificadas": [
+       "BOE:BOE-A-1960-10906:adieciocho:1999-04-28"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "La ley exige realizar un intento documentado de mediación o negociación con la comunidad antes de demandar.",
+      "tipo_propuesto": "norma",
+      "resultado": "reclasificada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "BOE:BOE-A-2025-76:a5:2025-04-03"
+      ],
+      "nli": "NEUTRAL",
+      "motivos": [
+       "la fuente no lo dice literalmente: se muestra como razonamiento"
+      ]
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "Haber votado en contra en la reunión otorga legitimación legal para impugnar los acuerdos adoptados.",
+      "tipo_propuesto": "norma",
+      "resultado": "reclasificada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "BOE:BOE-A-1960-10906:adieciocho:1999-04-28"
+      ],
+      "nli": "NEUTRAL",
+      "motivos": [
+       "la fuente no lo dice literalmente: se muestra como razonamiento"
+      ]
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "La ley permite impugnar cuando el acuerdo suponga un grave perjuicio sin obligación jurídica de soportarlo o exista abuso de derecho.",
+      "tipo_propuesto": "norma",
+      "resultado": "reclasificada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "BOE:BOE-A-1960-10906:adieciocho:1999-04-28"
+      ],
+      "nli": "NEUTRAL",
+      "motivos": [
+       "la fuente no lo dice literalmente: se muestra como razonamiento"
+      ]
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "Si no estuvieras al corriente de pago de las deudas comunitarias vencidas ni las consignaras, la impugnación no prosperará.",
+      "tipo_propuesto": "razonamiento",
+      "resultado": "aceptada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "BOE:BOE-A-1960-10906:adieciocho:1999-04-28"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "Presentar la demanda judicial no suspende automáticamente la ejecución de la derrama ni el cobro acordado salvo que el juez decrete una medida cautelar.",
+      "tipo_propuesto": "norma",
+      "resultado": "reclasificada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "BOE:BOE-A-1960-10906:adieciocho:1999-04-28"
+      ],
+      "nli": "NEUTRAL",
+      "motivos": [
+       "la fuente no lo dice literalmente: se muestra como razonamiento"
+      ]
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "No consta en el dossier la concurrencia de mayorías específicas exigidas para la validez de los acuerdos en la junta.",
+      "tipo_propuesto": "limite",
+      "resultado": "aceptada",
+      "tipo_final": "limite",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Comprueba los recibos comunitarios para confirmar que no existen cuotas o deudas vencidas pendientes de pago.",
+      "tipo_propuesto": "consejo",
+      "resultado": "aceptada",
+      "tipo_final": "consejo",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Remite a la administración de la comunidad una solicitud formal por escrito para iniciar una vía negociadora previa.",
+      "tipo_propuesto": "consejo",
+      "resultado": "aceptada",
+      "tipo_final": "consejo",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Conserva copia sellada o resguardo de recepción del escrito dirigido a la comunidad.",
+      "tipo_propuesto": "consejo",
+      "resultado": "aceptada",
+      "tipo_final": "consejo",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     }
+    ],
+    "respuesta_parcial": false,
+    "hechos_determinantes": [
+     "¿El acuerdo de la junta sobre el ascensor fue aprobado con el voto favorable de la mayoría de propietarios y cuotas?"
+    ],
+    "motivos_banda": [
+     "Alguna afirmación no se deduce literalmente de la norma (inferencia)."
+    ],
+    "sello": {
+     "verificado_en": "2026-10-25T18:34:11.872077Z",
+     "fuentes": [
+      {
+       "source_id": "BOE:BOE-A-1960-10906:adieciocho:1999-04-28",
+       "titulo": "Artículo dieciocho LPH",
+       "version": "1999-04-28",
+       "sha256": "fb9bd71dc0777e2b4915ba76f0af328509a5259d809f3023a210522aff57663d",
+       "url": "https://www.boe.es/buscar/act.php?id=BOE-A-1960-10906#adieciocho"
+      },
+      {
+       "source_id": "BOE:BOE-A-2025-76:a1-2:2025-04-03",
+       "titulo": "Artículo 10 LOEFICIENCIA",
+       "version": "2025-04-03",
+       "sha256": "14805a45be63c1a6a63ce9f0b4f4f1b813f14c2b03cb2953320797fcb6115cc8",
+       "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2025-76#a1-2"
+      },
+      {
+       "source_id": "BOE:BOE-A-2025-76:a5:2025-04-03",
+       "titulo": "Artículo 5 LOEFICIENCIA",
+       "version": "2025-04-03",
+       "sha256": "a09598f4168fdde5e234ad76fdab6fb176fecfddcf02b21833b3124c518db206",
+       "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2025-76#a5"
+      }
+     ],
+     "afirmaciones_mostradas": 16,
+     "afirmaciones_eliminadas": 0,
+     "modelos": {
+      "triaje": "gemini-3.8-flash-low",
+      "defensa": "gemini-3.8-flash-medium",
+      "contraparte": "gemini-3.8-flash-medium",
+      "magistrado": "gemini-3.8-flash-medium"
+     }
+    },
+    "aviso_legal": "Desemppa es una herramienta personal de información jurídica y apoyo a la autodefensa. No es asesoramiento profesional ni sustituye a un abogado colegiado. Verifica los plazos y las citas en las fuentes oficiales enlazadas antes de actuar. Si no tienes recursos, puedes solicitar asistencia jurídica gratuita (Ley 1/1996) en el Colegio de Abogados de tu partido judicial.",
+    "generado_en": "2026-10-25T18:34:11.873077Z"
+   },
+   "banda_texto": "Bien fundado en la ley, sin sentencias que lo confirmen"
+  },
+  "mensaje": null,
+  "triage": {
+   "schema_version": "1.0",
+   "consulta_id": "d1310ba7-9c7d-42ab-89b6-c5e32800cace",
+   "jurisdiccion_principal": "civil",
+   "submateria_principal": "CIV_LPH_IMPUGNACION",
+   "ramas": [
+    {
+     "submateria": "CIV_LPH_IMPUGNACION",
+     "jurisdiccion": "civil",
+     "peso_enrutamiento": 1.0,
+     "justificacion": "Impugnación de acuerdo de junta de propietarios sobre derrama para sustitución de ascensor."
+    }
+   ],
+   "grado_ambiguedad": 0.0,
+   "requiere_aclaracion": false,
+   "preguntas_aclaracion": [],
+   "datos_criticos_faltantes": [],
+   "fecha_hechos": "2026-09-15",
+   "municipio_ine_organo": "28079",
+   "vecindad_civil": "comun",
+   "cuantia_estimada_eur": 4000.0,
+   "alertas_plazo": [
+    {
+     "tipo_plazo_id": "CIV_LPH_IMPUGNA_3M",
+     "fecha_inicio_computo": "2026-09-15",
+     "evento_inicio": "fecha del acuerdo o de su notificación"
+    },
+    {
+     "tipo_plazo_id": "CIV_LPH_IMPUGNA_1A",
+     "fecha_inicio_computo": "2026-09-15",
+     "evento_inicio": "fecha del acuerdo o de su notificación"
+    }
+   ],
+   "normas_boe_objetivo": [
+    {
+     "id_norma": "BOE-A-1960-10906",
+     "articulos": [
+      "17",
+      "18"
+     ],
+     "motivo": "LPH"
+    },
+    {
+     "id_norma": "BOE-A-2025-76",
+     "articulos": [
+      "5",
+      "10"
+     ],
+     "motivo": "LOEFICIENCIA"
+    }
+   ],
+   "terminos_cendoj": [
+    "impugnación acuerdos junta propietarios",
+    "derrama ascensor",
+    "artículo 17 LPH",
+    "artículo 18 LPH",
+    "salvar el voto"
+   ],
+   "convenio_aplicable": null,
+   "competencia_local": false,
+   "resumen_hechos": "El 15 de septiembre de 2026 se celebró la junta de propietarios del edificio del interesado en Madrid. En dicha junta se aprobó una derrama de 4.000 euros por vecino destinada al cambio del ascensor. El consultante votó en contra del acuerdo adoptado. Consulta sobre la posibilidad y el plazo legal para proceder a su impugnación judicial."
+  },
+  "fuentes": {
+   "BOE:BOE-A-1960-10906:adieciocho:1999-04-28": {
+    "titulo": "Artículo dieciocho LPH",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-1960-10906#adieciocho",
+    "texto": "Artículo dieciocho.\n1. Los acuerdos de la Junta de Propietarios serán impugnables ante los tribunales de conformidad con lo establecido en la legislación procesal general, en los siguientes supuestos:\na) Cuando sean contrarios a la ley o a los estatutos de la comunidad de propietarios.\nb) Cuando resulten gravemente lesivos para los intereses de la propia comunidad en beneficio de uno o varios propietarios.\nc) Cuando supongan un grave perjuicio para algún propietario que no tenga obligación jurídica de soportarlo o se hayan adoptado con abuso de derecho.\n2. Estarán legitimados para la impugnación de estos acuerdos los propietarios que hubiesen salvado su voto en la Junta, los ausentes por cualquier causa y los que indebidamente hubiesen sido privados de su derecho de voto. Para impugnar los acuerdos de la Junta el propietario deberá estar al corriente en el pago de la totalidad de las deudas vencidas con la comunidad o proceder previamente a la consignación judicial de las mismas. Esta regla no será de aplicación para la impugnación de los acuerdos de la Junta relativos al establecimiento o alteración de las cuotas de participación a que se refiere el artículo 9 entre los propietarios.\n3. La acción caducará a los tres meses de adoptarse el acuerdo por la Junta de propietarios, salvo que se trate de actos contrarios a la ley o a los estatutos, en cuyo caso la acción caducará al año. Para los propietarios ausentes dicho plazo se computará a partir de la comunicación del acuerdo conforme al procedimiento establecido en el artículo 9.\n4. La impugnación de los acuerdos de la Junta no suspenderá su ejecución, salvo que el juez así lo disponga con carácter cautelar, a solicitud del demandante, oída la comunidad de propietarios."
+   },
+   "BOE:BOE-A-2025-76:a1-2:2025-04-03": {
+    "titulo": "Artículo 10 LOEFICIENCIA",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2025-76#a1-2",
+    "texto": "Artículo 10. Acreditación del intento de negociación y terminación del proceso sin acuerdo.\n1. A los efectos de acreditar que se ha intentado una actividad negociadora previa y cumplir el requisito de procedibilidad, dicha actividad negociadora o el intento de la misma deberá ser recogida documentalmente.\n2. Si no hubiera intervenido una tercera persona neutral, la acreditación se cumplirá mediante cualquier documento firmado por ambas partes en el que se deje constancia de la identidad de las mismas y, en su caso, de las personas profesionales o expertas que hayan participado asesorándolas, la fecha, el objeto de la controversia, la fecha de la reunión o reuniones mantenidas, en su caso, y la declaración responsable de que las dos partes han intervenido de buena fe en el proceso. En su defecto, podrá acreditarse el intento de negociación mediante cualquier documento que pruebe que la otra parte ha recibido la solicitud o invitación para negociar o, en su caso, la propuesta, en qué fecha, y que ha podido acceder a su contenido íntegro.\n3. En el caso de que haya intervenido una tercera persona neutral gestionando la actividad negociadora, esta deberá expedir, a petición de cualquiera de las partes, un documento en el que deberá hacer constar:\na) La identidad del tercero, su cualificación, colegio profesional, institución a la que pertenece o registro en el que esté inscrito.\nb) La identidad de las partes.\nc) El objeto de la controversia.\nd) La fecha de la reunión o reuniones mantenidas.\ne) La declaración solemne de que las dos partes han intervenido de buena fe en el proceso, para que surta efectos ante la autoridad judicial correspondiente.\nEn caso de que alguna de las partes no hubiese comparecido o hubiese rehusado la invitación a participar en la actividad negociadora, se consignará dicha circunstancia y, en su caso, la forma en la que se ha realizado la citación efectiva, la justificación de haber sido realizada, y la fecha de recepción de la misma.\n4. Se entenderá que se ha producido la terminación del proceso sin acuerdo:\na) Si transcurrieran treinta días naturales a contar desde la fecha de recepción de la solicitud inicial de negociación por la otra parte y no se mantuviera la primera reunión o contacto dirigido a alcanzar un acuerdo o no se obtenga respuesta por escrito.\nb) Si, una vez iniciada la actividad negociadora, transcurrieran treinta días desde que una de las partes haga una propuesta concreta de acuerdo a la otra, sin que se alcance acuerdo ni se obtenga respuesta por escrito. El plazo de treinta días comenzará a contar desde la fecha de recepción de la propuesta concreta de acuerdo.\nc) Si transcurrieran tres meses desde la fecha de celebración de la primera reunión sin que se hubiera alcanzado un acuerdo. No obstante lo anterior, las partes tienen derecho a continuar de mutuo acuerdo con la actividad negociadora más allá de dicho plazo.\nd) Si cualquiera de las partes se dirige por escrito a la otra dando por terminadas las negociaciones, quedando constancia del intento de comunicación de ser esa su voluntad."
+   },
+   "BOE:BOE-A-2025-76:a5:2025-04-03": {
+    "titulo": "Artículo 5 LOEFICIENCIA",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2025-76#a5",
+    "texto": "Artículo 5. Requisito de procedibilidad.\n1. En el orden jurisdiccional civil, con carácter general, para que sea admisible la demanda se considerará requisito de procedibilidad acudir previamente a algún medio adecuado de solución de controversias de los previstos en el artículo 2. Para entender cumplido este requisito habrá de existir una identidad entre el objeto de la negociación y el objeto del litigio, aun cuando las pretensiones que pudieran ejercitarse, en su caso, en vía judicial sobre dicho objeto pudieran variar.\nSe considerará cumplido este requisito si se acude previamente a la mediación, a la conciliación o a la opinión neutral de una persona experta independiente, si se formula una oferta vinculante confidencial o si se emplea cualquier otro tipo de actividad negociadora, reconocida en esta u otras leyes, estatales o autonómicas, pero que cumpla lo previsto en las secciones 1.ª y 2 ª, de este capítulo o en una ley sectorial. Singularmente, se considerará cumplido el requisito cuando la actividad negociadora se desarrolle directamente por las partes, o entre sus abogados o abogadas bajo sus directrices y con su conformidad, así como en los supuestos en que las partes hayan recurrido a un proceso de Derecho colaborativo.\n2. Se exigirá actividad negociadora previa a la vía jurisdiccional como requisito de procedibilidad en todos los procesos declarativos del libro II y en los procesos especiales del libro IV de la Ley 1/2000, de 7 de enero, de Enjuiciamiento Civil, con excepción de los que tengan por objeto las siguientes materias:\na) la tutela judicial civil de derechos fundamentales;\nb) la adopción de las medidas previstas en el artículo 158 del Código Civil;\nc) la adopción de medidas judiciales de apoyo a las personas con discapacidad;\nd) la filiación, paternidad y maternidad;\ne) la tutela sumaria de la tenencia o de la posesión de una cosa o derecho por quien haya sido despojado de ellas o perturbado en su disfrute;\nf) la pretensión de que el tribunal resuelva, con carácter sumario, la demolición o derribo de obra, edificio, árbol, columna o cualquier otro objeto análogo en estado de ruina y que amenace causar daños a quien demande;\ng) el ingreso de menores con problemas de conducta en centros de protección específicos, la entrada en domicilios y restantes lugares para la ejecución forzosa de medidas de protección de menores o la restitución o retorno de menores en los supuestos de sustracción internacional;\nh) el juicio cambiario.\n3. No será preciso acudir a un medio adecuado de solución de controversias para la interposición de una demanda ejecutiva, la solicitud de medidas cautelares previas a la demanda, la solicitud de diligencias preliminares ni para la iniciación de expedientes de jurisdicción voluntaria, con excepción de los expedientes de intervención judicial en los casos de desacuerdo conyugal y en la administración de bienes gananciales, así como de los de intervención judicial en caso de desacuerdo en el ejercicio de la patria potestad. Tampoco será preciso acudir a un medio adecuado de solución de controversias para presentar la petición de requerimiento europeo de pago conforme al Reglamento (CE) n.º 1896/2006 del Parlamento Europeo y del Consejo, de 12 de diciembre de 2006, por el que se establece un proceso monitorio europeo, o solicitar el inicio de un proceso europeo de escasa cuantía, conforme al Reglamento (CE) n.º 861/2007 del Parlamento Europeo y del Consejo, de 11 de julio de 2007, por el que se establece un proceso europeo de escasa cuantía.\n4. La iniciativa de acudir a los medios adecuados de solución de controversias puede proceder de una de las partes, de ambas de común acuerdo o bien de una decisión judicial o del letrado o la letrada de la Administración de Justicia de derivación de las partes a este tipo de medios.\nPara el caso de que todas las partes plantearan acudir a un medio adecuado de solución de controversias y no existiera acuerdo sobre cuál de ellos utilizar, se empleará aquel que se haya propuesto antes temporalmente."
+   }
+  }
+ },
+ "origen": "20261025_1843_eco"
+}

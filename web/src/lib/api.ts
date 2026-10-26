@@ -58,7 +58,28 @@ async function request<T>(path: string, init: RequestInit = {}, auth = false): P
     }
     throw new ApiError(r.status, method, path.split("?")[0], detail);
   }
+  if (r.status === 204) return undefined as T;
   return (await r.json()) as T;
+}
+
+export interface ResumenJurisprudencia {
+  total: number;
+  por_jurisdiccion: Record<string, number>;
+  ultimas: { roj: string; tribunal: string; fecha: string; jurisdiccion: string }[];
+  buscador: string;
+  materias: { clave: string; descripcion: string; jurisdiccion: string; terminos: string[]; sentencias: number }[];
+}
+
+export interface ItemHistorial {
+  consulta_id: string;
+  creado_en: string;
+  modo: string;
+  estado: string;
+  titulo: string;
+  renombrada?: boolean;
+  archivada?: boolean;
+  banda: string | null;
+  invitado: boolean;
 }
 
 export const api = {
@@ -90,7 +111,12 @@ export const api = {
     request<EstadoRed>("/api/red", {
       method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
     }, true),
-  consultas: () => request<{ consulta_id: string; creado_en: string; modo: string; estado: string; titulo: string; banda: string | null; invitado: boolean }[]>("/api/consultas"),
+  consultas: () => request<ItemHistorial[]>("/api/consultas"),
+  editarConsulta: (id: string, cambio: { titulo?: string | null; archivada?: boolean }) =>
+    request<ItemHistorial>(`/api/consultas/${id}`, {
+      method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(cambio),
+    }, true),
+  borrarConsulta: (id: string) => request<void>(`/api/consultas/${id}`, { method: "DELETE" }, true),
   consulta: (id: string) => request<Record<string, any>>(`/api/consultas/${id}`),
   crear: (body: { texto: string; modo: string; municipio_ine?: string | null; adjuntos: string[] }) =>
     request<{ consulta_id: string }>("/api/consultas", {
@@ -123,6 +149,13 @@ export const api = {
     fd.append("archivo", file);
     fd.append("permitir_envio", String(permitirEnvio));
     return request<DocumentoBiblioteca & { paginas_sin_texto: number[] }>("/api/biblioteca", { method: "POST", body: fd }, true);
+  },
+  resumenJurisprudencia: () => request<ResumenJurisprudencia>("/api/jurisprudencia/resumen"),
+  importarSentencia: (file: File) => {
+    const fd = new FormData();
+    fd.append("archivo", file);
+    return request<{ roj: string; nueva: boolean; chunks: number; avisos: string[] }>(
+      "/api/jurisprudencia/importar", { method: "POST", body: fd }, true);
   },
   borrarDocumento: (id: string) => request<{ ok: boolean }>(`/api/biblioteca/${id}`, { method: "DELETE" }, true),
   adjuntarDocumento: (id: string) =>

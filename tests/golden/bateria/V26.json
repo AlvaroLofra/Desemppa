@@ -1,0 +1,792 @@
+{
+ "caso": {
+  "id": "V26",
+  "categoria": "trampa",
+  "materia_esperada": "CIV_LAU_FIANZA",
+  "consulta": "Entregué las llaves en Madrid el 1 de septiembre de 2026 y el casero no me devuelve la fianza de 900 euros. ¿Qué dice el artículo 1591 del Código Civil sobre esto?",
+  "municipio_ine": "28079",
+  "municipio_nombre": "Madrid",
+  "fecha_hechos": "2026-09-01",
+  "aclaraciones_simuladas": [],
+  "verdad": {
+   "estado_esperado": "CERTIFICADA",
+   "respuesta_esperada": "depende",
+   "articulos_clave": [
+    {
+     "norma": "LAU",
+     "articulo": "36"
+    }
+   ],
+   "plazos": [
+    {
+     "tipo": "CIV_FIANZA_DEVOLUCION_1M",
+     "inicio": "2026-09-01",
+     "municipio_ine": "28079"
+    }
+   ],
+   "postulacion": {
+    "jurisdiccion": "civil",
+    "procedimiento": "verbal",
+    "cuantia_eur": 900
+   },
+   "puntos_clave": [
+    "No describe el contenido del art. 1591 CC porque no está en sus fuentes"
+   ],
+   "prohibido": [
+    "diez años",
+    "el artículo 1591 establece",
+    "el art. 1591 dice"
+   ]
+  }
+ },
+ "hoja": {
+  "id": "V26",
+  "construida": "2026-10-25",
+  "articulos": [
+   {
+    "norma": "LAU",
+    "articulo": "36",
+    "source_id": "BOE:BOE-A-1994-26003:a36:2019-03-06",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-1994-26003#a36",
+    "version": "2019-03-06",
+    "sha256": "5e32f1a524843ae9d317638d4e7900582b582b4e5fe1be2d45e477b700f4c6de",
+    "texto": "Artículo 36. Fianza.\n1. A la celebración del contrato será obligatoria la exigencia y prestación de fianza en metálico en cantidad equivalente a una mensualidad de renta en el arrendamiento de viviendas y de dos en el arrendamiento para uso distinto del de vivienda.\n2. Durante los cinco primeros años de duración del contrato, o durante los siete primeros años si el arrendador fuese persona jurídica, la fianza no estará sujeta a actualización. Pero cada vez que el arrendamiento se prorrogue, el arrendador podrá exigir que la fianza sea incrementada, o el arrendatario que disminuya, hasta hacerse igual a una o dos mensualidades de la renta vigente, según proceda, al tiempo de la prórroga.\n3. La actualización de la fianza durante el período de tiempo en que el plazo pactado para el arrendamiento exceda de cinco años, o de siete años si el arrendador fuese persona jurídica, se regirá por lo estipulado al efecto por las partes. A falta de pacto específico, lo acordado sobre actualización de la renta se presumirá querido también para la actualización de la fianza.\n4. El saldo de la fianza en metálico que deba ser restituido al arrendatario al final del arriendo, devengará el interés legal, transcurrido un mes desde la entrega de las llaves por el mismo sin que se hubiere hecho efectiva dicha restitución.\n5. Las partes podrán pactar cualquier tipo de garantía del cumplimiento por el arrendatario de sus obligaciones arrendaticias adicional a la fianza en metálico.\nEn el caso del arrendamiento de vivienda, en contratos de hasta cinco años de duración, o de hasta siete años si el arrendador fuese persona jurídica, el valor de esta garantía adicional no podrá exceder de dos mensualidades de renta.\n6. Quedan exceptuadas de la obligación de prestar fianza la Administración General del Estado, las Administraciones de las comunidades autónomas y las entidades que integran la Administración Local, los organismos autónomos, las entidades públicas empresariales y demás entes públicos vinculados o dependientes de ellas, y las Mutuas colaboradoras con la Seguridad Social en su función pública de colaboración en la gestión de la Seguridad Social, así como sus Centros Mancomunados, cuando la renta haya de ser satisfecha con cargo a sus respectivos presupuestos."
+   }
+  ],
+  "plazos": [
+   {
+    "tipo": "CIV_FIANZA_DEVOLUCION_1M",
+    "inicio": "2026-09-01",
+    "fecha_limite_segura": "2026-10-01",
+    "base_legal": "Art. 36.4 LAU"
+   }
+  ],
+  "postulacion": {
+   "requiere_abogado": false,
+   "requiere_procurador": false,
+   "base_legal": "Arts. 23.2.1º y 31.2.1º LEC; arts. 5 y 10 LO 1/2025"
+  }
+ },
+ "resultado": {
+  "consulta_id": "7d6531bb-e672-4d35-b79f-d19c04617a62",
+  "modo": "eco",
+  "fecha": "2026-10-25",
+  "estado": "CERTIFICADA",
+  "duracion_s": 410,
+  "aclaraciones": [
+   {
+    "pregunta": "Indica estado de la vivienda a la entrada (fotos o inventario)",
+    "respuesta": "No lo sé"
+   },
+   {
+    "pregunta": "¿Te ha enviado el arrendador alguna notificación escrita o factura detallando desperfectos en la vivienda?",
+    "respuesta": "No lo sé"
+   },
+   {
+    "pregunta": "¿Has remitido al arrendador alguna solicitud documental para intentar un acuerdo previo?",
+    "respuesta": "No lo sé"
+   }
+  ],
+  "dictamen": {
+   "estado": "CERTIFICADA",
+   "dictamen": {
+    "schema_version": "1.0",
+    "consulta_id": "7d6531bb-e672-4d35-b79f-d19c04617a62",
+    "modo": "eco",
+    "modelos_usados": {
+     "triaje": "gemini-3.8-flash-low",
+     "defensa": "gemini-3.8-flash-medium",
+     "contraparte": "gemini-3.8-flash-medium",
+     "magistrado": "gemini-3.8-flash-medium"
+    },
+    "banda_solidez": "argumento_solido_sin_doctrina",
+    "respuesta_directa": "Las fuentes del dossier no contienen el precepto consultado. El saldo de la fianza devenga el interés legal cuando transcurre un mes desde la entrega de las llaves sin que se realice la devolución. Para presentar una demanda judicial sobre esta reclamación se exige intentar con carácter previo una actividad negociadora.",
+    "resumen_ciudadano": "Tienes derecho a recuperar la fianza y a que se generen intereses legales si ha pasado un mes desde que entregaste las llaves. No tienes que asumir los desgastes o menoscabos que sufra la vivienda por el simple paso del tiempo. Antes de acudir al juzgado es obligatorio intentar un acuerdo por escrito con la otra parte.",
+    "fundamentos": [
+     {
+      "texto": "El saldo de la fianza que deba restituirse al término del contrato genera el interés legal una vez transcurrido un mes desde la entrega de llaves sin que se haya pagado.",
+      "source_id": "BOE:BOE-A-1994-26003:a36:2019-03-06",
+      "verbatim_quote": "El saldo de la fianza en metálico que deba ser restituido al arrendatario al final del arriendo, devengará el interés legal, transcurrido un mes desde la entrega de las llaves por el mismo sin que se hubiere hecho efectiva dicha restitución.",
+      "fuzzy_score": 100.0,
+      "nli": "ENTAILS",
+      "offsets": [
+       1078,
+       1319
+      ]
+     },
+     {
+      "texto": "El incumplimiento de las obligaciones contractuales legitima a la parte que ha cumplido a reclamar el cumplimiento forzoso de la obligación.",
+      "source_id": "BOE:BOE-A-1994-26003:a27:2013-06-06",
+      "verbatim_quote": "El incumplimiento por cualquiera de las partes de las obligaciones resultantes del contrato dará derecho a la parte que hubiere cumplido las suyas a exigir el cumplimiento de la obligación o a promover la resolución del contrato de acuerdo con lo dispuesto en el artículo 1.124 del Código Civil.",
+      "fuzzy_score": 100.0,
+      "nli": "ENTAILS",
+      "offsets": [
+       48,
+       343
+      ]
+     },
+     {
+      "texto": "La obligación de entregar la finca al finalizar el arriendo tal como se recibió no incluye el menoscabo que se haya producido por el transcurso del tiempo o por causa inevitable.",
+      "source_id": "BOE:BOE-A-1889-4763:art1561:1889-08-16",
+      "verbatim_quote": "El arrendatario debe devolver la finca, al concluir el arriendo, tal como la recibió, salvo lo que hubiese perecido o se hubiera menoscabado por el tiempo o por causa inevitable.",
+      "fuzzy_score": 100.0,
+      "nli": "ENTAILS",
+      "offsets": [
+       15,
+       193
+      ]
+     },
+     {
+      "texto": "El arrendador tiene el deber de acometer las reparaciones de conservación necesarias para la habitabilidad, sin que conste en el expediente acreditación de desperfectos imputables al inquilino.",
+      "source_id": "BOE:BOE-A-1994-26003:a21:1995-01-01",
+      "verbatim_quote": "El arrendador está obligado a realizar, sin derecho a elevar por ello la renta, todas las reparaciones que sean necesarias para conservar la vivienda en las condiciones de habitabilidad para servir al uso convenido, salvo cuando el deterioro de cuya reparación se trate sea imputable al arrendatario a tenor de lo dispuesto en los artículos 1.563 y 1.564 del Código Civil.",
+      "fuzzy_score": 100.0,
+      "nli": "NEUTRAL",
+      "offsets": [
+       45,
+       417
+      ]
+     },
+     {
+      "texto": "En el orden civil declarativo se exige acudir con carácter previo a un medio adecuado de solución de controversias como presupuesto de admisibilidad de la demanda.",
+      "source_id": "BOE:BOE-A-2025-76:a5:2025-04-03",
+      "verbatim_quote": "En el orden jurisdiccional civil, con carácter general, para que sea admisible la demanda se considerará requisito de procedibilidad acudir previamente a algún medio adecuado de solución de controversias de los previstos en el artículo 2.",
+      "fuzzy_score": 100.0,
+      "nli": "ENTAILS",
+      "offsets": [
+       44,
+       282
+      ]
+     },
+     {
+      "texto": "La realización de la actividad negociadora o su intento debe estar acreditada documentalmente para admitir a trámite la pretensión judicial.",
+      "source_id": "BOE:BOE-A-2025-76:a1-2:2025-04-03",
+      "verbatim_quote": "A los efectos de acreditar que se ha intentado una actividad negociadora previa y cumplir el requisito de procedibilidad, dicha actividad negociadora o el intento de la misma deberá ser recogida documentalmente.",
+      "fuzzy_score": 100.0,
+      "nli": "ENTAILS",
+      "offsets": [
+       95,
+       306
+      ]
+     }
+    ],
+    "cuestiones": [
+     {
+      "id": "C1",
+      "enunciado": "Obligación de restituir el saldo de la fianza arrendaticia de 900 euros con devengo del interés legal transcurrido un mes desde la entrega de las llaves.",
+      "tipo": "cuantia",
+      "estimacion": "DEFENSA",
+      "fundamentos": [
+       {
+        "afirmacion": "El saldo de la fianza que deba restituirse al término del contrato genera el interés legal una vez transcurrido un mes desde la entrega de llaves sin que se haya pagado.",
+        "citas": [
+         {
+          "source_id": "BOE:BOE-A-1994-26003:a36:2019-03-06",
+          "verbatim_quote": "El saldo de la fianza en metálico que deba ser restituido al arrendatario al final del arriendo, devengará el interés legal, transcurrido un mes desde la entrega de las llaves por el mismo sin que se hubiere hecho efectiva dicha restitución."
+         }
+        ]
+       },
+       {
+        "afirmacion": "El incumplimiento de las obligaciones contractuales legitima a la parte que ha cumplido a reclamar el cumplimiento forzoso de la obligación.",
+        "citas": [
+         {
+          "source_id": "BOE:BOE-A-1994-26003:a27:2013-06-06",
+          "verbatim_quote": "El incumplimiento por cualquiera de las partes de las obligaciones resultantes del contrato dará derecho a la parte que hubiere cumplido las suyas a exigir el cumplimiento de la obligación o a promover la resolución del contrato de acuerdo con lo dispuesto en el artículo 1.124 del Código Civil."
+         }
+        ]
+       }
+      ],
+      "importe_estimado_eur": null,
+      "fundamento_cuantia": null
+     },
+     {
+      "id": "C2",
+      "enunciado": "Procedencia de retenciones sobre la fianza por deterioros o falta de constancia del estado del inmueble al inicio del arriendo.",
+      "tipo": "calificacion_juridica",
+      "estimacion": "DEFENSA",
+      "fundamentos": [
+       {
+        "afirmacion": "La obligación de entregar la finca al finalizar el arriendo tal como se recibió no incluye el menoscabo que se haya producido por el transcurso del tiempo o por causa inevitable.",
+        "citas": [
+         {
+          "source_id": "BOE:BOE-A-1889-4763:art1561:1889-08-16",
+          "verbatim_quote": "El arrendatario debe devolver la finca, al concluir el arriendo, tal como la recibió, salvo lo que hubiese perecido o se hubiera menoscabado por el tiempo o por causa inevitable."
+         }
+        ]
+       },
+       {
+        "afirmacion": "El arrendador tiene el deber de acometer las reparaciones de conservación necesarias para la habitabilidad, sin que conste en el expediente acreditación de desperfectos imputables al inquilino.",
+        "citas": [
+         {
+          "source_id": "BOE:BOE-A-1994-26003:a21:1995-01-01",
+          "verbatim_quote": "El arrendador está obligado a realizar, sin derecho a elevar por ello la renta, todas las reparaciones que sean necesarias para conservar la vivienda en las condiciones de habitabilidad para servir al uso convenido, salvo cuando el deterioro de cuya reparación se trate sea imputable al arrendatario a tenor de lo dispuesto en los artículos 1.563 y 1.564 del Código Civil."
+         }
+        ]
+       }
+      ],
+      "importe_estimado_eur": null,
+      "fundamento_cuantia": null
+     },
+     {
+      "id": "C3",
+      "enunciado": "Necesidad de cumplir el intento de negociación previa como requisito de procedibilidad antes de interponer demanda judicial civil.",
+      "tipo": "competencia",
+      "estimacion": "CONTRAPARTE",
+      "fundamentos": [
+       {
+        "afirmacion": "En el orden civil declarativo se exige acudir con carácter previo a un medio adecuado de solución de controversias como presupuesto de admisibilidad de la demanda.",
+        "citas": [
+         {
+          "source_id": "BOE:BOE-A-2025-76:a5:2025-04-03",
+          "verbatim_quote": "En el orden jurisdiccional civil, con carácter general, para que sea admisible la demanda se considerará requisito de procedibilidad acudir previamente a algún medio adecuado de solución de controversias de los previstos en el artículo 2."
+         }
+        ]
+       },
+       {
+        "afirmacion": "La realización de la actividad negociadora o su intento debe estar acreditada documentalmente para admitir a trámite la pretensión judicial.",
+        "citas": [
+         {
+          "source_id": "BOE:BOE-A-2025-76:a1-2:2025-04-03",
+          "verbatim_quote": "A los efectos de acreditar que se ha intentado una actividad negociadora previa y cumplir el requisito de procedibilidad, dicha actividad negociadora o el intento de la misma deberá ser recogida documentalmente."
+         }
+        ]
+       }
+      ],
+      "importe_estimado_eur": null,
+      "fundamento_cuantia": null
+     }
+    ],
+    "fortalezas": [
+     "La ley establece que el saldo de la fianza devenga el interés legal tras un mes desde la entrega de las llaves.",
+     "El arrendatario no responde de los deterioros que se hayan ocasionado por el paso del tiempo o por causa inevitable."
+    ],
+    "debilidades_contraparte": [],
+    "riesgos_propios": [
+     "A falta de expresión del estado de la finca al arrendarla, la ley presume que el arrendatario la recibió en buen estado, salvo prueba en contrario.",
+     "Si no se acredita haber intentado un medio previo de solución de controversias, una eventual demanda civil no sería admitida."
+    ],
+    "pasos_inmediatos": [
+     "Envía una reclamación formal por escrito solicitando la devolución de la fianza para dejar constancia fehaciente del intento de negociación previa.",
+     "Conserva todos los justificantes de entrega de la comunicación remitida a la otra parte."
+    ],
+    "plazos": [
+     {
+      "tipo_plazo_id": "CIV_FIANZA_DEVOLUCION_1M",
+      "descripcion": "Plazo del arrendador para devolver la fianza (desde la entrega de llaves)",
+      "naturaleza": "sustantivo",
+      "tipo_computo": "meses_fecha_a_fecha",
+      "titular": "contraparte",
+      "fecha_inicio": "2026-09-01",
+      "fecha_limite_segura": "2026-10-01",
+      "dia_gracia_hasta": null,
+      "dias_habiles_restantes": null,
+      "festivos_no_verificados": [],
+      "municipio_ine": "28079",
+      "base_legal": "Art. 36.4 LAU",
+      "suspensiones": [],
+      "avisos": [
+       "Festivos locales del municipio no cargados para ese año: confirma las 2 fiestas locales en el boletín oficial de la provincia.",
+       "Transcurrido el mes, el saldo devenga el interés legal."
+      ],
+      "validado_juridicamente": false
+     },
+     {
+      "tipo_plazo_id": "CIV_CONTRACTUAL_5A",
+      "descripcion": "Acciones personales sin plazo especial (contratos)",
+      "naturaleza": "prescripcion",
+      "tipo_computo": "anios_fecha_a_fecha",
+      "titular": "usuario",
+      "fecha_inicio": "2026-09-01",
+      "fecha_limite_segura": "2031-09-01",
+      "dia_gracia_hasta": null,
+      "dias_habiles_restantes": null,
+      "festivos_no_verificados": [],
+      "municipio_ine": "28079",
+      "base_legal": "Art. 1964.2 CC (Ley 42/2015)",
+      "suspensiones": [],
+      "avisos": [
+       "Festivos locales del municipio no cargados para ese año: confirma las 2 fiestas locales en el boletín oficial de la provincia.",
+       "🔎 Criterio con jurisprudencia cambiante: confírmalo con un profesional.",
+       "Régimen transitorio para obligaciones nacidas antes del 7-10-2015."
+      ],
+      "validado_juridicamente": false
+     }
+    ],
+    "postulacion": {
+     "requiere_abogado": false,
+     "requiere_procurador": false,
+     "bloquea_escritos": false,
+     "base_legal": "Arts. 23.2.1º y 31.2.1º LEC; arts. 5 y 10 LO 1/2025",
+     "texto_usuario": "En asuntos civiles de hasta 2.000 € puedes actuar por ti mismo, sin abogado ni procurador. Antes de demandar, la LO 1/2025 (art. 5) exige haber intentado negociar (mediación, conciliación, oferta vinculante confidencial o negociación directa entre las partes) y poder acreditarlo por escrito (art. 10): basta un documento firmado por ambas partes o, en su defecto, uno que pruebe que la otra parte recibió tu invitación o propuesta para negociar y pudo leerla entera (p. ej., burofax con certificación de contenido). Si no contesta en 30 días naturales desde que la recibe, el intento se da por terminado sin acuerdo."
+    },
+    "avisos": [
+     "Faltan datos tras la aclaración: Indica estado de la vivienda a la entrada (fotos o inventario)",
+     "Artículo 36 (BOE-A-1994-26003): se aplica la redacción vigente el 01/09/2026 (desde 06/03/2019). Reformado después, por primera vez el 01/10/2026 (BOE-A-2026-20266). Revisar disposiciones transitorias.",
+     "Artículo 21 (BOE-A-1994-26003): se aplica la redacción vigente el 01/09/2026 (desde 01/01/1995). Reformado después, por primera vez el 01/10/2026 (BOE-A-2026-20266). Revisar disposiciones transitorias.",
+     "Artículo 27 (BOE-A-1994-26003): se aplica la redacción vigente el 01/09/2026 (desde 06/06/2013). Reformado después, por primera vez el 01/10/2026 (BOE-A-2026-20266). Revisar disposiciones transitorias.",
+     "No hay jurisprudencia aplicable en el corpus local: la valoración se apoya solo en la ley. Se ha encolado una búsqueda para ampliar el corpus.",
+     "Alguna afirmación no se deduce literalmente de la norma (inferencia)."
+    ],
+    "guardarrailes": {
+     "G1_schema": true,
+     "G2_G3_citas": true,
+     "G4_sin_pronosticos": true,
+     "G5_nli": true,
+     "G6_banda": true,
+     "G8_plazos": true,
+     "G9_postulacion": true
+    },
+    "afirmaciones": [
+     {
+      "seccion": "respuesta",
+      "texto": "Las fuentes del dossier no contienen el precepto consultado.",
+      "tipo": "limite",
+      "citas": []
+     },
+     {
+      "seccion": "respuesta",
+      "texto": "El saldo de la fianza devenga el interés legal cuando transcurre un mes desde la entrega de las llaves sin que se realice la devolución.",
+      "tipo": "norma",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-1994-26003:a36:2019-03-06",
+        "verbatim_quote": "El saldo de la fianza en metálico que deba ser restituido al arrendatario al final del arriendo, devengará el interés legal, transcurrido un mes desde la entrega de las llaves por el mismo sin que se hubiere hecho efectiva dicha restitución.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "respuesta",
+      "texto": "Para presentar una demanda judicial sobre esta reclamación se exige intentar con carácter previo una actividad negociadora.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2025-76:a5:2025-04-03",
+        "verbatim_quote": "En el orden jurisdiccional civil, con carácter general, para que sea admisible la demanda se considerará requisito de procedibilidad acudir previamente a algún medio adecuado de solución de controversias de los previstos en el artículo 2.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "resumen",
+      "texto": "Tienes derecho a recuperar la fianza y a que se generen intereses legales si ha pasado un mes desde que entregaste las llaves.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-1994-26003:a36:2019-03-06",
+        "verbatim_quote": "El saldo de la fianza en metálico que deba ser restituido al arrendatario al final del arriendo, devengará el interés legal, transcurrido un mes desde la entrega de las llaves por el mismo sin que se hubiere hecho efectiva dicha restitución.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "resumen",
+      "texto": "No tienes que asumir los desgastes o menoscabos que sufra la vivienda por el simple paso del tiempo.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-1889-4763:art1561:1889-08-16",
+        "verbatim_quote": "El arrendatario debe devolver la finca, al concluir el arriendo, tal como la recibió, salvo lo que hubiese perecido o se hubiera menoscabado por el tiempo o por causa inevitable.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "resumen",
+      "texto": "Antes de acudir al juzgado es obligatorio intentar un acuerdo por escrito con la otra parte.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2025-76:a5:2025-04-03",
+        "verbatim_quote": "En el orden jurisdiccional civil, con carácter general, para que sea admisible la demanda se considerará requisito de procedibilidad acudir previamente a algún medio adecuado de solución de controversias de los previstos en el artículo 2.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "La ley establece que el saldo de la fianza devenga el interés legal tras un mes desde la entrega de las llaves.",
+      "tipo": "norma",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-1994-26003:a36:2019-03-06",
+        "verbatim_quote": "El saldo de la fianza en metálico que deba ser restituido al arrendatario al final del arriendo, devengará el interés legal, transcurrido un mes desde la entrega de las llaves por el mismo sin que se hubiere hecho efectiva dicha restitución.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "El arrendatario no responde de los deterioros que se hayan ocasionado por el paso del tiempo o por causa inevitable.",
+      "tipo": "norma",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-1889-4763:art1561:1889-08-16",
+        "verbatim_quote": "El arrendatario debe devolver la finca, al concluir el arriendo, tal como la recibió, salvo lo que hubiese perecido o se hubiera menoscabado por el tiempo o por causa inevitable.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "A falta de expresión del estado de la finca al arrendarla, la ley presume que el arrendatario la recibió en buen estado, salvo prueba en contrario.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-1889-4763:art1562:1889-08-16",
+        "verbatim_quote": "A falta de expresión del estado de la finca al tiempo de arrendarla, la ley presume que el arrendatario la recibió en buen estado, salvo prueba en contrario.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "Si no se acredita haber intentado un medio previo de solución de controversias, una eventual demanda civil no sería admitida.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2025-76:a5:2025-04-03",
+        "verbatim_quote": "En el orden jurisdiccional civil, con carácter general, para que sea admisible la demanda se considerará requisito de procedibilidad acudir previamente a algún medio adecuado de solución de controversias de los previstos en el artículo 2.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "paso",
+      "texto": "Envía una reclamación formal por escrito solicitando la devolución de la fianza para dejar constancia fehaciente del intento de negociación previa.",
+      "tipo": "consejo",
+      "citas": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Conserva todos los justificantes de entrega de la comunicación remitida a la otra parte.",
+      "tipo": "consejo",
+      "citas": []
+     }
+    ],
+    "auditoria": [
+     {
+      "seccion": "respuesta",
+      "texto": "Las fuentes del dossier no contienen el precepto consultado.",
+      "tipo_propuesto": "limite",
+      "resultado": "aceptada",
+      "tipo_final": "limite",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     },
+     {
+      "seccion": "respuesta",
+      "texto": "El saldo de la fianza devenga el interés legal cuando transcurre un mes desde la entrega de las llaves sin que se realice la devolución.",
+      "tipo_propuesto": "norma",
+      "resultado": "aceptada",
+      "tipo_final": "norma",
+      "citas_verificadas": [
+       "BOE:BOE-A-1994-26003:a36:2019-03-06"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "respuesta",
+      "texto": "Para presentar una demanda judicial sobre esta reclamación se exige intentar con carácter previo una actividad negociadora.",
+      "tipo_propuesto": "razonamiento",
+      "resultado": "aceptada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "BOE:BOE-A-2025-76:a5:2025-04-03"
+      ],
+      "nli": "NEUTRAL",
+      "motivos": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "Tienes derecho a recuperar la fianza y a que se generen intereses legales si ha pasado un mes desde que entregaste las llaves.",
+      "tipo_propuesto": "razonamiento",
+      "resultado": "aceptada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "BOE:BOE-A-1994-26003:a36:2019-03-06"
+      ],
+      "nli": "NEUTRAL",
+      "motivos": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "No tienes que asumir los desgastes o menoscabos que sufra la vivienda por el simple paso del tiempo.",
+      "tipo_propuesto": "razonamiento",
+      "resultado": "aceptada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "BOE:BOE-A-1889-4763:art1561:1889-08-16"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "Antes de acudir al juzgado es obligatorio intentar un acuerdo por escrito con la otra parte.",
+      "tipo_propuesto": "razonamiento",
+      "resultado": "aceptada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "BOE:BOE-A-2025-76:a5:2025-04-03"
+      ],
+      "nli": "NEUTRAL",
+      "motivos": []
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "La ley establece que el saldo de la fianza devenga el interés legal tras un mes desde la entrega de las llaves.",
+      "tipo_propuesto": "norma",
+      "resultado": "aceptada",
+      "tipo_final": "norma",
+      "citas_verificadas": [
+       "BOE:BOE-A-1994-26003:a36:2019-03-06"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "El arrendatario no responde de los deterioros que se hayan ocasionado por el paso del tiempo o por causa inevitable.",
+      "tipo_propuesto": "norma",
+      "resultado": "aceptada",
+      "tipo_final": "norma",
+      "citas_verificadas": [
+       "BOE:BOE-A-1889-4763:art1561:1889-08-16"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "A falta de expresión del estado de la finca al arrendarla, la ley presume que el arrendatario la recibió en buen estado, salvo prueba en contrario.",
+      "tipo_propuesto": "razonamiento",
+      "resultado": "aceptada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "BOE:BOE-A-1889-4763:art1562:1889-08-16"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "Si no se acredita haber intentado un medio previo de solución de controversias, una eventual demanda civil no sería admitida.",
+      "tipo_propuesto": "razonamiento",
+      "resultado": "aceptada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "BOE:BOE-A-2025-76:a5:2025-04-03"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Envía una reclamación formal por escrito solicitando la devolución de la fianza para dejar constancia fehaciente del intento de negociación previa.",
+      "tipo_propuesto": "consejo",
+      "resultado": "aceptada",
+      "tipo_final": "consejo",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Conserva todos los justificantes de entrega de la comunicación remitida a la otra parte.",
+      "tipo_propuesto": "consejo",
+      "resultado": "aceptada",
+      "tipo_final": "consejo",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     }
+    ],
+    "respuesta_parcial": false,
+    "hechos_determinantes": [],
+    "motivos_banda": [
+     "Alguna afirmación no se deduce literalmente de la norma (inferencia)."
+    ],
+    "sello": {
+     "verificado_en": "2026-10-25T19:54:02.097612Z",
+     "fuentes": [
+      {
+       "source_id": "BOE:BOE-A-1889-4763:art1561:1889-08-16",
+       "titulo": "Art 1561 CC",
+       "version": "1889-08-16",
+       "sha256": "c64d7201e8f31781bdb066cc59a85b1a5cfaa5ca888b9e1d9a833452de85845c",
+       "url": "https://www.boe.es/buscar/act.php?id=BOE-A-1889-4763#art1561"
+      },
+      {
+       "source_id": "BOE:BOE-A-1889-4763:art1562:1889-08-16",
+       "titulo": "Art 1562 CC",
+       "version": "1889-08-16",
+       "sha256": "2e594acc273661914015d5a928e59980b197915e54fc324f4303b91724cbd9f6",
+       "url": "https://www.boe.es/buscar/act.php?id=BOE-A-1889-4763#art1562"
+      },
+      {
+       "source_id": "BOE:BOE-A-1994-26003:a21:1995-01-01",
+       "titulo": "Artículo 21 LAU",
+       "version": "1995-01-01",
+       "sha256": "d96dfa7b8ad44583e300ee7ecf461f0b14b52004b4201e7784532754f7b8a4e8",
+       "url": "https://www.boe.es/buscar/act.php?id=BOE-A-1994-26003#a21"
+      },
+      {
+       "source_id": "BOE:BOE-A-1994-26003:a27:2013-06-06",
+       "titulo": "Artículo 27 LAU",
+       "version": "2013-06-06",
+       "sha256": "13e0789c525ae42ec9f7b3def7e811426abcbbb93bdbe2c28fc8a2667f273001",
+       "url": "https://www.boe.es/buscar/act.php?id=BOE-A-1994-26003#a27"
+      },
+      {
+       "source_id": "BOE:BOE-A-1994-26003:a36:2019-03-06",
+       "titulo": "Artículo 36 LAU",
+       "version": "2019-03-06",
+       "sha256": "5e32f1a524843ae9d317638d4e7900582b582b4e5fe1be2d45e477b700f4c6de",
+       "url": "https://www.boe.es/buscar/act.php?id=BOE-A-1994-26003#a36"
+      },
+      {
+       "source_id": "BOE:BOE-A-2025-76:a1-2:2025-04-03",
+       "titulo": "Artículo 10 LOEFICIENCIA",
+       "version": "2025-04-03",
+       "sha256": "14805a45be63c1a6a63ce9f0b4f4f1b813f14c2b03cb2953320797fcb6115cc8",
+       "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2025-76#a1-2"
+      },
+      {
+       "source_id": "BOE:BOE-A-2025-76:a5:2025-04-03",
+       "titulo": "Artículo 5 LOEFICIENCIA",
+       "version": "2025-04-03",
+       "sha256": "a09598f4168fdde5e234ad76fdab6fb176fecfddcf02b21833b3124c518db206",
+       "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2025-76#a5"
+      }
+     ],
+     "afirmaciones_mostradas": 12,
+     "afirmaciones_eliminadas": 0,
+     "modelos": {
+      "triaje": "gemini-3.8-flash-low",
+      "defensa": "gemini-3.8-flash-medium",
+      "contraparte": "gemini-3.8-flash-medium",
+      "magistrado": "gemini-3.8-flash-medium"
+     }
+    },
+    "aviso_legal": "Desemppa es una herramienta personal de información jurídica y apoyo a la autodefensa. No es asesoramiento profesional ni sustituye a un abogado colegiado. Verifica los plazos y las citas en las fuentes oficiales enlazadas antes de actuar. Si no tienes recursos, puedes solicitar asistencia jurídica gratuita (Ley 1/1996) en el Colegio de Abogados de tu partido judicial.",
+    "generado_en": "2026-10-25T19:54:02.097612Z"
+   },
+   "banda_texto": "Bien fundado en la ley, sin sentencias que lo confirmen"
+  },
+  "mensaje": null,
+  "triage": {
+   "schema_version": "1.0",
+   "consulta_id": "7d6531bb-e672-4d35-b79f-d19c04617a62",
+   "jurisdiccion_principal": "civil",
+   "submateria_principal": "CIV_LAU_FIANZA",
+   "ramas": [
+    {
+     "submateria": "CIV_LAU_FIANZA",
+     "jurisdiccion": "civil",
+     "peso_enrutamiento": 1.0,
+     "justificacion": "Reclamación de devolución de fianza arrendaticia tras la finalización del contrato y entrega de llaves."
+    }
+   ],
+   "grado_ambiguedad": 0.0,
+   "requiere_aclaracion": false,
+   "preguntas_aclaracion": [],
+   "datos_criticos_faltantes": [],
+   "fecha_hechos": "2026-09-01",
+   "municipio_ine_organo": "28079",
+   "vecindad_civil": "comun",
+   "cuantia_estimada_eur": 900.0,
+   "alertas_plazo": [
+    {
+     "tipo_plazo_id": "CIV_FIANZA_DEVOLUCION_1M",
+     "fecha_inicio_computo": "2026-09-01",
+     "evento_inicio": "fecha de entrega de llaves"
+    },
+    {
+     "tipo_plazo_id": "CIV_CONTRACTUAL_5A",
+     "fecha_inicio_computo": "2026-09-01",
+     "evento_inicio": "fecha de entrega de llaves"
+    }
+   ],
+   "normas_boe_objetivo": [
+    {
+     "id_norma": "BOE-A-1994-26003",
+     "articulos": [
+      "36",
+      "21",
+      "27"
+     ],
+     "motivo": "LAU"
+    },
+    {
+     "id_norma": "BOE-A-1889-4763",
+     "articulos": [
+      "1561",
+      "1562",
+      "1563",
+      "1564"
+     ],
+     "motivo": "CC"
+    },
+    {
+     "id_norma": "BOE-A-2025-76",
+     "articulos": [
+      "5",
+      "10"
+     ],
+     "motivo": "LOEFICIENCIA"
+    }
+   ],
+   "terminos_cendoj": [
+    "arrendamiento urbano",
+    "devolución fianza",
+    "artículo 36 LAU",
+    "entrega de llaves",
+    "interés legal"
+   ],
+   "convenio_aplicable": null,
+   "competencia_local": false,
+   "resumen_hechos": "El arrendatario entregó las llaves del inmueble arrendado en Madrid el 1 de septiembre de 2026. El arrendador no ha procedido a la devolución de la fianza por importe de 900 euros transcurrido el plazo correspondiente. El usuario consulta sobre el régimen legal aplicable para exigir el reintegro de dicha cantidad."
+  },
+  "fuentes": {
+   "BOE:BOE-A-1889-4763:art1561:1889-08-16": {
+    "titulo": "Art 1561 CC",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-1889-4763#art1561",
+    "texto": "Artículo 1561.\nEl arrendatario debe devolver la finca, al concluir el arriendo, tal como la recibió, salvo lo que hubiese perecido o se hubiera menoscabado por el tiempo o por causa inevitable."
+   },
+   "BOE:BOE-A-1889-4763:art1562:1889-08-16": {
+    "titulo": "Art 1562 CC",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-1889-4763#art1562",
+    "texto": "Artículo 1562.\nA falta de expresión del estado de la finca al tiempo de arrendarla, la ley presume que el arrendatario la recibió en buen estado, salvo prueba en contrario."
+   },
+   "BOE:BOE-A-1994-26003:a21:1995-01-01": {
+    "titulo": "Artículo 21 LAU",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-1994-26003#a21",
+    "texto": "Artículo 21. Conservación de la vivienda.\n1. El arrendador está obligado a realizar, sin derecho a elevar por ello la renta, todas las reparaciones que sean necesarias para conservar la vivienda en las condiciones de habitabilidad para servir al uso convenido, salvo cuando el deterioro de cuya reparación se trate sea imputable al arrendatario a tenor de lo dispuesto en los artículos 1.563 y 1.564 del Código Civil.\nLa obligación de reparación tiene su límite en la destrucción de la vivienda por causa no imputable al arrendador. A este efecto, se estará a lo dispuesto en el artículo 28.\n2. Cuando la ejecución de una obra de conservación no pueda razonablemente diferirse hasta la conclusión del arrendamiento, el arrendatario estará obligado a soportarla, aunque le sea muy molesta o durante ella se vea privado de una parte de la vivienda.\nSi la obra durase más de veinte días, habrá de disminuirse la renta en proporción a la parte de la vivienda de la que el arrendatario se vea privado.\n3. El arrendatario deberá poner en conocimiento del arrendador, en el plazo más breve posible, la necesidad de las reparaciones que contempla el apartado 1 de este artículo, a cuyos solos efectos deberá facilitar al arrendador la verificación directa, por sí mismo o por los técnicos que designe, del estado de la vivienda. En todo momento, y previa comunicación al arrendador, podrá realizar las que sean urgentes para evitar un daño inminente o una incomodidad grave, y exigir de inmediato su importe al arrendador.\n4. Las pequeñas reparaciones que exija el desgaste por el uso ordinario de la vivienda serán de cargo del arrendatario."
+   },
+   "BOE:BOE-A-1994-26003:a27:2013-06-06": {
+    "titulo": "Artículo 27 LAU",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-1994-26003#a27",
+    "texto": "Artículo 27. Incumplimiento de obligaciones.\n1. El incumplimiento por cualquiera de las partes de las obligaciones resultantes del contrato dará derecho a la parte que hubiere cumplido las suyas a exigir el cumplimiento de la obligación o a promover la resolución del contrato de acuerdo con lo dispuesto en el artículo 1.124 del Código Civil.\n2. Además, el arrendador podrá resolver de pleno derecho el contrato por las siguientes causas:\na) La falta de pago de la renta o, en su caso, de cualquiera de las cantidades cuyo pago haya asumido o corresponda al arrendatario.\nb) La falta de pago del importe de la fianza o de su actualización.\nc) El subarriendo o la cesión inconsentidos.\nd) La realización de daños causados dolosamente en la finca o de obras no consentidas por el arrendador cuando el consentimiento de éste sea necesario.\ne) Cuando en la vivienda tengan lugar actividades molestas, insalubres, nocivas, peligrosas o ilícitas.\nf) Cuando la vivienda deje de estar destinada de forma primordial a satisfacer la necesidad permanente de vivienda del arrendatario o de quien efectivamente la viniera ocupando de acuerdo con lo dispuesto en el artículo 7.\n3. Del mismo modo, el arrendatario podrá resolver el contrato por las siguientes causas:\na) La no realización por el arrendador de las reparaciones a que se refiere el artículo 21.\nb) La perturbación de hecho o de derecho que realice el arrendador en la utilización de la vivienda.\n4. Tratándose de arrendamientos de finca urbana inscritos en el Registro de la Propiedad, si se hubiera estipulado en el contrato que el arrendamiento quedará resuelto por falta de pago de la renta y que deberá en tal caso restituirse inmediatamente el inmueble al arrendador, la resolución tendrá lugar de pleno derecho una vez el arrendador haya requerido judicial o notarialmente al arrendatario en el domicilio designado al efecto en la inscripción, instándole al pago o cumplimiento, y éste no haya contestado al requerimiento en los diez días hábiles siguientes, o conteste aceptando la resolución de pleno derecho, todo ello por medio del mismo juez o notario que hizo el requerimiento.\nEl título aportado al procedimiento registral, junto con la copia del acta de requerimiento, de la que resulte la notificación y que no se haya contestado por el requerido de pago o que se haya contestado aceptando la resolución de pleno derecho, será título suficiente para practicar la cancelación del arrendamiento en el Registro de la Propiedad.\nSi hubiera cargas posteriores que recaigan sobre el arrendamiento, será además preciso para su cancelación justificar la notificación fehaciente a los titulares de las mismas, en el domicilio que obre en el Registro, y acreditar la consignación a su favor ante el mismo notario, de la fianza prestada por el arrendatario."
+   },
+   "BOE:BOE-A-1994-26003:a36:2019-03-06": {
+    "titulo": "Artículo 36 LAU",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-1994-26003#a36",
+    "texto": "Artículo 36. Fianza.\n1. A la celebración del contrato será obligatoria la exigencia y prestación de fianza en metálico en cantidad equivalente a una mensualidad de renta en el arrendamiento de viviendas y de dos en el arrendamiento para uso distinto del de vivienda.\n2. Durante los cinco primeros años de duración del contrato, o durante los siete primeros años si el arrendador fuese persona jurídica, la fianza no estará sujeta a actualización. Pero cada vez que el arrendamiento se prorrogue, el arrendador podrá exigir que la fianza sea incrementada, o el arrendatario que disminuya, hasta hacerse igual a una o dos mensualidades de la renta vigente, según proceda, al tiempo de la prórroga.\n3. La actualización de la fianza durante el período de tiempo en que el plazo pactado para el arrendamiento exceda de cinco años, o de siete años si el arrendador fuese persona jurídica, se regirá por lo estipulado al efecto por las partes. A falta de pacto específico, lo acordado sobre actualización de la renta se presumirá querido también para la actualización de la fianza.\n4. El saldo de la fianza en metálico que deba ser restituido al arrendatario al final del arriendo, devengará el interés legal, transcurrido un mes desde la entrega de las llaves por el mismo sin que se hubiere hecho efectiva dicha restitución.\n5. Las partes podrán pactar cualquier tipo de garantía del cumplimiento por el arrendatario de sus obligaciones arrendaticias adicional a la fianza en metálico.\nEn el caso del arrendamiento de vivienda, en contratos de hasta cinco años de duración, o de hasta siete años si el arrendador fuese persona jurídica, el valor de esta garantía adicional no podrá exceder de dos mensualidades de renta.\n6. Quedan exceptuadas de la obligación de prestar fianza la Administración General del Estado, las Administraciones de las comunidades autónomas y las entidades que integran la Administración Local, los organismos autónomos, las entidades públicas empresariales y demás entes públicos vinculados o dependientes de ellas, y las Mutuas colaboradoras con la Seguridad Social en su función pública de colaboración en la gestión de la Seguridad Social, así como sus Centros Mancomunados, cuando la renta haya de ser satisfecha con cargo a sus respectivos presupuestos."
+   },
+   "BOE:BOE-A-2025-76:a1-2:2025-04-03": {
+    "titulo": "Artículo 10 LOEFICIENCIA",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2025-76#a1-2",
+    "texto": "Artículo 10. Acreditación del intento de negociación y terminación del proceso sin acuerdo.\n1. A los efectos de acreditar que se ha intentado una actividad negociadora previa y cumplir el requisito de procedibilidad, dicha actividad negociadora o el intento de la misma deberá ser recogida documentalmente.\n2. Si no hubiera intervenido una tercera persona neutral, la acreditación se cumplirá mediante cualquier documento firmado por ambas partes en el que se deje constancia de la identidad de las mismas y, en su caso, de las personas profesionales o expertas que hayan participado asesorándolas, la fecha, el objeto de la controversia, la fecha de la reunión o reuniones mantenidas, en su caso, y la declaración responsable de que las dos partes han intervenido de buena fe en el proceso. En su defecto, podrá acreditarse el intento de negociación mediante cualquier documento que pruebe que la otra parte ha recibido la solicitud o invitación para negociar o, en su caso, la propuesta, en qué fecha, y que ha podido acceder a su contenido íntegro.\n3. En el caso de que haya intervenido una tercera persona neutral gestionando la actividad negociadora, esta deberá expedir, a petición de cualquiera de las partes, un documento en el que deberá hacer constar:\na) La identidad del tercero, su cualificación, colegio profesional, institución a la que pertenece o registro en el que esté inscrito.\nb) La identidad de las partes.\nc) El objeto de la controversia.\nd) La fecha de la reunión o reuniones mantenidas.\ne) La declaración solemne de que las dos partes han intervenido de buena fe en el proceso, para que surta efectos ante la autoridad judicial correspondiente.\nEn caso de que alguna de las partes no hubiese comparecido o hubiese rehusado la invitación a participar en la actividad negociadora, se consignará dicha circunstancia y, en su caso, la forma en la que se ha realizado la citación efectiva, la justificación de haber sido realizada, y la fecha de recepción de la misma.\n4. Se entenderá que se ha producido la terminación del proceso sin acuerdo:\na) Si transcurrieran treinta días naturales a contar desde la fecha de recepción de la solicitud inicial de negociación por la otra parte y no se mantuviera la primera reunión o contacto dirigido a alcanzar un acuerdo o no se obtenga respuesta por escrito.\nb) Si, una vez iniciada la actividad negociadora, transcurrieran treinta días desde que una de las partes haga una propuesta concreta de acuerdo a la otra, sin que se alcance acuerdo ni se obtenga respuesta por escrito. El plazo de treinta días comenzará a contar desde la fecha de recepción de la propuesta concreta de acuerdo.\nc) Si transcurrieran tres meses desde la fecha de celebración de la primera reunión sin que se hubiera alcanzado un acuerdo. No obstante lo anterior, las partes tienen derecho a continuar de mutuo acuerdo con la actividad negociadora más allá de dicho plazo.\nd) Si cualquiera de las partes se dirige por escrito a la otra dando por terminadas las negociaciones, quedando constancia del intento de comunicación de ser esa su voluntad."
+   },
+   "BOE:BOE-A-2025-76:a5:2025-04-03": {
+    "titulo": "Artículo 5 LOEFICIENCIA",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2025-76#a5",
+    "texto": "Artículo 5. Requisito de procedibilidad.\n1. En el orden jurisdiccional civil, con carácter general, para que sea admisible la demanda se considerará requisito de procedibilidad acudir previamente a algún medio adecuado de solución de controversias de los previstos en el artículo 2. Para entender cumplido este requisito habrá de existir una identidad entre el objeto de la negociación y el objeto del litigio, aun cuando las pretensiones que pudieran ejercitarse, en su caso, en vía judicial sobre dicho objeto pudieran variar.\nSe considerará cumplido este requisito si se acude previamente a la mediación, a la conciliación o a la opinión neutral de una persona experta independiente, si se formula una oferta vinculante confidencial o si se emplea cualquier otro tipo de actividad negociadora, reconocida en esta u otras leyes, estatales o autonómicas, pero que cumpla lo previsto en las secciones 1.ª y 2 ª, de este capítulo o en una ley sectorial. Singularmente, se considerará cumplido el requisito cuando la actividad negociadora se desarrolle directamente por las partes, o entre sus abogados o abogadas bajo sus directrices y con su conformidad, así como en los supuestos en que las partes hayan recurrido a un proceso de Derecho colaborativo.\n2. Se exigirá actividad negociadora previa a la vía jurisdiccional como requisito de procedibilidad en todos los procesos declarativos del libro II y en los procesos especiales del libro IV de la Ley 1/2000, de 7 de enero, de Enjuiciamiento Civil, con excepción de los que tengan por objeto las siguientes materias:\na) la tutela judicial civil de derechos fundamentales;\nb) la adopción de las medidas previstas en el artículo 158 del Código Civil;\nc) la adopción de medidas judiciales de apoyo a las personas con discapacidad;\nd) la filiación, paternidad y maternidad;\ne) la tutela sumaria de la tenencia o de la posesión de una cosa o derecho por quien haya sido despojado de ellas o perturbado en su disfrute;\nf) la pretensión de que el tribunal resuelva, con carácter sumario, la demolición o derribo de obra, edificio, árbol, columna o cualquier otro objeto análogo en estado de ruina y que amenace causar daños a quien demande;\ng) el ingreso de menores con problemas de conducta en centros de protección específicos, la entrada en domicilios y restantes lugares para la ejecución forzosa de medidas de protección de menores o la restitución o retorno de menores en los supuestos de sustracción internacional;\nh) el juicio cambiario.\n3. No será preciso acudir a un medio adecuado de solución de controversias para la interposición de una demanda ejecutiva, la solicitud de medidas cautelares previas a la demanda, la solicitud de diligencias preliminares ni para la iniciación de expedientes de jurisdicción voluntaria, con excepción de los expedientes de intervención judicial en los casos de desacuerdo conyugal y en la administración de bienes gananciales, así como de los de intervención judicial en caso de desacuerdo en el ejercicio de la patria potestad. Tampoco será preciso acudir a un medio adecuado de solución de controversias para presentar la petición de requerimiento europeo de pago conforme al Reglamento (CE) n.º 1896/2006 del Parlamento Europeo y del Consejo, de 12 de diciembre de 2006, por el que se establece un proceso monitorio europeo, o solicitar el inicio de un proceso europeo de escasa cuantía, conforme al Reglamento (CE) n.º 861/2007 del Parlamento Europeo y del Consejo, de 11 de julio de 2007, por el que se establece un proceso europeo de escasa cuantía.\n4. La iniciativa de acudir a los medios adecuados de solución de controversias puede proceder de una de las partes, de ambas de común acuerdo o bien de una decisión judicial o del letrado o la letrada de la Administración de Justicia de derivación de las partes a este tipo de medios.\nPara el caso de que todas las partes plantearan acudir a un medio adecuado de solución de controversias y no existiera acuerdo sobre cuál de ellos utilizar, se empleará aquel que se haya propuesto antes temporalmente."
+   }
+  }
+ },
+ "origen": "20261025_1843_eco"
+}

@@ -1,0 +1,545 @@
+{
+ "caso": {
+  "id": "V07",
+  "categoria": "tipico",
+  "materia_esperada": "CIV_LAU_PRORROGA",
+  "consulta": "Vivo de alquiler en Madrid con un contrato de 2023. El casero me ha dicho por WhatsApp el 10 de octubre de 2026 que me sube la renta un 15 % este año. ¿Puede hacerlo?",
+  "municipio_ine": "28079",
+  "municipio_nombre": "Madrid",
+  "fecha_hechos": "2026-10-10",
+  "aclaraciones_simuladas": [],
+  "verdad": {
+   "estado_esperado": "CERTIFICADA",
+   "respuesta_esperada": "depende",
+   "articulos_clave": [
+    {
+     "norma": "LAU",
+     "articulo": "18"
+    }
+   ],
+   "plazos": [],
+   "postulacion": {
+    "jurisdiccion": "civil",
+    "procedimiento": "verbal",
+    "cuantia_eur": null
+   },
+   "puntos_clave": [
+    "La renta solo se actualiza cada año de vigencia en los términos pactados; sin pacto expreso no hay actualización (art. 18.1 LAU, redacción vigente desde el 08-10-2026)",
+    "El incremento no puede exceder la variación del índice IRAV (art. 18.1 LAU)",
+    "La subida debe notificarse por escrito con el porcentaje aplicado (art. 18.2 LAU)"
+   ],
+   "prohibido": [
+    "probabilidad"
+   ]
+  }
+ },
+ "hoja": {
+  "id": "V07",
+  "construida": "2026-10-25",
+  "articulos": [
+   {
+    "norma": "LAU",
+    "articulo": "18",
+    "source_id": "BOE:BOE-A-1994-26003:a18:2026-10-08",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-1994-26003#a18",
+    "version": "2026-10-08",
+    "sha256": "3cb3e7c929284d770b55321a858f53b60859471d0f222084bbb8ba39f9132f34",
+    "texto": "Artículo 18. Actualización de la renta.\n1. Durante la vigencia del contrato, la renta sólo podrá ser actualizada por el arrendador o el arrendatario en la fecha en que se cumpla cada año de vigencia del contrato, en los términos pactados por las partes. En defecto de pacto expreso, no se aplicará actualización de rentas a los contratos.\nEn caso de pacto expreso entre las partes sobre algún mecanismo de actualización de valores monetarios que no detalle el índice o metodología de referencia, la renta se actualizará para cada anualidad por referencia a la variación anual del Índice de Referencia para la Actualización Anual de los Contratos de Arrendamiento de Vivienda (IRAV) a fecha de cada actualización, tomando como mes de referencia para la actualización el que corresponda al último índice que estuviera publicado en la fecha de actualización del contrato\nEn todo caso, el incremento producido como consecuencia de la actualización anual de la renta no podrá exceder del resultado de aplicar la variación porcentual experimentada por el Índice de Referencia para la Actualización Anual de los Contratos de Arrendamiento de Vivienda (IRAV) a fecha de cada actualización, tomando como mes de referencia para la actualización el que corresponda al último índice que estuviera publicado en la fecha de actualización del contrato.\n2. La renta actualizada será exigible al arrendatario a partir del mes siguiente a aquel en que la parte interesada lo notifique a la otra parte por escrito, expresando el porcentaje de alteración aplicado y acompañando, si el arrendatario lo exigiera, la oportuna certificación del Instituto Nacional de Estadística.\nSerá válida la notificación efectuada por nota en el recibo de la mensualidad del pago precedente."
+   }
+  ],
+  "plazos": [],
+  "postulacion": {
+   "requiere_abogado": true,
+   "requiere_procurador": true,
+   "base_legal": "Arts. 23 y 31 LEC; arts. 5 y 10 LO 1/2025"
+  }
+ },
+ "resultado": {
+  "consulta_id": "532a4ba8-6817-4db0-acf1-59b2e0b078be",
+  "modo": "eco",
+  "fecha": "2026-10-25",
+  "estado": "CERTIFICADA",
+  "duracion_s": 403,
+  "aclaraciones": [
+   {
+    "pregunta": "¿es tu vivienda habitual?",
+    "respuesta": "No lo sé"
+   },
+   {
+    "pregunta": "¿el casero es persona física o empresa?",
+    "respuesta": "No lo sé"
+   },
+   {
+    "pregunta": "¿Contiene el contrato de arrendamiento alguna cláusula que prevea la actualización anual de la renta?",
+    "respuesta": "No lo sé"
+   }
+  ],
+  "dictamen": {
+   "estado": "CERTIFICADA",
+   "dictamen": {
+    "schema_version": "1.0",
+    "consulta_id": "532a4ba8-6817-4db0-acf1-59b2e0b078be",
+    "modo": "eco",
+    "modelos_usados": {
+     "triaje": "gemini-3.8-flash-low",
+     "defensa": "gemini-3.8-flash-medium",
+     "contraparte": "gemini-3.8-flash-medium",
+     "magistrado": "gemini-3.8-flash-medium"
+    },
+    "banda_solidez": "argumento_solido_sin_doctrina",
+    "respuesta_directa": "El arrendador no puede subirte unilateralmente la renta un 15 %. En defecto de pacto expreso, no se aplicará actualización de rentas a los contratos. No consta si el contrato firmado contiene pacto expreso sobre actualización de rentas.",
+    "resumen_ciudadano": "El casero te comunicó el 10 de octubre de 2026 una subida de renta del 15 %. La ley establece que el incremento anual nunca puede superar la variación porcentual del índice de referencia legalmente fijado. Si en el contrato no se pactó expresamente la actualización, no cabe aplicar ningún incremento a la renta.",
+    "fundamentos": [
+     {
+      "texto": "La actualización de la renta exige pacto expreso entre las partes y en ningún caso puede superar la variación fijada por el índice legal de referencia.",
+      "source_id": "BOE:BOE-A-1994-26003:a18:2026-10-08",
+      "verbatim_quote": "En todo caso, el incremento producido como consecuencia de la actualización anual de la renta no podrá exceder del resultado de aplicar la variación porcentual experimentada por el Índice de Referencia para la Actualización Anual de los Contratos de Arrendamiento de Vivienda (IRAV) a fecha de cada actualización, tomando como mes de referencia para la actualización el que corresponda al último índice que estuviera publicado en la fecha de actualización del contrato.",
+      "fuzzy_score": 100.0,
+      "nli": "NEUTRAL",
+      "offsets": [
+       868,
+       1337
+      ]
+     },
+     {
+      "texto": "La exigibilidad de cualquier incremento en la renta requiere notificación formal y sólo surte efectos a partir del mes siguiente a su recepción.",
+      "source_id": "BOE:BOE-A-1994-26003:a18:2026-10-08",
+      "verbatim_quote": "La renta actualizada será exigible al arrendatario a partir del mes siguiente a aquel en que la parte interesada lo notifique a la otra parte por escrito, expresando el porcentaje de alteración aplicado y acompañando, si el arrendatario lo exigiera, la oportuna certificación del Instituto Nacional de Estadística.",
+      "fuzzy_score": 100.0,
+      "nli": "ENTAILS",
+      "offsets": [
+       1341,
+       1655
+      ]
+     }
+    ],
+    "cuestiones": [
+     {
+      "id": "C1",
+      "enunciado": "Procedencia y límite legal del incremento del 15 % en la actualización de la renta",
+      "tipo": "calificacion_juridica",
+      "estimacion": "DEFENSA",
+      "fundamentos": [
+       {
+        "afirmacion": "La actualización de la renta exige pacto expreso entre las partes y en ningún caso puede superar la variación fijada por el índice legal de referencia.",
+        "citas": [
+         {
+          "source_id": "BOE:BOE-A-1994-26003:a18:2026-10-08",
+          "verbatim_quote": "En todo caso, el incremento producido como consecuencia de la actualización anual de la renta no podrá exceder del resultado de aplicar la variación porcentual experimentada por el Índice de Referencia para la Actualización Anual de los Contratos de Arrendamiento de Vivienda (IRAV) a fecha de cada actualización, tomando como mes de referencia para la actualización el que corresponda al último índice que estuviera publicado en la fecha de actualización del contrato."
+         },
+         {
+          "source_id": "BOE:BOE-A-1994-26003:a18:2026-10-08",
+          "verbatim_quote": "En defecto de pacto expreso, no se aplicará actualización de rentas a los contratos."
+         }
+        ]
+       }
+      ],
+      "importe_estimado_eur": null,
+      "fundamento_cuantia": null
+     },
+     {
+      "id": "C2",
+      "enunciado": "Requisitos formales y momento de exigibilidad de la renta actualizada",
+      "tipo": "calificacion_juridica",
+      "estimacion": "DEFENSA",
+      "fundamentos": [
+       {
+        "afirmacion": "La exigibilidad de cualquier incremento en la renta requiere notificación formal y sólo surte efectos a partir del mes siguiente a su recepción.",
+        "citas": [
+         {
+          "source_id": "BOE:BOE-A-1994-26003:a18:2026-10-08",
+          "verbatim_quote": "La renta actualizada será exigible al arrendatario a partir del mes siguiente a aquel en que la parte interesada lo notifique a la otra parte por escrito, expresando el porcentaje de alteración aplicado y acompañando, si el arrendatario lo exigiera, la oportuna certificación del Instituto Nacional de Estadística."
+         }
+        ]
+       }
+      ],
+      "importe_estimado_eur": null,
+      "fundamento_cuantia": null
+     }
+    ],
+    "fortalezas": [
+     "El incremento pretendido rebasa el tope máximo imperativo establecido por la norma aplicable.",
+     "En defecto de pacto expreso, no se aplicará actualización de rentas a los contratos."
+    ],
+    "debilidades_contraparte": [],
+    "riesgos_propios": [
+     "Si el arrendador demostrara que existe pacto expreso de actualización, podría exigir el incremento legalmente admisible.",
+     "No consta el texto íntegro del contrato de arrendamiento para verificar sus cláusulas."
+    ],
+    "pasos_inmediatos": [
+     "Revisa el documento del contrato para comprobar si existe cláusula de actualización.",
+     "Responde por escrito al arrendador rechazando la subida por no ajustarse a los límites legales."
+    ],
+    "plazos": [],
+    "postulacion": {
+     "requiere_abogado": true,
+     "requiere_procurador": true,
+     "bloquea_escritos": true,
+     "base_legal": "Arts. 23 y 31 LEC; arts. 5 y 10 LO 1/2025",
+     "texto_usuario": "Sin cuantía conocida, se asume que puede superar 2.000 € y exigir abogado y procurador. Antes de demandar, la LO 1/2025 (art. 5) exige haber intentado negociar (mediación, conciliación, oferta vinculante confidencial o negociación directa entre las partes) y poder acreditarlo por escrito (art. 10): basta un documento firmado por ambas partes o, en su defecto, uno que pruebe que la otra parte recibió tu invitación o propuesta para negociar y pudo leerla entera (p. ej., burofax con certificación de contenido). Si no contesta en 30 días naturales desde que la recibe, el intento se da por terminado sin acuerdo."
+    },
+    "avisos": [
+     "Faltan datos tras la aclaración: ¿es tu vivienda habitual?; ¿el casero es persona física o empresa?",
+     "No hay jurisprudencia aplicable en el corpus local: la valoración se apoya solo en la ley. Se ha encolado una búsqueda para ampliar el corpus.",
+     "Alguna afirmación no se deduce literalmente de la norma (inferencia)."
+    ],
+    "guardarrailes": {
+     "G1_schema": true,
+     "G2_G3_citas": true,
+     "G4_sin_pronosticos": true,
+     "G5_nli": true,
+     "G6_banda": true,
+     "G8_plazos": true,
+     "G9_postulacion": true
+    },
+    "afirmaciones": [
+     {
+      "seccion": "respuesta",
+      "texto": "El arrendador no puede subirte unilateralmente la renta un 15 %.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-1994-26003:a18:2026-10-08",
+        "verbatim_quote": "En todo caso, el incremento producido como consecuencia de la actualización anual de la renta no podrá exceder del resultado de aplicar la variación porcentual experimentada por el Índice de Referencia para la Actualización Anual de los Contratos de Arrendamiento de Vivienda (IRAV) a fecha de cada actualización, tomando como mes de referencia para la actualización el que corresponda al último índice que estuviera publicado en la fecha de actualización del contrato.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "respuesta",
+      "texto": "En defecto de pacto expreso, no se aplicará actualización de rentas a los contratos.",
+      "tipo": "norma",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-1994-26003:a18:2026-10-08",
+        "verbatim_quote": "En defecto de pacto expreso, no se aplicará actualización de rentas a los contratos.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "respuesta",
+      "texto": "No consta si el contrato firmado contiene pacto expreso sobre actualización de rentas.",
+      "tipo": "limite",
+      "citas": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "El casero te comunicó el 10 de octubre de 2026 una subida de renta del 15 %.",
+      "tipo": "hecho",
+      "citas": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "La ley establece que el incremento anual nunca puede superar la variación porcentual del índice de referencia legalmente fijado.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-1994-26003:a18:2026-10-08",
+        "verbatim_quote": "En todo caso, el incremento producido como consecuencia de la actualización anual de la renta no podrá exceder del resultado de aplicar la variación porcentual experimentada por el Índice de Referencia para la Actualización Anual de los Contratos de Arrendamiento de Vivienda (IRAV) a fecha de cada actualización, tomando como mes de referencia para la actualización el que corresponda al último índice que estuviera publicado en la fecha de actualización del contrato.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "resumen",
+      "texto": "Si en el contrato no se pactó expresamente la actualización, no cabe aplicar ningún incremento a la renta.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-1994-26003:a18:2026-10-08",
+        "verbatim_quote": "En defecto de pacto expreso, no se aplicará actualización de rentas a los contratos.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "El incremento pretendido rebasa el tope máximo imperativo establecido por la norma aplicable.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-1994-26003:a18:2026-10-08",
+        "verbatim_quote": "En todo caso, el incremento producido como consecuencia de la actualización anual de la renta no podrá exceder del resultado de aplicar la variación porcentual experimentada por el Índice de Referencia para la Actualización Anual de los Contratos de Arrendamiento de Vivienda (IRAV) a fecha de cada actualización, tomando como mes de referencia para la actualización el que corresponda al último índice que estuviera publicado en la fecha de actualización del contrato.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "En defecto de pacto expreso, no se aplicará actualización de rentas a los contratos.",
+      "tipo": "norma",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-1994-26003:a18:2026-10-08",
+        "verbatim_quote": "En defecto de pacto expreso, no se aplicará actualización de rentas a los contratos.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "Si el arrendador demostrara que existe pacto expreso de actualización, podría exigir el incremento legalmente admisible.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-1994-26003:a18:2026-10-08",
+        "verbatim_quote": "Durante la vigencia del contrato, la renta sólo podrá ser actualizada por el arrendador o el arrendatario en la fecha en que se cumpla cada año de vigencia del contrato, en los términos pactados por las partes.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "No consta el texto íntegro del contrato de arrendamiento para verificar sus cláusulas.",
+      "tipo": "limite",
+      "citas": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Revisa el documento del contrato para comprobar si existe cláusula de actualización.",
+      "tipo": "consejo",
+      "citas": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Responde por escrito al arrendador rechazando la subida por no ajustarse a los límites legales.",
+      "tipo": "consejo",
+      "citas": []
+     }
+    ],
+    "auditoria": [
+     {
+      "seccion": "respuesta",
+      "texto": "El arrendador no puede subirte unilateralmente la renta un 15 %.",
+      "tipo_propuesto": "razonamiento",
+      "resultado": "aceptada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "BOE:BOE-A-1994-26003:a18:2026-10-08"
+      ],
+      "nli": "NEUTRAL",
+      "motivos": []
+     },
+     {
+      "seccion": "respuesta",
+      "texto": "En defecto de pacto expreso, no se aplicará actualización de rentas a los contratos.",
+      "tipo_propuesto": "norma",
+      "resultado": "aceptada",
+      "tipo_final": "norma",
+      "citas_verificadas": [
+       "BOE:BOE-A-1994-26003:a18:2026-10-08"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "respuesta",
+      "texto": "No consta si el contrato firmado contiene pacto expreso sobre actualización de rentas.",
+      "tipo_propuesto": "limite",
+      "resultado": "aceptada",
+      "tipo_final": "limite",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "El casero te comunicó el 10 de octubre de 2026 una subida de renta del 15 %.",
+      "tipo_propuesto": "hecho",
+      "resultado": "aceptada",
+      "tipo_final": "hecho",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "La ley establece que el incremento anual nunca puede superar la variación porcentual del índice de referencia legalmente fijado.",
+      "tipo_propuesto": "razonamiento",
+      "resultado": "aceptada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "BOE:BOE-A-1994-26003:a18:2026-10-08"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "Si en el contrato no se pactó expresamente la actualización, no cabe aplicar ningún incremento a la renta.",
+      "tipo_propuesto": "razonamiento",
+      "resultado": "aceptada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "BOE:BOE-A-1994-26003:a18:2026-10-08"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "El incremento pretendido rebasa el tope máximo imperativo establecido por la norma aplicable.",
+      "tipo_propuesto": "razonamiento",
+      "resultado": "aceptada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "BOE:BOE-A-1994-26003:a18:2026-10-08"
+      ],
+      "nli": "NEUTRAL",
+      "motivos": []
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "En defecto de pacto expreso, no se aplicará actualización de rentas a los contratos.",
+      "tipo_propuesto": "norma",
+      "resultado": "aceptada",
+      "tipo_final": "norma",
+      "citas_verificadas": [
+       "BOE:BOE-A-1994-26003:a18:2026-10-08"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "Si el arrendador demostrara que existe pacto expreso de actualización, podría exigir el incremento legalmente admisible.",
+      "tipo_propuesto": "razonamiento",
+      "resultado": "aceptada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "BOE:BOE-A-1994-26003:a18:2026-10-08"
+      ],
+      "nli": "NEUTRAL",
+      "motivos": []
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "No consta el texto íntegro del contrato de arrendamiento para verificar sus cláusulas.",
+      "tipo_propuesto": "limite",
+      "resultado": "aceptada",
+      "tipo_final": "limite",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Revisa el documento del contrato para comprobar si existe cláusula de actualización.",
+      "tipo_propuesto": "consejo",
+      "resultado": "aceptada",
+      "tipo_final": "consejo",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Responde por escrito al arrendador rechazando la subida por no ajustarse a los límites legales.",
+      "tipo_propuesto": "consejo",
+      "resultado": "aceptada",
+      "tipo_final": "consejo",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     }
+    ],
+    "respuesta_parcial": false,
+    "hechos_determinantes": [],
+    "motivos_banda": [
+     "Alguna afirmación no se deduce literalmente de la norma (inferencia)."
+    ],
+    "sello": {
+     "verificado_en": "2026-10-25T20:53:35.408477Z",
+     "fuentes": [
+      {
+       "source_id": "BOE:BOE-A-1994-26003:a18:2026-10-08",
+       "titulo": "Artículo 18 LAU",
+       "version": "2026-10-08",
+       "sha256": "3cb3e7c929284d770b55321a858f53b60859471d0f222084bbb8ba39f9132f34",
+       "url": "https://www.boe.es/buscar/act.php?id=BOE-A-1994-26003#a18"
+      }
+     ],
+     "afirmaciones_mostradas": 12,
+     "afirmaciones_eliminadas": 0,
+     "modelos": {
+      "triaje": "gemini-3.8-flash-low",
+      "defensa": "gemini-3.8-flash-medium",
+      "contraparte": "gemini-3.8-flash-medium",
+      "magistrado": "gemini-3.8-flash-medium"
+     }
+    },
+    "aviso_legal": "Desemppa es una herramienta personal de información jurídica y apoyo a la autodefensa. No es asesoramiento profesional ni sustituye a un abogado colegiado. Verifica los plazos y las citas en las fuentes oficiales enlazadas antes de actuar. Si no tienes recursos, puedes solicitar asistencia jurídica gratuita (Ley 1/1996) en el Colegio de Abogados de tu partido judicial.",
+    "generado_en": "2026-10-25T20:53:35.409537Z"
+   },
+   "banda_texto": "Bien fundado en la ley, sin sentencias que lo confirmen"
+  },
+  "mensaje": null,
+  "triage": {
+   "schema_version": "1.0",
+   "consulta_id": "532a4ba8-6817-4db0-acf1-59b2e0b078be",
+   "jurisdiccion_principal": "civil",
+   "submateria_principal": "CIV_LAU_PRORROGA",
+   "ramas": [
+    {
+     "submateria": "CIV_LAU_PRORROGA",
+     "jurisdiccion": "civil",
+     "peso_enrutamiento": 1.0,
+     "justificacion": "La consulta versa sobre la actualización o subida de la renta en un contrato de arrendamiento de vivienda sujeto a la Ley de Arrendamientos Urbanos (LAU)."
+    }
+   ],
+   "grado_ambiguedad": 0.0,
+   "requiere_aclaracion": false,
+   "preguntas_aclaracion": [],
+   "datos_criticos_faltantes": [],
+   "fecha_hechos": "2026-10-10",
+   "municipio_ine_organo": "28079",
+   "vecindad_civil": "comun",
+   "cuantia_estimada_eur": null,
+   "alertas_plazo": [],
+   "normas_boe_objetivo": [
+    {
+     "id_norma": "BOE-A-1994-26003",
+     "articulos": [
+      "9",
+      "10",
+      "18"
+     ],
+     "motivo": "LAU"
+    },
+    {
+     "id_norma": "BOE-A-2023-12203",
+     "articulos": [
+      "17"
+     ],
+     "motivo": "LVIVIENDA"
+    },
+    {
+     "id_norma": "BOE-A-2025-76",
+     "articulos": [
+      "5",
+      "10"
+     ],
+     "motivo": "LOEFICIENCIA"
+    }
+   ],
+   "terminos_cendoj": [
+    "arrendamiento de vivienda",
+    "actualización de la renta",
+    "artículo 18 LAU",
+    "límite subida alquiler"
+   ],
+   "convenio_aplicable": null,
+   "competencia_local": false,
+   "resumen_hechos": "El ciudadano reside de alquiler en Madrid bajo un contrato formalizado en el año 2023. El 10 de octubre de 2026, el arrendador le notificó por mensaje de WhatsApp una subida de la renta del 15 % para la anualidad corriente. El arrendatario consulta si dicha subida porcentual resulta legalmente procedente."
+  },
+  "fuentes": {
+   "BOE:BOE-A-1994-26003:a18:2026-10-08": {
+    "titulo": "Artículo 18 LAU",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-1994-26003#a18",
+    "texto": "Artículo 18. Actualización de la renta.\n1. Durante la vigencia del contrato, la renta sólo podrá ser actualizada por el arrendador o el arrendatario en la fecha en que se cumpla cada año de vigencia del contrato, en los términos pactados por las partes. En defecto de pacto expreso, no se aplicará actualización de rentas a los contratos.\nEn caso de pacto expreso entre las partes sobre algún mecanismo de actualización de valores monetarios que no detalle el índice o metodología de referencia, la renta se actualizará para cada anualidad por referencia a la variación anual del Índice de Referencia para la Actualización Anual de los Contratos de Arrendamiento de Vivienda (IRAV) a fecha de cada actualización, tomando como mes de referencia para la actualización el que corresponda al último índice que estuviera publicado en la fecha de actualización del contrato\nEn todo caso, el incremento producido como consecuencia de la actualización anual de la renta no podrá exceder del resultado de aplicar la variación porcentual experimentada por el Índice de Referencia para la Actualización Anual de los Contratos de Arrendamiento de Vivienda (IRAV) a fecha de cada actualización, tomando como mes de referencia para la actualización el que corresponda al último índice que estuviera publicado en la fecha de actualización del contrato.\n2. La renta actualizada será exigible al arrendatario a partir del mes siguiente a aquel en que la parte interesada lo notifique a la otra parte por escrito, expresando el porcentaje de alteración aplicado y acompañando, si el arrendatario lo exigiera, la oportuna certificación del Instituto Nacional de Estadística.\nSerá válida la notificación efectuada por nota en el recibo de la mensualidad del pago precedente."
+   }
+  }
+ },
+ "origen": "20261025_1843_eco"
+}

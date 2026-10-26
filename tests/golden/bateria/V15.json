@@ -1,0 +1,709 @@
+{
+ "caso": {
+  "id": "V15",
+  "categoria": "limite",
+  "materia_esperada": "SOC_DESPIDO_DISC",
+  "consulta": "Me despidieron en Madrid el 24 de julio de 2026 con una carta de despido disciplinario. No he hecho nada todavía. ¿Puedo reclamar ahora?",
+  "municipio_ine": "28079",
+  "municipio_nombre": "Madrid",
+  "fecha_hechos": "2026-07-24",
+  "aclaraciones_simuladas": [],
+  "verdad": {
+   "estado_esperado": "CERTIFICADA",
+   "respuesta_esperada": "no",
+   "articulos_clave": [
+    {
+     "norma": "LRJS",
+     "articulo": "103"
+    }
+   ],
+   "plazos": [
+    {
+     "tipo": "SOC_DESPIDO_CADUCIDAD",
+     "inicio": "2026-07-24",
+     "municipio_ine": "28079"
+    }
+   ],
+   "postulacion": {
+    "jurisdiccion": "social",
+    "procedimiento": "despido",
+    "cuantia_eur": null
+   },
+   "puntos_clave": [
+    "El plazo de veinte días hábiles ya ha vencido (el motor da la fecha límite)",
+    "En el despido el mes de agosto cuenta como hábil"
+   ],
+   "prohibido": [
+    "todavía estás a tiempo",
+    "aún estás a tiempo"
+   ]
+  }
+ },
+ "hoja": {
+  "id": "V15",
+  "construida": "2026-10-25",
+  "articulos": [
+   {
+    "norma": "LRJS",
+    "articulo": "103",
+    "source_id": "BOE:BOE-A-2011-15936:a103:2024-03-20",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2011-15936#a103",
+    "version": "2024-03-20",
+    "sha256": "718ed619b10629a20b0075c103e4c885abb6fcd70bb6021a52d9fb1713399f6b",
+    "texto": "Artículo 103. Presentación de la demanda por despido.\n1. El trabajador podrá reclamar contra el despido, dentro de los veinte días hábiles siguientes a aquél en que se hubiera producido. Dicho plazo será de caducidad a todos los efectos y no se computarán los sábados, domingos y los festivos en la sede del órgano jurisdiccional.\n2. Si se promoviese papeleta de conciliación o solicitud de mediación o demanda por despido contra una persona a la que erróneamente se hubiere atribuido la cualidad de empresario, y se acreditase con posterioridad, sea en el juicio o en otro momento anterior del proceso, que lo era un tercero, el trabajador podrá promover nueva demanda contra éste, o ampliar la demanda si no se hubiera celebrado el juicio, sin que comience el cómputo del plazo de caducidad hasta el momento en que conste quién sea el empresario.\n3. Las normas del presente capítulo serán de aplicación a la impugnación de las decisiones empresariales de extinción de contrato con las especialidades necesarias, sin perjuicio de lo previsto en el artículo 120 y de las consecuencias sustantivas de cada tipo de extinción contractual.\n4. Cuando el trabajador manifieste que la empresa no ha tramitado su baja por despido en la Tesorería General de la Seguridad Social, el procedimiento será urgente y se le dará tramitación preferente. El acto de la vista habrá de señalarse dentro de los cinco días siguientes al de la admisión de la demanda. La sentencia se dictará en el plazo de cinco días.\n5. La tramitación procesal establecida en el apartado anterior será de aplicación a las demandas en las que se solicite la extinción de la relación laboral invocando la causa prevista en la letra b) del apartado 1 del artículo 50 del texto refundido del Estatuto de los Trabajadores."
+   }
+  ],
+  "plazos": [
+   {
+    "tipo": "SOC_DESPIDO_CADUCIDAD",
+    "inicio": "2026-07-24",
+    "fecha_limite_segura": "2026-08-21",
+    "base_legal": "Art. 59.3 ET; arts. 103 y 65 LRJS"
+   }
+  ],
+  "postulacion": {
+   "requiere_abogado": false,
+   "requiere_procurador": false,
+   "base_legal": "Arts. 18 y 21 LRJS"
+  }
+ },
+ "resultado": {
+  "consulta_id": "7a52bf6e-88ab-4e26-a4fb-2cf33ce78373",
+  "modo": "eco",
+  "fecha": "2026-10-25",
+  "estado": "CERTIFICADA",
+  "duracion_s": 464,
+  "aclaraciones": [
+   {
+    "pregunta": "Indica motivos de la carta",
+    "respuesta": "No lo sé"
+   },
+   {
+    "pregunta": "Indica antigüedad",
+    "respuesta": "No lo sé"
+   },
+   {
+    "pregunta": "Indica salario bruto",
+    "respuesta": "No lo sé"
+   },
+   {
+    "pregunta": "¿Ostentas la condición de representante legal de los trabajadores o delegado sindical?",
+    "respuesta": "No lo sé"
+   },
+   {
+    "pregunta": "¿Te encontrabas en periodo de suspensión del contrato por nacimiento, adopción o guarda?",
+    "respuesta": "No lo sé"
+   }
+  ],
+  "dictamen": {
+   "estado": "CERTIFICADA",
+   "dictamen": {
+    "schema_version": "1.0",
+    "consulta_id": "7a52bf6e-88ab-4e26-a4fb-2cf33ce78373",
+    "modo": "eco",
+    "modelos_usados": {
+     "triaje": "gemini-3.8-flash-low",
+     "defensa": "gemini-3.8-flash-medium",
+     "contraparte": "gemini-3.8-flash-medium",
+     "magistrado": "gemini-3.8-flash-medium"
+    },
+    "banda_solidez": "argumento_solido_sin_doctrina",
+    "respuesta_directa": "El trabajador podrá reclamar contra el despido, dentro de los veinte días hábiles siguientes a aquél en que se hubiera producido. Será requisito previo para la tramitación del proceso el intento de conciliación o, en su caso, de mediación ante el servicio administrativo correspondiente. No consta en el dossier el cómputo de los días hábiles transcurridos desde la fecha del despido para determinar si la acción sigue viva.",
+    "resumen_ciudadano": "Has comunicado que fuiste despedido el 24 de julio de 2026 mediante una carta de despido disciplinario y que no has realizado actuaciones previas. El trabajador podrá reclamar contra el despido, dentro de los veinte días hábiles siguientes a aquél en que se hubiera producido. Será requisito previo para la tramitación del proceso el intento de conciliación o, en su caso, de mediación ante el servicio administrativo correspondiente. El despido se considerará procedente cuando quede acreditado el incumplimiento alegado por el empresario en su escrito de comunicación. Será improcedente en caso contrario o cuando en su forma no se ajustara a lo establecido en el apartado 1. No constan los motivos concretos alegados en la carta ni los importes retributivos para cuantificar indemnizaciones.",
+    "fundamentos": [
+     {
+      "texto": "La reclamación contra el despido está sujeta al plazo legal de caducidad fijado en días hábiles computados con arreglo a la norma procesal.",
+      "source_id": "BOE:BOE-A-2011-15936:a103:2024-03-20",
+      "verbatim_quote": "El trabajador podrá reclamar contra el despido, dentro de los veinte días hábiles siguientes a aquél en que se hubiera producido. Dicho plazo será de caducidad a todos los efectos y no se computarán los sábados, domingos y los festivos en la sede del órgano jurisdiccional.",
+      "fuzzy_score": 100.0,
+      "nli": "ENTAILS",
+      "offsets": [
+       57,
+       330
+      ]
+     },
+     {
+      "texto": "El intento de conciliación o mediación ante el servicio administrativo es requisito previo y preceptivo antes de acudir a la vía judicial.",
+      "source_id": "BOE:BOE-A-2011-15936:a63:2011-12-11",
+      "verbatim_quote": "Será requisito previo para la tramitación del proceso el intento de conciliación o, en su caso, de mediación ante el servicio administrativo correspondiente o ante el órgano que asuma estas funciones que podrá constituirse mediante los acuerdos interprofesionales o los convenios colectivos a los que se refiere el artículo 83 del Texto Refundido de la Ley del Estatuto de los Trabajadores, así como mediante los acuerdos de interés profesional a los que se refieren el artículo 13 y el apartado 1 del artículo 18 de la Ley del Estatuto del trabajo autónomo.",
+      "fuzzy_score": 100.0,
+      "nli": "ENTAILS",
+      "offsets": [
+       47,
+       605
+      ]
+     },
+     {
+      "texto": "La empresa debe acreditar los hechos constitutivos de falta grave en su comunicación escrita para que proceda la extinción.",
+      "source_id": "BOE:BOE-A-2015-11430:a55:2025-04-03",
+      "verbatim_quote": "El despido se considerará procedente cuando quede acreditado el incumplimiento alegado por el empresario en su escrito de comunicación. Será improcedente en caso contrario o cuando en su forma no se ajustara a lo establecido en el apartado 1.",
+      "fuzzy_score": 100.0,
+      "nli": "NEUTRAL",
+      "offsets": [
+       1341,
+       1583
+      ]
+     },
+     {
+      "texto": "El despido disciplinario exige inexcusablemente comunicación escrita que detalle los hechos imputados y su fecha de efectos.",
+      "source_id": "BOE:BOE-A-2015-11430:a55:2025-04-03",
+      "verbatim_quote": "El despido deberá ser notificado por escrito al trabajador, haciendo figurar los hechos que lo motivan y la fecha en que tendrá efectos.",
+      "fuzzy_score": 100.0,
+      "nli": "ENTAILS",
+      "offsets": [
+       59,
+       195
+      ]
+     }
+    ],
+    "cuestiones": [
+     {
+      "id": "C1",
+      "enunciado": "Plazo legal de caducidad e intento preceptivo de conciliación previa para reclamar contra el despido",
+      "tipo": "plazo",
+      "estimacion": "DEFENSA",
+      "fundamentos": [
+       {
+        "afirmacion": "La reclamación contra el despido está sujeta al plazo legal de caducidad fijado en días hábiles computados con arreglo a la norma procesal.",
+        "citas": [
+         {
+          "source_id": "BOE:BOE-A-2011-15936:a103:2024-03-20",
+          "verbatim_quote": "El trabajador podrá reclamar contra el despido, dentro de los veinte días hábiles siguientes a aquél en que se hubiera producido. Dicho plazo será de caducidad a todos los efectos y no se computarán los sábados, domingos y los festivos en la sede del órgano jurisdiccional."
+         }
+        ]
+       },
+       {
+        "afirmacion": "El intento de conciliación o mediación ante el servicio administrativo es requisito previo y preceptivo antes de acudir a la vía judicial.",
+        "citas": [
+         {
+          "source_id": "BOE:BOE-A-2011-15936:a63:2011-12-11",
+          "verbatim_quote": "Será requisito previo para la tramitación del proceso el intento de conciliación o, en su caso, de mediación ante el servicio administrativo correspondiente o ante el órgano que asuma estas funciones que podrá constituirse mediante los acuerdos interprofesionales o los convenios colectivos a los que se refiere el artículo 83 del Texto Refundido de la Ley del Estatuto de los Trabajadores, así como mediante los acuerdos de interés profesional a los que se refieren el artículo 13 y el apartado 1 del artículo 18 de la Ley del Estatuto del trabajo autónomo."
+         }
+        ]
+       }
+      ],
+      "importe_estimado_eur": null,
+      "fundamento_cuantia": null
+     },
+     {
+      "id": "C2",
+      "enunciado": "Calificación jurídica del despido disciplinario y exigencia de acreditación de los incumplimientos alegados",
+      "tipo": "calificacion_juridica",
+      "estimacion": "DEFENSA",
+      "fundamentos": [
+       {
+        "afirmacion": "La empresa debe acreditar los hechos constitutivos de falta grave en su comunicación escrita para que proceda la extinción.",
+        "citas": [
+         {
+          "source_id": "BOE:BOE-A-2015-11430:a55:2025-04-03",
+          "verbatim_quote": "El despido se considerará procedente cuando quede acreditado el incumplimiento alegado por el empresario en su escrito de comunicación. Será improcedente en caso contrario o cuando en su forma no se ajustara a lo establecido en el apartado 1."
+         }
+        ]
+       },
+       {
+        "afirmacion": "El despido disciplinario exige inexcusablemente comunicación escrita que detalle los hechos imputados y su fecha de efectos.",
+        "citas": [
+         {
+          "source_id": "BOE:BOE-A-2015-11430:a55:2025-04-03",
+          "verbatim_quote": "El despido deberá ser notificado por escrito al trabajador, haciendo figurar los hechos que lo motivan y la fecha en que tendrá efectos."
+         }
+        ]
+       }
+      ],
+      "importe_estimado_eur": null,
+      "fundamento_cuantia": null
+     }
+    ],
+    "fortalezas": [
+     "El despido se considerará procedente cuando quede acreditado el incumplimiento alegado por el empresario en su escrito de comunicación. Será improcedente en caso contrario o cuando en su forma no se ajustara a lo establecido en el apartado 1.",
+     "La carga de justificar la causa y demostrar la gravedad del incumplimiento recae sobre la parte empleadora."
+    ],
+    "debilidades_contraparte": [],
+    "riesgos_propios": [
+     "Si el empresario acreditara el incumplimiento alegado en la comunicación escrita, el despido convalidaría la extinción sin derecho a indemnización ni salarios de tramitación.",
+     "No consta si la acción se encuentra dentro del margen de días hábiles aplicable a la reclamación judicial."
+    ],
+    "pasos_inmediatos": [
+     "Localiza la comunicación de despido para verificar el texto íntegro y los hechos imputados.",
+     "Presenta la solicitud de conciliación previa ante el servicio administrativo correspondiente.",
+     "Recopila las nóminas y el contrato de trabajo para acreditar tus condiciones laborales."
+    ],
+    "plazos": [
+     {
+      "tipo_plazo_id": "SOC_DESPIDO_CADUCIDAD",
+      "descripcion": "Accionar contra el despido (papeleta de conciliación / demanda)",
+      "naturaleza": "caducidad",
+      "tipo_computo": "habiles_social_caducidad",
+      "titular": "usuario",
+      "fecha_inicio": "2026-07-24",
+      "fecha_limite_segura": "2026-08-21",
+      "dia_gracia_hasta": null,
+      "dias_habiles_restantes": 0,
+      "festivos_no_verificados": [],
+      "municipio_ine": "28079",
+      "base_legal": "Art. 59.3 ET; arts. 103 y 65 LRJS",
+      "suspensiones": [],
+      "avisos": [
+       "Festivos locales del municipio no cargados para ese año: confirma las 2 fiestas locales en el boletín oficial de la provincia.",
+       "🔎 Criterio con jurisprudencia cambiante: confírmalo con un profesional.",
+       "La papeleta de conciliación suspende el plazo, que se reanuda al día siguiente del intento de conciliación o a los 15 días hábiles sin celebrarse (art. 65 LRJS)."
+      ],
+      "validado_juridicamente": false
+     }
+    ],
+    "postulacion": {
+     "requiere_abogado": false,
+     "requiere_procurador": false,
+     "bloquea_escritos": false,
+     "base_legal": "Arts. 18 y 21 LRJS",
+     "texto_usuario": "En la primera instancia social puedes comparecer por ti mismo, aunque es muy recomendable contar con abogado, graduado social o sindicato. Antes de la demanda es obligatoria la papeleta de conciliación (SMAC)."
+    },
+    "avisos": [
+     "Faltan datos tras la aclaración: Indica motivos de la carta; Indica antigüedad; Indica salario bruto",
+     "No se ha identificado tu convenio colectivo (indica tu sector o convenio en la consulta): el análisis no cita cláusulas de convenio.",
+     "No hay jurisprudencia aplicable en el corpus local: la valoración se apoya solo en la ley. Se ha encolado una búsqueda para ampliar el corpus.",
+     "Alguna afirmación no se deduce literalmente de la norma (inferencia)."
+    ],
+    "guardarrailes": {
+     "G1_schema": true,
+     "G2_G3_citas": true,
+     "G4_sin_pronosticos": true,
+     "G5_nli": true,
+     "G6_banda": true,
+     "G8_plazos": true,
+     "G9_postulacion": true
+    },
+    "afirmaciones": [
+     {
+      "seccion": "respuesta",
+      "texto": "El trabajador podrá reclamar contra el despido, dentro de los veinte días hábiles siguientes a aquél en que se hubiera producido.",
+      "tipo": "norma",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2011-15936:a103:2024-03-20",
+        "verbatim_quote": "El trabajador podrá reclamar contra el despido, dentro de los veinte días hábiles siguientes a aquél en que se hubiera producido. Dicho plazo será de caducidad a todos los efectos y no se computarán los sábados, domingos y los festivos en la sede del órgano jurisdiccional.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "respuesta",
+      "texto": "Será requisito previo para la tramitación del proceso el intento de conciliación o, en su caso, de mediación ante el servicio administrativo correspondiente.",
+      "tipo": "norma",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2011-15936:a63:2011-12-11",
+        "verbatim_quote": "Será requisito previo para la tramitación del proceso el intento de conciliación o, en su caso, de mediación ante el servicio administrativo correspondiente o ante el órgano que asuma estas funciones que podrá constituirse mediante los acuerdos interprofesionales o los convenios colectivos a los que se refiere el artículo 83 del Texto Refundido de la Ley del Estatuto de los Trabajadores, así como mediante los acuerdos de interés profesional a los que se refieren el artículo 13 y el apartado 1 del artículo 18 de la Ley del Estatuto del trabajo autónomo.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "respuesta",
+      "texto": "No consta en el dossier el cómputo de los días hábiles transcurridos desde la fecha del despido para determinar si la acción sigue viva.",
+      "tipo": "limite",
+      "citas": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "Has comunicado que fuiste despedido el 24 de julio de 2026 mediante una carta de despido disciplinario y que no has realizado actuaciones previas.",
+      "tipo": "hecho",
+      "citas": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "El trabajador podrá reclamar contra el despido, dentro de los veinte días hábiles siguientes a aquél en que se hubiera producido.",
+      "tipo": "norma",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2011-15936:a103:2024-03-20",
+        "verbatim_quote": "El trabajador podrá reclamar contra el despido, dentro de los veinte días hábiles siguientes a aquél en que se hubiera producido. Dicho plazo será de caducidad a todos los efectos y no se computarán los sábados, domingos y los festivos en la sede del órgano jurisdiccional.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "resumen",
+      "texto": "Será requisito previo para la tramitación del proceso el intento de conciliación o, en su caso, de mediación ante el servicio administrativo correspondiente.",
+      "tipo": "norma",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2011-15936:a63:2011-12-11",
+        "verbatim_quote": "Será requisito previo para la tramitación del proceso el intento de conciliación o, en su caso, de mediación ante el servicio administrativo correspondiente o ante el órgano que asuma estas funciones que podrá constituirse mediante los acuerdos interprofesionales o los convenios colectivos a los que se refiere el artículo 83 del Texto Refundido de la Ley del Estatuto de los Trabajadores, así como mediante los acuerdos de interés profesional a los que se refieren el artículo 13 y el apartado 1 del artículo 18 de la Ley del Estatuto del trabajo autónomo.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "resumen",
+      "texto": "El despido se considerará procedente cuando quede acreditado el incumplimiento alegado por el empresario en su escrito de comunicación. Será improcedente en caso contrario o cuando en su forma no se ajustara a lo establecido en el apartado 1.",
+      "tipo": "norma",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2015-11430:a55:2025-04-03",
+        "verbatim_quote": "El despido se considerará procedente cuando quede acreditado el incumplimiento alegado por el empresario en su escrito de comunicación. Será improcedente en caso contrario o cuando en su forma no se ajustara a lo establecido en el apartado 1.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "resumen",
+      "texto": "No constan los motivos concretos alegados en la carta ni los importes retributivos para cuantificar indemnizaciones.",
+      "tipo": "limite",
+      "citas": []
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "El despido se considerará procedente cuando quede acreditado el incumplimiento alegado por el empresario en su escrito de comunicación. Será improcedente en caso contrario o cuando en su forma no se ajustara a lo establecido en el apartado 1.",
+      "tipo": "norma",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2015-11430:a55:2025-04-03",
+        "verbatim_quote": "El despido se considerará procedente cuando quede acreditado el incumplimiento alegado por el empresario en su escrito de comunicación. Será improcedente en caso contrario o cuando en su forma no se ajustara a lo establecido en el apartado 1.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "La carga de justificar la causa y demostrar la gravedad del incumplimiento recae sobre la parte empleadora.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2015-11430:a55:2025-04-03",
+        "verbatim_quote": "El despido se considerará procedente cuando quede acreditado el incumplimiento alegado por el empresario en su escrito de comunicación. Será improcedente en caso contrario o cuando en su forma no se ajustara a lo establecido en el apartado 1.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "Si el empresario acreditara el incumplimiento alegado en la comunicación escrita, el despido convalidaría la extinción sin derecho a indemnización ni salarios de tramitación.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2015-11430:a55:2025-04-03",
+        "verbatim_quote": "El despido procedente convalidará la extinción del contrato de trabajo que con aquel se produjo, sin derecho a indemnización ni a salarios de tramitación.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "No consta si la acción se encuentra dentro del margen de días hábiles aplicable a la reclamación judicial.",
+      "tipo": "limite",
+      "citas": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Localiza la comunicación de despido para verificar el texto íntegro y los hechos imputados.",
+      "tipo": "consejo",
+      "citas": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Presenta la solicitud de conciliación previa ante el servicio administrativo correspondiente.",
+      "tipo": "consejo",
+      "citas": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Recopila las nóminas y el contrato de trabajo para acreditar tus condiciones laborales.",
+      "tipo": "consejo",
+      "citas": []
+     }
+    ],
+    "auditoria": [
+     {
+      "seccion": "respuesta",
+      "texto": "El trabajador podrá reclamar contra el despido, dentro de los veinte días hábiles siguientes a aquél en que se hubiera producido.",
+      "tipo_propuesto": "norma",
+      "resultado": "aceptada",
+      "tipo_final": "norma",
+      "citas_verificadas": [
+       "BOE:BOE-A-2011-15936:a103:2024-03-20"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "respuesta",
+      "texto": "Será requisito previo para la tramitación del proceso el intento de conciliación o, en su caso, de mediación ante el servicio administrativo correspondiente.",
+      "tipo_propuesto": "norma",
+      "resultado": "aceptada",
+      "tipo_final": "norma",
+      "citas_verificadas": [
+       "BOE:BOE-A-2011-15936:a63:2011-12-11"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "respuesta",
+      "texto": "No consta en el dossier el cómputo de los días hábiles transcurridos desde la fecha del despido para determinar si la acción sigue viva.",
+      "tipo_propuesto": "limite",
+      "resultado": "aceptada",
+      "tipo_final": "limite",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "Has comunicado que fuiste despedido el 24 de julio de 2026 mediante una carta de despido disciplinario y que no has realizado actuaciones previas.",
+      "tipo_propuesto": "hecho",
+      "resultado": "aceptada",
+      "tipo_final": "hecho",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "El trabajador podrá reclamar contra el despido, dentro de los veinte días hábiles siguientes a aquél en que se hubiera producido.",
+      "tipo_propuesto": "norma",
+      "resultado": "aceptada",
+      "tipo_final": "norma",
+      "citas_verificadas": [
+       "BOE:BOE-A-2011-15936:a103:2024-03-20"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "Será requisito previo para la tramitación del proceso el intento de conciliación o, en su caso, de mediación ante el servicio administrativo correspondiente.",
+      "tipo_propuesto": "norma",
+      "resultado": "aceptada",
+      "tipo_final": "norma",
+      "citas_verificadas": [
+       "BOE:BOE-A-2011-15936:a63:2011-12-11"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "El despido se considerará procedente cuando quede acreditado el incumplimiento alegado por el empresario en su escrito de comunicación. Será improcedente en caso contrario o cuando en su forma no se ajustara a lo establecido en el apartado 1.",
+      "tipo_propuesto": "norma",
+      "resultado": "aceptada",
+      "tipo_final": "norma",
+      "citas_verificadas": [
+       "BOE:BOE-A-2015-11430:a55:2025-04-03"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "No constan los motivos concretos alegados en la carta ni los importes retributivos para cuantificar indemnizaciones.",
+      "tipo_propuesto": "limite",
+      "resultado": "aceptada",
+      "tipo_final": "limite",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "El despido se considerará procedente cuando quede acreditado el incumplimiento alegado por el empresario en su escrito de comunicación. Será improcedente en caso contrario o cuando en su forma no se ajustara a lo establecido en el apartado 1.",
+      "tipo_propuesto": "norma",
+      "resultado": "aceptada",
+      "tipo_final": "norma",
+      "citas_verificadas": [
+       "BOE:BOE-A-2015-11430:a55:2025-04-03"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "La carga de justificar la causa y demostrar la gravedad del incumplimiento recae sobre la parte empleadora.",
+      "tipo_propuesto": "razonamiento",
+      "resultado": "aceptada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "BOE:BOE-A-2015-11430:a55:2025-04-03"
+      ],
+      "nli": "NEUTRAL",
+      "motivos": []
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "Si el empresario acreditara el incumplimiento alegado en la comunicación escrita, el despido convalidaría la extinción sin derecho a indemnización ni salarios de tramitación.",
+      "tipo_propuesto": "razonamiento",
+      "resultado": "aceptada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "BOE:BOE-A-2015-11430:a55:2025-04-03"
+      ],
+      "nli": "NEUTRAL",
+      "motivos": []
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "No consta si la acción se encuentra dentro del margen de días hábiles aplicable a la reclamación judicial.",
+      "tipo_propuesto": "limite",
+      "resultado": "aceptada",
+      "tipo_final": "limite",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Localiza la comunicación de despido para verificar el texto íntegro y los hechos imputados.",
+      "tipo_propuesto": "consejo",
+      "resultado": "aceptada",
+      "tipo_final": "consejo",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Presenta la solicitud de conciliación previa ante el servicio administrativo correspondiente.",
+      "tipo_propuesto": "consejo",
+      "resultado": "aceptada",
+      "tipo_final": "consejo",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Recopila las nóminas y el contrato de trabajo para acreditar tus condiciones laborales.",
+      "tipo_propuesto": "consejo",
+      "resultado": "aceptada",
+      "tipo_final": "consejo",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     }
+    ],
+    "respuesta_parcial": false,
+    "hechos_determinantes": [
+     "¿Estabas afiliado a algún sindicato en el momento del despido y tenía la empresa constancia de dicha afiliación?"
+    ],
+    "motivos_banda": [
+     "Alguna afirmación no se deduce literalmente de la norma (inferencia)."
+    ],
+    "sello": {
+     "verificado_en": "2026-10-25T18:56:19.065669Z",
+     "fuentes": [
+      {
+       "source_id": "BOE:BOE-A-2011-15936:a103:2024-03-20",
+       "titulo": "Artículo 103 LRJS",
+       "version": "2024-03-20",
+       "sha256": "718ed619b10629a20b0075c103e4c885abb6fcd70bb6021a52d9fb1713399f6b",
+       "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2011-15936#a103"
+      },
+      {
+       "source_id": "BOE:BOE-A-2011-15936:a63:2011-12-11",
+       "titulo": "Artículo 63 LRJS",
+       "version": "2011-12-11",
+       "sha256": "f14f6456507957b900d51ca75e353506f8267393822e70afd704fb9a755b21fa",
+       "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2011-15936#a63"
+      },
+      {
+       "source_id": "BOE:BOE-A-2015-11430:a55:2025-04-03",
+       "titulo": "Artículo 55 ET",
+       "version": "2025-04-03",
+       "sha256": "ef84e0465c4938c7b67a87c15025e22bc2df0e91e5f04dda2823e28de6aeca48",
+       "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2015-11430#a55"
+      }
+     ],
+     "afirmaciones_mostradas": 15,
+     "afirmaciones_eliminadas": 0,
+     "modelos": {
+      "triaje": "gemini-3.8-flash-low",
+      "defensa": "gemini-3.8-flash-medium",
+      "contraparte": "gemini-3.8-flash-medium",
+      "magistrado": "gemini-3.8-flash-medium"
+     }
+    },
+    "aviso_legal": "Desemppa es una herramienta personal de información jurídica y apoyo a la autodefensa. No es asesoramiento profesional ni sustituye a un abogado colegiado. Verifica los plazos y las citas en las fuentes oficiales enlazadas antes de actuar. Si no tienes recursos, puedes solicitar asistencia jurídica gratuita (Ley 1/1996) en el Colegio de Abogados de tu partido judicial.",
+    "generado_en": "2026-10-25T18:56:19.065669Z"
+   },
+   "banda_texto": "Bien fundado en la ley, sin sentencias que lo confirmen"
+  },
+  "mensaje": null,
+  "triage": {
+   "schema_version": "1.0",
+   "consulta_id": "7a52bf6e-88ab-4e26-a4fb-2cf33ce78373",
+   "jurisdiccion_principal": "social",
+   "submateria_principal": "SOC_DESPIDO_DISC",
+   "ramas": [
+    {
+     "submateria": "SOC_DESPIDO_DISC",
+     "jurisdiccion": "social",
+     "peso_enrutamiento": 1.0,
+     "justificacion": "El ciudadano expone haber recibido una carta de despido disciplinario y consulta sobre la posibilidad de impugnarlo."
+    }
+   ],
+   "grado_ambiguedad": 0.0,
+   "requiere_aclaracion": false,
+   "preguntas_aclaracion": [],
+   "datos_criticos_faltantes": [],
+   "fecha_hechos": "2026-07-24",
+   "municipio_ine_organo": "28079",
+   "vecindad_civil": "comun",
+   "cuantia_estimada_eur": null,
+   "alertas_plazo": [
+    {
+     "tipo_plazo_id": "SOC_DESPIDO_CADUCIDAD",
+     "fecha_inicio_computo": "2026-07-24",
+     "evento_inicio": "fecha de notificación del despido"
+    }
+   ],
+   "normas_boe_objetivo": [
+    {
+     "id_norma": "BOE-A-2015-11430",
+     "articulos": [
+      "54",
+      "55",
+      "56",
+      "53"
+     ],
+     "motivo": "ET"
+    },
+    {
+     "id_norma": "BOE-A-2011-15936",
+     "articulos": [
+      "103",
+      "63",
+      "65"
+     ],
+     "motivo": "LRJS"
+    }
+   ],
+   "terminos_cendoj": [
+    "despido disciplinario",
+    "caducidad accion despido",
+    "plazo 20 dias habiles",
+    "impugnacion despido"
+   ],
+   "convenio_aplicable": null,
+   "competencia_local": false,
+   "resumen_hechos": "El trabajador fue despedido en Madrid el 24 de julio de 2026 mediante carta de despido disciplinario. Manifiesta no haber realizado ninguna actuación previa tras la notificación. Desconoce los motivos alegados en la carta, su antigüedad y salario exacto. Consulta si a fecha actual todavía está a tiempo de reclamar contra el despido."
+  },
+  "fuentes": {
+   "BOE:BOE-A-2011-15936:a103:2024-03-20": {
+    "titulo": "Artículo 103 LRJS",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2011-15936#a103",
+    "texto": "Artículo 103. Presentación de la demanda por despido.\n1. El trabajador podrá reclamar contra el despido, dentro de los veinte días hábiles siguientes a aquél en que se hubiera producido. Dicho plazo será de caducidad a todos los efectos y no se computarán los sábados, domingos y los festivos en la sede del órgano jurisdiccional.\n2. Si se promoviese papeleta de conciliación o solicitud de mediación o demanda por despido contra una persona a la que erróneamente se hubiere atribuido la cualidad de empresario, y se acreditase con posterioridad, sea en el juicio o en otro momento anterior del proceso, que lo era un tercero, el trabajador podrá promover nueva demanda contra éste, o ampliar la demanda si no se hubiera celebrado el juicio, sin que comience el cómputo del plazo de caducidad hasta el momento en que conste quién sea el empresario.\n3. Las normas del presente capítulo serán de aplicación a la impugnación de las decisiones empresariales de extinción de contrato con las especialidades necesarias, sin perjuicio de lo previsto en el artículo 120 y de las consecuencias sustantivas de cada tipo de extinción contractual.\n4. Cuando el trabajador manifieste que la empresa no ha tramitado su baja por despido en la Tesorería General de la Seguridad Social, el procedimiento será urgente y se le dará tramitación preferente. El acto de la vista habrá de señalarse dentro de los cinco días siguientes al de la admisión de la demanda. La sentencia se dictará en el plazo de cinco días.\n5. La tramitación procesal establecida en el apartado anterior será de aplicación a las demandas en las que se solicite la extinción de la relación laboral invocando la causa prevista en la letra b) del apartado 1 del artículo 50 del texto refundido del Estatuto de los Trabajadores."
+   },
+   "BOE:BOE-A-2011-15936:a63:2011-12-11": {
+    "titulo": "Artículo 63 LRJS",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2011-15936#a63",
+    "texto": "Artículo 63. Conciliación o mediación previas.\nSerá requisito previo para la tramitación del proceso el intento de conciliación o, en su caso, de mediación ante el servicio administrativo correspondiente o ante el órgano que asuma estas funciones que podrá constituirse mediante los acuerdos interprofesionales o los convenios colectivos a los que se refiere el artículo 83 del Texto Refundido de la Ley del Estatuto de los Trabajadores, así como mediante los acuerdos de interés profesional a los que se refieren el artículo 13 y el apartado 1 del artículo 18 de la Ley del Estatuto del trabajo autónomo."
+   },
+   "BOE:BOE-A-2015-11430:a55:2025-04-03": {
+    "titulo": "Artículo 55 ET",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2015-11430#a55",
+    "texto": "Artículo 55. Forma y efectos del despido disciplinario.\n1. El despido deberá ser notificado por escrito al trabajador, haciendo figurar los hechos que lo motivan y la fecha en que tendrá efectos.\nPor convenio colectivo podrán establecerse otras exigencias formales para el despido.\nCuando el trabajador fuera representante legal de los trabajadores o delegado sindical procederá la apertura de expediente contradictorio, en el que serán oídos, además del interesado, los restantes miembros de la representación a que perteneciere, si los hubiese.\nSi el trabajador estuviera afiliado a un sindicato y al empresario le constase, deberá dar audiencia previa a los delegados sindicales de la sección sindical correspondiente a dicho sindicato.\n2. Si el despido se realizara inobservando lo establecido en el apartado anterior, el empresario podrá realizar un nuevo despido en el que cumpla los requisitos omitidos en el precedente. Dicho nuevo despido, que solo surtirá efectos desde su fecha, solo cabrá efectuarlo en el plazo de veinte días, a contar desde el siguiente al del primer despido. Al realizarlo, el empresario pondrá a disposición del trabajador los salarios devengados en los días intermedios, manteniéndole durante los mismos en alta en la Seguridad Social.\n3. El despido será calificado como procedente, improcedente o nulo.\n4. El despido se considerará procedente cuando quede acreditado el incumplimiento alegado por el empresario en su escrito de comunicación. Será improcedente en caso contrario o cuando en su forma no se ajustara a lo establecido en el apartado 1.\n5. Será nulo el despido que tenga por móvil alguna de las causas de discriminación prohibidas en la Constitución Española o en la ley, o bien se produzca con violación de derechos fundamentales y libertades públicas de la persona trabajadora.\nSerá también nulo el despido, en los siguientes supuestos:\na) El de las personas trabajadoras durante los periodos de suspensión del contrato de trabajo por nacimiento, adopción, guarda con fines de adopción, acogimiento, riesgo durante el embarazo, riesgo durante la lactancia natural a que se refiere el artículo 45.1.d) y e), disfrute del permiso parental a que se refiere el artículo 48 bis, o por enfermedades causadas por embarazo, parto o lactancia natural, o cuando se notifique la decisión en una fecha tal que el plazo de preaviso concedido finalice dentro de dichos periodos.\nb) El de las trabajadoras embarazadas, desde la fecha de inicio del embarazo hasta el comienzo del periodo de suspensión a que se refiere la letra a); el de las personas trabajadoras que hayan solicitado uno de los permisos a los que se refieren los apartados 3.b), 4, 5 y 6 del artículo 37, o estén disfrutando de ellos, o hayan solicitado o estén disfrutando de las adaptaciones de jornada previstas en el artículo 34.8 o la excedencia prevista en el artículo 46.3; y el de las personas trabajadoras víctimas de violencia de género o de violencia sexual, por el ejercicio de su derecho a la tutela judicial efectiva o de los derechos reconocidos en esta ley para hacer efectiva su protección o su derecho a la asistencia social integral.\nc) El de las personas trabajadoras después de haberse reintegrado al trabajo al finalizar los periodos de suspensión del contrato por nacimiento, adopción, guarda con fines de adopción o acogimiento, a que se refiere el artículo 45.1.d), siempre que no hubieran transcurrido más de doce meses desde la fecha del nacimiento, la adopción, la guarda con fines de adopción o el acogimiento.\nLo establecido en las letras anteriores será de aplicación, salvo que, en esos casos, se declare la procedencia del despido por motivos no relacionados con el embarazo o con el ejercicio del derecho a los permisos y excedencia señalados.\n6. El despido nulo tendrá el efecto de la readmisión inmediata del trabajador, con abono de los salarios dejados de percibir.\n7. El despido procedente convalidará la extinción del contrato de trabajo que con aquel se produjo, sin derecho a indemnización ni a salarios de tramitación."
+   }
+  }
+ },
+ "origen": "20261025_1843_eco"
+}

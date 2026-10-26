@@ -61,12 +61,12 @@ BANDA_ORDEN = [
     BandaSolidez.NO_DETERMINABLE,
 ]
 BANDA_TEXTO = {
-    BandaSolidez.CRITERIO_CONSOLIDADO_FAVORABLE: "Criterio consolidado favorable",
-    BandaSolidez.ARGUMENTO_SOLIDO_SIN_DOCTRINA: "Argumento sólido, sin doctrina consolidada",
-    BandaSolidez.DISPARIDAD_DE_CRITERIO: "Disparidad de criterio entre tribunales",
-    BandaSolidez.RIESGO_PROBATORIO_ALTO: "Depende de pruebas que quizá no tengas",
-    BandaSolidez.CRITERIO_CONSOLIDADO_DESFAVORABLE: "Criterio consolidado desfavorable",
-    BandaSolidez.NO_DETERMINABLE: "No es posible valorar",
+    BandaSolidez.CRITERIO_CONSOLIDADO_FAVORABLE: "Favorable: los tribunales suelen dar la razón en casos así",
+    BandaSolidez.ARGUMENTO_SOLIDO_SIN_DOCTRINA: "Bien fundado en la ley, sin sentencias que lo confirmen",
+    BandaSolidez.DISPARIDAD_DE_CRITERIO: "Incierto: no hay un criterio único",
+    BandaSolidez.RIESGO_PROBATORIO_ALTO: "Depende de lo que puedas demostrar",
+    BandaSolidez.CRITERIO_CONSOLIDADO_DESFAVORABLE: "Desfavorable: la ley o los tribunales van en tu contra",
+    BandaSolidez.NO_DETERMINABLE: "No se puede valorar con lo verificado",
 }
 
 SourceId = Annotated[str, Field(pattern=r"^(BOE|ROJ|CONV|DOC|EUR):.+")]
@@ -95,12 +95,22 @@ class RamaCandidata(BaseModel):
     justificacion: str = Field(max_length=400)
 
 
+TIPOS_RESPUESTA = ("si_no", "fecha", "importe", "opcion", "texto", "municipio")
+
+
+def _tipo_o_texto(v: Any) -> Any:
+    """Un tipo de respuesta desconocido o nulo del modelo no tumba el análisis: se pregunta con texto libre."""
+    return v if v in TIPOS_RESPUESTA else "texto"
+
+
 class PreguntaAclaratoria(BaseModel):
     id: str
     texto: str = Field(max_length=300)
     tipo_respuesta: Literal["si_no", "fecha", "importe", "opcion", "texto", "municipio"]
     opciones: list[str] | None = None
     motivo: str = ""
+
+    tipo_valido = field_validator("tipo_respuesta", mode="before")(_tipo_o_texto)
 
 
 class AlertaPlazo(BaseModel):
@@ -299,6 +309,11 @@ class HechoDeterminante(BaseModel):
     cuestion_id: str = ""
     por_que: str = Field(default="", max_length=300)
 
+    @field_validator("tipo_respuesta", mode="before")
+    @classmethod
+    def _tipo(cls, v: Any) -> Any:
+        return "texto" if v == "municipio" else _tipo_o_texto(v)
+
 
 class ResolucionMagistradoSchema(BaseModel):
     cuestiones: list[CuestionLitigiosa] = Field(min_length=1)
@@ -428,6 +443,8 @@ class DictamenCertificadoSchema(BaseModel):
     auditoria: list[EntradaAuditoria] = Field(default_factory=list)
     respuesta_parcial: bool = False  # la respuesta directa no superó la verificación: se dice lo que no se sabe
     hechos_determinantes: list[str] = Field(default_factory=list)  # hechos sin aclarar que cambiarían el resultado
+    # Por qué la solidez es la que es: motivos deterministas de los guardarraíles (nunca texto libre del modelo).
+    motivos_banda: list[str] = Field(default_factory=list)
     sello: SelloVerificacion | None = None
     aviso_legal: str
     generado_en: datetime

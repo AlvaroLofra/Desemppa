@@ -1,6 +1,6 @@
 import type { PasoHoja } from "./api";
 import { numerarFuentes } from "./citas";
-import { BANDA_TEXTO, type AfirmacionVerificada, type Plazo, type Postulacion } from "./types";
+import { BANDA_EXPLICACION, BANDA_TEXTO, type AfirmacionVerificada, type Plazo, type Postulacion } from "./types";
 import type { ConsultaState } from "./useConsulta";
 
 const SECCIONES: { id: AfirmacionVerificada["seccion"]; titulo: string }[] = [
@@ -66,7 +66,9 @@ export function expedienteMarkdown(state: ConsultaState, fecha = new Date(), pas
   }
   const num = numerarFuentes(d);
   const ref = (sid: string) => `[${num.get(sid)}]`;
-  L.push(`**Solidez:** ${BANDA_TEXTO[d.banda_solidez]}`, "");
+  L.push(`**Solidez:** ${BANDA_TEXTO[d.banda_solidez]}. ${BANDA_EXPLICACION[d.banda_solidez]}`, "");
+  for (const m of d.motivos_banda ?? []) L.push(`- ${m}`);
+  if (d.motivos_banda?.length) L.push("");
   if (d.respuesta_parcial) L.push("> Respuesta parcial: no todo superó la verificación y se ha omitido.", "");
   const afs = d.afirmaciones ?? [];
   for (const s of SECCIONES) {

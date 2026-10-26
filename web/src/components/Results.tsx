@@ -2,9 +2,10 @@ import { createContext, useContext, useState } from "react";
 import { AlertCircle, BookOpen, Square, CalendarPlus, Check, ChevronDown, Copy, FileDown, Info, Loader2, Printer, X } from "lucide-react";
 import type { ConsultaState, Rol } from "../lib/useConsulta";
 import {
-  BANDA_TEXTO, type SelloVerificacion, type AfirmacionVerificada, type Argumento, type Banda, type EntradaAuditoria, type Fuente, type Plazo,
+  BANDA_EXPLICACION, BANDA_NIVEL, BANDA_TEXTO, type SelloVerificacion, type AfirmacionVerificada, type Argumento, type Banda, type EntradaAuditoria, type Fuente, type Plazo,
   type Postulacion, type Pregunta,
 } from "../lib/types";
+import { componerRespuesta, contestada, NO_SE, opcionesDe } from "../lib/aclaraciones";
 import { numerarFuentes } from "../lib/citas";
 import { descargar, nombreFichero } from "../lib/descargar";
 import { diasNaturalesHasta, fechaLarga } from "../lib/highlight";
@@ -51,55 +52,72 @@ export function Clarification({ preguntas, onResponder }: {
   onResponder: (r: { pregunta: string; respuesta: string; municipio_ine?: string | null }[]) => void;
 }) {
   const [resp, setResp] = useState<Record<string, string>>({});
+  // Texto libre de cada pregunta: matiza la opción elegida o la sustituye («Otra respuesta»).
+  const [matiz, setMatiz] = useState<Record<string, string>>({});
+  const [libre, setLibre] = useState<Record<string, boolean>>({});
   const [muni, setMuni] = useState<Municipio | null>(null);
-  const NO_SE = "No lo sé";
-  const listo = preguntas.every((p) => resp[p.id] === NO_SE || (p.tipo_respuesta === "municipio" ? muni : resp[p.id]?.trim()));
+  const valor = (p: Pregunta) =>
+    p.tipo_respuesta === "municipio" && resp[p.id] !== NO_SE ? (muni ? `${muni.nombre} (${muni.provincia})` : "") : resp[p.id];
+  const listo = preguntas.every((p) => contestada(valor(p), matiz[p.id]));
+  const poner = (p: Pregunta, v: string) => setResp({ ...resp, [p.id]: resp[p.id] === v ? "" : v });
   return (
     <section className="fade-in space-y-4" aria-label="Preguntas aclaratorias">
       <p className="text-base text-ink">Antes de seguir, necesito algunos datos para no equivocarme:</p>
-      <p className="-mt-2 text-sm text-ink-2">Cuanto más precisas sean tus respuestas, más fiable será el resultado. Si no sabes algo, dilo: no se supondrá.</p>
-      <div className="space-y-4 rounded-3xl bg-surface p-5">
-        {preguntas.map((p) => (
-          <div key={p.id} className="block">
-            <span className="block text-sm text-ink">{p.texto}</span>
-            {p.motivo && <span className="mb-2 block text-xs text-ink-3">Por qué lo pregunto: {p.motivo}</span>}
-            {!p.motivo && <span className="mb-2 block" />}
-            {p.tipo_respuesta === "municipio" ? (
-              <MunicipioPicker value={muni} onChange={setMuni} compact arriba={false} />
-            ) : p.tipo_respuesta === "si_no" ? (
-              <span className="flex gap-2">
-                {["Sí", "No"].map((o) => (
-                  <button key={o} type="button" onClick={() => setResp({ ...resp, [p.id]: o })}
-                          aria-pressed={resp[p.id] === o}
-                          className={resp[p.id] === o ? "btn-tonal" : "btn-outline"}>{o}</button>
-                ))}
+      <p className="-mt-2 text-sm text-ink-2">Cuanto más precisas sean tus respuestas, más fiable será el resultado. Si no sabes algo, dilo: no se supondrá. Si ninguna opción encaja, escribe tu respuesta.</p>
+      <div className="space-y-5 rounded-3xl bg-surface p-5">
+        {preguntas.map((p) => {
+          const opciones = opcionesDe(p);
+          const esTexto = p.tipo_respuesta === "texto" && !opciones.length;
+          return (
+            <div key={p.id} className="block">
+              <span className="block text-sm text-ink">{p.texto}</span>
+              {p.motivo && <span className="mb-2 block text-xs text-ink-3">Por qué lo pregunto: {p.motivo}</span>}
+              {!p.motivo && <span className="mb-2 block" />}
+              {opciones.length ? (
+                <span className="flex flex-wrap gap-2" role="group" aria-label={p.texto}>
+                  {opciones.map((o) => (
+                    <button key={o} type="button" onClick={() => poner(p, o)} aria-pressed={resp[p.id] === o}
+                            className={resp[p.id] === o ? "btn-tonal" : "btn-outline"}>{o}</button>
+                  ))}
+                </span>
+              ) : p.tipo_respuesta === "municipio" ? (
+                <MunicipioPicker value={muni} onChange={setMuni} compact arriba={false} />
+              ) : p.tipo_respuesta === "fecha" ? (
+                <DatePicker value={resp[p.id] && resp[p.id] !== NO_SE ? resp[p.id] : null} label={p.texto}
+                            onChange={(f) => setResp({ ...resp, [p.id]: f ?? "" })} />
+              ) : p.tipo_respuesta === "importe" ? (
+                <input type="number" aria-label={p.texto} className="field max-w-sm"
+                       value={resp[p.id] === NO_SE ? "" : resp[p.id] ?? ""}
+                       onChange={(e) => setResp({ ...resp, [p.id]: e.target.value })} />
+              ) : (
+                <textarea rows={2} aria-label={p.texto} className="field max-w-xl resize-y"
+                          value={matiz[p.id] ?? ""} onChange={(e) => setMatiz({ ...matiz, [p.id]: e.target.value })} />
+              )}
+              {!esTexto && (libre[p.id] ? (
+                <textarea rows={2} className="field mt-2 max-w-xl resize-y" autoFocus
+                          aria-label={`Otra respuesta o matiz: ${p.texto}`}
+                          placeholder={opciones.length ? "Escribe otra respuesta o añade un matiz" : "Escribe tu respuesta con tus palabras"}
+                          value={matiz[p.id] ?? ""} onChange={(e) => setMatiz({ ...matiz, [p.id]: e.target.value })} />
+              ) : null)}
+              <span className="mt-2 flex flex-wrap gap-1">
+                {!esTexto && !libre[p.id] && (
+                  <button type="button" onClick={() => setLibre({ ...libre, [p.id]: true })}
+                          className="rounded-full px-3 py-1 text-xs text-ink-2 transition-colors hover:bg-surface-2">
+                    {opciones.length ? "Otra respuesta o matizar" : "Responder con mis palabras"}
+                  </button>
+                )}
+                <button type="button" aria-pressed={resp[p.id] === NO_SE} onClick={() => poner(p, NO_SE)}
+                        className={`rounded-full px-3 py-1 text-xs transition-colors ${
+                          resp[p.id] === NO_SE ? "bg-accent-container text-on-accent-container" : "text-ink-2 hover:bg-surface-2"}`}>
+                  {NO_SE}
+                </button>
               </span>
-            ) : p.opciones?.length ? (
-              <select className="field max-w-sm" value={resp[p.id] ?? ""} aria-label={p.texto}
-                      onChange={(e) => setResp({ ...resp, [p.id]: e.target.value })}>
-                <option value="">Elige…</option>
-                {p.opciones.map((o) => <option key={o}>{o}</option>)}
-              </select>
-            ) : p.tipo_respuesta === "fecha" ? (
-              <DatePicker value={resp[p.id] || null} label={p.texto}
-                          onChange={(f) => setResp({ ...resp, [p.id]: f ?? "" })} />
-            ) : (
-              <input type={p.tipo_respuesta === "importe" ? "number" : "text"} aria-label={p.texto}
-                     className="field max-w-sm" value={resp[p.id] ?? ""}
-                     onChange={(e) => setResp({ ...resp, [p.id]: e.target.value })} />
-            )}
-            <button type="button" aria-pressed={resp[p.id] === NO_SE}
-                    onClick={() => setResp({ ...resp, [p.id]: resp[p.id] === NO_SE ? "" : NO_SE })}
-                    className={`mt-2 rounded-full px-3 py-1 text-xs transition-colors ${
-                      resp[p.id] === NO_SE ? "bg-accent-container text-on-accent-container" : "text-ink-2 hover:bg-surface-2"}`}>
-              {NO_SE}
-            </button>
-          </div>
-        ))}
+            </div>
+          );
+        })}
         <button className="btn-primary" disabled={!listo} onClick={() => onResponder(preguntas.map((p) => ({
           pregunta: p.texto,
-          respuesta: resp[p.id] === NO_SE ? NO_SE
-            : p.tipo_respuesta === "municipio" ? `${muni?.nombre} (${muni?.provincia})` : resp[p.id] ?? "",
+          respuesta: componerRespuesta(valor(p), matiz[p.id]),
           municipio_ine: p.tipo_respuesta === "municipio" && resp[p.id] !== NO_SE ? muni?.codigo_ine : undefined,
         })))}>Continuar</button>
       </div>
@@ -272,6 +290,44 @@ const BANDA_COLOR: Record<Banda, string> = {
   criterio_consolidado_desfavorable: "bg-danger",
   no_determinable: "bg-ink-3",
 };
+
+/** Solidez en lenguaje sencillo: medidor de 5 niveles, qué significa y por qué (motivos deterministas). */
+function Solidez({ banda, motivos }: { banda: Banda; motivos: string[] }) {
+  const nivel = BANDA_NIVEL[banda];
+  const [abiertoUsuario, setAbierto] = useState(false);
+  const imprimiendo = useContext(ImprimiendoContext);
+  const abierto = abiertoUsuario || imprimiendo;
+  return (
+    <div className="mb-4 rounded-2xl bg-surface p-4" aria-label="Solidez de tu posición">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <span className="text-sm text-ink-2">Solidez de tu posición</span>
+        <span className="flex gap-1" role="img"
+              aria-label={nivel ? `Nivel ${nivel} de 5` : "Sin valorar"}>
+          {[1, 2, 3, 4, 5].map((i) => (
+            <span key={i} className={`h-1.5 w-6 rounded-full ${i <= nivel ? BANDA_COLOR[banda] : "bg-surface-2"}`} />
+          ))}
+        </span>
+      </div>
+      <p className="mt-1.5 text-base font-medium text-ink">{BANDA_TEXTO[banda]}</p>
+      <p className="mt-1 text-sm text-ink-2">{BANDA_EXPLICACION[banda]}</p>
+      {motivos.length > 0 && (
+        <div className="mt-2">
+          <button type="button" className="flex items-center gap-1 text-xs text-ink-2 hover:text-ink"
+                  aria-expanded={abierto} onClick={() => setAbierto((v) => !v)}>
+            <ChevronDown className={`h-3.5 w-3.5 transition-transform ${abierto ? "rotate-180" : ""}`} aria-hidden />
+            Por qué este nivel
+          </button>
+          {abierto && (
+            <ul className="mt-1.5 list-disc space-y-1 pl-5 text-xs text-ink-2">
+              {motivos.map((m) => <li key={m}>{m}</li>)}
+            </ul>
+          )}
+        </div>
+      )}
+      <p className="mt-2 text-[11px] text-ink-3">No es una probabilidad de ganar: resume cuánto respaldo verificado tiene tu posición.</p>
+    </div>
+  );
+}
 
 function Postulacion({ p }: { p: Postulacion }) {
   return (
@@ -546,10 +602,7 @@ export function Answer({ state, onAbrir, acciones, hoja = [], profesional = fals
         ? <p className="text-xl leading-snug text-ink"><TextoVerificado afirmaciones={respuesta} num={num} onAbrir={onAbrir} /></p>
         : d.respuesta_directa && <p className="text-xl leading-snug text-ink">{d.respuesta_directa}</p>}
       <div>
-        <p className="mb-3 flex items-center gap-2 text-sm text-ink-2">
-          <span className={`h-2 w-2 rounded-full ${BANDA_COLOR[d.banda_solidez]}`} aria-hidden />
-          Solidez: <span className="text-ink">{BANDA_TEXTO[d.banda_solidez]}</span>
-        </p>
+        <Solidez banda={d.banda_solidez} motivos={d.motivos_banda ?? []} />
         {resumen.length > 0
           ? <p className="legal"><TextoVerificado afirmaciones={resumen} num={num} onAbrir={onAbrir} /></p>
           : <p className="legal whitespace-pre-line">{d.resumen_ciudadano}</p>}

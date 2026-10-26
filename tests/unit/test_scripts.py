@@ -60,3 +60,36 @@ def test_importar_convenios_rechaza_referencias_que_no_cuadran(datos, monkeypatc
     assert importar_convenios_boe.main([]) == 1  # hay un rechazado
     out = capsys.readouterr().out
     assert "1 correctos, 1 rechazados" in out and "99003435011981" in out
+
+
+def _ejecucion(carpeta: Path, resultados: dict[str, tuple[int, str]]) -> Path:
+    """Ejecución de la batería mínima en disco: {id: (aprobadas de 7, estado)}."""
+    import json
+
+    for cid, (ok, estado) in resultados.items():
+        d = carpeta / cid
+        d.mkdir(parents=True)
+        checks = {f"c{i}": {"ok": i < ok, "detalle": ""} for i in range(7)}
+        (d / "evaluacion.json").write_text(json.dumps({"id": cid, "aprobadas": ok, "total": 7, "checks": checks}))
+        caso = {"id": cid}
+        res = {"estado": estado, "duracion_s": 100, "debate": {"x": 1}}
+        (d / "expediente.json").write_text(json.dumps({"caso": caso, "hoja": None, "resultado": res}))
+    return carpeta
+
+
+def test_congelar_solo_los_casos_perfectos(tmp_path):
+    from benchmark import congelar
+
+    run = _ejecucion(tmp_path / "run", {"V01": (7, "CERTIFICADA"), "V02": (5, "CERTIFICADA")})
+    assert congelar.main([str(run), "--destino", str(tmp_path / "golden")]) == 0
+    assert [f.name for f in (tmp_path / "golden").iterdir()] == ["V01.json"]
+    assert congelar.main([str(tmp_path / "no_existe")]) == 1
+
+
+def test_comparar_ejecuciones_marca_lo_que_empeora(tmp_path):
+    from benchmark.comparar_ejecuciones import comparar
+
+    a = _ejecucion(tmp_path / "a", {"V01": (7, "CERTIFICADA"), "V02": (6, "CERTIFICADA")})
+    b = _ejecucion(tmp_path / "b", {"V01": (5, "BLOQUEADA"), "V02": (7, "CERTIFICADA")})
+    informe = comparar(a, b)
+    assert "⚠ empeora" in informe and "mejora" in informe and "Casos perfectos: **1/2 → 1/2**" in informe

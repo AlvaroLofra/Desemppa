@@ -1,0 +1,701 @@
+{
+ "caso": {
+  "id": "V05",
+  "categoria": "tipico",
+  "materia_esperada": "SOC_SANCION",
+  "consulta": "Soy camarero en Madrid. El 19 de octubre de 2026 me comunicaron por escrito una suspensión de empleo y sueldo de cinco días por llegar tarde dos veces. ¿Puedo recurrirla y en qué plazo?",
+  "municipio_ine": "28079",
+  "municipio_nombre": "Madrid",
+  "fecha_hechos": "2026-10-19",
+  "aclaraciones_simuladas": [],
+  "verdad": {
+   "estado_esperado": "CERTIFICADA",
+   "respuesta_esperada": "si",
+   "articulos_clave": [
+    {
+     "norma": "ET",
+     "articulo": "58"
+    },
+    {
+     "norma": "LRJS",
+     "articulo": "114"
+    }
+   ],
+   "plazos": [
+    {
+     "tipo": "SOC_SANCION_20H",
+     "inicio": "2026-10-19",
+     "municipio_ine": "28079"
+    }
+   ],
+   "postulacion": {
+    "jurisdiccion": "social",
+    "procedimiento": "sancion",
+    "cuantia_eur": null
+   },
+   "puntos_clave": [
+    "La sanción se impugna mediante demanda en el plazo del art. 103 LRJS (art. 114.1 LRJS)",
+    "La sanción de faltas graves y muy graves requiere comunicación escrita con la fecha y los hechos (art. 58.2 ET)"
+   ],
+   "prohibido": []
+  }
+ },
+ "hoja": {
+  "id": "V05",
+  "construida": "2026-10-25",
+  "articulos": [
+   {
+    "norma": "ET",
+    "articulo": "58",
+    "source_id": "BOE:BOE-A-2015-11430:a58:2015-11-13",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2015-11430#a58",
+    "version": "2015-11-13",
+    "sha256": "19676317b0068de2481b1a52259b76ec63fc23b9d96213584f63cb25b3d8ed3b",
+    "texto": "Artículo 58. Faltas y sanciones de los trabajadores.\n1. Los trabajadores podrán ser sancionados por la dirección de las empresas en virtud de incumplimientos laborales, de acuerdo con la graduación de faltas y sanciones que se establezcan en las disposiciones legales o en el convenio colectivo que sea aplicable.\n2. La valoración de las faltas y las correspondientes sanciones impuestas por la dirección de la empresa serán siempre revisables ante la jurisdicción social. La sanción de las faltas graves y muy graves requerirá comunicación escrita al trabajador, haciendo constar la fecha y los hechos que la motivan.\n3. No se podrán imponer sanciones que consistan en la reducción de la duración de las vacaciones u otra minoración de los derechos al descanso del trabajador o multa de haber."
+   },
+   {
+    "norma": "LRJS",
+    "articulo": "114",
+    "source_id": "BOE:BOE-A-2011-15936:a114:2011-12-11",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2011-15936#a114",
+    "version": "2011-12-11",
+    "sha256": "8371e2306242247e7a26699340491b229ff53723e953b1827b85fb1df563db60",
+    "texto": "Artículo 114. Impugnación de sanciones.\n1. El trabajador podrá impugnar la sanción que le hubiere sido impuesta mediante demanda, que habrá de ser presentada dentro del plazo señalado en el artículo 103.\n2. En los procesos de impugnación de sanciones por faltas graves o muy graves a los trabajadores que ostenten la condición de representante legal o sindical, la parte demandada habrá de aportar el expediente contradictorio legalmente establecido.\n3. Corresponderá al empresario probar la realidad de los hechos imputados al trabajador, y su entidad, sin que puedan ser admitidos otros motivos de oposición a la demanda que los alegados en su momento para justificar la sanción. Las alegaciones, pruebas y conclusiones deberán ser realizadas por las partes en el orden establecido para los despidos disciplinarios."
+   }
+  ],
+  "plazos": [
+   {
+    "tipo": "SOC_SANCION_20H",
+    "inicio": "2026-10-19",
+    "fecha_limite_segura": "2026-11-17",
+    "base_legal": "Art. 114 LRJS"
+   }
+  ],
+  "postulacion": {
+   "requiere_abogado": false,
+   "requiere_procurador": false,
+   "base_legal": "Arts. 18 y 21 LRJS"
+  }
+ },
+ "resultado": {
+  "consulta_id": "ece650e1-f89a-42ee-8ff7-3d1a041bff75",
+  "modo": "eco",
+  "fecha": "2026-10-25",
+  "estado": "CERTIFICADA",
+  "duracion_s": 289,
+  "aclaraciones": [
+   {
+    "pregunta": "Indica convenio colectivo aplicable",
+    "respuesta": "No lo sé"
+   },
+   {
+    "pregunta": "¿Superó alguno de los dos retrasos los treinta minutos o provocó retraso en el inicio del servicio al público?",
+    "respuesta": "No lo sé"
+   }
+  ],
+  "dictamen": {
+   "estado": "CERTIFICADA",
+   "dictamen": {
+    "schema_version": "1.0",
+    "consulta_id": "ece650e1-f89a-42ee-8ff7-3d1a041bff75",
+    "modo": "eco",
+    "modelos_usados": {
+     "triaje": "gemini-3.8-flash-low",
+     "defensa": "gemini-3.8-flash-medium",
+     "contraparte": "gemini-3.8-flash-medium",
+     "magistrado": "gemini-3.8-flash-medium"
+    },
+    "banda_solidez": "argumento_solido_sin_doctrina",
+    "respuesta_directa": "El trabajador podrá impugnar la sanción que le hubiere sido impuesta mediante demanda ante la jurisdicción social. El plazo legal específico para demandar no consta en las fuentes aportadas en el expediente.",
+    "resumen_ciudadano": "El 19 de octubre de 2026 te comunicaron por escrito una suspensión de empleo y sueldo de cinco días por dos retrasos. La valoración de las faltas y sanciones impuestas por la empresa es siempre revisable ante los juzgados de lo social. Llegar tarde hasta tres veces en treinta días constituye falta leve si no supera la media hora ni genera graves perjuicios. Para las faltas leves la sanción máxima de suspensión de empleo y sueldo es de dos días. Si se declara falta leve, el juzgado revocará la sanción en lo relativo a los días impuestos en exceso.",
+    "fundamentos": [
+     {
+      "texto": "La valoración y sanción de faltas impuesta por la empresa es revisable judicialmente y corresponde al empresario probar la realidad y entidad de los incumplimientos imputados.",
+      "source_id": "BOE:BOE-A-2015-11430:a58:2015-11-13",
+      "verbatim_quote": "La valoración de las faltas y las correspondientes sanciones impuestas por la dirección de la empresa serán siempre revisables ante la jurisdicción social.",
+      "fuzzy_score": 100.0,
+      "nli": "NEUTRAL",
+      "offsets": [
+       317,
+       472
+      ]
+     },
+     {
+      "texto": "La valoración y sanción de faltas impuesta por la empresa es revisable judicialmente y corresponde al empresario probar la realidad y entidad de los incumplimientos imputados.",
+      "source_id": "BOE:BOE-A-2011-15936:a114:2011-12-11",
+      "verbatim_quote": "Corresponderá al empresario probar la realidad de los hechos imputados al trabajador, y su entidad, sin que puedan ser admitidos otros motivos de oposición a la demanda que los alegados en su momento para justificar la sanción.",
+      "fuzzy_score": 100.0,
+      "nli": "NEUTRAL",
+      "offsets": [
+       454,
+       681
+      ]
+     },
+     {
+      "texto": "Llegar tarde en dos ocasiones encaja como falta leve con sanción de hasta dos días de suspensión, resultando excesiva la suspensión de cinco días.",
+      "source_id": "CONV:99010365011900:2023:art38",
+      "verbatim_quote": "De una a tres faltas de puntualidad injustificadas en la incorporación al trabajo, de hasta treinta minutos, durante el periodo de treinta días, siempre que de estos retrasos no se deriven graves perjuicios para el trabajo u obligaciones que la empresa le tenga encomendada, en cuyo caso se calificará como falta grave.",
+      "fuzzy_score": 100.0,
+      "nli": "NEUTRAL",
+      "offsets": [
+       237,
+       556
+      ]
+     },
+     {
+      "texto": "Llegar tarde en dos ocasiones encaja como falta leve con sanción de hasta dos días de suspensión, resultando excesiva la suspensión de cinco días.",
+      "source_id": "CONV:99010365011900:2023:art41",
+      "verbatim_quote": "Suspensión de empleo y sueldo hasta dos días.",
+      "fuzzy_score": 100.0,
+      "nli": "NEUTRAL",
+      "offsets": [
+       379,
+       424
+      ]
+     }
+    ],
+    "cuestiones": [
+     {
+      "id": "C1",
+      "enunciado": "Procedencia de la impugnación judicial de la sanción y carga de la prueba empresarial",
+      "tipo": "calificacion_juridica",
+      "estimacion": "DEFENSA",
+      "fundamentos": [
+       {
+        "afirmacion": "La valoración y sanción de faltas impuesta por la empresa es revisable judicialmente y corresponde al empresario probar la realidad y entidad de los incumplimientos imputados.",
+        "citas": [
+         {
+          "source_id": "BOE:BOE-A-2015-11430:a58:2015-11-13",
+          "verbatim_quote": "La valoración de las faltas y las correspondientes sanciones impuestas por la dirección de la empresa serán siempre revisables ante la jurisdicción social."
+         },
+         {
+          "source_id": "BOE:BOE-A-2011-15936:a114:2011-12-11",
+          "verbatim_quote": "Corresponderá al empresario probar la realidad de los hechos imputados al trabajador, y su entidad, sin que puedan ser admitidos otros motivos de oposición a la demanda que los alegados en su momento para justificar la sanción."
+         }
+        ]
+       }
+      ],
+      "importe_estimado_eur": null,
+      "fundamento_cuantia": null
+     },
+     {
+      "id": "C2",
+      "enunciado": "Calificación jurídica de los dos retrasos y adecuación de la sanción de cinco días de suspensión",
+      "tipo": "calificacion_juridica",
+      "estimacion": "DEFENSA",
+      "fundamentos": [
+       {
+        "afirmacion": "Llegar tarde en dos ocasiones encaja como falta leve con sanción de hasta dos días de suspensión, resultando excesiva la suspensión de cinco días.",
+        "citas": [
+         {
+          "source_id": "CONV:99010365011900:2023:art38",
+          "verbatim_quote": "De una a tres faltas de puntualidad injustificadas en la incorporación al trabajo, de hasta treinta minutos, durante el periodo de treinta días, siempre que de estos retrasos no se deriven graves perjuicios para el trabajo u obligaciones que la empresa le tenga encomendada, en cuyo caso se calificará como falta grave."
+         },
+         {
+          "source_id": "CONV:99010365011900:2023:art41",
+          "verbatim_quote": "Suspensión de empleo y sueldo hasta dos días."
+         }
+        ]
+       }
+      ],
+      "importe_estimado_eur": null,
+      "fundamento_cuantia": null
+     }
+    ],
+    "fortalezas": [
+     "Corresponderá al empresario probar la realidad y entidad de los hechos imputados para justificar la sanción.",
+     "La sanción de cinco días supera el límite máximo de suspensión previsto en el convenio para las faltas leves."
+    ],
+    "debilidades_contraparte": [],
+    "riesgos_propios": [
+     "Si la empresa demostrara que un retraso superó los treinta minutos o retrasó el inicio del servicio, la falta podría ser grave.",
+     "No constan los minutos exactos de demora de cada uno de los retrasos."
+    ],
+    "pasos_inmediatos": [
+     "Guarda la comunicación escrita de la sanción y cualquier registro de horario laboral.",
+     "Revisa los partes de asistencia o comunicaciones relativas a las jornadas de los retrasos."
+    ],
+    "plazos": [
+     {
+      "tipo_plazo_id": "SOC_SANCION_20H",
+      "descripcion": "Impugnar una sanción laboral",
+      "naturaleza": "caducidad",
+      "tipo_computo": "habiles_social_caducidad",
+      "titular": "usuario",
+      "fecha_inicio": "2026-10-19",
+      "fecha_limite_segura": "2026-11-17",
+      "dia_gracia_hasta": null,
+      "dias_habiles_restantes": 16,
+      "festivos_no_verificados": [],
+      "municipio_ine": "28079",
+      "base_legal": "Art. 114 LRJS",
+      "suspensiones": [],
+      "avisos": [
+       "Festivos locales del municipio no cargados para ese año: confirma las 2 fiestas locales en el boletín oficial de la provincia.",
+       "🔎 Criterio con jurisprudencia cambiante: confírmalo con un profesional."
+      ],
+      "validado_juridicamente": false
+     }
+    ],
+    "postulacion": {
+     "requiere_abogado": false,
+     "requiere_procurador": false,
+     "bloquea_escritos": false,
+     "base_legal": "Arts. 18 y 21 LRJS",
+     "texto_usuario": "En la primera instancia social puedes comparecer por ti mismo, aunque es muy recomendable contar con abogado, graduado social o sindicato. Antes de la demanda es obligatoria la papeleta de conciliación (SMAC)."
+    },
+    "avisos": [
+     "Faltan datos tras la aclaración: Indica convenio colectivo aplicable",
+     "No hay jurisprudencia aplicable en el corpus local: la valoración se apoya solo en la ley. Se ha encolado una búsqueda para ampliar el corpus.",
+     "Alguna afirmación no se deduce literalmente de la norma (inferencia)."
+    ],
+    "guardarrailes": {
+     "G1_schema": true,
+     "G2_G3_citas": true,
+     "G4_sin_pronosticos": true,
+     "G5_nli": true,
+     "G6_banda": true,
+     "G8_plazos": true,
+     "G9_postulacion": true
+    },
+    "afirmaciones": [
+     {
+      "seccion": "respuesta",
+      "texto": "El trabajador podrá impugnar la sanción que le hubiere sido impuesta mediante demanda ante la jurisdicción social.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2011-15936:a114:2011-12-11",
+        "verbatim_quote": "El trabajador podrá impugnar la sanción que le hubiere sido impuesta mediante demanda, que habrá de ser presentada dentro del plazo señalado en el artículo 103.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "respuesta",
+      "texto": "El plazo legal específico para demandar no consta en las fuentes aportadas en el expediente.",
+      "tipo": "limite",
+      "citas": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "El 19 de octubre de 2026 te comunicaron por escrito una suspensión de empleo y sueldo de cinco días por dos retrasos.",
+      "tipo": "hecho",
+      "citas": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "La valoración de las faltas y sanciones impuestas por la empresa es siempre revisable ante los juzgados de lo social.",
+      "tipo": "norma",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2015-11430:a58:2015-11-13",
+        "verbatim_quote": "La valoración de las faltas y las correspondientes sanciones impuestas por la dirección de la empresa serán siempre revisables ante la jurisdicción social.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "resumen",
+      "texto": "Llegar tarde hasta tres veces en treinta días constituye falta leve si no supera la media hora ni genera graves perjuicios.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "CONV:99010365011900:2023:art38",
+        "verbatim_quote": "De una a tres faltas de puntualidad injustificadas en la incorporación al trabajo, de hasta treinta minutos, durante el periodo de treinta días, siempre que de estos retrasos no se deriven graves perjuicios para el trabajo u obligaciones que la empresa le tenga encomendada, en cuyo caso se calificará como falta grave.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "resumen",
+      "texto": "Para las faltas leves la sanción máxima de suspensión de empleo y sueldo es de dos días.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "CONV:99010365011900:2023:art41",
+        "verbatim_quote": "Suspensión de empleo y sueldo hasta dos días.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "resumen",
+      "texto": "Si se declara falta leve, el juzgado revocará la sanción en lo relativo a los días impuestos en exceso.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2011-15936:a115:2011-12-11",
+        "verbatim_quote": "Revocarla en parte, con análogo pronunciamiento de condena económica por el período de exceso en su caso, cuando la falta cometida no haya sido adecuadamente calificada, pero los hechos constituyan infracción de menor entidad según las normas alegadas por las partes, de no haber prescrito la falta de menor gravedad antes de la imposición de la sanción más grave.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "Corresponderá al empresario probar la realidad y entidad de los hechos imputados para justificar la sanción.",
+      "tipo": "norma",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2011-15936:a114:2011-12-11",
+        "verbatim_quote": "Corresponderá al empresario probar la realidad de los hechos imputados al trabajador, y su entidad, sin que puedan ser admitidos otros motivos de oposición a la demanda que los alegados en su momento para justificar la sanción.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "La sanción de cinco días supera el límite máximo de suspensión previsto en el convenio para las faltas leves.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "CONV:99010365011900:2023:art41",
+        "verbatim_quote": "Suspensión de empleo y sueldo hasta dos días.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "Si la empresa demostrara que un retraso superó los treinta minutos o retrasó el inicio del servicio, la falta podría ser grave.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "CONV:99010365011900:2023:art39",
+        "verbatim_quote": "O bien, una sola falta de puntualidad superior a treinta minutos, o aquella de la que se deriven graves perjuicios o trastornos para el trabajo, considerándose como tal, la que provoque retraso en el inicio de un servicio al público.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "No constan los minutos exactos de demora de cada uno de los retrasos.",
+      "tipo": "limite",
+      "citas": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Guarda la comunicación escrita de la sanción y cualquier registro de horario laboral.",
+      "tipo": "consejo",
+      "citas": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Revisa los partes de asistencia o comunicaciones relativas a las jornadas de los retrasos.",
+      "tipo": "consejo",
+      "citas": []
+     }
+    ],
+    "auditoria": [
+     {
+      "seccion": "respuesta",
+      "texto": "El trabajador podrá impugnar la sanción que le hubiere sido impuesta mediante demanda ante la jurisdicción social.",
+      "tipo_propuesto": "norma",
+      "resultado": "reclasificada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "BOE:BOE-A-2011-15936:a114:2011-12-11"
+      ],
+      "nli": "NEUTRAL",
+      "motivos": [
+       "la fuente no lo dice literalmente: se muestra como razonamiento"
+      ]
+     },
+     {
+      "seccion": "respuesta",
+      "texto": "El plazo legal específico para demandar no consta en las fuentes aportadas en el expediente.",
+      "tipo_propuesto": "limite",
+      "resultado": "aceptada",
+      "tipo_final": "limite",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "El 19 de octubre de 2026 te comunicaron por escrito una suspensión de empleo y sueldo de cinco días por dos retrasos.",
+      "tipo_propuesto": "hecho",
+      "resultado": "aceptada",
+      "tipo_final": "hecho",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "La valoración de las faltas y sanciones impuestas por la empresa es siempre revisable ante los juzgados de lo social.",
+      "tipo_propuesto": "norma",
+      "resultado": "aceptada",
+      "tipo_final": "norma",
+      "citas_verificadas": [
+       "BOE:BOE-A-2015-11430:a58:2015-11-13"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "Llegar tarde hasta tres veces en treinta días constituye falta leve si no supera la media hora ni genera graves perjuicios.",
+      "tipo_propuesto": "norma",
+      "resultado": "reclasificada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "CONV:99010365011900:2023:art38"
+      ],
+      "nli": "NEUTRAL",
+      "motivos": [
+       "la fuente no lo dice literalmente: se muestra como razonamiento"
+      ]
+     },
+     {
+      "seccion": "resumen",
+      "texto": "Para las faltas leves la sanción máxima de suspensión de empleo y sueldo es de dos días.",
+      "tipo_propuesto": "norma",
+      "resultado": "reclasificada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "CONV:99010365011900:2023:art41"
+      ],
+      "nli": "NEUTRAL",
+      "motivos": [
+       "la fuente no lo dice literalmente: se muestra como razonamiento"
+      ]
+     },
+     {
+      "seccion": "resumen",
+      "texto": "Si se declara falta leve, el juzgado revocará la sanción en lo relativo a los días impuestos en exceso.",
+      "tipo_propuesto": "razonamiento",
+      "resultado": "aceptada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "BOE:BOE-A-2011-15936:a115:2011-12-11"
+      ],
+      "nli": "NEUTRAL",
+      "motivos": []
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "Corresponderá al empresario probar la realidad y entidad de los hechos imputados para justificar la sanción.",
+      "tipo_propuesto": "norma",
+      "resultado": "aceptada",
+      "tipo_final": "norma",
+      "citas_verificadas": [
+       "BOE:BOE-A-2011-15936:a114:2011-12-11"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "La sanción de cinco días supera el límite máximo de suspensión previsto en el convenio para las faltas leves.",
+      "tipo_propuesto": "razonamiento",
+      "resultado": "aceptada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "CONV:99010365011900:2023:art41"
+      ],
+      "nli": "NEUTRAL",
+      "motivos": []
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "Si la empresa demostrara que un retraso superó los treinta minutos o retrasó el inicio del servicio, la falta podría ser grave.",
+      "tipo_propuesto": "razonamiento",
+      "resultado": "aceptada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "CONV:99010365011900:2023:art39"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "No constan los minutos exactos de demora de cada uno de los retrasos.",
+      "tipo_propuesto": "limite",
+      "resultado": "aceptada",
+      "tipo_final": "limite",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Guarda la comunicación escrita de la sanción y cualquier registro de horario laboral.",
+      "tipo_propuesto": "consejo",
+      "resultado": "aceptada",
+      "tipo_final": "consejo",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Revisa los partes de asistencia o comunicaciones relativas a las jornadas de los retrasos.",
+      "tipo_propuesto": "consejo",
+      "resultado": "aceptada",
+      "tipo_final": "consejo",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     }
+    ],
+    "respuesta_parcial": false,
+    "hechos_determinantes": [
+     "¿Detalla la carta de sanción las fechas exactas en que ocurrieron los dos retrasos imputados?"
+    ],
+    "motivos_banda": [
+     "Alguna afirmación no se deduce literalmente de la norma (inferencia)."
+    ],
+    "sello": {
+     "verificado_en": "2026-10-25T18:03:43.889615Z",
+     "fuentes": [
+      {
+       "source_id": "BOE:BOE-A-2011-15936:a114:2011-12-11",
+       "titulo": "Artículo 114 LRJS",
+       "version": "2011-12-11",
+       "sha256": "8371e2306242247e7a26699340491b229ff53723e953b1827b85fb1df563db60",
+       "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2011-15936#a114"
+      },
+      {
+       "source_id": "BOE:BOE-A-2011-15936:a115:2011-12-11",
+       "titulo": "Artículo 115 LRJS",
+       "version": "2011-12-11",
+       "sha256": "49e140153abf6abe5062ae3cccb7ed2e4432943928f7b82dae1348f055786d10",
+       "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2011-15936#a115"
+      },
+      {
+       "source_id": "BOE:BOE-A-2015-11430:a58:2015-11-13",
+       "titulo": "Artículo 58 ET",
+       "version": "2015-11-13",
+       "sha256": "19676317b0068de2481b1a52259b76ec63fc23b9d96213584f63cb25b3d8ed3b",
+       "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2015-11430#a58"
+      },
+      {
+       "source_id": "CONV:99010365011900:2023:art38",
+       "titulo": "Art. 38 Faltas leves. (VI Acuerdo Laboral para el sector de la Hostelería (ALEH VI))",
+       "version": null,
+       "sha256": "82c4084c53288f2fbf0084b146ec13f9392e2005806c39c89a784c0158d63c32",
+       "url": "https://www.boe.es/buscar/doc.php?id=BOE-A-2023-6344"
+      },
+      {
+       "source_id": "CONV:99010365011900:2023:art39",
+       "titulo": "Art. 39 Faltas graves. (VI Acuerdo Laboral para el sector de la Hostelería (ALEH VI))",
+       "version": null,
+       "sha256": "499ec4f4ef988eb7210c1bb3c31f7458e635321d117191a193e5248cc4b42c3f",
+       "url": "https://www.boe.es/buscar/doc.php?id=BOE-A-2023-6344"
+      },
+      {
+       "source_id": "CONV:99010365011900:2023:art41",
+       "titulo": "Art. 41 Clases de sanciones. (VI Acuerdo Laboral para el sector de la Hostelería (ALEH VI))",
+       "version": null,
+       "sha256": "c8afb6fb260dbdf0795eafcabbae1abae0ed7bfe4355020b92fd069ce2181065",
+       "url": "https://www.boe.es/buscar/doc.php?id=BOE-A-2023-6344"
+      }
+     ],
+     "afirmaciones_mostradas": 13,
+     "afirmaciones_eliminadas": 0,
+     "modelos": {
+      "triaje": "gemini-3.8-flash-low",
+      "defensa": "gemini-3.8-flash-medium",
+      "contraparte": "gemini-3.8-flash-medium",
+      "magistrado": "gemini-3.8-flash-medium"
+     }
+    },
+    "aviso_legal": "Desemppa es una herramienta personal de información jurídica y apoyo a la autodefensa. No es asesoramiento profesional ni sustituye a un abogado colegiado. Verifica los plazos y las citas en las fuentes oficiales enlazadas antes de actuar. Si no tienes recursos, puedes solicitar asistencia jurídica gratuita (Ley 1/1996) en el Colegio de Abogados de tu partido judicial.",
+    "generado_en": "2026-10-25T18:03:43.889615Z"
+   },
+   "banda_texto": "Bien fundado en la ley, sin sentencias que lo confirmen"
+  },
+  "mensaje": null,
+  "triage": {
+   "schema_version": "1.0",
+   "consulta_id": "ece650e1-f89a-42ee-8ff7-3d1a041bff75",
+   "jurisdiccion_principal": "social",
+   "submateria_principal": "SOC_SANCION",
+   "ramas": [
+    {
+     "submateria": "SOC_SANCION",
+     "jurisdiccion": "social",
+     "peso_enrutamiento": 1.0,
+     "justificacion": "El trabajador plantea la impugnación de una sanción disciplinaria consistente en suspensión de empleo y sueldo por retrasos reiterados."
+    }
+   ],
+   "grado_ambiguedad": 0.0,
+   "requiere_aclaracion": false,
+   "preguntas_aclaracion": [],
+   "datos_criticos_faltantes": [],
+   "fecha_hechos": "2026-10-19",
+   "municipio_ine_organo": "28079",
+   "vecindad_civil": "comun",
+   "cuantia_estimada_eur": null,
+   "alertas_plazo": [
+    {
+     "tipo_plazo_id": "SOC_SANCION_20H",
+     "fecha_inicio_computo": "2026-10-19",
+     "evento_inicio": "fecha de comunicación de la sanción"
+    }
+   ],
+   "normas_boe_objetivo": [
+    {
+     "id_norma": "BOE-A-2015-11430",
+     "articulos": [
+      "58"
+     ],
+     "motivo": "ET"
+    },
+    {
+     "id_norma": "BOE-A-2011-15936",
+     "articulos": [
+      "114",
+      "115"
+     ],
+     "motivo": "LRJS"
+    }
+   ],
+   "terminos_cendoj": [
+    "impugnación de sanción",
+    "suspensión de empleo y sueldo",
+    "puntualidad",
+    "retrasos",
+    "graduación de faltas"
+   ],
+   "convenio_aplicable": "99010365011900",
+   "competencia_local": false,
+   "resumen_hechos": "El ciudadano trabaja como camarero en Madrid y el 19 de octubre de 2026 le notificaron por escrito una sanción de suspensión de empleo y sueldo de cinco días. La causa alegada por la empresa consiste en haber llegado tarde en dos ocasiones. El trabajador desconoce si los retrasos excedieron los treinta minutos o afectaron al servicio, y consulta si puede recurrir la sanción y cuál es el plazo legal aplicable."
+  },
+  "fuentes": {
+   "BOE:BOE-A-2011-15936:a114:2011-12-11": {
+    "titulo": "Artículo 114 LRJS",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2011-15936#a114",
+    "texto": "Artículo 114. Impugnación de sanciones.\n1. El trabajador podrá impugnar la sanción que le hubiere sido impuesta mediante demanda, que habrá de ser presentada dentro del plazo señalado en el artículo 103.\n2. En los procesos de impugnación de sanciones por faltas graves o muy graves a los trabajadores que ostenten la condición de representante legal o sindical, la parte demandada habrá de aportar el expediente contradictorio legalmente establecido.\n3. Corresponderá al empresario probar la realidad de los hechos imputados al trabajador, y su entidad, sin que puedan ser admitidos otros motivos de oposición a la demanda que los alegados en su momento para justificar la sanción. Las alegaciones, pruebas y conclusiones deberán ser realizadas por las partes en el orden establecido para los despidos disciplinarios."
+   },
+   "BOE:BOE-A-2011-15936:a115:2011-12-11": {
+    "titulo": "Artículo 115 LRJS",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2011-15936#a115",
+    "texto": "Artículo 115. Contenido de la sentencia.\n1. La sentencia contendrá alguno de los pronunciamientos siguientes:\na) Confirmar la sanción, cuando se haya acreditado el cumplimiento de las exigencias de forma y la realidad del incumplimiento imputado al trabajador, así como su entidad, valorada según la graduación de faltas y sanciones prevista en las disposiciones legales o en el convenio colectivo aplicable.\nb) Revocarla totalmente, cuando no haya sido probada la realidad de los hechos imputados al trabajador o éstos no sean constitutivos de falta, condenando al empresario al pago de los salarios que hubieran dejado de abonarse en cumplimiento de la sanción.\nc) Revocarla en parte, con análogo pronunciamiento de condena económica por el período de exceso en su caso, cuando la falta cometida no haya sido adecuadamente calificada, pero los hechos constituyan infracción de menor entidad según las normas alegadas por las partes, de no haber prescrito la falta de menor gravedad antes de la imposición de la sanción más grave. En este caso, el juez podrá autorizar la imposición, en el plazo de caducidad de los diez días siguientes a notificación de sentencia firme, de una sanción adecuada a la gravedad de la falta, y la decisión empresarial será revisable a instancia del trabajador, en el plazo igualmente de caducidad de los veinte días siguientes a su notificación, por medio del incidente de ejecución de dicha sentencia previsto en el artículo 238.\nd) Declararla nula, si hubiese sido impuesta sin observar los requisitos formales establecidos legal, convencional o contractualmente, o cuando éstos presenten defectos de tal gravedad que no permitan alcanzar la finalidad para la que fueron requeridos, así como cuando tenga como móvil alguna de las causas de discriminación prevista en la Constitución y en la ley, o se produzca con violación de derechos fundamentales y libertades públicas del trabajador, incluidos, en su caso, los demás supuestos que comportan la declaración de nulidad del despido en el apartado 2 del artículo 108. También será nula la sanción cuando consista en alguna de las legalmente prohibidas o no estuviera tipificada en las disposiciones legales o en el convenio colectivo aplicable.\n2. A los efectos de lo previsto en el apartado anterior serán nulas las sanciones impuestas a los representantes legales de los trabajadores o a los delegados sindicales por faltas graves o muy graves, sin la previa audiencia de los restantes integrantes de la representación a que el trabajador perteneciera así como a los trabajadores afiliados a un sindicato, sin dar audiencia a los delegados sindicales.\n3. Contra las sentencias dictadas en estos procesos no cabrá recurso alguno, salvo en los casos de sanciones por faltas muy graves, apreciadas judicialmente."
+   },
+   "BOE:BOE-A-2015-11430:a58:2015-11-13": {
+    "titulo": "Artículo 58 ET",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2015-11430#a58",
+    "texto": "Artículo 58. Faltas y sanciones de los trabajadores.\n1. Los trabajadores podrán ser sancionados por la dirección de las empresas en virtud de incumplimientos laborales, de acuerdo con la graduación de faltas y sanciones que se establezcan en las disposiciones legales o en el convenio colectivo que sea aplicable.\n2. La valoración de las faltas y las correspondientes sanciones impuestas por la dirección de la empresa serán siempre revisables ante la jurisdicción social. La sanción de las faltas graves y muy graves requerirá comunicación escrita al trabajador, haciendo constar la fecha y los hechos que la motivan.\n3. No se podrán imponer sanciones que consistan en la reducción de la duración de las vacaciones u otra minoración de los derechos al descanso del trabajador o multa de haber."
+   },
+   "CONV:99010365011900:2023:art38": {
+    "titulo": "Art. 38 Faltas leves. (VI Acuerdo Laboral para el sector de la Hostelería (ALEH VI))",
+    "url": "https://www.boe.es/buscar/doc.php?id=BOE-A-2023-6344",
+    "texto": "Artículo 38. Faltas leves.\nSerán faltas leves:\n1. Las de descuido, error o demora en la ejecución de cualquier trabajo que no produzca perturbación importante en el servicio encomendado, en cuyo caso será calificada como falta grave.\n2. De una a tres faltas de puntualidad injustificadas en la incorporación al trabajo, de hasta treinta minutos, durante el periodo de treinta días, siempre que de estos retrasos no se deriven graves perjuicios para el trabajo u obligaciones que la empresa le tenga encomendada, en cuyo caso se calificará como falta grave.\n3. No comunicar a la empresa con la mayor celeridad posible, el hecho o motivo de la ausencia al trabajo cuando obedezca a razones de incapacidad temporal u otro motivo justificado, a no ser que se pruebe la imposibilidad de haberlo efectuado, sin perjuicio de presentar en tiempo oportuno los justificantes de tal ausencia.\n4. El abandono sin causa justificada del trabajo, aunque sea por breve tiempo o terminar anticipadamente el mismo, con una antelación inferior a treinta minutos, siempre que de estas ausencias no se deriven graves perjuicios para el trabajo, en cuyo caso se considerará falta grave.\n5. Pequeños descuidos en la conservación de los géneros o del material.\n6. No comunicar a la empresa cualquier cambio de domicilio.\n7. Las discusiones con otras personas trabajadoras dentro de las dependencias de la empresa, siempre que no sean en presencia del público.\n8. Llevar la uniformidad o ropa de trabajo exigida por la empresa de forma descuidada.\n9. La falta de aseo ocasional durante el servicio."
+   },
+   "CONV:99010365011900:2023:art39": {
+    "titulo": "Art. 39 Faltas graves. (VI Acuerdo Laboral para el sector de la Hostelería (ALEH VI))",
+    "url": "https://www.boe.es/buscar/doc.php?id=BOE-A-2023-6344",
+    "texto": "Artículo 39. Faltas graves.\nSerán faltas graves:\n1. Más de tres faltas injustificadas de puntualidad en la incorporación al trabajo, cometidas en el periodo de treinta días. O bien, una sola falta de puntualidad superior a treinta minutos, o aquella de la que se deriven graves perjuicios o trastornos para el trabajo, considerándose como tal, la que provoque retraso en el inicio de un servicio al público.\n2. Faltar uno o dos días al trabajo durante el periodo de treinta días sin autorización o causa justificada.\n3. El abandono del trabajo o terminación anticipada, sin causa justificada, por tiempo superior a treinta minutos, entre una y tres ocasiones en treinta días.\n4. No comunicar con la puntualidad debida las modificaciones de los datos de los familiares a cargo, que puedan afectar a la empresa a efectos de retenciones fiscales u otras obligaciones empresariales. La mala fe en estos actos determinaría la calificación como falta muy grave.\n5. El incumplimiento de las órdenes e instrucciones de la empresa, o personal delegado de la misma, en el ejercicio regular de sus facultades directivas, incluyendo las relativas a la prevención de riesgos laborales según la formación e información recibidas. Si este incumplimiento fuese reiterado, implicase quebranto manifiesto para el trabajo o del mismo se derivase perjuicio notorio para la empresa u otras personas trabajadoras, podría ser calificada como falta muy grave.\n6. Descuido importante en la conservación de los géneros o artículos y materiales del correspondiente establecimiento.\n7. Simular la presencia de otra persona trabajadora, fichando o firmando por él.\n8. Provocar y/o mantener discusiones con otras personas trabajadoras en presencia del público o que transcienda a éste.\n9. Emplear para uso propio, artículos, enseres, y prendas de la empresa, a no ser que exista autorización.\n10. Asistir o permanecer en el trabajo bajo los efectos del alcohol o de las drogas, o su consumo durante el horario de trabajo; o fuera del mismo, vistiendo uniforme de la empresa. Si dichas circunstancias son reiteradas, podrá ser calificada de falta muy grave, siempre que haya mediado advertencia o sanción. La persona trabajadora que estando bajo los efectos antes citados provoque en horas de trabajo o en las instalaciones de la empresa algún altercado con clientes, empresario o directivos, u otras personas trabajadoras, la falta cometida en este supuesto será calificada como muy grave.\n11. La inobservancia durante el servicio de la uniformidad o ropa de trabajo exigida por la empresa.\n12. No atender al público con la corrección y diligencia debidas, siempre que de dicha conducta no se derive un especial perjuicio para la empresa o personas trabajadoras, en cuyo caso se calificará como falta muy grave.\n13. No cumplir con las instrucciones de la empresa en materia de servicio, forma de efectuarlo o no cumplimentar los partes de trabajo u otros impresos requeridos. La reiteración de esta conducta se considerará falta muy grave siempre que haya mediado advertencia o sanción.\n14. La inobservancia de las obligaciones derivadas de las normas de Seguridad y Salud en el Trabajo, manipulación de alimentos u otras medidas administrativas que sean de aplicación al trabajo que se realiza o a la actividad de hostelería; y en particular, la falta de colaboración con la empresa en los términos que establece la normativa, para que ésta pueda garantizar unas condiciones de trabajo que sean seguras y no entrañen riesgos para la seguridad y salud en el trabajo.\n15. La imprudencia durante el trabajo que pudiera implicar riesgo de accidente para sí, para las personas trabajadoras o terceras personas o riesgo de avería o daño material de las instalaciones de la empresa. La reiteración en tales imprudencias se podrá calificar como falta muy grave siempre que haya mediado advertencia o sanción.\n16. El uso de palabras irrespetuosas o injuriosas de forma habitual durante el servicio.\n17. La falta de aseo y limpieza, siempre que haya mediado advertencia o sanción y sea de tal índole que produzca queja justificada de las personas trabajadoras o del público.\n18. La reincidencia en faltas leves, aunque sean de distinta naturaleza, dentro de un trimestre y habiendo mediado advertencia o sanción.\n19. La utilización por parte de la persona trabajadora, contraviniendo las instrucciones u órdenes empresariales en esta materia, de los medios informáticos, telemáticos o de comunicación facilitados por la empresa, para uso privado o personal, ajeno a la actividad laboral y profesional por la que está contratado y para la que se le han proporcionado dichas herramientas de trabajo. Cuando esta utilización resulte además abusiva y contraria a la buena fe, podrá ser calificada como falta muy grave."
+   },
+   "CONV:99010365011900:2023:art41": {
+    "titulo": "Art. 41 Clases de sanciones. (VI Acuerdo Laboral para el sector de la Hostelería (ALEH VI))",
+    "url": "https://www.boe.es/buscar/doc.php?id=BOE-A-2023-6344",
+    "texto": "Artículo 41. Clases de sanciones.\n1. La empresa podrá aplicar por la comisión de faltas muy graves cualquiera de las sanciones previstas en este artículo y a las graves las previstas en los apartados A) y B).\nLas sanciones máximas que podrán imponerse en cada caso, en función de la graduación de la falta cometida, serán las siguientes:\nA) Por faltas leves:\na) Amonestación.\nb) Suspensión de empleo y sueldo hasta dos días.\nB) Por faltas graves:\nSuspensión de empleo y sueldo de tres a quince días.\nC) Por faltas muy graves:\na) Suspensión de empleo y sueldo de dieciséis a sesenta días.\nb) Despido disciplinario.\n2. El cumplimiento efectivo de las sanciones de suspensión de empleo y sueldo, al objeto de facilitar la intervención de los órganos de mediación o conciliación preprocesales, deberá llevarse a término dentro de los plazos máximos siguientes:\na) Las de hasta dos días de suspensión de empleo y sueldo, dos meses a contar desde el siguiente de la fecha de su imposición.\nb) Las de tres a quince días de suspensión de empleo y sueldo, cuatro meses.\nc) Las de dieciséis a sesenta días de suspensión de empleo y sueldo, seis meses.\nEn la comunicación escrita de estas sanciones la empresa deberá fijar las fechas de cumplimiento de la suspensión de empleo y sueldo.\nLas situaciones de suspensión legal del contrato de trabajo y los periodos de inactividad laboral de las personas trabajadoras fijas discontinuas, suspenderán los plazos anteriormente establecidos."
+   }
+  }
+ },
+ "origen": "20261025_1843_eco"
+}

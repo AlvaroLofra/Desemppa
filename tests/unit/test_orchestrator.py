@@ -400,10 +400,22 @@ async def test_fecha_de_inicio_que_no_consta_se_descarta(services):
     cid = s.store.create("Entregué las llaves el 1 de junio de 2026 y no me devuelven la fianza.", "eco")
     run = _Run(cid, "eco")
     t = await Orchestrator(s)._triaje(run)
-    assert t is None  # se pregunta la fecha en lugar de usar la inventada
+    assert any("30/09/2026" in a for a in run.avisos)  # la inventada se descarta
+    # y se usa la que el usuario escribió junto al evento («Entregué las llaves el 1 de junio»), avisándolo
+    assert t is not None and t.alertas_plazo[0].fecha_inicio_computo == date(2026, 6, 1)
+    assert any("01/06/2026" in a for a in run.avisos)
+
+
+async def test_sin_fecha_junto_al_evento_se_pregunta(services):
+    from core.orchestrator import _Run
+
+    inventada = {**TRIAJE_OK, "fecha_inicio_plazo": "2026-09-30", "fecha_hechos": None}
+    s, _ = services({"triaje": [inventada]})
+    cid = s.store.create("El casero no me devuelve la fianza desde hace meses.", "eco")
+    t = await Orchestrator(s)._triaje(_Run(cid, "eco"))
+    assert t is None
     preguntas = next(d for tipo, d in _events(s, cid) if tipo == "clarification_needed")["preguntas"]
     assert any(p["id"] == "q_fecha" and p["texto"].startswith("Indica la fecha exacta") for p in preguntas)
-    assert any("30/09/2026" in a for a in run.avisos)
 
 
 async def test_fundamentos_duplicados_se_muestran_una_vez(services):
@@ -537,6 +549,94 @@ def test_campo_critico_tipo_si_no(tmp_path):
     assert baja.tipo_respuesta == "si_no"
 
 
+def test_campo_disyuntivo_se_pregunta_con_opciones():
+    """«¿se lo compraste a un comercio o a un particular?» no se contesta con sí o no (fallo real)."""
+    from core.materias import submaterias
+    from core.orchestrator import _preguntas_campos_criticos
+
+    for sub in submaterias().values():
+        for p in _preguntas_campos_criticos(sub, [], "", {}, []):
+            if p.tipo_respuesta == "si_no":
+                assert " o " not in p.texto.replace(" o no", ""), p.texto
+    compra = next(
+        p
+        for p in _preguntas_campos_criticos(submaterias()["CIV_CONSUMO_GARANTIA"], [], "", {}, [])
+        if "particular" in p.texto
+    )
+    assert compra.tipo_respuesta == "opcion" and compra.opciones and len(compra.opciones) == 2
+
+
+@pytest.mark.parametrize(
+    ("texto", "tipo", "opciones", "esperado", "esperadas"),
+    [
+        ("¿Te la entregaron en mano o por correo?", "si_no", None, "texto", None),
+        ("¿Has reclamado o no?", "si_no", None, "si_no", None),
+        ("¿Qué contrato tenías?", "si_no", ["Temporal", "Indefinido"], "opcion", ["Temporal", "Indefinido"]),
+        ("¿Qué contrato tenías?", "opcion", None, "texto", None),
+        ("¿Firmaste?", "opcion", ["Sí", "No", "No lo sé"], "si_no", None),
+        ("¿Cuándo?", "fecha", ["ayer", "hoy"], "fecha", None),
+    ],
+)
+def test_normalizar_pregunta(texto, tipo, opciones, esperado, esperadas):
+    from core.orchestrator import normalizar_pregunta
+    from core.schemas import PreguntaAclaratoria
+
+    p = normalizar_pregunta(PreguntaAclaratoria(id="q", texto=texto, tipo_respuesta=tipo, opciones=opciones))
+    assert (p.tipo_respuesta, p.opciones) == (esperado, esperadas)
+
+
+def test_tipo_de_respuesta_desconocido_no_tumba_el_triaje():
+    from core.schemas import HechoDeterminante, PreguntaAclaratoria
+
+    assert (
+        PreguntaAclaratoria.model_validate({"id": "q", "texto": "x", "tipo_respuesta": "si/no"}).tipo_respuesta
+        == "texto"
+    )
+    assert HechoDeterminante.model_validate({"pregunta": "x", "tipo_respuesta": None}).tipo_respuesta == "texto"
+
+
+async def test_segunda_ronda_no_repite_lo_ya_preguntado(services):
+    """El Magistrado reformula una pregunta ya contestada (con «No lo sé»): no se vuelve a hacer."""
+    from core.orchestrator import _Run
+
+    s, _ = services({})
+    cid = s.store.create("El casero no me devuelve la fianza.", "eco")
+    s.store.add_aclaraciones(
+        cid, [{"pregunta": "¿Hiciste inventario o fotos al entrar a la vivienda?", "respuesta": "No lo sé"}]
+    )
+    for e in (Estado.TRIAJE, Estado.INGESTA, Estado.DEBATE):
+        s.store.set_estado(cid, e)
+    m = magistrado()
+    m["hechos_determinantes"] = [
+        {"pregunta": "¿Firmaste un inventario al entrar en la vivienda?", "tipo_respuesta": "si_no"},
+        {"pregunta": "¿Te entregaron la fianza en mano o por transferencia?", "tipo_respuesta": "si_no"},
+    ]
+    assert Orchestrator(s)._pedir_hechos_determinantes(_Run(cid, "eco"), {"magistrado": m})
+    preguntas = next(d for tipo, d in _events(s, cid) if tipo == "clarification_needed")["preguntas"]
+    assert [p["texto"] for p in preguntas] == ["¿Te entregaron la fianza en mano o por transferencia?"]
+    assert preguntas[0]["tipo_respuesta"] == "texto"  # disyuntiva: nunca sí/no
+
+
+@pytest.mark.parametrize(
+    ("nueva", "previa", "duplicada"),
+    [
+        ("¿Estabas de baja médica cuando te despidieron?", "¿estabas de baja al ser despedido?", True),
+        (
+            "¿Firmaste un inventario al entrar en la vivienda?",
+            "¿Hiciste inventario o fotos al entrar a la vivienda?",
+            True,
+        ),
+        ("¿Te dieron la carta de despido?", "¿Cuál es la fecha de notificación del despido?", False),
+        ("¿Has reclamado antes al banco?", "¿Qué tipo de producto contrataste con el banco?", False),
+        ("¿Cuál es el importe de la fianza?", "¿Cuál es la fecha de entrega de llaves?", False),
+    ],
+)
+def test_ya_preguntado(nueva, previa, duplicada):
+    from core.orchestrator import ya_preguntado
+
+    assert ya_preguntado(nueva, [previa]) is duplicada
+
+
 async def test_tras_dos_fallos_el_magistrado_se_repite_con_argon(services):
     """Escalado dentro de la misma familia: Flash falla la verificación dos veces → una vez con Argon."""
     from types import SimpleNamespace
@@ -572,6 +672,31 @@ async def test_tras_dos_fallos_el_magistrado_se_repite_con_argon(services):
     c = s.store.get(cid)
     assert c.estado == Estado.CERTIFICADA
     assert any("agy_gemini_argon" in a for a in c.dictamen["dictamen"]["avisos"])
+
+
+async def test_magistrado_sin_respuesta_se_repite_con_argon(services):
+    """Flash agota el tiempo en el Magistrado → una vez con Argon (misma familia) en lugar de perder la consulta."""
+    from types import SimpleNamespace
+
+    from core.errors import ProviderTimeout
+
+    s, router = services(
+        {
+            "triaje": [TRIAJE_OK],
+            "defensa": [ALEGATO("DEFENSA", Q_BOE)],
+            "contraparte": [ALEGATO("CONTRAPARTE", Q_BOE)],
+            "magistrado": [ProviderTimeout("superó 240 s", provider="antigravity_cli"), magistrado()],
+        }
+    )
+    router.resolve = lambda modo, rol: SimpleNamespace(model="agy_gemini_flash")
+    router.catalog = SimpleNamespace(models={"agy_gemini_argon": object()})
+    cid = s.store.create(
+        "Entregué las llaves el 1 de junio de 2026 y el casero no me devuelve la fianza por pintar la casa.", "eco"
+    )
+    await Orchestrator(s).run(cid)
+    c = s.store.get(cid)
+    assert c.estado == Estado.CERTIFICADA
+    assert any("no respondió" in a and "agy_gemini_argon" in a for a in c.dictamen["dictamen"]["avisos"])
 
 
 async def test_la_banda_se_rebaja_si_el_cortafuegos_elimina_la_respuesta(services):
@@ -656,3 +781,31 @@ async def test_preguntas_aclaracion_nunca_superan_el_limite(services):
     assert ids[:2] == ["q_fecha", "q_municipio"]
     assert all(i.startswith("q_campo_") for i in ids[2:4])
     assert ids[4] == "q1"
+
+
+@pytest.mark.parametrize(
+    ("texto", "evento", "esperada"),
+    [
+        (
+            "El 10 de marzo de 2026 compré una lavadora. Ha dejado de funcionar.",
+            "fecha de compra o entrega",
+            date(2026, 3, 10),
+        ),
+        ("Entregué las llaves el 1 de septiembre de 2026.", "fecha de entrega de llaves", date(2026, 9, 1)),
+        # La única fecha va con otro hecho: no se usa
+        ("Firmé el contrato el 1 de enero de 2020. Me subieron el alquiler.", "fecha de entrega de llaves", None),
+        # Dos fechas candidatas: no se elige ninguna
+        ("Compré una el 1 de marzo de 2026 y compré otra el 5 de marzo de 2026.", "fecha de compra", None),
+    ],
+)
+def test_fecha_del_evento_solo_si_esta_en_la_misma_frase(texto, evento, esperada):
+    from core.fechas_es import fecha_del_evento
+
+    assert fecha_del_evento(texto, evento, date(2026, 10, 25)) == esperada
+
+
+def test_toda_materia_con_plazo_pregunta_una_fecha_concreta():
+    """Nada de «fecha del hecho principal» (V03 y V10 de la batería del 25-10-2026)."""
+    for clave, sub in submaterias().items():
+        if sub.plazos:
+            assert any("fecha" in c.lower() for c in sub.campos_criticos), clave

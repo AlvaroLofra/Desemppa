@@ -1,5 +1,7 @@
 # Mejoras futuras: estado (actualizado el 25-10-2026)
 
+Plan por fases de lo pendiente: [plan_mejoras_futuras.md](plan_mejoras_futuras.md).
+
 **HECHO** = implementado y con pruebas. **PENDIENTE** = no hecho todavía, con el motivo. La prioridad (A, B, C) mide el
 impacto en «no inventar y acertar» frente al esfuerzo.
 
@@ -9,7 +11,7 @@ impacto en «no inventar y acertar» frente al esfuerzo.
 | HECHO | **Aviso de reforma** | Al abrir una consulta, `GET /api/consultas/{id}/vigencia` compara cada artículo del BOE citado con su redacción actual. Si ha cambiado después de la consulta, se avisa y se propone volver a consultar |
 | HECHO | **Texto del BOE sin notas editoriales** | La «Redacción anterior», «Téngase en cuenta» y «Se modifica…» del BOE ya no forman parte del texto citable (`connectors/boe_models.py`, migración 0007). Antes, una cita copiada de la redacción derogada pasaba la verificación (p. ej. el LEC 250 mostraba «quince mil» y «seis mil euros») |
 | PENDIENTE (A) | Golden tests por materia a partir de la batería | Necesita una ejecución completa de los 30 casos (`benchmark/ejecutar.py`). Los casos que pasen quedarán como regresión |
-| PENDIENTE (A) | Corpus de jurisprudencia: importación guiada desde CENDOJ | La descarga tiene que hacerla una persona (art. 507 LOPJ). Ya existe `scripts/importar_sentencias.py`; falta un asistente por materia en la interfaz |
+| HECHO | **Corpus de jurisprudencia: importación guiada** | Biblioteca → «Jurisprudencia»: por materia, términos para CENDOJ, enlace al buscador, arrastrar PDF y recuento por materia. La descarga sigue siendo manual (art. 507 LOPJ) |
 | PENDIENTE (B) | Conector CURIA (TJUE) | Conector nuevo con su verificación; no se ha empezado |
 | PENDIENTE (B) | Convenios con modificaciones integradas y convenios provinciales (BOP) | Cada BOP publica de forma distinta, así que hay que diseñar el conector provincia a provincia |
 | PENDIENTE (B) | Normas autonómicas (Aragón, Navarra, País Vasco, Galicia, Baleares) | Hay que verificar en el BOE el identificador de cada norma antes de añadirla (regla 1 de `CLAUDE.md`) |
@@ -46,7 +48,7 @@ impacto en «no inventar y acertar» frente al esfuerzo.
 | HECHO | **Panel de salud** | Ajustes → «Salud de los modelos»: llamadas, correctas, vacías, tiempo agotado y tiempo medio por modelo |
 | HECHO | **Copias de seguridad cifradas** | `scripts/copia_seguridad.py`: DPAPI, conserva las 10 últimas y restaura sin sobrescribir |
 | HECHO | **Registros con rotación** | 5 ficheros de 5 MB |
-| PENDIENTE (B) | Icono en la bandeja o servicio de Windows | Requiere una dependencia nueva (p. ej. `pystray`) y probarlo en el escritorio |
+| HECHO | **Lanzador de escritorio con bandeja** | `launcher/desemppa.pyw` (pywebview + pystray): ventana propia, pantalla de carga e icono junto al reloj. Accesos directos con `INSTALAR_DESEMPPA.bat` |
 | PENDIENTE (B) | Actualización con un clic | Toca git y el reinicio del servidor; conviene hacerlo con calma |
 | PENDIENTE (C) | HTTPS en la red local | Exige gestionar un certificado autofirmado en cada dispositivo invitado |
 
@@ -57,4 +59,4 @@ impacto en «no inventar y acertar» frente al esfuerzo.
 | HECHO | **Coherencia interna** | Si todas las cuestiones se estiman a favor de la otra parte, la solidez no puede ser favorable |
 | HECHO | **Doble Magistrado en Pro** | Dos resoluciones independientes en paralelo; si discrepan en una cuestión, la solidez pasa a «disparidad de criterio» con aviso |
 | HECHO | **Hoja de ruta verificada** | Las 121 citas de `config/hojas_de_ruta.yaml` se comprueban contra el BOE vigente (`scripts/verificar_hojas_de_ruta.py` y test `live`) |
-| PENDIENTE (A) | Batería verificable periódica con informe comparativo | El ejecutor y el evaluador existen; falta lanzar la batería completa y programarla (gasta cuota real) |
+| HECHO (falta registrar la tarea) | **Batería periódica con informe comparativo** | `--reanudar`, `congelar.py` → `tests/golden/test_bateria.py`, `comparar_ejecuciones.py` y `scripts/programar_bateria.ps1` (la tarea semanal no se registra sin tu sí) |

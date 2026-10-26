@@ -40,6 +40,8 @@ class Submateria(BaseModel):
     normas_forales: dict[str, NormasForales] = Field(default_factory=dict)  # clave: territorio (CT, ...)
     normas_ue: list[NormaUE] = Field(default_factory=list)
     campos_criticos: list[str] = Field(default_factory=list)
+    # Respuestas cerradas de los campos críticos que no son de sí/no («¿A o B?»): campo → opciones.
+    opciones_campos: dict[str, list[str]] = Field(default_factory=dict)
     plazos: list[str] = Field(default_factory=list)
     terminos_cendoj: list[str] = Field(default_factory=list)
     doctrina_cambiante: bool = False

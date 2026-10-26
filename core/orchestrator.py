@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any, Literal, TypeVar, cast
 
 from pydantic import BaseModel, ValidationError
+from rapidfuzz import fuzz
 
 from connectors.boe_client import BOEError, BOERepository
 from connectors.cendoj_fetcher import CendojRepository
@@ -22,7 +23,7 @@ from connectors.eurlex_client import EURLexError, EURLexRepository
 from connectors.retriever import HybridRetriever
 from core.calendar_engine import CalendarEngine, PlazoError
 from core.errors import ProviderError
-from core.fechas_es import fecha_consta, fechas_en_texto, mes_consta
+from core.fechas_es import fecha_consta, fecha_del_evento, fechas_en_texto, mes_consta
 from core.firewall import Contexto, ResultadoFirewall, Seccion, escanear, verificar_afirmaciones
 from core.llm_types import LLMRequest, LLMResult
 from core.materias import Submateria, catalogo_para_prompt, id_norma, normas_aplicables, submaterias
@@ -276,6 +277,16 @@ class Orchestrator:
                 "consulta: no se ha usado."
             )
             fecha_inicio = None
+        sub_previa = submaterias().get(raw.submateria_principal or "")
+        if fecha_inicio is None and sub_previa and sub_previa.plazos:
+            # El modelo no la marcó, pero el usuario la escribió junto al evento del plazo: se usa tal cual y se avisa.
+            evento = _campo_fecha(sub_previa)
+            fecha_inicio = fecha_del_evento(hechos_txt, evento, hoy)
+            if fecha_inicio:
+                run.avisos.append(
+                    f"Se ha tomado el {fecha_inicio:%d/%m/%Y} como «{evento}» porque es la fecha que indicas al "
+                    "contarlo. Si no es así, corrígelo y vuelve a consultar."
+                )
         fecha_hechos = raw.fecha_hechos
         if fecha_hechos and not mes_consta(fecha_hechos, hechos_txt, hoy):
             fecha_hechos = None
@@ -290,7 +301,7 @@ class Orchestrator:
         sub: Submateria | None = cat.get(principal) if principal else None
         municipio_ine = c.municipio_ine or self._municipio_ine(raw.municipio)
         candidatas_modelo = [
-            PreguntaAclaratoria.model_validate({"tipo_respuesta": "texto", **p})
+            normalizar_pregunta(PreguntaAclaratoria.model_validate({"tipo_respuesta": "texto", **p}))
             for p in raw.preguntas_aclaracion
             if p.get("texto")
         ]
@@ -320,7 +331,20 @@ class Orchestrator:
                         motivo="cálculo de plazos",
                     )
                 )
-        if municipio_ine is None and (pide_municipio or (sub and not sub.fuera_alcance)):
+        # El municipio solo se pregunta si cambia algo: festivos locales de un plazo, juzgado competente o
+        # derecho foral (la pantalla inicial ya no lo pide).
+        municipio_hace_falta = bool(
+            sub
+            and not sub.fuera_alcance
+            and (
+                sub.plazos
+                or sub.competencia_local
+                or sub.foral_relevante
+                or sub.normas_forales
+                or any(_dato_preguntado(c) == "municipio" for c in sub.campos_criticos)
+            )
+        )
+        if municipio_ine is None and (pide_municipio or municipio_hace_falta):
             esenciales.append(
                 PreguntaAclaratoria(
                     id="q_municipio",
@@ -336,7 +360,12 @@ class Orchestrator:
             if sub
             else []
         )
-        preguntas = (esenciales + criticos + preguntas_modelo)[:5]
+        # Sin duplicados aunque estén redactadas de otra forma (el modelo y el catálogo a veces piden lo mismo).
+        preguntas: list[PreguntaAclaratoria] = []
+        for p in esenciales + criticos + preguntas_modelo:
+            if not ya_preguntado(p.texto, [q.texto for q in preguntas]):
+                preguntas.append(p)
+        preguntas = preguntas[:5]
         if raw.grado_ambiguedad >= 0.35 and not preguntas:
             preguntas.append(
                 PreguntaAclaratoria(
@@ -457,6 +486,12 @@ class Orchestrator:
             return None
         return triage
 
+    def _escalado_magistrado(self, run: _Run) -> str | None:
+        """Modelo más capaz de la misma familia que el Magistrado del modo (Flash → Argon), si existe."""
+        resolver = getattr(self.s.router, "resolve", None)  # los routers simulados de los tests no lo tienen
+        escalado = _ESCALADO.get(resolver(run.modo, "magistrado").model) if resolver else None
+        return escalado if escalado and escalado in self.s.router.catalog.models else None
+
     def _magistrado_doble(self, run: _Run) -> bool:
         catalogo = getattr(self.s.router, "catalog", None)
         perfil = getattr(catalogo, "profiles", {}).get(run.modo)
@@ -469,18 +504,23 @@ class Orchestrator:
         if c.rondas >= 2:
             return False
         res = ResolucionMagistradoSchema.model_validate(debate["magistrado"])
-        ya = {_fold(a.get("pregunta", "")) for a in c.aclaraciones}
-        preguntas = [
-            PreguntaAclaratoria(
-                id=f"q_det_{i}",
-                texto=h.pregunta,
-                tipo_respuesta=h.tipo_respuesta,
-                opciones=h.opciones,
-                motivo=h.por_que or "puede cambiar el resultado",
+        # Nada de lo ya preguntado (respondido o con «No lo sé»), aunque el Magistrado lo reformule.
+        ya = [str(a.get("pregunta", "")) for a in c.aclaraciones]
+        preguntas: list[PreguntaAclaratoria] = []
+        for i, h in enumerate(res.hechos_determinantes[:4]):
+            if not h.pregunta.strip() or ya_preguntado(h.pregunta, ya + [p.texto for p in preguntas]):
+                continue
+            preguntas.append(
+                normalizar_pregunta(
+                    PreguntaAclaratoria(
+                        id=f"q_det_{i}",
+                        texto=h.pregunta,
+                        tipo_respuesta=h.tipo_respuesta,
+                        opciones=h.opciones,
+                        motivo=h.por_que or "puede cambiar el resultado",
+                    )
+                )
             )
-            for i, h in enumerate(res.hechos_determinantes[:4])
-            if h.pregunta.strip() and _fold(h.pregunta) not in ya
-        ]
         if not preguntas:
             return False
         self._estado(run, Estado.ESPERANDO_ACLARACION)
@@ -802,7 +842,26 @@ class Orchestrator:
             otra = {q.id: q.estimacion for q in segunda.cuestiones}
             run.discrepancias = [q.id for q in magistrado.cuestiones if q.id in otra and otra[q.id] != q.estimacion]
         else:
-            magistrado = await llamada
+            try:
+                magistrado = await llamada
+            except ProviderError as exc:
+                # Flash sin respuesta (tiempo agotado, corte): una vez con el modelo más capaz de la MISMA familia
+                # antes de perder la consulta (batería del 25-10-2026: 6 de 30 casos acabaron así).
+                escalado = self._escalado_magistrado(run)
+                if modelo_magistrado or not escalado:
+                    raise
+                run.avisos.append(
+                    f"El Magistrado no respondió ({type(exc).__name__}): se ha repetido con {escalado} (misma familia)."
+                )
+                magistrado = await self._llm_json(
+                    run,
+                    "magistrado",
+                    _prompt_rol("magistrado"),
+                    prompt,
+                    ResolucionMagistradoSchema,
+                    delta_rol="magistrado",
+                    modelo=escalado,
+                )
         self._emit(run, "debate_done", {"rol": "magistrado", "resolucion": magistrado.model_dump()})
         debate = {
             "defensa": defensa.model_dump(),
@@ -921,9 +980,8 @@ class Orchestrator:
                 res = ResolucionMagistradoSchema.model_validate(debate["magistrado"])
                 fw = await self._cortafuegos(run, res, ctx)
                 fallos = self._fallos_magistrado(res, fuentes) + self._fallos_cortafuegos(fw)
-            resolver = getattr(self.s.router, "resolve", None)  # los routers simulados de los tests no lo tienen
-            escalado = _ESCALADO.get(resolver(run.modo, "magistrado").model) if resolver else None
-            if fallos and escalado and escalado in self.s.router.catalog.models:
+            escalado = self._escalado_magistrado(run)
+            if fallos and escalado:
                 # Escalado: si el modelo rápido falla dos veces la verificación, se repite una vez con el más
                 # capaz de la MISMA familia (no gasta cuota de la otra suscripción) y se avisa.
                 try:
@@ -1218,6 +1276,7 @@ class Orchestrator:
             + auditoria_fund,
             respuesta_parcial=respuesta_parcial,
             hechos_determinantes=[h.pregunta for h in res.hechos_determinantes][:6],
+            motivos_banda=motivos,
             sello=sello,
             aviso_legal=AVISO_LEGAL,
             generado_en=datetime.now(UTC),
@@ -1309,27 +1368,137 @@ def _preguntas_campos_criticos(
         for c in constan
         if len(_fold(str(c.get("cita", "")))) >= 3 and " ".join(_fold(str(c["cita"])).split()) in hechos_plano
     }
-    textos_ya = " ".join(_fold(p.texto) for p in ya)
-    out = []
+    out: list[PreguntaAclaratoria] = []
     for i, campo in enumerate(sub.campos_criticos):
         dato = _dato_preguntado(campo)
         if _fold(campo) in probados or (dato and conocido.get(dato)):
             continue
         if dato == "municipio" or (dato == "fecha" and any(p.tipo_respuesta == "fecha" for p in ya)):
             continue  # el municipio y la fecha del plazo tienen su pregunta canónica
-        clave = next((w for w in _fold(campo).split() if len(w) > 4), _fold(campo))
-        if clave in textos_ya:
+        if ya_preguntado(campo, [p.texto for p in ya]):
             continue  # el modelo ya lo pregunta con otras palabras
+        opciones = sub.opciones_campos.get(campo)
         si_no = campo.startswith("¿") and _SI_NO.match(_fold(campo))
+        tipo: Any = "opcion" if opciones else "si_no" if si_no else _TIPO_DATO.get(dato or "", "texto")
         out.append(
-            PreguntaAclaratoria(
-                id=f"q_campo_{i}",
-                texto=campo if campo.startswith("¿") else f"Indica {campo}",
-                tipo_respuesta="si_no" if si_no else _TIPO_DATO.get(dato or "", "texto"),
-                motivo="dato necesario para valorar tu caso",
+            normalizar_pregunta(
+                PreguntaAclaratoria(
+                    id=f"q_campo_{i}",
+                    texto=campo if campo.startswith("¿") else f"Indica {campo}",
+                    tipo_respuesta=tipo,
+                    opciones=opciones,
+                    motivo="dato necesario para valorar tu caso",
+                )
             )
         )
     return out
+
+
+# «¿A o B?»: una disyuntiva no se contesta con sí o no («¿… o no?» sí es de sí/no).
+_DISYUNTIVA = re.compile(r"\s[ou]\s(?!no\b)")
+_SIN_OPCION = {"no lo se", "otro", "otra", "otros", "otra respuesta", "ninguna de las anteriores"}
+
+
+def normalizar_pregunta(p: PreguntaAclaratoria) -> PreguntaAclaratoria:
+    """Hace coherentes el tipo de respuesta y las opciones de una pregunta, venga del modelo o del catálogo.
+
+    - Con dos o más opciones reales, se elige entre ellas (aunque el modelo dijera «si_no»).
+    - Unas opciones «Sí»/«No» son una pregunta de sí o no; «opcion» sin opciones pasa a texto libre.
+    - Una pregunta disyuntiva («¿en mano o por correo?») nunca se contesta con sí o no: pasa a texto libre.
+    """
+    opciones: list[str] = []
+    for o in p.opciones or []:
+        o = str(o).strip()[:120]
+        if o and _fold(o) not in _SIN_OPCION and _fold(o) not in {_fold(x) for x in opciones}:
+            opciones.append(o)
+    tipo = p.tipo_respuesta
+    if opciones and {_fold(o) for o in opciones} <= {"si", "no"}:
+        opciones = []
+        if tipo == "opcion":
+            tipo = "si_no"
+    elif len(opciones) >= 2 and tipo in ("si_no", "opcion", "texto"):
+        tipo = "opcion"
+    else:
+        opciones = []
+    if tipo == "opcion" and not opciones:
+        tipo = "texto"
+    if tipo == "si_no" and _DISYUNTIVA.search(_fold(p.texto)):
+        tipo = "texto"
+    return p.model_copy(update={"tipo_respuesta": tipo, "opciones": opciones or None})
+
+
+_PALABRAS_VACIAS = {
+    "cual",
+    "cuales",
+    "como",
+    "donde",
+    "esta",
+    "este",
+    "estos",
+    "estas",
+    "eres",
+    "fueron",
+    "tienes",
+    "tiene",
+    "hay",
+    "has",
+    "algun",
+    "alguna",
+    "alguno",
+    "sobre",
+    "desde",
+    "hasta",
+    "para",
+    "porque",
+    "que",
+    "quien",
+    "indica",
+    "dime",
+    "puedes",
+    "sabes",
+    "tus",
+    "sus",
+    "del",
+    "las",
+    "los",
+    "una",
+    "uno",
+    "con",
+    "fue",
+    "era",
+    "ser",
+    "estar",
+    "estabas",
+    "cuando",
+    "momento",
+    "exacta",
+    "exacto",
+}
+
+
+def _palabras_clave(texto: str) -> list[str]:
+    """Raíces (4 letras) de las palabras con contenido: «despidieron» y «despedido» → «desp»."""
+    return [w[:4] for w in re.findall(r"[a-z0-9%]+", _fold(texto)) if len(w) > 2 and w not in _PALABRAS_VACIAS]
+
+
+def ya_preguntado(texto: str, previas: list[str]) -> bool:
+    """¿Pide lo mismo que alguna de `previas`, aunque esté redactada de otra forma? Coincidencia difusa sobre las
+    palabras con contenido, para no volver a preguntar al ciudadano lo que ya ha contestado."""
+    a = _palabras_clave(texto)
+    if not a:
+        return False
+    ta = " ".join(a)
+    for previa in previas:
+        b = _palabras_clave(previa)
+        if not b:
+            continue
+        tb = " ".join(b)
+        if fuzz.token_sort_ratio(ta, tb) >= 85:
+            return True
+        comunes = len(set(a) & set(b))
+        if comunes >= 2 and comunes / min(len(set(a)), len(set(b))) >= 0.75:
+            return True
+    return False
 
 
 def _campo_fecha(sub: Submateria) -> str:

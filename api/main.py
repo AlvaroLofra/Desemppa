@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
+import io
 import json
 import logging
 import os
@@ -17,7 +18,7 @@ from datetime import date
 from functools import lru_cache
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import segno
 from fastapi import Depends, FastAPI, File, Form, Header, HTTPException, Query, Request, UploadFile
@@ -53,6 +54,7 @@ from core.errors import ModelUnavailable, ProviderError
 from core.gemini_client import GeminiClient
 from core.hoja_de_ruta import aplicables as pasos_aplicables
 from core.llm_types import LLMRequest, LLMResult
+from core.materias import submaterias
 from core.normalize import fold
 from core.orchestrator import Orchestrator
 from core.orchestrator import Services as PipelineServices
@@ -243,6 +245,11 @@ class Respuesta(BaseModel):
 
 class Aclaraciones(BaseModel):
     respuestas: list[Respuesta] = Field(min_length=1, max_length=8)
+
+
+class EdicionConsulta(BaseModel):
+    titulo: str | None = Field(default=None, max_length=120)  # None o vacío: vuelve al texto de la consulta
+    archivada: bool | None = None
 
 
 class ConfigurarProveedor(BaseModel):
@@ -441,8 +448,12 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
         url = estado_red(request).get("url")
         if not red.activo or not url:
             raise HTTPException(409, "activa antes «Compartir en la red local»")
-        svg = segno.make(url, error="m").svg_inline(scale=6, border=2, dark="#1B1B1F", light="#FFFFFF")
-        return Response(svg, media_type="image/svg+xml", headers=NO_CACHE)
+        # No usar svg_inline(): omite xmlns y un <img> no pinta un image/svg+xml sin espacio de nombres.
+        buf = io.BytesIO()
+        segno.make(url, error="m").save(
+            buf, kind="svg", xmldecl=False, scale=6, border=2, dark="#1B1B1F", light="#FFFFFF"
+        )
+        return Response(buf.getvalue(), media_type="image/svg+xml", headers=NO_CACHE)
 
     @app.get("/api/salud", dependencies=[Depends(solo_dueno)])
     def salud(request: Request, dias: int = Query(default=7, ge=1, le=90)) -> dict[str, Any]:
@@ -713,6 +724,36 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
         p.bus.emit(consulta_id, "error", {"mensaje": mensaje, "tipo": "Cancelada"})
         return {"consulta_id": consulta_id, "estado": "cancelada"}
 
+    @app.patch("/api/consultas/{consulta_id}", dependencies=[Depends(require_token)])
+    def editar_consulta(consulta_id: str, body: EdicionConsulta, request: Request) -> dict[str, Any]:
+        """Renombrar o archivar desde el historial (un invitado, solo las suyas)."""
+        p = pipe(request)
+        comprobar_acceso(request, consulta_id)
+        try:
+            if "titulo" in body.model_fields_set:
+                p.store.renombrar(consulta_id, body.titulo)
+            if body.archivada is not None:
+                p.store.archivar(consulta_id, body.archivada)
+        except KeyError as exc:
+            raise HTTPException(404, "consulta no encontrada") from exc
+        return next(c for c in p.store.listar(limit=10_000) if c["consulta_id"] == consulta_id)
+
+    @app.delete("/api/consultas/{consulta_id}", status_code=204, dependencies=[Depends(require_token)])
+    async def borrar_consulta(consulta_id: str, request: Request) -> Response:
+        """Borra definitivamente una consulta (y sus eventos y adjuntos). Si está en curso, antes la detiene."""
+        s, p = svc(request), pipe(request)
+        comprobar_acceso(request, consulta_id)
+        task = s.tasks.get(consulta_id)
+        if task is not None and not task.done():
+            task.cancel()
+            await asyncio.wait([task], timeout=10)
+        try:
+            p.store.borrar(consulta_id)
+        except KeyError as exc:
+            raise HTTPException(404, "consulta no encontrada") from exc
+        log.info("Consulta %s borrada por el usuario", consulta_id)
+        return Response(status_code=204)
+
     @app.get("/api/consultas")
     def listar(request: Request) -> list[dict[str, Any]]:
         if rol(request) == "dueno":
@@ -970,6 +1011,28 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
         except ValueError as exc:
             raise HTTPException(422, str(exc)) from exc
         return {"roj": res.roj_id, "nueva": res.nueva, "chunks": res.chunks_indexados, "avisos": res.avisos}
+
+    @app.get("/api/jurisprudencia/resumen", dependencies=[Depends(solo_dueno)])
+    def resumen_jurisprudencia(request: Request) -> dict[str, Any]:
+        """Asistente de importación: qué hay en el corpus local y qué buscar en CENDOJ para cada materia.
+        La descarga la hace una persona en su navegador (art. 507 LOPJ: nada de descargas automáticas)."""
+        cat = {k: s for k, s in submaterias().items() if not s.fuera_alcance}
+        res = pipe(request).cendoj.resumen({k: s.terminos_cendoj for k, s in cat.items()})
+        por_sub = cast(dict[str, int], res["por_submateria"])
+        return {
+            **res,
+            "buscador": "https://www.poderjudicial.es/search/indexAN.jsp",
+            "materias": [
+                {
+                    "clave": k,
+                    "descripcion": s.descripcion,
+                    "jurisdiccion": s.jurisdiccion,
+                    "terminos": s.terminos_cendoj,
+                    "sentencias": por_sub.get(k, 0),
+                }
+                for k, s in cat.items()
+            ],
+        }
 
     # ---------- frontend ----------
     if (WEB_DIST / "index.html").exists():

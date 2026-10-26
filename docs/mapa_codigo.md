@@ -34,6 +34,8 @@ Referencia rápida de alta densidad para localizar cualquier módulo del proyect
 
 * **Endpoints REST + SSE:** `api/main.py`
 * **Compartir en LAN y tokens de invitados:** `api/red_local.py`
+* **Lanzador de escritorio (ventana + bandeja):** `launcher/desemppa.pyw` (lógica en `launcher/servidor.py`); instalación con `INSTALAR_DESEMPPA.bat` → `scripts/instalar.ps1`; icono con `scripts/generar_icono.py`
+* **Batería verificable:** `benchmark/ejecutar.py` (`--reanudar`), `evaluar.py`, `juez.py`, `congelar.py` → `tests/golden/bateria/`, `comparar_ejecuciones.py`
 
 ---
 
@@ -45,5 +47,8 @@ Referencia rápida de alta densidad para localizar cualquier módulo del proyect
 * **Vista principal y dictamen:** `web/src/components/Results.tsx`
 * **Vista técnica procesal:** `web/src/components/VistaProfesional.tsx`
 * **Visor lateral de fuentes (drawer):** `web/src/components/SourceViewer.tsx`
+* **Preguntas aclaratorias (UI):** `Clarification` en `web/src/components/Results.tsx` + `web/src/lib/aclaraciones.ts`; backend `normalizar_pregunta` / `ya_preguntado` en `core/orchestrator.py`
+* **Historial (renombrar, archivar, borrar):** `web/src/components/Sidebar.tsx`; `PATCH`/`DELETE /api/consultas/{id}`; migración `0008`
+* **Asistente de jurisprudencia:** `web/src/components/Jurisprudencia.tsx`; `GET /api/jurisprudencia/resumen`
 * **Hoja de ruta interactiva:** `web/src/components/HojaDeRuta.tsx`
 * **Ajustes, modelos y salud:** `web/src/components/settings/`

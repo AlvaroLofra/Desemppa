@@ -2,7 +2,6 @@ import { useEffect, useRef, useState, type DragEvent } from "react";
 import { ArrowUp, FileText, Loader2, Paperclip, X } from "lucide-react";
 import { api } from "../lib/api";
 import { SelectorBiblioteca } from "./Biblioteca";
-import { MunicipioPicker, type Municipio } from "./MunicipioPicker";
 
 interface Adjunto { adjunto_id: string; nombre: string; tipo: string; aviso?: string }
 
@@ -14,7 +13,7 @@ export const SUGERENCIAS = [
 
 /** Caja de texto principal. `hero`: grande y centrada (inicio); `dock`: fija al pie durante la consulta. */
 export function Composer({ onEnviar, ocupado, variante, textoInicial, biblioteca = false }: {
-  onEnviar: (texto: string, municipio: string | null, adjuntos: string[]) => void;
+  onEnviar: (texto: string, adjuntos: string[]) => void;
   ocupado: boolean;
   variante: "hero" | "dock";
   textoInicial?: string;
@@ -22,7 +21,6 @@ export function Composer({ onEnviar, ocupado, variante, textoInicial, biblioteca
   biblioteca?: boolean;
 }) {
   const [texto, setTexto] = useState("");
-  const [municipio, setMunicipio] = useState<Municipio | null>(null);
   const [adjuntos, setAdjuntos] = useState<Adjunto[]>([]);
   const [subiendo, setSubiendo] = useState(false);
   const [arrastrando, setArrastrando] = useState(false);
@@ -70,7 +68,7 @@ export function Composer({ onEnviar, ocupado, variante, textoInicial, biblioteca
   const listo = texto.trim().length >= 10 && !ocupado;
   const enviar = () => {
     if (!listo) return;
-    onEnviar(texto.trim(), municipio?.codigo_ine ?? null, adjuntos.map((a) => a.adjunto_id));
+    onEnviar(texto.trim(), adjuntos.map((a) => a.adjunto_id));
   };
 
   return (
@@ -123,7 +121,6 @@ export function Composer({ onEnviar, ocupado, variante, textoInicial, biblioteca
             <SelectorBiblioteca deshabilitado={adjuntos.length >= 5}
                                 onAdjuntar={(a) => setAdjuntos((x) => (x.length >= 5 ? x : [...x, a]))} />
           )}
-          <MunicipioPicker value={municipio} onChange={setMunicipio} />
           <button
             className={`ml-auto inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors ${
               listo ? "bg-accent text-on-accent hover:opacity-90" : "bg-surface-2 text-ink-3"

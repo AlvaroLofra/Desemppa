@@ -110,6 +110,7 @@ export interface Dictamen {
   auditoria?: EntradaAuditoria[];
   respuesta_parcial?: boolean;
   hechos_determinantes?: string[];
+  motivos_banda?: string[];
   sello?: SelloVerificacion | null;
 }
 
@@ -156,10 +157,30 @@ export interface FinalPayload {
 export interface Guardrail { id: string; ok: boolean; detalle: string[] }
 
 export const BANDA_TEXTO: Record<Banda, string> = {
-  criterio_consolidado_favorable: "Criterio consolidado favorable",
-  argumento_solido_sin_doctrina: "Argumento sólido, sin doctrina consolidada",
-  disparidad_de_criterio: "Disparidad de criterio entre tribunales",
-  riesgo_probatorio_alto: "Depende de pruebas que quizá no tengas",
-  criterio_consolidado_desfavorable: "Criterio consolidado desfavorable",
-  no_determinable: "No es posible valorar",
+  criterio_consolidado_favorable: "Favorable: los tribunales suelen dar la razón en casos así",
+  argumento_solido_sin_doctrina: "Bien fundado en la ley, sin sentencias que lo confirmen",
+  disparidad_de_criterio: "Incierto: no hay un criterio único",
+  riesgo_probatorio_alto: "Depende de lo que puedas demostrar",
+  criterio_consolidado_desfavorable: "Desfavorable: la ley o los tribunales van en tu contra",
+  no_determinable: "No se puede valorar con lo verificado",
+};
+
+/** Qué significa cada nivel de solidez, para quien no sabe Derecho. No es una probabilidad de ganar. */
+export const BANDA_EXPLICACION: Record<Banda, string> = {
+  criterio_consolidado_favorable: "La ley y sentencias verificadas respaldan tu posición en casos como el tuyo.",
+  argumento_solido_sin_doctrina: "La ley verificada te respalda, pero no se han encontrado sentencias que confirmen cómo la aplican los tribunales.",
+  disparidad_de_criterio: "Hay razones en los dos sentidos: sentencias contrarias, una jurisprudencia que cambia o un análisis que no coincide. Mira «Por qué».",
+  riesgo_probatorio_alto: "Tienes argumentos, pero el resultado depende de hechos que tendrías que probar (documentos, fotos, testigos).",
+  criterio_consolidado_desfavorable: "La ley o las sentencias verificadas van en contra de tu posición.",
+  no_determinable: "No hay base verificada suficiente para valorar tu caso. Conviene consultar a un profesional.",
+};
+
+/** Posición en el medidor de 5 niveles (0 = sin valorar). */
+export const BANDA_NIVEL: Record<Banda, number> = {
+  criterio_consolidado_favorable: 5,
+  argumento_solido_sin_doctrina: 4,
+  disparidad_de_criterio: 3,
+  riesgo_probatorio_alto: 2,
+  criterio_consolidado_desfavorable: 1,
+  no_determinable: 0,
 };

@@ -1,0 +1,643 @@
+{
+ "caso": {
+  "id": "V30",
+  "categoria": "aclaracion",
+  "materia_esperada": "SOC_RECLAMACION_CANTIDAD",
+  "consulta": "Trabajo en un bar y me deben dos nóminas. ¿Qué puedo hacer?",
+  "municipio_ine": null,
+  "municipio_nombre": null,
+  "fecha_hechos": null,
+  "aclaraciones_simuladas": [
+   {
+    "pregunta_contiene": "fecha",
+    "respuesta": "La última nómina que me deben es la de septiembre de 2026, que debía cobrar el 30 de septiembre de 2026."
+   },
+   {
+    "pregunta_contiene": "municipio",
+    "respuesta": "Sevilla"
+   }
+  ],
+  "verdad": {
+   "estado_esperado": "CERTIFICADA",
+   "respuesta_esperada": "si",
+   "articulos_clave": [
+    {
+     "norma": "ET",
+     "articulo": "29"
+    }
+   ],
+   "plazos": [
+    {
+     "tipo": "SOC_CANTIDAD_1A",
+     "inicio": "2026-09-30",
+     "municipio_ine": "41091"
+    }
+   ],
+   "postulacion": {
+    "jurisdiccion": "social",
+    "procedimiento": "cantidad",
+    "cuantia_eur": null
+   },
+   "puntos_clave": [
+    "Pregunta los datos que faltan",
+    "Interés por mora del diez por ciento (art. 29.3 ET)"
+   ],
+   "prohibido": []
+  }
+ },
+ "hoja": {
+  "id": "V30",
+  "construida": "2026-10-25",
+  "articulos": [
+   {
+    "norma": "ET",
+    "articulo": "29",
+    "source_id": "BOE:BOE-A-2015-11430:a29:2015-11-13",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2015-11430#a29",
+    "version": "2015-11-13",
+    "sha256": "a519603f61786b91e067a3fa5a7e3e6156f7e1232d0f1c3db419b6a80c7e936c",
+    "texto": "Artículo 29. Liquidación y pago.\n1. La liquidación y el pago del salario se harán puntual y documentalmente en la fecha y lugar convenidos o conforme a los usos y costumbres. El periodo de tiempo a que se refiere el abono de las retribuciones periódicas y regulares no podrá exceder de un mes.\nEl trabajador y, con su autorización, sus representantes legales, tendrán derecho a percibir, sin que llegue el día señalado para el pago, anticipos a cuenta del trabajo ya realizado.\nLa documentación del salario se realizará mediante la entrega al trabajador de un recibo individual y justificativo del pago del mismo. El recibo de salarios se ajustará al modelo que apruebe el Ministerio de Empleo y Seguridad Social, salvo que por convenio colectivo o, en su defecto, por acuerdo entre la empresa y los representantes de los trabajadores, se establezca otro modelo que contenga con la debida claridad y separación las diferentes percepciones del trabajador, así como las deducciones que legalmente procedan.\nLa liquidación de los salarios que correspondan a quienes presten servicios en trabajos que tengan el carácter de fijos-discontinuos, en los supuestos de conclusión de cada periodo de actividad, se llevará a cabo con sujeción a los trámites y garantías establecidos en el artículo 49.2.\n2. El derecho al salario a comisión nacerá en el momento de realizarse y pagarse el negocio, la colocación o venta en que hubiera intervenido el trabajador, liquidándose y pagándose, salvo que se hubiese pactado otra cosa, al finalizar el año.\nEl trabajador y sus representantes legales pueden pedir en cualquier momento comunicaciones de la parte de los libros referentes a tales devengos.\n3. El interés por mora en el pago del salario será el diez por ciento de lo adeudado.\n4. El salario, así como el pago delegado de las prestaciones de la Seguridad Social, podrá efectuarlo el empresario en moneda de curso legal o mediante cheque u otra modalidad de pago similar a través de entidades de crédito, previo informe al comité de empresa o delegados de personal."
+   }
+  ],
+  "plazos": [
+   {
+    "tipo": "SOC_CANTIDAD_1A",
+    "inicio": "2026-09-30",
+    "fecha_limite_segura": "2027-09-30",
+    "base_legal": "Art. 59.1 y 59.2 ET"
+   }
+  ],
+  "postulacion": {
+   "requiere_abogado": false,
+   "requiere_procurador": false,
+   "base_legal": "Arts. 18 y 21 LRJS"
+  }
+ },
+ "resultado": {
+  "consulta_id": "617f1c44-2f49-4ba3-a89c-60fd7bc4b103",
+  "modo": "eco",
+  "fecha": "2026-10-25",
+  "estado": "CERTIFICADA",
+  "duracion_s": 295,
+  "aclaraciones": [
+   {
+    "pregunta": "Indica la fecha exacta (día, mes y año): fecha del hecho principal",
+    "respuesta": "La última nómina que me deben es la de septiembre de 2026, que debía cobrar el 30 de septiembre de 2026."
+   },
+   {
+    "pregunta": "¿En qué municipio está el juzgado o el organismo (o, si no lo sabes, tu municipio)?",
+    "respuesta": "Sevilla",
+    "municipio_ine": "41091"
+   },
+   {
+    "pregunta": "Indica meses o conceptos adeudados",
+    "respuesta": "No lo sé"
+   },
+   {
+    "pregunta": "Indica convenio colectivo aplicable",
+    "respuesta": "No lo sé"
+   },
+   {
+    "pregunta": "Indica categoría profesional",
+    "respuesta": "No lo sé"
+   },
+   {
+    "pregunta": "¿Tienes copia de nóminas de meses anteriores donde aparezca el importe de tu salario?",
+    "respuesta": "No lo sé"
+   }
+  ],
+  "dictamen": {
+   "estado": "CERTIFICADA",
+   "dictamen": {
+    "schema_version": "1.0",
+    "consulta_id": "617f1c44-2f49-4ba3-a89c-60fd7bc4b103",
+    "modo": "eco",
+    "modelos_usados": {
+     "triaje": "gemini-3.8-flash-low",
+     "defensa": "gemini-3.8-flash-medium",
+     "contraparte": "gemini-3.8-flash-medium",
+     "magistrado": "gemini-3.8-flash-medium"
+    },
+    "banda_solidez": "argumento_solido_sin_doctrina",
+    "respuesta_directa": "Puedes reclamar formalmente a la empresa el abono íntegro de las dos nóminas debidas junto con el recargo legal por mora en el pago. La empresa tiene el deber de entregarte el recibo individual justificativo del pago de cada mensualidad devengada.",
+    "resumen_ciudadano": "Trabajas en un bar y la empresa te adeuda dos mensualidades de trabajo. La ley establece que el pago del sueldo debe realizarse puntualmente sin superar el plazo de un mes. El retraso en el pago de los salarios devenga a tu favor un interés del diez por ciento sobre la cantidad debida. No consta el importe monetario concreto de las cantidades mensuales ni el convenio colectivo aplicable.",
+    "fundamentos": [
+     {
+      "texto": "El trabajador tiene derecho al pago puntual de su salario por los servicios laborales prestados sin que el abono de las retribuciones periódicas pueda exceder de un mes.",
+      "source_id": "BOE:BOE-A-2015-11430:a29:2015-11-13",
+      "verbatim_quote": "La liquidación y el pago del salario se harán puntual y documentalmente en la fecha y lugar convenidos o conforme a los usos y costumbres. El periodo de tiempo a que se refiere el abono de las retribuciones periódicas y regulares no podrá exceder de un mes.",
+      "fuzzy_score": 100.0,
+      "nli": "ENTAILS",
+      "offsets": [
+       36,
+       293
+      ]
+     },
+     {
+      "texto": "La retribución por la prestación profesional de servicios por cuenta ajena que retribuye el trabajo efectivo ostenta la consideración legal de salario.",
+      "source_id": "BOE:BOE-A-2015-11430:a26:2015-11-13",
+      "verbatim_quote": "Se considerará salario la totalidad de las percepciones económicas de los trabajadores, en dinero o en especie, por la prestación profesional de los servicios laborales por cuenta ajena, ya retribuyan el trabajo efectivo, cualquiera que sea la forma de remuneración, o los periodos de descanso computables como de trabajo.",
+      "fuzzy_score": 100.0,
+      "nli": "ENTAILS",
+      "offsets": [
+       29,
+       351
+      ]
+     },
+     {
+      "texto": "La mora en el abono de las retribuciones salariales devenga un interés legal expresamente tasado.",
+      "source_id": "BOE:BOE-A-2015-11430:a29:2015-11-13",
+      "verbatim_quote": "El interés por mora en el pago del salario será el diez por ciento de lo adeudado.",
+      "fuzzy_score": 100.0,
+      "nli": "ENTAILS",
+      "offsets": [
+       1686,
+       1768
+      ]
+     },
+     {
+      "texto": "La empresa está obligada legalmente a justificar y documentar el salario entregando al trabajador un recibo individual de pago.",
+      "source_id": "BOE:BOE-A-2015-11430:a29:2015-11-13",
+      "verbatim_quote": "La documentación del salario se realizará mediante la entrega al trabajador de un recibo individual y justificativo del pago del mismo.",
+      "fuzzy_score": 100.0,
+      "nli": "ENTAILS",
+      "offsets": [
+       478,
+       613
+      ]
+     }
+    ],
+    "cuestiones": [
+     {
+      "id": "C1",
+      "enunciado": "Procedencia de la reclamación de las retribuciones adeudadas y obligación patronal de abono puntual del salario",
+      "tipo": "calificacion_juridica",
+      "estimacion": "DEFENSA",
+      "fundamentos": [
+       {
+        "afirmacion": "El trabajador tiene derecho al pago puntual de su salario por los servicios laborales prestados sin que el abono de las retribuciones periódicas pueda exceder de un mes.",
+        "citas": [
+         {
+          "source_id": "BOE:BOE-A-2015-11430:a29:2015-11-13",
+          "verbatim_quote": "La liquidación y el pago del salario se harán puntual y documentalmente en la fecha y lugar convenidos o conforme a los usos y costumbres. El periodo de tiempo a que se refiere el abono de las retribuciones periódicas y regulares no podrá exceder de un mes."
+         }
+        ]
+       },
+       {
+        "afirmacion": "La retribución por la prestación profesional de servicios por cuenta ajena que retribuye el trabajo efectivo ostenta la consideración legal de salario.",
+        "citas": [
+         {
+          "source_id": "BOE:BOE-A-2015-11430:a26:2015-11-13",
+          "verbatim_quote": "Se considerará salario la totalidad de las percepciones económicas de los trabajadores, en dinero o en especie, por la prestación profesional de los servicios laborales por cuenta ajena, ya retribuyan el trabajo efectivo, cualquiera que sea la forma de remuneración, o los periodos de descanso computables como de trabajo."
+         }
+        ]
+       }
+      ],
+      "importe_estimado_eur": null,
+      "fundamento_cuantia": null
+     },
+     {
+      "id": "C2",
+      "enunciado": "Exigibilidad del interés por mora del diez por ciento sobre lo adeudado y entrega del recibo individual de salarios",
+      "tipo": "calificacion_juridica",
+      "estimacion": "DEFENSA",
+      "fundamentos": [
+       {
+        "afirmacion": "La mora en el abono de las retribuciones salariales devenga un interés legal expresamente tasado.",
+        "citas": [
+         {
+          "source_id": "BOE:BOE-A-2015-11430:a29:2015-11-13",
+          "verbatim_quote": "El interés por mora en el pago del salario será el diez por ciento de lo adeudado."
+         }
+        ]
+       },
+       {
+        "afirmacion": "La empresa está obligada legalmente a justificar y documentar el salario entregando al trabajador un recibo individual de pago.",
+        "citas": [
+         {
+          "source_id": "BOE:BOE-A-2015-11430:a29:2015-11-13",
+          "verbatim_quote": "La documentación del salario se realizará mediante la entrega al trabajador de un recibo individual y justificativo del pago del mismo."
+         }
+        ]
+       }
+      ],
+      "importe_estimado_eur": null,
+      "fundamento_cuantia": null
+     }
+    ],
+    "fortalezas": [
+     "La ley califica como salario exigible toda remuneración económica por el trabajo efectivo prestado por cuenta ajena.",
+     "El derecho al interés legal del diez por ciento por la demora empresarial en el abono salarial está taxativamente fijado en la norma."
+    ],
+    "debilidades_contraparte": [],
+    "riesgos_propios": [
+     "Si la empresa acreditara percepciones no salariales o suplidos por gastos, dichas cuantías quedarían excluidas del cómputo salarial.",
+     "No constan aportadas copias de nóminas previas ni la cuantía líquida exacta reclamada."
+    ],
+    "pasos_inmediatos": [
+     "Reúne tu contrato de trabajo y cualquier justificante bancario de cobro de mensualidades anteriores.",
+     "Solicita por escrito formal a la empresa la entrega de los recibos de salarios y el pago de lo adeudado."
+    ],
+    "plazos": [
+     {
+      "tipo_plazo_id": "SOC_CANTIDAD_1A",
+      "descripcion": "Reclamar salarios u otras cantidades del contrato de trabajo",
+      "naturaleza": "prescripcion",
+      "tipo_computo": "anios_fecha_a_fecha",
+      "titular": "usuario",
+      "fecha_inicio": "2026-09-30",
+      "fecha_limite_segura": "2027-09-30",
+      "dia_gracia_hasta": null,
+      "dias_habiles_restantes": null,
+      "festivos_no_verificados": [],
+      "municipio_ine": "41091",
+      "base_legal": "Art. 59.1 y 59.2 ET",
+      "suspensiones": [],
+      "avisos": [
+       "Festivos locales del municipio no cargados para ese año: confirma las 2 fiestas locales en el boletín oficial de la provincia.",
+       "Desde que la cantidad fue exigible. Se interrumpe con reclamación fehaciente o papeleta."
+      ],
+      "validado_juridicamente": false
+     }
+    ],
+    "postulacion": {
+     "requiere_abogado": false,
+     "requiere_procurador": false,
+     "bloquea_escritos": false,
+     "base_legal": "Arts. 18 y 21 LRJS",
+     "texto_usuario": "En la primera instancia social puedes comparecer por ti mismo, aunque es muy recomendable contar con abogado, graduado social o sindicato. Antes de la demanda es obligatoria la papeleta de conciliación (SMAC)."
+    },
+    "avisos": [
+     "Faltan datos tras la aclaración: Indica convenio colectivo aplicable; Indica categoría profesional",
+     "No hay jurisprudencia aplicable en el corpus local: la valoración se apoya solo en la ley. Se ha encolado una búsqueda para ampliar el corpus."
+    ],
+    "guardarrailes": {
+     "G1_schema": true,
+     "G2_G3_citas": true,
+     "G4_sin_pronosticos": true,
+     "G5_nli": true,
+     "G6_banda": true,
+     "G8_plazos": true,
+     "G9_postulacion": true
+    },
+    "afirmaciones": [
+     {
+      "seccion": "respuesta",
+      "texto": "Puedes reclamar formalmente a la empresa el abono íntegro de las dos nóminas debidas junto con el recargo legal por mora en el pago.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2015-11430:a29:2015-11-13",
+        "verbatim_quote": "La liquidación y el pago del salario se harán puntual y documentalmente en la fecha y lugar convenidos o conforme a los usos y costumbres. El periodo de tiempo a que se refiere el abono de las retribuciones periódicas y regulares no podrá exceder de un mes.",
+        "score": 100.0
+       },
+       {
+        "source_id": "BOE:BOE-A-2015-11430:a29:2015-11-13",
+        "verbatim_quote": "El interés por mora en el pago del salario será el diez por ciento de lo adeudado.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "respuesta",
+      "texto": "La empresa tiene el deber de entregarte el recibo individual justificativo del pago de cada mensualidad devengada.",
+      "tipo": "norma",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2015-11430:a29:2015-11-13",
+        "verbatim_quote": "La documentación del salario se realizará mediante la entrega al trabajador de un recibo individual y justificativo del pago del mismo.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "resumen",
+      "texto": "Trabajas en un bar y la empresa te adeuda dos mensualidades de trabajo.",
+      "tipo": "hecho",
+      "citas": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "La ley establece que el pago del sueldo debe realizarse puntualmente sin superar el plazo de un mes.",
+      "tipo": "norma",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2015-11430:a29:2015-11-13",
+        "verbatim_quote": "La liquidación y el pago del salario se harán puntual y documentalmente en la fecha y lugar convenidos o conforme a los usos y costumbres. El periodo de tiempo a que se refiere el abono de las retribuciones periódicas y regulares no podrá exceder de un mes.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "resumen",
+      "texto": "El retraso en el pago de los salarios devenga a tu favor un interés del diez por ciento sobre la cantidad debida.",
+      "tipo": "norma",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2015-11430:a29:2015-11-13",
+        "verbatim_quote": "El interés por mora en el pago del salario será el diez por ciento de lo adeudado.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "resumen",
+      "texto": "No consta el importe monetario concreto de las cantidades mensuales ni el convenio colectivo aplicable.",
+      "tipo": "limite",
+      "citas": []
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "La ley califica como salario exigible toda remuneración económica por el trabajo efectivo prestado por cuenta ajena.",
+      "tipo": "norma",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2015-11430:a26:2015-11-13",
+        "verbatim_quote": "Se considerará salario la totalidad de las percepciones económicas de los trabajadores, en dinero o en especie, por la prestación profesional de los servicios laborales por cuenta ajena, ya retribuyan el trabajo efectivo, cualquiera que sea la forma de remuneración, o los periodos de descanso computables como de trabajo.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "El derecho al interés legal del diez por ciento por la demora empresarial en el abono salarial está taxativamente fijado en la norma.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2015-11430:a29:2015-11-13",
+        "verbatim_quote": "El interés por mora en el pago del salario será el diez por ciento de lo adeudado.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "Si la empresa acreditara percepciones no salariales o suplidos por gastos, dichas cuantías quedarían excluidas del cómputo salarial.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-2015-11430:a26:2015-11-13",
+        "verbatim_quote": "No tendrán la consideración de salario las cantidades percibidas por el trabajador en concepto de indemnizaciones o suplidos por los gastos realizados como consecuencia de su actividad laboral, las prestaciones e indemnizaciones de la Seguridad Social y las indemnizaciones correspondientes a traslados, suspensiones o despidos.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "No constan aportadas copias de nóminas previas ni la cuantía líquida exacta reclamada.",
+      "tipo": "limite",
+      "citas": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Reúne tu contrato de trabajo y cualquier justificante bancario de cobro de mensualidades anteriores.",
+      "tipo": "consejo",
+      "citas": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Solicita por escrito formal a la empresa la entrega de los recibos de salarios y el pago de lo adeudado.",
+      "tipo": "consejo",
+      "citas": []
+     }
+    ],
+    "auditoria": [
+     {
+      "seccion": "respuesta",
+      "texto": "Puedes reclamar formalmente a la empresa el abono íntegro de las dos nóminas debidas junto con el recargo legal por mora en el pago.",
+      "tipo_propuesto": "razonamiento",
+      "resultado": "aceptada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "BOE:BOE-A-2015-11430:a29:2015-11-13",
+       "BOE:BOE-A-2015-11430:a29:2015-11-13"
+      ],
+      "nli": "NEUTRAL",
+      "motivos": []
+     },
+     {
+      "seccion": "respuesta",
+      "texto": "La empresa tiene el deber de entregarte el recibo individual justificativo del pago de cada mensualidad devengada.",
+      "tipo_propuesto": "norma",
+      "resultado": "aceptada",
+      "tipo_final": "norma",
+      "citas_verificadas": [
+       "BOE:BOE-A-2015-11430:a29:2015-11-13"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "Trabajas en un bar y la empresa te adeuda dos mensualidades de trabajo.",
+      "tipo_propuesto": "hecho",
+      "resultado": "aceptada",
+      "tipo_final": "hecho",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "La ley establece que el pago del sueldo debe realizarse puntualmente sin superar el plazo de un mes.",
+      "tipo_propuesto": "norma",
+      "resultado": "aceptada",
+      "tipo_final": "norma",
+      "citas_verificadas": [
+       "BOE:BOE-A-2015-11430:a29:2015-11-13"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "El retraso en el pago de los salarios devenga a tu favor un interés del diez por ciento sobre la cantidad debida.",
+      "tipo_propuesto": "norma",
+      "resultado": "aceptada",
+      "tipo_final": "norma",
+      "citas_verificadas": [
+       "BOE:BOE-A-2015-11430:a29:2015-11-13"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "No consta el importe monetario concreto de las cantidades mensuales ni el convenio colectivo aplicable.",
+      "tipo_propuesto": "limite",
+      "resultado": "aceptada",
+      "tipo_final": "limite",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "La ley califica como salario exigible toda remuneración económica por el trabajo efectivo prestado por cuenta ajena.",
+      "tipo_propuesto": "norma",
+      "resultado": "aceptada",
+      "tipo_final": "norma",
+      "citas_verificadas": [
+       "BOE:BOE-A-2015-11430:a26:2015-11-13"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "El derecho al interés legal del diez por ciento por la demora empresarial en el abono salarial está taxativamente fijado en la norma.",
+      "tipo_propuesto": "razonamiento",
+      "resultado": "aceptada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "BOE:BOE-A-2015-11430:a29:2015-11-13"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "Si la empresa acreditara percepciones no salariales o suplidos por gastos, dichas cuantías quedarían excluidas del cómputo salarial.",
+      "tipo_propuesto": "razonamiento",
+      "resultado": "aceptada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "BOE:BOE-A-2015-11430:a26:2015-11-13"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "No constan aportadas copias de nóminas previas ni la cuantía líquida exacta reclamada.",
+      "tipo_propuesto": "limite",
+      "resultado": "aceptada",
+      "tipo_final": "limite",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Reúne tu contrato de trabajo y cualquier justificante bancario de cobro de mensualidades anteriores.",
+      "tipo_propuesto": "consejo",
+      "resultado": "aceptada",
+      "tipo_final": "consejo",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Solicita por escrito formal a la empresa la entrega de los recibos de salarios y el pago de lo adeudado.",
+      "tipo_propuesto": "consejo",
+      "resultado": "aceptada",
+      "tipo_final": "consejo",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     }
+    ],
+    "respuesta_parcial": false,
+    "hechos_determinantes": [
+     "¿Dispones de contrato de trabajo firmado o extractos bancarios que acrediten el salario mensual percibido habitualmente?"
+    ],
+    "motivos_banda": [],
+    "sello": {
+     "verificado_en": "2026-10-25T20:11:36.225109Z",
+     "fuentes": [
+      {
+       "source_id": "BOE:BOE-A-2015-11430:a26:2015-11-13",
+       "titulo": "Artículo 26 ET",
+       "version": "2015-11-13",
+       "sha256": "8841a371126b99336ad1c276d6c90d3874319f351315b805f1ab121dbec56183",
+       "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2015-11430#a26"
+      },
+      {
+       "source_id": "BOE:BOE-A-2015-11430:a29:2015-11-13",
+       "titulo": "Artículo 29 ET",
+       "version": "2015-11-13",
+       "sha256": "a519603f61786b91e067a3fa5a7e3e6156f7e1232d0f1c3db419b6a80c7e936c",
+       "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2015-11430#a29"
+      }
+     ],
+     "afirmaciones_mostradas": 12,
+     "afirmaciones_eliminadas": 0,
+     "modelos": {
+      "triaje": "gemini-3.8-flash-low",
+      "defensa": "gemini-3.8-flash-medium",
+      "contraparte": "gemini-3.8-flash-medium",
+      "magistrado": "gemini-3.8-flash-medium"
+     }
+    },
+    "aviso_legal": "Desemppa es una herramienta personal de información jurídica y apoyo a la autodefensa. No es asesoramiento profesional ni sustituye a un abogado colegiado. Verifica los plazos y las citas en las fuentes oficiales enlazadas antes de actuar. Si no tienes recursos, puedes solicitar asistencia jurídica gratuita (Ley 1/1996) en el Colegio de Abogados de tu partido judicial.",
+    "generado_en": "2026-10-25T20:11:36.225109Z"
+   },
+   "banda_texto": "Bien fundado en la ley, sin sentencias que lo confirmen"
+  },
+  "mensaje": null,
+  "triage": {
+   "schema_version": "1.0",
+   "consulta_id": "617f1c44-2f49-4ba3-a89c-60fd7bc4b103",
+   "jurisdiccion_principal": "social",
+   "submateria_principal": "SOC_RECLAMACION_CANTIDAD",
+   "ramas": [
+    {
+     "submateria": "SOC_RECLAMACION_CANTIDAD",
+     "jurisdiccion": "social",
+     "peso_enrutamiento": 1.0,
+     "justificacion": "Reclamación de salarios impagados (nóminas adeudadas) correspondiente al orden jurisdiccional social."
+    }
+   ],
+   "grado_ambiguedad": 0.0,
+   "requiere_aclaracion": false,
+   "preguntas_aclaracion": [],
+   "datos_criticos_faltantes": [],
+   "fecha_hechos": "2026-09-30",
+   "municipio_ine_organo": "41091",
+   "vecindad_civil": "comun",
+   "cuantia_estimada_eur": null,
+   "alertas_plazo": [
+    {
+     "tipo_plazo_id": "SOC_CANTIDAD_1A",
+     "fecha_inicio_computo": "2026-09-30",
+     "evento_inicio": "fecha del hecho principal"
+    }
+   ],
+   "normas_boe_objetivo": [
+    {
+     "id_norma": "BOE-A-2015-11430",
+     "articulos": [
+      "26",
+      "29",
+      "35",
+      "49"
+     ],
+     "motivo": "ET"
+    }
+   ],
+   "terminos_cendoj": [
+    "reclamación de cantidad",
+    "impago de salarios",
+    "nóminas debidas",
+    "hostelería"
+   ],
+   "convenio_aplicable": "99010365011900",
+   "competencia_local": false,
+   "resumen_hechos": "El trabajador presta servicios en un establecimiento de hostelería (bar). La empresa le adeuda dos nóminas, siendo la última la correspondiente al mes de septiembre de 2026, con fecha de vencimiento el 30 de septiembre de 2026. El municipio competente es Sevilla."
+  },
+  "fuentes": {
+   "BOE:BOE-A-2015-11430:a26:2015-11-13": {
+    "titulo": "Artículo 26 ET",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2015-11430#a26",
+    "texto": "Artículo 26. Del salario.\n1. Se considerará salario la totalidad de las percepciones económicas de los trabajadores, en dinero o en especie, por la prestación profesional de los servicios laborales por cuenta ajena, ya retribuyan el trabajo efectivo, cualquiera que sea la forma de remuneración, o los periodos de descanso computables como de trabajo.\nEn ningún caso, incluidas las relaciones laborales de carácter especial a que se refiere el artículo 2, el salario en especie podrá superar el treinta por ciento de las percepciones salariales del trabajador, ni dar lugar a la minoración de la cuantía íntegra en dinero del salario mínimo interprofesional.\n2. No tendrán la consideración de salario las cantidades percibidas por el trabajador en concepto de indemnizaciones o suplidos por los gastos realizados como consecuencia de su actividad laboral, las prestaciones e indemnizaciones de la Seguridad Social y las indemnizaciones correspondientes a traslados, suspensiones o despidos.\n3. Mediante la negociación colectiva o, en su defecto, el contrato individual, se determinará la estructura del salario, que deberá comprender el salario base, como retribución fijada por unidad de tiempo o de obra y, en su caso, complementos salariales fijados en función de circunstancias relativas a las condiciones personales del trabajador, al trabajo realizado o a la situación y resultados de la empresa, que se calcularán conforme a los criterios que a tal efecto se pacten. Igualmente se pactará el carácter consolidable o no de dichos complementos salariales, no teniendo el carácter de consolidables, salvo acuerdo en contrario, los que estén vinculados al puesto de trabajo o a la situación y resultados de la empresa.\n4. Todas las cargas fiscales y de Seguridad Social a cargo del trabajador serán satisfechas por el mismo, siendo nulo todo pacto en contrario.\n5. Operará la compensación y absorción cuando los salarios realmente abonados, en su conjunto y cómputo anual, sean más favorables para los trabajadores que los fijados en el orden normativo o convencional de referencia."
+   },
+   "BOE:BOE-A-2015-11430:a29:2015-11-13": {
+    "titulo": "Artículo 29 ET",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2015-11430#a29",
+    "texto": "Artículo 29. Liquidación y pago.\n1. La liquidación y el pago del salario se harán puntual y documentalmente en la fecha y lugar convenidos o conforme a los usos y costumbres. El periodo de tiempo a que se refiere el abono de las retribuciones periódicas y regulares no podrá exceder de un mes.\nEl trabajador y, con su autorización, sus representantes legales, tendrán derecho a percibir, sin que llegue el día señalado para el pago, anticipos a cuenta del trabajo ya realizado.\nLa documentación del salario se realizará mediante la entrega al trabajador de un recibo individual y justificativo del pago del mismo. El recibo de salarios se ajustará al modelo que apruebe el Ministerio de Empleo y Seguridad Social, salvo que por convenio colectivo o, en su defecto, por acuerdo entre la empresa y los representantes de los trabajadores, se establezca otro modelo que contenga con la debida claridad y separación las diferentes percepciones del trabajador, así como las deducciones que legalmente procedan.\nLa liquidación de los salarios que correspondan a quienes presten servicios en trabajos que tengan el carácter de fijos-discontinuos, en los supuestos de conclusión de cada periodo de actividad, se llevará a cabo con sujeción a los trámites y garantías establecidos en el artículo 49.2.\n2. El derecho al salario a comisión nacerá en el momento de realizarse y pagarse el negocio, la colocación o venta en que hubiera intervenido el trabajador, liquidándose y pagándose, salvo que se hubiese pactado otra cosa, al finalizar el año.\nEl trabajador y sus representantes legales pueden pedir en cualquier momento comunicaciones de la parte de los libros referentes a tales devengos.\n3. El interés por mora en el pago del salario será el diez por ciento de lo adeudado.\n4. El salario, así como el pago delegado de las prestaciones de la Seguridad Social, podrá efectuarlo el empresario en moneda de curso legal o mediante cheque u otra modalidad de pago similar a través de entidades de crédito, previo informe al comité de empresa o delegados de personal."
+   }
+  }
+ },
+ "origen": "20261025_1843_eco"
+}

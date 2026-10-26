@@ -11,6 +11,7 @@ Reglas:
 8. Los datos personales aparecen sustituidos por marcadores como [[PERSONA_1]]: no intentes deducirlos.
 9. `convenio_aplicable`: solo en asuntos laborales, el código del convenio colectivo que se aplica al trabajador, elegido EXCLUSIVAMENTE de la lista de convenios disponibles. Si el usuario no indica su sector o convenio, o ninguno de la lista encaja con seguridad, usa null (nunca adivines ni inventes un código).
 10. No preguntes (ni pongas en `datos_criticos_faltantes`) nada de lo que figura en DATOS YA CONOCIDOS: úsalo tal cual. Tampoco preguntes el municipio: si falta, la aplicación lo pide con su propio selector.
+10b. Tipo de cada pregunta: `si_no` SOLO si se contesta con «sí» o «no»; si la pregunta plantea alternativas («¿en mano o por correo?»), usa `opcion` con todas las alternativas en `opciones`; si la respuesta es libre, `texto`. No hagas dos preguntas que pidan lo mismo con otras palabras, ni preguntes lo que ya cuenta la consulta o las ACLARACIONES DEL USUARIO.
 11. `campos_constan`: para cada «campo crítico» de la submateria elegida que SÍ figure en la consulta, devuelve {"campo": "<el campo tal cual aparece en el catálogo>", "cita": "<frase copiada LITERALMENTE de la consulta que lo contiene>"}. Si no hay una frase literal que lo diga, no lo incluyas: la aplicación se lo preguntará al ciudadano. Más vale preguntar que suponer.
 12. Responde SOLO con un objeto JSON con estas claves:
 {

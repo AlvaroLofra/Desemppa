@@ -329,7 +329,8 @@ class ConsultaStore:
         """Historial. Con `origen` solo las de ese origen (lo que ve un invitado); sin él, todas."""
         filtro, params = ("WHERE origen = ?", (origen, limit)) if origen else ("", (limit,))
         rows = self._con.execute(
-            f"""SELECT consulta_id, creado_en, modo_utilizado, estado, consulta_seudonimizada, banda_solidez, origen
+            f"""SELECT consulta_id, creado_en, modo_utilizado, estado, consulta_seudonimizada, banda_solidez, origen,
+                      titulo_cifrado, archivada
                FROM sesiones_consultas {filtro} ORDER BY creado_en DESC LIMIT ?""",
             params,
         ).fetchall()
@@ -339,12 +340,36 @@ class ConsultaStore:
                 "creado_en": r[1],
                 "modo": r[2],
                 "estado": r[3],
-                "titulo": r[4][:90],
+                "titulo": decrypt(r[7])[:90] if r[7] else r[4][:90],
+                "renombrada": r[7] is not None,
+                "archivada": bool(r[8]),
                 "banda": r[5],
                 "invitado": r[6] != "local",
             }
             for r in rows
         ]
+
+    def renombrar(self, consulta_id: str, titulo: str | None) -> None:
+        """Título elegido por el usuario (cifrado). Vacío o None vuelve al texto de la consulta."""
+        valor = encrypt(titulo.strip()[:120]) if titulo and titulo.strip() else None
+        cur = self._con.execute(
+            "UPDATE sesiones_consultas SET titulo_cifrado = ? WHERE consulta_id = ?", (valor, consulta_id)
+        )
+        if cur.rowcount == 0:
+            raise KeyError(consulta_id)
+
+    def archivar(self, consulta_id: str, archivada: bool) -> None:
+        cur = self._con.execute(
+            "UPDATE sesiones_consultas SET archivada = ? WHERE consulta_id = ?", (int(archivada), consulta_id)
+        )
+        if cur.rowcount == 0:
+            raise KeyError(consulta_id)
+
+    def borrar(self, consulta_id: str) -> None:
+        """Borra la consulta con sus eventos y adjuntos (ON DELETE CASCADE). El registro de llamadas a modelos
+        (`llm_calls_ledger`) se conserva para el panel de salud: no contiene texto de la consulta."""
+        if self._con.execute("DELETE FROM sesiones_consultas WHERE consulta_id = ?", (consulta_id,)).rowcount == 0:
+            raise KeyError(consulta_id)
 
     def origen(self, consulta_id: str) -> str:
         row = self._con.execute(

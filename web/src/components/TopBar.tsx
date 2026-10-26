@@ -90,10 +90,11 @@ function ModeMenu({ modo, onModo, permitidos }: { modo: Modo; onModo: (m: Modo) 
   );
 }
 
-export function TopBar({ modo, onModo, onMenu, onAjustes, onAyuda, enAjustes, invitado, permitidos, profesional, onProfesional }: {
+export function TopBar({ modo, onModo, onMenu, onInicio, onAjustes, onAyuda, enAjustes, invitado, permitidos, profesional, onProfesional }: {
   modo: Modo;
   onModo: (m: Modo) => void;
   onMenu: () => void;
+  onInicio: () => void;
   onAjustes: () => void;
   onAyuda: () => void;
   profesional: boolean;
@@ -121,7 +122,10 @@ export function TopBar({ modo, onModo, onMenu, onAjustes, onAyuda, enAjustes, in
       <button className="icon-btn" onClick={onMenu} aria-label="Mostrar u ocultar el historial">
         <Menu className="h-5 w-5" />
       </button>
-      <span className="ml-1 text-[22px] font-normal tracking-tight text-ink">Desemppa</span>
+      <button className="ml-1 rounded-lg px-1 text-[22px] font-normal tracking-tight text-ink hover:bg-surface-2"
+              onClick={onInicio} aria-label="Desemppa: ir al inicio" title="Ir al inicio">
+        Desemppa
+      </button>
       <div className="ml-auto flex items-center gap-1">
         {!enAjustes && permitidos.length > 1 && <ModeMenu modo={modo} onModo={onModo} permitidos={permitidos} />}
         {!enAjustes && permitidos.length === 1 && (

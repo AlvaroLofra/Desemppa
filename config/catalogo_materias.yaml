@@ -33,7 +33,8 @@ submaterias:
     jurisdiccion: social
     procedimiento: cantidad
     normas: [{norma: ET, articulos: ["1", "8"]}, {norma: LETA, articulos: ["1", "11"]}]
-    campos_criticos: ["¿quién fija el horario?", "¿con qué medios trabajas?", "% de facturación a ese cliente", "¿te han dado de baja o despedido?"]
+    campos_criticos: ["¿quién fija el horario?", "¿con qué medios trabajas?", "% de facturación a ese cliente", "¿te han dado de baja o despedido?", "fecha de la baja o del despido (si lo hubo)"]
+    opciones_campos: {"¿quién fija el horario?": ["La empresa o el cliente", "Yo mismo", "Lo acordamos entre los dos"], "¿te han dado de baja o despedido?": ["Me han dado de baja", "Me han despedido", "Ninguna de las dos: sigo trabajando"]}
     plazos: [SOC_DESPIDO_CADUCIDAD, SOC_CANTIDAD_1A]
     terminos_cendoj: ["laboralidad falso autónomo dependencia ajenidad"]
     ambigua: true
@@ -42,7 +43,7 @@ submaterias:
     jurisdiccion: social
     procedimiento: cantidad
     normas: [{norma: ET, articulos: ["26", "29", "35", "49"]}]
-    campos_criticos: ["meses o conceptos adeudados", "convenio colectivo aplicable", "categoría profesional"]
+    campos_criticos: ["fecha en que debías cobrar el primer pago que no te han hecho", "meses o conceptos adeudados", "convenio colectivo aplicable", "categoría profesional"]
     plazos: [SOC_CANTIDAD_1A]
     terminos_cendoj: ["reclamación de cantidad salarios adeudados"]
   SOC_SANCION:
@@ -67,6 +68,7 @@ submaterias:
     procedimiento: verbal
     normas: [{norma: LAU, articulos: ["9", "10", "18"]}, {norma: LVIVIENDA, articulos: ["17"]}]
     campos_criticos: ["fecha del contrato", "¿es tu vivienda habitual?", "¿el casero es persona física o empresa?", "municipio"]
+    opciones_campos: {"¿el casero es persona física o empresa?": ["Persona física (un particular)", "Empresa o persona jurídica"]}
     plazos: []
     terminos_cendoj: ["prórroga obligatoria arrendamiento vivienda"]
   CIV_DANOS_VECINO:
@@ -89,6 +91,7 @@ submaterias:
     procedimiento: ordinario
     normas: [{norma: LPH, articulos: ["17", "18"]}]
     campos_criticos: ["fecha del acuerdo o de su notificación", "¿estás al corriente de pago?", "¿es contrario a la ley o los estatutos?"]
+    opciones_campos: {"¿es contrario a la ley o los estatutos?": ["A la ley", "A los estatutos", "A las dos cosas", "A ninguna de las dos"]}
     plazos: [CIV_LPH_IMPUGNA_3M, CIV_LPH_IMPUGNA_1A]
     terminos_cendoj: ["impugnación acuerdo junta propietarios"]
   CIV_CONSUMO_BANCARIO:
@@ -106,6 +109,7 @@ submaterias:
     procedimiento: verbal
     normas: [{norma: TRLGDCU, articulos: ["114", "117", "118", "119", "120"]}]
     campos_criticos: ["fecha de compra o entrega", "¿se lo compraste a un comercio o a un particular?"]
+    opciones_campos: {"¿se lo compraste a un comercio o a un particular?": ["A un comercio o empresa", "A un particular"]}
     plazos: [CIV_CONTRACTUAL_5A]
     terminos_cendoj: ["falta de conformidad garantía consumidor"]
   ADM_TRAFICO_ORA:
@@ -114,6 +118,7 @@ submaterias:
     procedimiento: multa_trafico
     normas: [{norma: LSV, articulos: ["93", "94", "95", "96"]}, {norma: LPAC, articulos: ["30", "124"]}]
     campos_criticos: ["fecha de notificación", "municipio", "¿te la entregaron en mano o por correo?", "¿ya está pagada?"]
+    opciones_campos: {"¿te la entregaron en mano o por correo?": ["En mano", "Por correo postal", "Por notificación electrónica"]}
     # La reposición (art. 96.2 LTSV) cuenta desde la notificación de la RESOLUCIÓN, no de la denuncia: no se calcula
     # aquí porque solo conocemos la fecha de la denuncia (verificado en el BOE el 24-10-2026).
     plazos: [ADM_TRAFICO_ALEGACIONES_20N]
@@ -143,6 +148,7 @@ submaterias:
     procedimiento: reposicion
     normas: [{norma: TRLRHL, articulos: ["104", "107", "110"]}]
     campos_criticos: ["fechas y valores de compra y venta", "¿autoliquidación o liquidación del ayuntamiento?"]
+    opciones_campos: {"¿autoliquidación o liquidación del ayuntamiento?": ["Autoliquidación (la presenté yo)", "Liquidación que me envió el ayuntamiento"]}
     plazos: [ADM_REPOSICION_1M]
     terminos_cendoj: ["IIVTNU inexistencia incremento valor"]
     doctrina_cambiante: true
@@ -151,7 +157,7 @@ submaterias:
     jurisdiccion: civil
     procedimiento: ejecucion
     normas: [{norma: LEC, articulos: ["776", "517", "549"]}, {norma: CC, articulos: ["142", "146"]}]
-    campos_criticos: ["resolución que fija la pensión", "meses impagados"]
+    campos_criticos: ["fecha de la sentencia o resolución que fija la pensión", "meses impagados"]
     plazos: [CIV_EJECUCION_5A]
     terminos_cendoj: ["ejecución pensión alimentos impago"]
     foral_relevante: true

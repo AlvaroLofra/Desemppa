@@ -231,3 +231,34 @@ class CendojRepository:
 
     def count(self) -> int:
         return int(self._con.execute("SELECT count(*) FROM cendoj_sentencias").fetchone()[0])
+
+    def resumen(self, terminos_por_submateria: dict[str, list[str]]) -> dict[str, object]:
+        """Para el asistente de importación: cuántas sentencias hay por jurisdicción, las últimas importadas y,
+        por submateria, cuántas contienen alguno de sus términos de búsqueda (FTS5 sobre fundamentos y fallo)."""
+        por_jur = dict(
+            self._con.execute("SELECT jurisdiccion, count(*) FROM cendoj_sentencias GROUP BY jurisdiccion").fetchall()
+        )
+        ultimas = [
+            {"roj": r[0], "tribunal": r[1], "fecha": r[2], "jurisdiccion": r[3]}
+            for r in self._con.execute(
+                """SELECT roj_id, tribunal, fecha_resolucion, jurisdiccion FROM cendoj_sentencias
+                   ORDER BY id DESC LIMIT 8"""
+            ).fetchall()
+        ]
+        por_sub: dict[str, int] = {}
+        for clave, terminos in terminos_por_submateria.items():
+            # Cada término cuenta si aparecen todas sus palabras (no necesariamente seguidas).
+            grupos = [" AND ".join(f'"{w}"' for w in re.findall(r"\w+", t) if len(w) > 2) for t in terminos]
+            consulta = " OR ".join(f"({g})" for g in grupos if g)
+            if not consulta:
+                por_sub[clave] = 0
+                continue
+            try:
+                por_sub[clave] = int(
+                    self._con.execute(
+                        "SELECT count(*) FROM cendoj_fts WHERE cendoj_fts MATCH ?", (consulta,)
+                    ).fetchone()[0]
+                )
+            except sqlite3.OperationalError:
+                por_sub[clave] = 0
+        return {"total": self.count(), "por_jurisdiccion": por_jur, "ultimas": ultimas, "por_submateria": por_sub}

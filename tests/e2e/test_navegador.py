@@ -190,12 +190,45 @@ def test_biblioteca_guardar_y_usar_en_una_consulta(page, server: Server, tmp_pat
     doc = tmp_path / "sentencia.txt"
     doc.write_text("SENTENCIA. El arrendatario no responde del desgaste por el uso ordinario de la vivienda.", "utf-8")
     page.get_by_role("button", name="Biblioteca", exact=True).click()
-    page.locator("input[type=file]").set_input_files(str(doc))
+    page.get_by_label("Añadir documentos a la biblioteca").set_input_files(str(doc))
     page.get_by_text("sentencia.txt").wait_for()
     page.get_by_role("button", name="Nueva consulta").click()
     page.get_by_role("button", name="Añadir desde tu biblioteca").click()
     page.get_by_role("menuitem", name="sentencia.txt").click()
     page.get_by_role("button", name="Quitar sentencia.txt").wait_for()  # ya es un adjunto de la consulta
+
+
+def test_solidez_logo_e_historial_renombrar_archivar_borrar(page, server: Server) -> None:  # type: ignore[no-untyped-def]
+    _abrir(page, server)
+    _consultar_y_esperar_dictamen(page)
+    page.get_by_label("Solidez de tu posición").wait_for()
+    # El logo vuelve a la pantalla principal
+    page.get_by_role("button", name="Desemppa: ir al inicio").click()
+    page.get_by_role("heading", name="¿En qué te puedo ayudar?").wait_for()
+    historial = page.get_by_role("complementary", name="Historial")
+    # Renombrar
+    historial.get_by_role("button", name="Opciones de").first.click()
+    page.get_by_role("menuitem", name="Renombrar").click()
+    page.get_by_label("Nuevo nombre del caso").fill("Fianza del piso")
+    page.keyboard.press("Enter")
+    historial.get_by_role("button", name="Fianza del piso", exact=True).wait_for()
+    # Archivar: pasa a la sección plegable «Archivadas»
+    historial.get_by_role("button", name="Opciones de «Fianza del piso»").click()
+    page.get_by_role("menuitem", name="Archivar").click()
+    historial.get_by_role("button", name="Archivadas (1)").click()
+    # Eliminar, con confirmación
+    historial.get_by_role("button", name="Opciones de «Fianza del piso»").click()
+    page.get_by_role("menuitem", name="Eliminar").click()
+    page.get_by_role("button", name="Eliminar", exact=True).click()
+    page.get_by_text("Aún no hay consultas.").wait_for()
+
+
+def test_ajustes_modos_en_un_desplegable(page, server: Server) -> None:  # type: ignore[no-untyped-def]
+    _abrir(page, server)
+    page.get_by_role("button", name="Ajustes").click()
+    page.get_by_label("Modo que quieres configurar").select_option("pro")
+    page.get_by_label("Magistrado en modo Pro", exact=True).wait_for()
+    assert page.get_by_label("Magistrado en modo Eco", exact=True).count() == 0
 
 
 def test_comparar_dos_consultas(page, server: Server) -> None:  # type: ignore[no-untyped-def]

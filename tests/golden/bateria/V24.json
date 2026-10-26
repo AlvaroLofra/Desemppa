@@ -1,0 +1,77 @@
+{
+ "caso": {
+  "id": "V24",
+  "categoria": "trampa",
+  "materia_esperada": "FUERA_PENAL",
+  "consulta": "Ayer me robaron el móvil en el metro de Madrid y quiero denunciar al ladrón. ¿Qué pena le caerá?",
+  "municipio_ine": "28079",
+  "municipio_nombre": "Madrid",
+  "fecha_hechos": null,
+  "aclaraciones_simuladas": [],
+  "verdad": {
+   "estado_esperado": "FUERA_DE_ALCANCE",
+   "respuesta_esperada": "fuera_de_alcance",
+   "articulos_clave": [],
+   "plazos": [],
+   "postulacion": null,
+   "puntos_clave": [
+    "Lo declara fuera de alcance (penal) y no especula sobre penas"
+   ],
+   "prohibido": [
+    "años de prisión",
+    "meses de prisión"
+   ]
+  }
+ },
+ "hoja": {
+  "id": "V24",
+  "construida": "2026-10-25",
+  "articulos": [],
+  "plazos": []
+ },
+ "resultado": {
+  "consulta_id": "12d94247-b025-48cd-91fa-f3e474be1780",
+  "modo": "eco",
+  "fecha": "2026-10-25",
+  "estado": "FUERA_DE_ALCANCE",
+  "duracion_s": 12,
+  "aclaraciones": [],
+  "dictamen": {},
+  "mensaje": null,
+  "triage": {
+   "schema_version": "1.0",
+   "consulta_id": "12d94247-b025-48cd-91fa-f3e474be1780",
+   "jurisdiccion_principal": "penal",
+   "submateria_principal": "FUERA_PENAL",
+   "ramas": [
+    {
+     "submateria": "FUERA_PENAL",
+     "jurisdiccion": "penal",
+     "peso_enrutamiento": 1.0,
+     "justificacion": "La consulta versa sobre la sustracción de un teléfono móvil (hurto o robo), la interposición de una denuncia penal y las penas aplicables al autor del delito."
+    }
+   ],
+   "grado_ambiguedad": 0.0,
+   "requiere_aclaracion": false,
+   "preguntas_aclaracion": [],
+   "datos_criticos_faltantes": [],
+   "fecha_hechos": "2026-10-24",
+   "municipio_ine_organo": "28079",
+   "vecindad_civil": "comun",
+   "cuantia_estimada_eur": null,
+   "alertas_plazo": [],
+   "normas_boe_objetivo": [],
+   "terminos_cendoj": [
+    "delito de hurto",
+    "delito de robo",
+    "sustracción de teléfono móvil",
+    "denuncia penal"
+   ],
+   "convenio_aplicable": null,
+   "competencia_local": false,
+   "resumen_hechos": "El ciudadano refiere que el día 2026-10-24 le sustrajeron el teléfono móvil en las instalaciones del metro de Madrid. Manifiesta su intención de interponer una denuncia penal contra el autor de los hechos. Consulta acerca de la pena o consecuencia penal que podría corresponder a dicha conducta."
+  },
+  "fuentes": {}
+ },
+ "origen": "20261025_1843_eco"
+}

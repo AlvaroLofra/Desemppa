@@ -1,0 +1,566 @@
+{
+ "caso": {
+  "id": "V17",
+  "categoria": "limite",
+  "materia_esperada": "CIV_DANOS_VECINO",
+  "consulta": "Vivo en Madrid. El 10 de junio de 2024 el piso de arriba me inundó el baño por la rotura de una tubería suya. La reparación cuesta 2.400 euros. Su aseguradora dice que ha prescrito porque ha pasado más de un año. ¿Es así?",
+  "municipio_ine": "28079",
+  "municipio_nombre": "Madrid",
+  "fecha_hechos": "2024-06-10",
+  "aclaraciones_simuladas": [],
+  "verdad": {
+   "estado_esperado": "CERTIFICADA",
+   "respuesta_esperada": "depende",
+   "articulos_clave": [
+    {
+     "norma": "CC",
+     "articulo": "1902"
+    }
+   ],
+   "plazos": [
+    {
+     "tipo": "CIV_EXTRACONTRACTUAL_1A",
+     "inicio": "2024-06-10",
+     "municipio_ine": "28079"
+    }
+   ],
+   "postulacion": {
+    "jurisdiccion": "civil",
+    "procedimiento": "verbal",
+    "cuantia_eur": 2400
+   },
+   "puntos_clave": [
+    "Con el Código Civil el plazo es de un año (art. 1968.2 CC, calculado por el motor)",
+    "La respuesta no puede afirmar sin más que no ha prescrito"
+   ],
+   "prohibido": [
+    "tres años"
+   ]
+  }
+ },
+ "hoja": {
+  "id": "V17",
+  "construida": "2026-10-25",
+  "articulos": [
+   {
+    "norma": "CC",
+    "articulo": "1902",
+    "source_id": "BOE:BOE-A-1889-4763:art1902:1889-08-16",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-1889-4763#art1902",
+    "version": "1889-08-16",
+    "sha256": "49a7547d7adaf1f4a78969194a578485c591db90e6f5b134cf389f0e9e4f4d56",
+    "texto": "Artículo 1902.\nEl que por acción u omisión causa daño a otro, interviniendo culpa o negligencia, está obligado a reparar el daño causado."
+   }
+  ],
+  "plazos": [
+   {
+    "tipo": "CIV_EXTRACONTRACTUAL_1A",
+    "inicio": "2024-06-10",
+    "fecha_limite_segura": "2025-06-10",
+    "base_legal": "Art. 1968.2 CC"
+   }
+  ],
+  "postulacion": {
+   "requiere_abogado": true,
+   "requiere_procurador": true,
+   "base_legal": "Arts. 23 y 31 LEC; arts. 5 y 10 LO 1/2025"
+  }
+ },
+ "resultado": {
+  "consulta_id": "151c309a-25c0-485b-8fc2-79f58146f453",
+  "modo": "eco",
+  "fecha": "2026-10-25",
+  "estado": "CERTIFICADA",
+  "duracion_s": 367,
+  "aclaraciones": [
+   {
+    "pregunta": "¿La tubería causante de la rotura es privativa de la vivienda superior o comunitaria?",
+    "respuesta": "No lo sé"
+   },
+   {
+    "pregunta": "¿Se ha determinado técnicamente si la tubería averiada pertenece a la vivienda superior o a la comunidad?",
+    "respuesta": "No lo sé"
+   }
+  ],
+  "dictamen": {
+   "estado": "CERTIFICADA",
+   "dictamen": {
+    "schema_version": "1.0",
+    "consulta_id": "151c309a-25c0-485b-8fc2-79f58146f453",
+    "modo": "eco",
+    "modelos_usados": {
+     "triaje": "gemini-3.8-flash-low",
+     "defensa": "gemini-3.8-flash-medium",
+     "contraparte": "gemini-3.8-flash-medium",
+     "magistrado": "gemini-3.8-flash-medium"
+    },
+    "banda_solidez": "riesgo_probatorio_alto",
+    "respuesta_directa": "Las fuentes del dossier no resuelven si la reclamación ha prescrito al no contener normas sobre plazos de prescripción. Quien causa daño a otro con culpa o negligencia tiene la obligación de reparar el daño causado.",
+    "resumen_ciudadano": "Sufrió una inundación en el baño el 10 de junio de 2024 procedente del piso superior con un coste de reparación de 2.400 euros. Cada propietario está obligado a conservar sus instalaciones privativas y reparar los daños ocasionados por su descuido a los demás titulares. No consta en las fuentes del dossier regulación sobre plazos de prescripción para valorar el rechazo de la aseguradora.",
+    "fundamentos": [
+     {
+      "texto": "El que por acción u omisión causa daño a otro interviniendo culpa o negligencia está obligado a reparar el daño causado.",
+      "source_id": "BOE:BOE-A-1889-4763:art1902:1889-08-16",
+      "verbatim_quote": "El que por acción u omisión causa daño a otro, interviniendo culpa o negligencia, está obligado a reparar el daño causado.",
+      "fuzzy_score": 100.0,
+      "nli": "ENTAILS",
+      "offsets": [
+       15,
+       137
+      ]
+     },
+     {
+      "texto": "El propietario debe mantener en buen estado de conservación sus instalaciones privativas y resarcir los daños que ocasione por su descuido.",
+      "source_id": "BOE:BOE-A-1960-10906:anoveno:2022-06-16",
+      "verbatim_quote": "Mantener en buen estado de conservación su propio piso o local e instalaciones privativas, en términos que no perjudiquen a la comunidad o a los otros propietarios, resarciendo los daños que ocasione por su descuido o el de las personas por quienes deba responder.",
+      "fuzzy_score": 100.0,
+      "nli": "ENTAILS",
+      "offsets": [
+       357,
+       621
+      ]
+     }
+    ],
+    "cuestiones": [
+     {
+      "id": "C1",
+      "enunciado": "Responsabilidad por los daños causados en el baño por la rotura de la tubería e indemnización",
+      "tipo": "calificacion_juridica",
+      "estimacion": "DEFENSA",
+      "fundamentos": [
+       {
+        "afirmacion": "El que por acción u omisión causa daño a otro interviniendo culpa o negligencia está obligado a reparar el daño causado.",
+        "citas": [
+         {
+          "source_id": "BOE:BOE-A-1889-4763:art1902:1889-08-16",
+          "verbatim_quote": "El que por acción u omisión causa daño a otro, interviniendo culpa o negligencia, está obligado a reparar el daño causado."
+         }
+        ]
+       },
+       {
+        "afirmacion": "El propietario debe mantener en buen estado de conservación sus instalaciones privativas y resarcir los daños que ocasione por su descuido.",
+        "citas": [
+         {
+          "source_id": "BOE:BOE-A-1960-10906:anoveno:2022-06-16",
+          "verbatim_quote": "Mantener en buen estado de conservación su propio piso o local e instalaciones privativas, en términos que no perjudiquen a la comunidad o a los otros propietarios, resarciendo los daños que ocasione por su descuido o el de las personas por quienes deba responder."
+         }
+        ]
+       }
+      ],
+      "importe_estimado_eur": null,
+      "fundamento_cuantia": null
+     },
+     {
+      "id": "C2",
+      "enunciado": "Prescripción de la acción indemnizatoria alegada por la aseguradora",
+      "tipo": "plazo",
+      "estimacion": "DEFENSA",
+      "fundamentos": [
+       {
+        "afirmacion": "En las fuentes normativas aportadas no consta regulación sobre plazos de prescripción extintiva de la obligación de reparar el daño.",
+        "citas": [
+         {
+          "source_id": "BOE:BOE-A-1889-4763:art1902:1889-08-16",
+          "verbatim_quote": "El que por acción u omisión causa daño a otro, interviniendo culpa o negligencia, está obligado a reparar el daño causado."
+         }
+        ]
+       }
+      ],
+      "importe_estimado_eur": null,
+      "fundamento_cuantia": null
+     }
+    ],
+    "fortalezas": [
+     "La ley impone la obligación de reparar el daño a quien lo causa por acción u omisión interviniendo culpa o negligencia.",
+     "El propietario debe observar la diligencia debida en el uso del inmueble y responder de los daños causados a otros titulares."
+    ],
+    "debilidades_contraparte": [],
+    "riesgos_propios": [
+     "Si se demostrara que la tubería causante de la avería no es privativa sino general o comunitaria, la responsabilidad no correspondería al propietario del piso superior.",
+     "No consta en las fuentes aportadas la determinación técnica sobre el carácter privativo o comunitario del elemento que causó la fuga."
+    ],
+    "pasos_inmediatos": [
+     "Solicite un informe técnico o dictamen que determine el origen y la titularidad de la tubería averiada.",
+     "Conserve las fotografías y los justificantes o presupuestos de la reparación del baño."
+    ],
+    "plazos": [
+     {
+      "tipo_plazo_id": "CIV_EXTRACONTRACTUAL_1A",
+      "descripcion": "Reclamar daños extracontractuales (derecho común)",
+      "naturaleza": "prescripcion",
+      "tipo_computo": "anios_fecha_a_fecha",
+      "titular": "usuario",
+      "fecha_inicio": "2024-06-10",
+      "fecha_limite_segura": "2025-06-10",
+      "dia_gracia_hasta": null,
+      "dias_habiles_restantes": null,
+      "festivos_no_verificados": [],
+      "municipio_ine": "28079",
+      "base_legal": "Art. 1968.2 CC",
+      "suspensiones": [],
+      "avisos": [
+       "Festivos locales del municipio no cargados para ese año: confirma las 2 fiestas locales en el boletín oficial de la provincia."
+      ],
+      "validado_juridicamente": false
+     }
+    ],
+    "postulacion": {
+     "requiere_abogado": true,
+     "requiere_procurador": true,
+     "bloquea_escritos": true,
+     "base_legal": "Arts. 23 y 31 LEC; arts. 5 y 10 LO 1/2025",
+     "texto_usuario": "Este asunto supera los 2.000 €: la ley exige abogado y procurador. La herramienta te informa, pero no redactará escritos para el juzgado. Antes de demandar, la LO 1/2025 (art. 5) exige haber intentado negociar (mediación, conciliación, oferta vinculante confidencial o negociación directa entre las partes) y poder acreditarlo por escrito (art. 10): basta un documento firmado por ambas partes o, en su defecto, uno que pruebe que la otra parte recibió tu invitación o propuesta para negociar y pudo leerla entera (p. ej., burofax con certificación de contenido). Si no contesta en 30 días naturales desde que la recibe, el intento se da por terminado sin acuerdo."
+    },
+    "avisos": [
+     "Faltan datos tras la aclaración: Indica origen (elemento privativo o común)",
+     "Artículo 5 (BOE-A-2025-76): el precepto no estaba en vigor el 10/06/2024.",
+     "Artículo 10 (BOE-A-2025-76): el precepto no estaba en vigor el 10/06/2024.",
+     "No hay jurisprudencia aplicable en el corpus local: la valoración se apoya solo en la ley. Se ha encolado una búsqueda para ampliar el corpus."
+    ],
+    "guardarrailes": {
+     "G1_schema": true,
+     "G2_G3_citas": true,
+     "G4_sin_pronosticos": true,
+     "G5_nli": true,
+     "G6_banda": true,
+     "G8_plazos": true,
+     "G9_postulacion": true
+    },
+    "afirmaciones": [
+     {
+      "seccion": "respuesta",
+      "texto": "Las fuentes del dossier no resuelven si la reclamación ha prescrito al no contener normas sobre plazos de prescripción.",
+      "tipo": "limite",
+      "citas": []
+     },
+     {
+      "seccion": "respuesta",
+      "texto": "Quien causa daño a otro con culpa o negligencia tiene la obligación de reparar el daño causado.",
+      "tipo": "norma",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-1889-4763:art1902:1889-08-16",
+        "verbatim_quote": "El que por acción u omisión causa daño a otro, interviniendo culpa o negligencia, está obligado a reparar el daño causado.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "resumen",
+      "texto": "Sufrió una inundación en el baño el 10 de junio de 2024 procedente del piso superior con un coste de reparación de 2.400 euros.",
+      "tipo": "hecho",
+      "citas": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "Cada propietario está obligado a conservar sus instalaciones privativas y reparar los daños ocasionados por su descuido a los demás titulares.",
+      "tipo": "norma",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-1960-10906:anoveno:2022-06-16",
+        "verbatim_quote": "Mantener en buen estado de conservación su propio piso o local e instalaciones privativas, en términos que no perjudiquen a la comunidad o a los otros propietarios, resarciendo los daños que ocasione por su descuido o el de las personas por quienes deba responder.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "resumen",
+      "texto": "No consta en las fuentes del dossier regulación sobre plazos de prescripción para valorar el rechazo de la aseguradora.",
+      "tipo": "limite",
+      "citas": []
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "La ley impone la obligación de reparar el daño a quien lo causa por acción u omisión interviniendo culpa o negligencia.",
+      "tipo": "norma",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-1889-4763:art1902:1889-08-16",
+        "verbatim_quote": "El que por acción u omisión causa daño a otro, interviniendo culpa o negligencia, está obligado a reparar el daño causado.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "El propietario debe observar la diligencia debida en el uso del inmueble y responder de los daños causados a otros titulares.",
+      "tipo": "norma",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-1960-10906:anoveno:2022-06-16",
+        "verbatim_quote": "Observar la diligencia debida en el uso del inmueble y en sus relaciones con los demás titulares y responder ante éstos de las infracciones cometidas y de los daños causados.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "Si se demostrara que la tubería causante de la avería no es privativa sino general o comunitaria, la responsabilidad no correspondería al propietario del piso superior.",
+      "tipo": "razonamiento",
+      "citas": [
+       {
+        "source_id": "BOE:BOE-A-1960-10906:anoveno:2022-06-16",
+        "verbatim_quote": "Mantener en buen estado de conservación su propio piso o local e instalaciones privativas, en términos que no perjudiquen a la comunidad o a los otros propietarios, resarciendo los daños que ocasione por su descuido o el de las personas por quienes deba responder.",
+        "score": 100.0
+       }
+      ]
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "No consta en las fuentes aportadas la determinación técnica sobre el carácter privativo o comunitario del elemento que causó la fuga.",
+      "tipo": "limite",
+      "citas": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Solicite un informe técnico o dictamen que determine el origen y la titularidad de la tubería averiada.",
+      "tipo": "consejo",
+      "citas": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Conserve las fotografías y los justificantes o presupuestos de la reparación del baño.",
+      "tipo": "consejo",
+      "citas": []
+     }
+    ],
+    "auditoria": [
+     {
+      "seccion": "respuesta",
+      "texto": "Las fuentes del dossier no resuelven si la reclamación ha prescrito al no contener normas sobre plazos de prescripción.",
+      "tipo_propuesto": "limite",
+      "resultado": "aceptada",
+      "tipo_final": "limite",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     },
+     {
+      "seccion": "respuesta",
+      "texto": "Quien causa daño a otro con culpa o negligencia tiene la obligación de reparar el daño causado.",
+      "tipo_propuesto": "norma",
+      "resultado": "aceptada",
+      "tipo_final": "norma",
+      "citas_verificadas": [
+       "BOE:BOE-A-1889-4763:art1902:1889-08-16"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "Sufrió una inundación en el baño el 10 de junio de 2024 procedente del piso superior con un coste de reparación de 2.400 euros.",
+      "tipo_propuesto": "hecho",
+      "resultado": "aceptada",
+      "tipo_final": "hecho",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "Cada propietario está obligado a conservar sus instalaciones privativas y reparar los daños ocasionados por su descuido a los demás titulares.",
+      "tipo_propuesto": "norma",
+      "resultado": "aceptada",
+      "tipo_final": "norma",
+      "citas_verificadas": [
+       "BOE:BOE-A-1960-10906:anoveno:2022-06-16"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "resumen",
+      "texto": "No consta en las fuentes del dossier regulación sobre plazos de prescripción para valorar el rechazo de la aseguradora.",
+      "tipo_propuesto": "limite",
+      "resultado": "aceptada",
+      "tipo_final": "limite",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "La ley impone la obligación de reparar el daño a quien lo causa por acción u omisión interviniendo culpa o negligencia.",
+      "tipo_propuesto": "norma",
+      "resultado": "aceptada",
+      "tipo_final": "norma",
+      "citas_verificadas": [
+       "BOE:BOE-A-1889-4763:art1902:1889-08-16"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "fortaleza",
+      "texto": "El propietario debe observar la diligencia debida en el uso del inmueble y responder de los daños causados a otros titulares.",
+      "tipo_propuesto": "norma",
+      "resultado": "aceptada",
+      "tipo_final": "norma",
+      "citas_verificadas": [
+       "BOE:BOE-A-1960-10906:anoveno:2022-06-16"
+      ],
+      "nli": "ENTAILS",
+      "motivos": []
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "Si se demostrara que la tubería causante de la avería no es privativa sino general o comunitaria, la responsabilidad no correspondería al propietario del piso superior.",
+      "tipo_propuesto": "razonamiento",
+      "resultado": "aceptada",
+      "tipo_final": "razonamiento",
+      "citas_verificadas": [
+       "BOE:BOE-A-1960-10906:anoveno:2022-06-16"
+      ],
+      "nli": "NEUTRAL",
+      "motivos": []
+     },
+     {
+      "seccion": "riesgo",
+      "texto": "No consta en las fuentes aportadas la determinación técnica sobre el carácter privativo o comunitario del elemento que causó la fuga.",
+      "tipo_propuesto": "limite",
+      "resultado": "aceptada",
+      "tipo_final": "limite",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Solicite un informe técnico o dictamen que determine el origen y la titularidad de la tubería averiada.",
+      "tipo_propuesto": "consejo",
+      "resultado": "aceptada",
+      "tipo_final": "consejo",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     },
+     {
+      "seccion": "paso",
+      "texto": "Conserve las fotografías y los justificantes o presupuestos de la reparación del baño.",
+      "tipo_propuesto": "consejo",
+      "resultado": "aceptada",
+      "tipo_final": "consejo",
+      "citas_verificadas": [],
+      "nli": null,
+      "motivos": []
+     }
+    ],
+    "respuesta_parcial": false,
+    "hechos_determinantes": [
+     "¿Dispone de fotografías o documentos que acrediten el estado del baño tras la inundación?"
+    ],
+    "motivos_banda": [],
+    "sello": {
+     "verificado_en": "2026-10-25T21:21:49.877764Z",
+     "fuentes": [
+      {
+       "source_id": "BOE:BOE-A-1889-4763:art1902:1889-08-16",
+       "titulo": "Art 1902 CC",
+       "version": "1889-08-16",
+       "sha256": "49a7547d7adaf1f4a78969194a578485c591db90e6f5b134cf389f0e9e4f4d56",
+       "url": "https://www.boe.es/buscar/act.php?id=BOE-A-1889-4763#art1902"
+      },
+      {
+       "source_id": "BOE:BOE-A-1960-10906:anoveno:2022-06-16",
+       "titulo": "Artículo noveno LPH",
+       "version": "2022-06-16",
+       "sha256": "49f9a8cdb5fbffb54de7b0ac890f7672097a33c0d7487c8b9d6c76b60d5eb00a",
+       "url": "https://www.boe.es/buscar/act.php?id=BOE-A-1960-10906#anoveno"
+      }
+     ],
+     "afirmaciones_mostradas": 11,
+     "afirmaciones_eliminadas": 0,
+     "modelos": {
+      "triaje": "gemini-3.8-flash-low",
+      "defensa": "gemini-3.8-flash-medium",
+      "contraparte": "gemini-3.8-flash-medium",
+      "magistrado": "gemini-3.8-flash-medium"
+     }
+    },
+    "aviso_legal": "Desemppa es una herramienta personal de información jurídica y apoyo a la autodefensa. No es asesoramiento profesional ni sustituye a un abogado colegiado. Verifica los plazos y las citas en las fuentes oficiales enlazadas antes de actuar. Si no tienes recursos, puedes solicitar asistencia jurídica gratuita (Ley 1/1996) en el Colegio de Abogados de tu partido judicial.",
+    "generado_en": "2026-10-25T21:21:49.877764Z"
+   },
+   "banda_texto": "Depende de lo que puedas demostrar"
+  },
+  "mensaje": null,
+  "triage": {
+   "schema_version": "1.0",
+   "consulta_id": "151c309a-25c0-485b-8fc2-79f58146f453",
+   "jurisdiccion_principal": "civil",
+   "submateria_principal": "CIV_DANOS_VECINO",
+   "ramas": [
+    {
+     "submateria": "CIV_DANOS_VECINO",
+     "jurisdiccion": "civil",
+     "peso_enrutamiento": 1.0,
+     "justificacion": "Reclamación de daños extracontractuales derivados de inundación y filtraciones de agua entre viviendas colindantes o comunidad de propietarios."
+    }
+   ],
+   "grado_ambiguedad": 0.0,
+   "requiere_aclaracion": false,
+   "preguntas_aclaracion": [],
+   "datos_criticos_faltantes": [],
+   "fecha_hechos": "2024-06-10",
+   "municipio_ine_organo": "28079",
+   "vecindad_civil": "comun",
+   "cuantia_estimada_eur": 2400.0,
+   "alertas_plazo": [
+    {
+     "tipo_plazo_id": "CIV_EXTRACONTRACTUAL_1A",
+     "fecha_inicio_computo": "2024-06-10",
+     "evento_inicio": "fecha del daño"
+    }
+   ],
+   "normas_boe_objetivo": [
+    {
+     "id_norma": "BOE-A-1889-4763",
+     "articulos": [
+      "1902",
+      "1907",
+      "1910"
+     ],
+     "motivo": "CC"
+    },
+    {
+     "id_norma": "BOE-A-1960-10906",
+     "articulos": [
+      "9"
+     ],
+     "motivo": "LPH"
+    },
+    {
+     "id_norma": "BOE-A-2025-76",
+     "articulos": [
+      "5",
+      "10"
+     ],
+     "motivo": "LOEFICIENCIA"
+    }
+   ],
+   "terminos_cendoj": [
+    "responsabilidad extracontractual",
+    "daños por agua",
+    "filtraciones tubería",
+    "prescripción anual artículo 1968",
+    "seguro de hogar"
+   ],
+   "convenio_aplicable": null,
+   "competencia_local": false,
+   "resumen_hechos": "El ciudadano reside en Madrid y sufrió una inundación en el baño el 10 de junio de 2024 originada por la rotura de una tubería en el piso superior. El coste presupuestado o peritado de la reparación de los daños asciende a 2.400 euros. La compañía aseguradora del causante rechaza asumir el siniestro alegando la prescripción de la acción por transcurso de más de un año. El usuario desconoce si técnicamente la tubería afectada es de carácter privativo o comunitario."
+  },
+  "fuentes": {
+   "BOE:BOE-A-1889-4763:art1902:1889-08-16": {
+    "titulo": "Art 1902 CC",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-1889-4763#art1902",
+    "texto": "Artículo 1902.\nEl que por acción u omisión causa daño a otro, interviniendo culpa o negligencia, está obligado a reparar el daño causado."
+   },
+   "BOE:BOE-A-1960-10906:anoveno:2022-06-16": {
+    "titulo": "Artículo noveno LPH",
+    "url": "https://www.boe.es/buscar/act.php?id=BOE-A-1960-10906#anoveno",
+    "texto": "Artículo noveno.\n1. Son obligaciones de cada propietario:\na) Respetar las instalaciones generales de la comunidad y demás elementos comunes, ya sean de uso general o privativo de cualquiera de los propietarios, estén o no incluidos en su piso o local, haciendo un uso adecuado de los mismos y evitando en todo momento que se causen daños o desperfectos.\nb) Mantener en buen estado de conservación su propio piso o local e instalaciones privativas, en términos que no perjudiquen a la comunidad o a los otros propietarios, resarciendo los daños que ocasione por su descuido o el de las personas por quienes deba responder.\nc) Consentir en su vivienda o local las reparaciones que exija el servicio del inmueble y permitir en él las servidumbres imprescindibles requeridas para la realización de obras, actuaciones o la creación de servicios comunes llevadas a cabo o acordadas conforme a lo establecido en la presente Ley, teniendo derecho a que la comunidad le resarza de los daños y perjuicios ocasionados.\nd) Permitir la entrada en su piso o local a los efectos prevenidos en los tres apartados anteriores.\ne) Contribuir, con arreglo a la cuota de participación fijada en el título o a lo especialmente establecido, a los gastos generales para el adecuado sostenimiento del inmueble, sus servicios, cargas y responsabilidades que no sean susceptibles de individualización.\nLos créditos a favor de la comunidad derivados de la obligación de contribuir al sostenimiento de los gastos generales correspondientes a las cuotas imputables a la parte vencida de la anualidad en curso y los tres años anteriores tienen la condición de preferentes a efectos del artículo 1.923 del Código Civil y preceden, para su satisfacción, a los citados en los números 3.º, 4.º y 5.º de dicho precepto, sin perjuicio de la preferencia establecida a favor de los créditos salariales en el texto refundido de la Ley del Estatuto de los Trabajadores, aprobado por el Real Decreto Legislativo 1/1995, de 24 de marzo.\nEl adquirente de una vivienda o local en régimen de propiedad horizontal, incluso con título inscrito en el Registro de la Propiedad, responde con el propio inmueble adquirido de las cantidades adeudadas a la comunidad de propietarios para el sostenimiento de los gastos generales por los anteriores titulares hasta el límite de los que resulten imputables a la parte vencida de la anualidad en la cual tenga lugar la adquisición y a los tres años naturales anteriores. El piso o local estará legalmente afecto al cumplimiento de esta obligación.\nEn el instrumento público mediante el que se transmita, por cualquier título, la vivienda o local el transmitente, deberá declarar hallarse al corriente en el pago de los gastos generales de la comunidad de propietarios o expresar los que adeude. El transmitente deberá aportar en este momento certificación sobre el estado de deudas con la comunidad coincidente con su declaración, sin la cual no podrá autorizarse el otorgamiento del documento público, salvo que fuese expresamente exonerado de esta obligación por el adquirente. La certificación será emitida en el plazo máximo de siete días naturales desde su solicitud por quien ejerza las funciones de secretario, con el visto bueno del presidente, quienes responderán, en caso de culpa o negligencia, de la exactitud de los datos consignados en la misma y de los perjuicios causados por el retraso en su emisión.\nf) Contribuir, con arreglo a su respectiva cuota de participación, a la dotación del fondo de reserva que existirá en la comunidad de propietarios para atender las obras de conservación, de reparación y de rehabilitación de la finca, la realización de las obras de accesibilidad recogidas en el artículo diez.1.b) de esta ley, así como la realización de las obras de accesibilidad y eficiencia energética recogidas en el artículo diecisiete.2 de esta ley.\nEl fondo de reserva, cuya titularidad corresponde a todos los efectos a la comunidad, estará dotado con una cantidad que en ningún caso podrá ser inferior al 10 por ciento de su último presupuesto ordinario.\nCon cargo al fondo de reserva la comunidad podrá suscribir un contrato de seguro que cubra los daños causados en la finca o bien concluir un contrato de mantenimiento permanente del inmueble y sus instalaciones generales.\ng) Observar la diligencia debida en el uso del inmueble y en sus relaciones con los demás titulares y responder ante éstos de las infracciones cometidas y de los daños causados.\nh) Comunicar a quien ejerza las funciones de secretario de la comunidad, por cualquier medio que permita tener constancia de su recepción, el domicilio en España a efectos de citaciones y notificaciones de toda índole relacionadas con la comunidad. En defecto de esta comunicación se tendrá por domicilio para citaciones y notificaciones el piso o local perteneciente a la comunidad, surtiendo plenos efectos jurídicos las entregadas al ocupante del mismo.\nSi intentada una citación o notificación al propietario fuese imposible practicarla en el lugar prevenido en el párrafo anterior, se entenderá realizada mediante la colocación de la comunicación correspondiente en el tablón de anuncios de la comunidad, o en lugar visible de uso general habilitado al efecto, con diligencia expresiva de la fecha y motivos por los que se procede a esta forma de notificación, firmada por quien ejerza las funciones de secretario de la comunidad, con el visto bueno del presidente. La notificación practicada de esta forma producirá plenos efectos jurídicos en el plazo de tres días naturales.\ni) Comunicar a quien ejerza las funciones de secretario de la comunidad, por cualquier medio que permita tener constancia de su recepción, el cambio de titularidad de la vivienda o local.\nQuien incumpliere esta obligación seguirá respondiendo de las deudas con la comunidad devengadas con posterioridad a la transmisión de forma solidaria con el nuevo titular, sin perjuicio del derecho de aquél a repetir sobre éste.\nLo dispuesto en el párra"
+   }
+  }
+ },
+ "origen": "20261025_1843_eco"
+}

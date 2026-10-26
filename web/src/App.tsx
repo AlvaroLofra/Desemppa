@@ -75,11 +75,12 @@ export default function App() {
   const alternarLateral = () => setLateral((v) => { guardar("iuris-lateral", v ? "0" : "1"); return !v; });
   const cerrarLateralEnMovil = () => window.innerWidth < 768 && setLateral(false);
   const abrirFuente: AbrirFuente = (sourceId, quote) => setFuente({ sourceId, quote });
-  const enviar = async (texto: string, municipio: string | null, adjuntos: string[]) => {
+  // El municipio no se pide al empezar: se deduce del relato o se pregunta solo si hace falta (plazos, foral).
+  const enviar = async (texto: string, adjuntos: string[]) => {
     setFuente(null);
     pedirPermisoNotificaciones();
     marcarEnVivo();
-    await nueva(texto, modo, municipio, adjuntos);
+    await nueva(texto, modo, null, adjuntos);
     setRefresco((r) => r + 1);
   };
 
@@ -185,6 +186,7 @@ export default function App() {
           <Sidebar abierta={lateral} actual={vista === "consulta" ? state.id : null} refresco={refresco + (state.final ? 1 : 0)} vista={vista}
                    onAbrir={(id) => { irA("consulta"); void abrir(id); }}
                    onNueva={() => { irA("consulta"); limpiar(); }}
+                   onBorrada={(id) => { if (state.id === id) { irA("consulta"); limpiar(); } }}
                    onBiblioteca={invitado ? undefined : () => irA("biblioteca")}
                    onComparar={() => irA("comparar")} />
         )}
@@ -216,6 +218,7 @@ export default function App() {
             </header>
           ) : (
             <TopBar modo={modo} onModo={cambiarModo} onMenu={alternarLateral} enAjustes={vista === "ajustes"}
+                    onInicio={() => { irA("consulta"); limpiar(); }}
                     invitado={invitado} permitidos={sesion.modos_permitidos.filter((m) => m !== "auditoria")}
                     onAyuda={() => setAyuda(true)} profesional={profesional}
                     onProfesional={() => setProfesional((v) => { guardar("iuris-profesional", v ? "0" : "1"); return !v; })}
