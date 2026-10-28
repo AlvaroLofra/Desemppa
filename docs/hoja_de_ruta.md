@@ -22,6 +22,22 @@ Detalle en [informe_revision_2026-10-24.md](informe_revision_2026-10-24.md) (§6
 | 9 | «Restablecer» de Modos ya no borra modelos ni proveedores; TOML con escape correcto | ✅ |
 | 10 | Rediseño visual (propuesta R0–R4) | ✅ primera versión, a ajustar |
 
+## 🎯 Cobertura general verificada + interfaz (plan del 28-10-2026)
+
+Objetivo: [vision.md](vision.md). Cada fase es una sesión quirúrgica y cierra con el checklist de `CLAUDE.md` §3.5.
+
+| Fase | Qué | Estado |
+|---|---|---|
+| 0 | Visión documentada (`docs/vision.md`, `CLAUDE.md`/`GEMINI.md` §1 y regla 2a) | ✅ |
+| 1 | Fallos de la sesión de Argon: numerales del BOE («noveno bis», «diez Objeto»), quitar el plazo penal de 1 año de las submaterias `PEN_*` (art. 131.1 CP: solo leves e injurias/calumnias), rescate léxico con ≥ 2 pistas, `fuente.cita` literal en cada plazo + `scripts/verificar_plazos.py` | ✅ 28-10 |
+| 2a | Cliente BOE: `buscar_normas` (catálogo consolidado, vigentes, estatal o CCAA del usuario), `texto_completo` (`/id/{id}/texto`) y caché de todos los bloques para FTS5 | ⏳ |
+| 2b | Triaje con `busquedas_boe` + `conceptos` (sin ids ni artículos); ingesta `_descubrir_normas`: BM25 en las leyes encontradas → el LLM elige ≤ 8 artículos de esa lista cerrada; sin norma verificable → mensaje fijo; 5 casos nuevos en la batería | ⏳ |
+| 3a | `DESIGN.md`, solidez con icono + texto, teclado/foco en fuentes y aclaraciones, e2e axe y movimiento reducido ([plan_ui_ux.md](plan_ui_ux.md) fases 1–2) | ✅ 28-10 |
+| 3b | Cabecera veredicto + plazo más urgente y monitor de proceso con eventos reales, incluidas las leyes descubiertas ([plan_ui_ux.md](plan_ui_ux.md) fases 3–4) | ⏳ |
+
+Dependencias: 2a/2b después de 1 (tocan `connectors/boe_client.py` y `core/orchestrator.py`); 3a es independiente;
+3b después de 2b.
+
 ## 🔜 Qué queda por hacer (para tu uso personal, a tu ritmo)
 
 ### Paso 1 · Verificar en vivo y activar sesión de Claude Code (5 min)

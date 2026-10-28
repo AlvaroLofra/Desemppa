@@ -173,9 +173,213 @@ submaterias:
     # Texto oficial desde Cellar/EUR-Lex (Diario Oficial, no consolidado), verificado el 24-10-2026.
     normas_ue: [{celex: "32004R0261", titulo: "Reglamento (CE) 261/2004", articulos: ["5", "7", "8"]}]
     notas: "El Reglamento (CE) 261/2004 se cita con su texto publicado en el Diario Oficial de la UE. La jurisprudencia del Tribunal de Justicia de la UE sobre «circunstancias extraordinarias» no está en el corpus local: compruébala antes de reclamar."
-  FUERA_PENAL:
-    descripcion: "Delitos, denuncias penales, impago de pensiones como delito"
+  CIV_LAU_DESAHUCIO_IMPAGO:
+    descripcion: "Impago de alquiler, desahucio, obras o incumplimiento del contrato de arrendamiento"
+    jurisdiccion: civil
+    procedimiento: verbal
+    normas: [{norma: LAU, articulos: ["21", "22", "23", "27"]}, {norma: LEC, articulos: ["250", "439", "440"]}]
+    campos_criticos: ["fecha del primer impago o incumplimiento", "renta mensual o importe adeudado", "¿eres el inquilino o el propietario?"]
+    opciones_campos: {"¿eres el inquilino o el propietario?": ["Soy el inquilino (arrendatario)", "Soy el propietario (arrendador)"]}
+    plazos: [CIV_CONTRACTUAL_5A]
+    terminos_cendoj: ["desahucio falta de pago enervación obras arrendamiento"]
+  CIV_COMPRAVENTA_ARRAS_VICIOS:
+    descripcion: "Compraventa de vivienda o vehículo, contrato de arras, defectos de construcción o vicios ocultos"
+    jurisdiccion: civil
+    procedimiento: ordinario
+    normas: [{norma: CC, articulos: ["1124", "1454", "1461", "1484", "1485", "1486", "1490"]}, {norma: LOE, articulos: ["17", "18"]}]
+    campos_criticos: ["fecha de entrega o de firma del contrato", "importe abonado o precio de venta", "defecto o incumplimiento detectado"]
+    plazos: [CIV_VICIOS_OCULTOS_6M, CIV_CONTRACTUAL_5A]
+    terminos_cendoj: ["arras penitenciales resolución compraventa vicios ocultos"]
+  CIV_DEUDAS_CONTRATOS_MONITORIO:
+    descripcion: "Reclamación de deudas, facturas impagadas, préstamos o incumplimiento de contratos y reformas"
+    jurisdiccion: civil
+    procedimiento: monitorio
+    normas: [{norma: CC, articulos: ["1091", "1101", "1124", "1544"]}, {norma: LEC, articulos: ["812", "814", "815"]}]
+    campos_criticos: ["fecha en que venció la deuda o se incumplió el contrato", "importe reclamado", "documento que acredita la deuda (factura, contrato, mensajes)"]
+    plazos: [CIV_CONTRACTUAL_5A]
+    terminos_cendoj: ["incumplimiento contractual reclamación de cantidad monitorio"]
+  CIV_SEGUROS_TRAFICO:
+    descripcion: "El seguro (hogar, coche, salud, vida) no cubre un siniestro o indemnización por accidente de tráfico"
+    jurisdiccion: civil
+    procedimiento: verbal
+    normas: [{norma: LCS, articulos: ["18", "20", "23", "38"]}, {norma: LRCSCVM, articulos: ["1", "7"]}, {norma: CC, articulos: ["1902"]}]
+    campos_criticos: ["fecha del siniestro o accidente", "tipo de seguro o accidente", "motivo por el que la aseguradora rechaza el pago"]
+    plazos: [CIV_EXTRACONTRACTUAL_1A, CIV_CONTRACTUAL_5A]
+    terminos_cendoj: ["contrato de seguro cláusula limitativa intereses artículo 20 LCS"]
+  CIV_FAMILIA_DIVORCIO_CUSTODIA:
+    descripcion: "Divorcio, separación, custodia de hijos, régimen de visitas, vivienda familiar o modificación de medidas"
+    jurisdiccion: civil
+    procedimiento: verbal
+    normas: [{norma: CC, articulos: ["90", "91", "92", "93", "96", "97"]}, {norma: LEC, articulos: ["770", "775"]}]
+    normas_forales:
+      CT:
+        quita: []
+        anade: [{norma: CCCAT_L2, articulos: ["233-1", "233-8"]}]
+    campos_criticos: ["¿hay hijos menores o dependientes?", "¿existe ya convenio regulador o sentencia previa?"]
+    plazos: []
+    terminos_cendoj: ["guarda y custodia compartida interés superior del menor vivienda familiar"]
+    foral_relevante: true
+  CIV_HERENCIAS_SUCESIONES:
+    descripcion: "Herencias, testamentos, legítima, desheredación, renuncia o reparto de bienes entre herederos"
+    jurisdiccion: civil
+    procedimiento: ordinario
+    normas: [{norma: CC, articulos: ["657", "806", "807", "808", "988", "1051", "1068"]}]
+    normas_forales:
+      CT:
+        quita: []
+        anade: [{norma: CCCAT_L4, articulos: ["451-1", "451-5"]}]
+    campos_criticos: ["fecha de fallecimiento del causante", "¿hay testamento?", "vecindad civil o comunidad autónoma del fallecido"]
+    plazos: []
+    terminos_cendoj: ["partición hereditaria legítima aceptación herencia"]
+    foral_relevante: true
+  CIV_CONSUMO_DESISTIMIENTO_SUMINISTROS:
+    descripcion: "Compras online, derecho de desistimiento (14 días), facturas de luz/gas/telefonía o préstamos al consumo"
+    jurisdiccion: civil
+    procedimiento: verbal
+    normas: [{norma: TRLGDCU, articulos: ["62", "68", "102", "103", "104", "107"]}, {norma: LCCC, articulos: ["16", "28", "29"]}]
+    campos_criticos: ["fecha de compra, entrega o cargo", "importe reclamado", "¿has presentado reclamación previa a la empresa?"]
+    plazos: [CIV_CONTRACTUAL_5A]
+    terminos_cendoj: ["derecho de desistimiento consumidor contrato a distancia"]
+  CIV_DATOS_MOROSOS_HONOR:
+    descripcion: "Inclusión indebida en ficheros de morosos (ASNEF), vulneración de protección de datos o derecho al honor"
+    jurisdiccion: civil
+    procedimiento: ordinario
+    normas: [{norma: LOPDGDD, articulos: ["12", "15", "16", "20"]}, {norma: CC, articulos: ["1902"]}]
+    campos_criticos: ["fecha en que conociste la inclusión o vulneración", "empresa que incluyó tus datos", "¿la deuda era cierta, vencida y exigible y te requirieron antes de pago?"]
+    plazos: [CIV_CONTRACTUAL_5A]
+    terminos_cendoj: ["inclusión indebida fichero morosos vulneración derecho al honor"]
+  CIV_MERCANTIL_SOCIETARIO_CONCURSAL:
+    descripcion: "Problemas entre socios, responsabilidad de administradores, insolvencia o Ley de Segunda Oportunidad"
+    jurisdiccion: civil
+    procedimiento: ordinario
+    normas: [{norma: LSC, articulos: ["204", "236", "363", "367"]}, {norma: TRLC, articulos: ["486", "487"]}, {norma: LCD, articulos: ["4", "18"]}]
+    campos_criticos: ["fecha del acuerdo o de la situación de insolvencia", "importe de las deudas o del perjuicio"]
+    plazos: [CIV_CONTRACTUAL_5A]
+    terminos_cendoj: ["exoneración pasivo insatisfecho responsabilidad administradores"]
+  SOC_MODIFICACION_MOVILIDAD:
+    descripcion: "La empresa me cambia el horario, turno, sueldo, funciones o centro de trabajo (modificación sustancial o traslado)"
+    jurisdiccion: social
+    procedimiento: modificacion_sustancial
+    normas: [{norma: ET, articulos: ["39", "40", "41", "50"]}, {norma: LRJS, articulos: ["138"]}]
+    campos_criticos: ["fecha en que te notificaron el cambio", "en qué consiste el cambio (horario, salario, funciones, centro)", "convenio colectivo aplicable"]
+    plazos: [SOC_MODIFICACION_20H]
+    terminos_cendoj: ["modificación sustancial condiciones de trabajo artículo 41 ET"]
+  SOC_CONCILIACION_EXCEDENCIA:
+    descripcion: "Reducción o adaptación de jornada por cuidado, permisos retribuidos, maternidad/paternidad o excedencia"
+    jurisdiccion: social
+    procedimiento: conciliacion_vida_familiar
+    normas: [{norma: ET, articulos: ["34", "37", "46", "48"]}, {norma: LRJS, articulos: ["139"]}]
+    campos_criticos: ["fecha de tu solicitud o de la negativa de la empresa", "tipo de permiso, reducción o excedencia solicitada"]
+    plazos: [SOC_VACACIONES_20H]
+    terminos_cendoj: ["adaptación de jornada artículo 34.8 ET excedencia reingreso"]
+  SOC_BAJA_VOLUNTARIA_EXTINCION:
+    descripcion: "Baja voluntaria, dimisión, preaviso, período de prueba, pacto de no competencia o autodespido por impagos"
+    jurisdiccion: social
+    procedimiento: despido
+    normas: [{norma: ET, articulos: ["14", "21", "49", "50"]}, {norma: LRJS, articulos: ["103"]}, {norma: LIRPF, articulos: ["7"]}]
+    campos_criticos: ["fecha de la baja o del hecho", "antigüedad y tipo de contrato", "convenio colectivo aplicable"]
+    plazos: [SOC_DESPIDO_CADUCIDAD, SOC_CANTIDAD_1A]
+    terminos_cendoj: ["extinción indemnizada artículo 50 ET dimisión preaviso"]
+  SOC_ACOSO_PRL:
+    descripcion: "Acoso laboral (mobbing), discriminación en el trabajo o incumplimiento de prevención de riesgos laborales"
+    jurisdiccion: social
+    procedimiento: tutela_derechos_fundamentales
+    normas: [{norma: ET, articulos: ["4", "19", "50"]}, {norma: LPRL, articulos: ["14", "15"]}, {norma: L15_2022, articulos: ["2", "6"]}]
+    campos_criticos: ["fecha de los hechos más recientes", "pruebas disponibles (correos, testigos, partes médicos)"]
+    plazos: [SOC_CANTIDAD_1A]
+    terminos_cendoj: ["acoso laboral vulneración derechos fundamentales prevención riesgos"]
+  SOC_SEGURIDAD_SOCIAL_PRESTACIONES:
+    descripcion: "Prestaciones de Seguridad Social o SEPE: paro/desempleo, alta médica, incapacidad permanente o jubilación"
+    jurisdiccion: social
+    procedimiento: seguridad_social
+    normas: [{norma: LGSS, articulos: ["169", "170", "193", "267"]}, {norma: LRJS, articulos: ["71"]}]
+    campos_criticos: ["fecha de notificación de la resolución del INSS o SEPE", "prestación solicitada o impugnada"]
+    plazos: [SOC_RECLAMACION_PREVIA_SS_30H]
+    terminos_cendoj: ["incapacidad permanente prestación desempleo reclamación previa"]
+  ADM_RESPONSABILIDAD_PATRIMONIAL:
+    descripcion: "Daños causados por la Administración (caída en vía pública, servicios públicos o negligencia médica pública)"
+    jurisdiccion: administrativa_previa
+    procedimiento: responsabilidad_patrimonial
+    normas: [{norma: LRJSP, articulos: ["32", "34"]}, {norma: LPAC, articulos: ["67", "91"]}]
+    campos_criticos: ["fecha del accidente, daño o alta médica de las lesiones", "administración responsable", "pruebas del daño y de su relación con el servicio público"]
+    plazos: [ADM_RESP_PATRIMONIAL_1A]
+    terminos_cendoj: ["responsabilidad patrimonial administración caída vía pública nexo causal"]
+  ADM_RECURSOS_SILENCIO_GENERAL:
+    descripcion: "Recursos administrativos (alzada, reposición), silencio administrativo, licencias, becas, subvenciones o sanciones"
+    jurisdiccion: administrativa_previa
+    procedimiento: alzada
+    normas: [{norma: LPAC, articulos: ["21", "24", "30", "112", "121", "122", "123", "124"]}, {norma: LJCA, articulos: ["25", "46"]}]
+    campos_criticos: ["fecha de notificación de la resolución o de presentación de tu solicitud", "organismo que dictó o debía dictar el acto"]
+    plazos: [ADM_ALZADA_1M, ADM_REPOSICION_1M, CA_RECURSO_2M]
+    terminos_cendoj: ["recurso de alzada silencio administrativo acto presunto"]
+  ADM_EXTRANJERIA_FUNCION_PUBLICA:
+    descripcion: "Extranjería (residencia, arraigo, expulsión) o empleados públicos y funcionarios (oposiciones, permisos, sanciones)"
+    jurisdiccion: administrativa_previa
+    procedimiento: alzada
+    normas: [{norma: LOEX, articulos: ["31", "53", "57"]}, {norma: TREBEP, articulos: ["48", "49", "89", "95"]}, {norma: LPAC, articulos: ["30", "121", "124"]}]
+    campos_criticos: ["fecha de notificación de la resolución", "trámite o procedimiento afectado"]
+    plazos: [ADM_ALZADA_1M, ADM_REPOSICION_1M, CA_RECURSO_2M]
+    terminos_cendoj: ["autorización residencia arraigo estatuto básico empleado público"]
+  PEN_ESTAFAS_PATRIMONIO:
+    descripcion: "Estafas (compras online, phishing bancario), apropiación indebida, robo, hurto o daños en propiedad"
     jurisdiccion: penal
+    procedimiento: penal
+    normas: [{norma: CP, articulos: ["131", "234", "237", "248", "249", "263"]}, {norma: LECRIM, articulos: ["118", "259", "262", "264", "265"]}]
+    campos_criticos: ["fecha en que ocurrieron los hechos", "importe defraudado o valor de lo sustraído", "¿has presentado ya denuncia ante la Policía, Guardia Civil o el juzgado?"]
+    plazos: []  # la prescripción depende de la pena del delito (art. 131.1 CP): no se calcula
+    terminos_cendoj: ["delito de estafa engaño bastante phishing apropiación indebida"]
+  PEN_AMENAZAS_LESIONES_HONOR:
+    descripcion: "Amenazas, coacciones, lesiones, agresiones, acoso, injurias o calumnias"
+    jurisdiccion: penal
+    procedimiento: penal
+    normas: [{norma: CP, articulos: ["131", "147", "169", "171", "172", "205", "208"]}, {norma: LECRIM, articulos: ["118", "259", "270", "962"]}]
+    campos_criticos: ["fecha en que ocurrieron los hechos", "¿existe parte médico de lesiones, mensajes o testigos?"]
+    plazos: []  # la prescripción depende de la pena del delito (art. 131.1 CP): no se calcula
+    terminos_cendoj: ["delito de lesiones amenazas coacciones delito leve"]
+  PEN_SEGURIDAD_VIAL_ALCOHOLEMIA:
+    descripcion: "Delitos contra la seguridad vial: alcoholemia penal, exceso de velocidad punible o conducción sin permiso"
+    jurisdiccion: penal
+    procedimiento: penal
+    normas: [{norma: CP, articulos: ["131", "379"]}, {norma: LECRIM, articulos: ["118", "767", "962"]}]
+    campos_criticos: ["fecha del control o citación judicial", "tasa de alcohol o hecho imputado"]
+    plazos: []  # la prescripción depende de la pena del delito (art. 131.1 CP): no se calcula
+    terminos_cendoj: ["delito contra la seguridad vial alcoholemia juicio rápido"]
+  CIV_GENERAL:
+    descripcion: "Otras consultas de Derecho civil, mercantil, contratos, propiedad, consumo, familia o sucesiones"
+    jurisdiccion: civil
+    procedimiento: ordinario
+    normas: [{norma: CC, articulos: ["1091", "1101", "1124", "1902", "1964", "1968"]}, {norma: LEC, articulos: ["250", "812"]}, {norma: TRLGDCU, articulos: ["82"]}]
+    campos_criticos: ["fecha de los hechos", "cuantía económica aproximada (si la hay)"]
+    plazos: [CIV_CONTRACTUAL_5A, CIV_EXTRACONTRACTUAL_1A]
+    terminos_cendoj: ["responsabilidad contractual extracontractual obligaciones"]
+  SOC_GENERAL:
+    descripcion: "Otras consultas de Derecho laboral, contrato de trabajo, convenio colectivo o Seguridad Social"
+    jurisdiccion: social
+    procedimiento: cantidad
+    normas: [{norma: ET, articulos: ["4", "26", "49", "54", "59"]}, {norma: LRJS, articulos: ["63", "103"]}, {norma: LGSS, articulos: ["169"]}]
+    campos_criticos: ["fecha del hecho laboral o de la notificación", "convenio colectivo o sector de la empresa"]
+    plazos: [SOC_CANTIDAD_1A, SOC_DESPIDO_CADUCIDAD]
+    terminos_cendoj: ["relación laboral derechos trabajador estatuto trabajadores"]
+  ADM_GENERAL:
+    descripcion: "Otras consultas de Derecho administrativo, tributario, licencias, sanciones o contencioso-administrativo"
+    jurisdiccion: administrativa_previa
+    procedimiento: alzada
+    normas: [{norma: LPAC, articulos: ["21", "24", "30", "112", "121", "124"]}, {norma: LRJSP, articulos: ["32"]}, {norma: LGT, articulos: ["101", "223"]}, {norma: LJCA, articulos: ["46"]}]
+    campos_criticos: ["fecha de notificación del acto o de presentación de la solicitud", "administración u organismo implicado"]
+    plazos: [ADM_ALZADA_1M, ADM_REPOSICION_1M, CA_RECURSO_2M]
+    terminos_cendoj: ["procedimiento administrativo común recurso administrativo"]
+  PEN_GENERAL:
+    descripcion: "Otras consultas de Derecho penal, denuncias, delitos o procedimiento penal"
+    jurisdiccion: penal
+    procedimiento: penal
+    normas: [{norma: CP, articulos: ["131", "147", "234", "248"]}, {norma: LECRIM, articulos: ["118", "259", "264", "767"]}]
+    campos_criticos: ["fecha de los hechos", "¿eres el perjudicado que quiere denunciar o la persona denunciada?"]
+    opciones_campos: {"¿eres el perjudicado que quiere denunciar o la persona denunciada?": ["Soy el perjudicado / quiero denunciar", "Soy la persona denunciada o investigada"]}
+    plazos: []  # la prescripción depende de la pena del delito (art. 131.1 CP): no se calcula
+    terminos_cendoj: ["denuncia prescripción delito tutela judicial efectiva"]
+  FUERA_PENAL:
+    descripcion: "Consulta no jurídica o fuera del ámbito del Derecho"
+    jurisdiccion: fuera_alcance
     procedimiento: penal
     normas: []
     campos_criticos: []

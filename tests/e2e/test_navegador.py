@@ -264,6 +264,57 @@ def test_axe_sin_errores_graves_en_inicio_y_dictamen(page, server: Server) -> No
     assert _axe(page) == []
 
 
+def test_teclado_y_axe_con_el_panel_de_fuentes_abierto(page, server: Server) -> None:  # type: ignore[no-untyped-def]
+    _abrir(page, server)
+    _consultar_y_esperar_dictamen(page)
+    # Solidez: el nivel se dice con icono y texto, no solo con color.
+    solidez = page.get_by_label("Solidez de tu posición")
+    assert solidez.locator("p svg").count() == 1
+    assert solidez.get_by_role("img").get_attribute("aria-label") in {f"Nivel {n} de 5" for n in range(1, 6)} | {
+        "Sin valorar"
+    }
+    # Abrir una fuente con el teclado: el foco entra en el panel y Esc lo devuelve a la cita.
+    cita = page.get_by_role("button", name="Ver fuente 1:").first
+    cita.focus()
+    page.keyboard.press("Enter")
+    panel = page.get_by_role("complementary", name="Fuente oficial:")
+    panel.wait_for()
+    assert page.evaluate("document.activeElement.tagName") == "ASIDE"
+    assert _axe(page) == []
+    page.keyboard.press("Escape")
+    panel.wait_for(state="detached")
+    assert page.evaluate("document.activeElement.getAttribute('aria-label') || ''").startswith("Ver fuente 1:")
+
+
+def test_debate_en_pestanas_con_flechas(page, server: Server) -> None:  # type: ignore[no-untyped-def]
+    _abrir(page, server)
+    _consultar_y_esperar_dictamen(page)
+    plegable = page.get_by_role("button", name="Ver cómo se ha analizado")
+    if plegable.get_attribute("aria-expanded") != "true":  # abierto de serie si la consulta se siguió en directo
+        plegable.click()
+    assert plegable.get_attribute("aria-controls")
+    activa = page.get_by_role("tab", selected=True)
+    activa.focus()
+    assert activa.get_attribute("tabindex") == "0"
+    page.keyboard.press("ArrowRight")
+    nueva = page.get_by_role("tab", selected=True)
+    assert nueva.inner_text() != "Magistrado"
+    assert page.evaluate("document.activeElement.getAttribute('role')") == "tab"
+    panel = page.get_by_role("tabpanel")
+    assert panel.get_attribute("aria-labelledby") == nueva.get_attribute("id")
+
+
+def test_movimiento_reducido_desactiva_animaciones(page, server: Server) -> None:  # type: ignore[no-untyped-def]
+    page.emulate_media(reduced_motion="reduce")
+    _abrir(page, server)
+    duraciones = page.evaluate(
+        """() => ['animate-spin', 'fade-in'].map((c) => {
+            const el = document.createElement('div'); el.className = c; document.body.appendChild(el);
+            const d = getComputedStyle(el).animationDuration; el.remove(); return d; })"""
+    )
+    assert all(float(d.removesuffix("s")) < 0.01 for d in duraciones), duraciones
+
+
 def test_lighthouse_accesibilidad_y_buenas_practicas(server: Server, tmp_path: Path) -> None:
     cli = ROOT / "web" / "node_modules" / "lighthouse" / "cli" / "index.js"
     node = shutil.which("node")

@@ -809,3 +809,122 @@ def test_toda_materia_con_plazo_pregunta_una_fecha_concreta():
     for clave, sub in submaterias().items():
         if sub.plazos:
             assert any("fecha" in c.lower() for c in sub.campos_criticos), clave
+
+
+def test_ninguna_submateria_penal_calcula_plazo_de_prescripcion():
+    # El plazo de prescripción depende de la pena máxima del delito (art. 131.1 CP), que el sistema no puede fijar
+    # sin el LLM: se informa con la cita literal en la hoja de ruta, nunca como fecha límite calculada.
+    for clave, sub in submaterias().items():
+        if clave.startswith("PEN_"):
+            assert sub.plazos == [], clave
+
+
+async def test_consulta_elaborada_sin_submateria_exacta_usa_fallback_jurisdiccion(services):
+    from core.orchestrator import _Run
+
+    triaje = {
+        **TRIAJE_OK,
+        "jurisdiccion_principal": "civil",
+        "submateria_principal": "CIV_SERVIDUMBRE_PASO_ATIPICA",
+        "ramas": [],
+        "campos_constan": [
+            {"campo": c, "cita": "1 de junio de 2026"} for c in submaterias()["CIV_GENERAL"].campos_criticos
+        ],
+    }
+    s, _ = services({"triaje": [triaje]})
+    cid = s.store.create(
+        "El 1 de junio de 2026 mi vecino cerró el camino de paso hacia mi finca en Madrid (reclamo 1500 euros).",
+        "eco",
+        municipio_ine="28079",
+    )
+    t = await Orchestrator(s)._triaje(_Run(cid, "eco"))
+    assert t is not None
+    assert t.submateria_principal == "CIV_GENERAL"
+    assert s.store.get(cid).estado != Estado.FUERA_DE_ALCANCE
+
+
+async def test_consulta_penal_se_atiende_con_normas_del_codigo_penal_y_lecrim(services):
+    from core.orchestrator import _Run
+
+    triaje = {
+        **TRIAJE_OK,
+        "jurisdiccion_principal": "penal",
+        "submateria_principal": "PEN_ESTAFAS_PATRIMONIO",
+        "ramas": [{"submateria": "PEN_ESTAFAS_PATRIMONIO", "jurisdiccion": "penal", "peso_enrutamiento": 1.0}],
+        "campos_constan": [
+            {"campo": c, "cita": "1 de junio de 2026"} for c in submaterias()["PEN_ESTAFAS_PATRIMONIO"].campos_criticos
+        ],
+    }
+    s, _ = services({"triaje": [triaje]})
+    cid = s.store.create(
+        "El 1 de junio de 2026 sufrí una estafa por phishing de 900 euros y quiero saber cómo denunciar.",
+        "eco",
+        municipio_ine="28079",
+    )
+    t = await Orchestrator(s)._triaje(_Run(cid, "eco"))
+    assert t is not None
+    assert t.submateria_principal == "PEN_ESTAFAS_PATRIMONIO"
+    ids_normas = {n.id_norma for n in t.normas_boe_objetivo}
+    assert {"BOE-A-1995-25444", "BOE-A-1882-6036"} <= ids_normas
+
+
+async def test_normas_sugeridas_validas_se_incorporan_y_las_inventadas_se_descartan(services):
+    from core.orchestrator import _Run
+
+    triaje = {
+        **TRIAJE_OK,
+        "normas_sugeridas": [
+            {"norma": "CC", "articulos": ["Art. 1454.1", "1124"]},
+            {"norma": "ET", "articulos": ["34.8"]},
+            {"norma": "LEY_INVENTADA_99", "articulos": ["1", "2"]},
+        ],
+    }
+    s, _ = services({"triaje": [triaje]})
+    cid = s.store.create("Entregué las llaves el 1 de junio de 2026 y no me devuelven la fianza.", "eco")
+    t = await Orchestrator(s)._triaje(_Run(cid, "eco"))
+    assert t is not None
+    por_norma = {
+        n.id_norma: [a for x in t.normas_boe_objetivo if x.id_norma == n.id_norma for a in x.articulos]
+        for n in t.normas_boe_objetivo
+    }
+    assert "1454" in por_norma["BOE-A-1889-4763"]
+    assert "34" in por_norma["BOE-A-2015-11430"]
+    assert all("INVENTADA" not in n.motivo for n in t.normas_boe_objetivo)
+
+
+@pytest.mark.parametrize(
+    ("texto", "esperada"),
+    [
+        ("El 1 de junio de 2026 firmé un contrato de arras por 900 euros y el vendedor incumplió.", "CIV_GENERAL"),
+        ("El 1 de junio de 2026 dejé el piso y mi casero no me devuelve la fianza.", "CIV_GENERAL"),
+        ("El 1 de junio de 2026 la empresa cambió mi jornada y mi jefe no me paga.", "SOC_GENERAL"),
+        ("¿Qué seguro de coche me recomiendas?", None),
+        ("Dame una receta de paella valenciana.", None),
+        ("Mi empresa organiza una cena el viernes, ¿qué me pongo?", None),
+    ],
+)
+async def test_rescate_lexico_solo_con_pistas_juridicas_claras(services, texto, esperada):
+    from core.orchestrator import _Run
+
+    triaje = {
+        **TRIAJE_OK,
+        "jurisdiccion_principal": "fuera_alcance",
+        "submateria_principal": "",
+        "ramas": [],
+        # El resumen lo escribe el LLM: su vocabulario jurídico no debe bastar para rescatar.
+        "resumen_hechos": "El usuario plantea un problema legal de contrato, demanda e indemnización.",
+        "campos_constan": [
+            {"campo": c, "cita": "1 de junio de 2026"}
+            for c in (submaterias()[esperada].campos_criticos if esperada else [])
+        ],
+    }
+    s, _ = services({"triaje": [triaje]})
+    cid = s.store.create(texto, "eco", municipio_ine="28079")
+    t = await Orchestrator(s)._triaje(_Run(cid, "eco"))
+    if esperada is None:
+        assert t is None
+        assert s.store.get(cid).estado == Estado.FUERA_DE_ALCANCE
+    else:
+        assert t is not None
+        assert t.submateria_principal == esperada
+        assert s.store.get(cid).estado != Estado.FUERA_DE_ALCANCE

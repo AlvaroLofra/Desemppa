@@ -263,19 +263,61 @@ _ORDINALES = [
     "veintinueve",
     "treinta",
 ]
-_NUM_PALABRA = {w: str(i) for i, w in enumerate(_ORDINALES, start=1)}
+_UNIDADES = ["uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve"]
+_DECENAS = {
+    30: "treinta",
+    40: "cuarenta",
+    50: "cincuenta",
+    60: "sesenta",
+    70: "setenta",
+    80: "ochenta",
+    90: "noventa",
+}
+
+
+def _construir_num_palabra() -> dict[str, str]:
+    mapa = {w: str(i) for i, w in enumerate(_ORDINALES, start=1)}
+    for u_idx, u_txt in enumerate(_UNIDADES, start=1):
+        mapa[u_txt] = str(u_idx)
+    mapa["un"] = "1"
+    mapa["veintiun"] = "21"
+    for dec_val, dec_txt in _DECENAS.items():
+        mapa[dec_txt] = str(dec_val)
+        for u_idx, u_txt in enumerate(_UNIDADES, start=1):
+            n = str(dec_val + u_idx)
+            mapa[f"{dec_txt} y {u_txt}"] = n
+            mapa[f"{dec_txt}y{u_txt}"] = n
+            if u_idx == 1:
+                mapa[f"{dec_txt} y un"] = n
+    mapa["cien"] = "100"
+    for k, v in list(mapa.items()):
+        if int(v) < 100:
+            mapa[f"ciento {k}"] = str(100 + int(v))
+    return mapa
+
+
+_NUM_PALABRA = _construir_num_palabra()
 
 
 def _titulo_es_articulo(titulo: str, numero: str) -> bool | None:
-    """True/False si el título ("Artículo 26", "Artículo 36 bis", "Artículo noveno" en la LPH, "Artículo 121-21" en
-    el Código civil de Cataluña) corresponde al número; None si el bloque no es un artículo."""
-    m = re.match(r"^\s*art[íi]culo\s+(\d+(?:-\d+)?|[a-záéíóúü]+)\s*(bis|ter|quater)?\b", fold(titulo or ""), re.I)
+    """True/False si el título ("Artículo 26", "Artículo 36 bis", "Artículo noveno" en la LPH, "Artículo treinta y ocho"
+    en la LCS, "Artículo 121-21" en el CCCat) corresponde al número; None si el bloque no es un artículo."""
+    t = fold(titulo or "").lower()
+    m = re.match(r"^\s*art[íi]culo\s+(\d+(?:-\d+)?)\s*(bis|ter|quater)?\b", t)
+    if m:
+        return (m.group(1) + (m.group(2) or "")) == numero
+    m = re.match(r"^\s*art[íi]culo\s+(.*)", t)
     if not m:
         return None
-    valor = m.group(1) if m.group(1)[0].isdigit() else _NUM_PALABRA.get(m.group(1))
-    if valor is None:
-        return None
-    return (valor + (m.group(2) or "").lower()) == numero
+    # Numeral en palabras: el prefijo más largo que sea un número («ciento cuatro», «treinta y ocho»); lo que sigue
+    # puede ser «bis/ter/quater» o el epígrafe del artículo («Artículo diez. Objeto», «Artículo primero Ámbito»).
+    palabras = re.findall(r"[a-z]+", m.group(1))
+    for n in range(min(4, len(palabras)), 0, -1):
+        valor = _NUM_PALABRA.get(" ".join(palabras[:n]))
+        if valor is not None:
+            sufijo = palabras[n] if len(palabras) > n and palabras[n] in ("bis", "ter", "quater") else ""
+            return (valor + sufijo) == numero
+    return None
 
 
 def fts_query(text: str) -> str:

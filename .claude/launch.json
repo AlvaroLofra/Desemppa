@@ -50,6 +50,18 @@
       }
     },
     {
+      "name": "desemppa-demo-simulada",
+      "runtimeExecutable": ".venv/Scripts/python.exe",
+      "runtimeArgs": ["tests/e2e/fake_server.py", "8030"],
+      "port": 8030,
+      "url": "http://127.0.0.1:8030",
+      "env": {
+        "IURIS_DATA_DIR": "data/local/demo_simulada",
+        "IURIS_WEB_DIST": "web/dist",
+        "GEMINI_API_KEY": ""
+      }
+    },
+    {
       "name": "desemppa-respaldo",
       "runtimeExecutable": ".venv/Scripts/python.exe",
       "runtimeArgs": [

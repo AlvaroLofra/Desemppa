@@ -10,6 +10,8 @@
 # prorroga_inhabil_final: si el último día es inhábil, el plazo pasa al siguiente hábil.
 # dias_dudosos: días cuyo carácter inhábil es discutido; se cuentan como HÁBILES (cómputo más corto) y se avisa.
 # doctrina_cambiante: marca 🔎 del dossier.
+# fuentes: lista de {norma, articulo, cita}; cita = fragmento literal del artículo vigente. La duración del plazo
+#   debe aparecer en una de ellas (lo comprueba `uv run python scripts/verificar_plazos.py` contra el BOE).
 # titular: usuario (por defecto) o contraparte (plazo que corre contra la otra parte; su vencimiento te favorece).
 
 plazos:
@@ -24,6 +26,9 @@ plazos:
     dias_dudosos: ["24-12", "31-12"]
     admite_suspension: true
     base_legal: "Art. 59.3 ET; arts. 103 y 65 LRJS"
+    fuentes:
+      - {norma: ET, articulo: "59", cita: "El ejercicio de la acción contra el despido o resolución de contratos temporales caducará a los veinte días siguientes de aquel en que se hubiera producido"}
+      - {norma: LRJS, articulo: "103", cita: "El trabajador podrá reclamar contra el despido, dentro de los veinte días hábiles siguientes a aquél en que se hubiera producido"}
     notas: "La papeleta de conciliación suspende el plazo, que se reanuda al día siguiente del intento de conciliación o a los 15 días hábiles sin celebrarse (art. 65 LRJS)."
     doctrina_cambiante: true
   SOC_SANCION_20H:
@@ -37,6 +42,9 @@ plazos:
     dias_dudosos: ["24-12", "31-12", "agosto"]
     admite_suspension: true
     base_legal: "Art. 114 LRJS"
+    fuentes:
+      - {norma: LRJS, articulo: "114", cita: "El trabajador podrá impugnar la sanción que le hubiere sido impuesta mediante demanda, que habrá de ser presentada dentro del plazo señalado en el artículo 103"}
+      - {norma: LRJS, articulo: "103", cita: "dentro de los veinte días hábiles siguientes a aquél en que se hubiera producido"}
     doctrina_cambiante: true
   SOC_VACACIONES_20H:
     descripcion: "Impugnar la fecha de disfrute de vacaciones"
@@ -48,6 +56,8 @@ plazos:
     prorroga_inhabil_final: true
     dias_dudosos: ["24-12", "31-12"]
     base_legal: "Art. 125 LRJS"
+    fuentes:
+      - {norma: LRJS, articulo: "125", cita: "el trabajador dispondrá de un plazo de veinte días, a partir de aquel en que tuviera conocimiento de dicha fecha, para presentar la demanda"}
   SOC_CANTIDAD_1A:
     descripcion: "Reclamar salarios u otras cantidades del contrato de trabajo"
     duracion: 1
@@ -55,6 +65,9 @@ plazos:
     naturaleza: prescripcion
     prorroga_inhabil_final: false
     base_legal: "Art. 59.1 y 59.2 ET"
+    fuentes:
+      - {norma: ET, articulo: "59", cita: "Las acciones derivadas del contrato de trabajo que no tengan señalado plazo especial prescribirán al año de su terminación"}
+      - {norma: ET, articulo: "59", cita: "el plazo de un año se computará desde el día en que la acción pudiera ejercitarse"}
     notas: "Desde que la cantidad fue exigible. Se interrumpe con reclamación fehaciente o papeleta."
   CIV_EXTRACONTRACTUAL_1A:
     descripcion: "Reclamar daños extracontractuales (derecho común)"
@@ -63,7 +76,16 @@ plazos:
     naturaleza: prescripcion
     prorroga_inhabil_final: false
     base_legal: "Art. 1968.2 CC"
-    foral: {CT: {duracion: 3, base_legal: "Art. 121-21 CCCat"}}
+    fuentes:
+      - {norma: CC, articulo: "1968", cita: "Prescriben por el transcurso de un año: 1.º La acción para recobrar o retener la posesión"}
+      - {norma: CC, articulo: "1968", cita: "La acción para exigir la responsabilidad civil por injuria o calumnia y por las obligaciones derivadas de la culpa o negligencia de que se trata en el artículo 1.902, desde que lo supo el agraviado"}
+    foral:
+      CT:
+        duracion: 3
+        base_legal: "Art. 121-21 CCCat"
+        fuentes:
+          - {norma: CCCAT_L1, articulo: "121-21", cita: "Prescriben a los tres años: a) Las pretensiones relativas a pagos periódicos"}
+          - {norma: CCCAT_L1, articulo: "121-21", cita: "Las pretensiones derivadas de responsabilidad extracontractual"}
   CIV_CONTRACTUAL_5A:
     descripcion: "Acciones personales sin plazo especial (contratos)"
     duracion: 5
@@ -71,7 +93,14 @@ plazos:
     naturaleza: prescripcion
     prorroga_inhabil_final: false
     base_legal: "Art. 1964.2 CC (Ley 42/2015)"
-    foral: {CT: {duracion: 10, base_legal: "Art. 121-20 CCCat"}}
+    fuentes:
+      - {norma: CC, articulo: "1964", cita: "Las acciones personales que no tengan plazo especial prescriben a los cinco años desde que pueda exigirse el cumplimiento de la obligación"}
+    foral:
+      CT:
+        duracion: 10
+        base_legal: "Art. 121-20 CCCat"
+        fuentes:
+          - {norma: CCCAT_L1, articulo: "121-20", cita: "Las pretensiones de cualquier clase prescriben a los diez años"}
     doctrina_cambiante: true
     notas: "Régimen transitorio para obligaciones nacidas antes del 7-10-2015."
   CIV_EJECUCION_5A:
@@ -81,6 +110,8 @@ plazos:
     naturaleza: caducidad
     prorroga_inhabil_final: false
     base_legal: "Art. 518 LEC"
+    fuentes:
+      - {norma: LEC, articulo: "518", cita: "caducará si no se interpone la correspondiente demanda ejecutiva dentro de los cinco años siguientes a la firmeza de la sentencia o resolución"}
   CIV_LPH_IMPUGNA_3M:
     descripcion: "Impugnar un acuerdo de la comunidad de propietarios"
     duracion: 3
@@ -88,6 +119,8 @@ plazos:
     naturaleza: caducidad
     prorroga_inhabil_final: false
     base_legal: "Art. 18.3 LPH"
+    fuentes:
+      - {norma: LPH, articulo: "18", cita: "La acción caducará a los tres meses de adoptarse el acuerdo por la Junta de propietarios"}
     notas: "1 año si el acuerdo es contrario a la ley o a los estatutos (CIV_LPH_IMPUGNA_1A)."
   CIV_LPH_IMPUGNA_1A:
     descripcion: "Impugnar un acuerdo comunitario contrario a la ley o los estatutos"
@@ -96,6 +129,8 @@ plazos:
     naturaleza: caducidad
     prorroga_inhabil_final: false
     base_legal: "Art. 18.3 LPH"
+    fuentes:
+      - {norma: LPH, articulo: "18", cita: "salvo que se trate de actos contrarios a la ley o a los estatutos, en cuyo caso la acción caducará al año"}
   CIV_CONTESTACION_VERBAL_10H:
     descripcion: "Contestar una demanda de juicio verbal"
     duracion: 10
@@ -105,6 +140,8 @@ plazos:
     dia_gracia: true
     prorroga_inhabil_final: true
     base_legal: "Art. 438 LEC"
+    fuentes:
+      - {norma: LEC, articulo: "438", cita: "dará traslado de ella al demandado para que la conteste por escrito en el plazo de diez días"}
   CIV_CONTESTACION_ORDINARIO_20H:
     descripcion: "Contestar una demanda de juicio ordinario"
     duracion: 20
@@ -114,6 +151,8 @@ plazos:
     dia_gracia: true
     prorroga_inhabil_final: true
     base_legal: "Art. 404 LEC"
+    fuentes:
+      - {norma: LEC, articulo: "404", cita: "dará traslado de ella al demandado para que la conteste en el plazo de veinte días"}
   CIV_OPOSICION_MONITORIO_20H:
     descripcion: "Oponerse a un requerimiento de pago (monitorio)"
     duracion: 20
@@ -123,6 +162,8 @@ plazos:
     dia_gracia: true
     prorroga_inhabil_final: true
     base_legal: "Art. 815 LEC"
+    fuentes:
+      - {norma: LEC, articulo: "815", cita: "requerirá al deudor para que, en el plazo de veinte días, pague al peticionario"}
   CIV_APELACION_20H:
     descripcion: "Recurrir en apelación una sentencia civil"
     duracion: 20
@@ -132,6 +173,8 @@ plazos:
     dia_gracia: true
     prorroga_inhabil_final: true
     base_legal: "Art. 458 LEC"
+    fuentes:
+      - {norma: LEC, articulo: "458", cita: "en el plazo de veinte días desde la notificación de la resolución impugnada"}
   ADM_ALEGACIONES_10H:
     descripcion: "Alegaciones al acuerdo de inicio de un procedimiento sancionador"
     duracion: 10
@@ -141,6 +184,8 @@ plazos:
     dia_gracia: false
     prorroga_inhabil_final: true
     base_legal: "Arts. 82 y 89 Ley 39/2015"
+    fuentes:
+      - {norma: LPAC, articulo: "82", cita: "Los interesados, en un plazo no inferior a diez días ni superior a quince, podrán alegar y presentar los documentos y justificaciones que estimen pertinentes"}
     notas: "Comprobar el plazo concreto que indica la notificación (entre 10 y 15 días)."
   ADM_REPOSICION_1M:
     descripcion: "Recurso potestativo de reposición"
@@ -151,6 +196,8 @@ plazos:
     dia_gracia: false
     prorroga_inhabil_final: true
     base_legal: "Art. 124 Ley 39/2015; art. 30.4 y 30.5"
+    fuentes:
+      - {norma: LPAC, articulo: "124", cita: "El plazo para la interposición del recurso de reposición será de un mes, si el acto fuera expreso"}
   ADM_ALZADA_1M:
     descripcion: "Recurso de alzada"
     duracion: 1
@@ -160,6 +207,8 @@ plazos:
     dia_gracia: false
     prorroga_inhabil_final: true
     base_legal: "Art. 122 Ley 39/2015; art. 30.4 y 30.5"
+    fuentes:
+      - {norma: LPAC, articulo: "122", cita: "El plazo para la interposición del recurso de alzada será de un mes, si el acto fuera expreso"}
   ADM_TRAFICO_ALEGACIONES_20N:
     descripcion: "Alegaciones o pronto pago (50 %) de una multa de tráfico"
     duracion: 20
@@ -169,6 +218,9 @@ plazos:
     dia_gracia: false
     prorroga_inhabil_final: true
     base_legal: "Arts. 93 y 95 RDLeg 6/2015 (Ley de Tráfico)"
+    fuentes:
+      - {norma: LSV, articulo: "95", cita: "Notificada la denuncia, el interesado dispondrá de un plazo de veinte días naturales para formular las alegaciones"}
+      - {norma: LSV, articulo: "93", cita: "el denunciado dispondrá de un plazo de veinte días naturales para realizar el pago voluntario con reducción de la sanción de multa"}
   CA_RECURSO_2M:
     descripcion: "Recurso contencioso-administrativo"
     duracion: 2
@@ -178,6 +230,8 @@ plazos:
     dia_gracia: true
     prorroga_inhabil_final: true
     base_legal: "Arts. 46 y 128.2 LJCA"
+    fuentes:
+      - {norma: LJCA, articulo: "46", cita: "El plazo para interponer el recurso contencioso-administrativo será de dos meses"}
     doctrina_cambiante: true
     notas: "6 meses frente a la desestimación por silencio."
   CIV_FIANZA_DEVOLUCION_1M:
@@ -188,4 +242,50 @@ plazos:
     titular: contraparte
     prorroga_inhabil_final: false
     base_legal: "Art. 36.4 LAU"
+    fuentes:
+      - {norma: LAU, articulo: "36", cita: "devengará el interés legal, transcurrido un mes desde la entrega de las llaves por el mismo sin que se hubiere hecho efectiva dicha restitución"}
     notas: "Transcurrido el mes, el saldo devenga el interés legal."
+  SOC_MODIFICACION_20H:
+    descripcion: "Impugnar modificación sustancial de condiciones de trabajo o movilidad geográfica"
+    duracion: 20
+    computo: habiles_social_caducidad
+    naturaleza: caducidad
+    agosto_habil: true
+    dia_gracia: false
+    prorroga_inhabil_final: true
+    dias_dudosos: ["24-12", "31-12"]
+    base_legal: "Art. 59.4 ET; art. 138.1 LRJS"
+    fuentes:
+      - {norma: ET, articulo: "59", cita: "Lo previsto en el apartado anterior será de aplicación a las acciones contra las decisiones empresariales en materia de movilidad geográfica y modificación sustancial de condiciones de trabajo"}
+      - {norma: LRJS, articulo: "138", cita: "La demanda deberá presentarse en el plazo de caducidad de los veinte días hábiles siguientes a la notificación por escrito de la decisión a los trabajadores o a sus representantes"}
+  SOC_RECLAMACION_PREVIA_SS_30H:
+    descripcion: "Reclamación administrativa previa en materia de prestaciones de Seguridad Social"
+    duracion: 30
+    computo: habiles_administrativo
+    naturaleza: administrativo
+    agosto_habil: true
+    dia_gracia: false
+    prorroga_inhabil_final: true
+    base_legal: "Art. 71.2 LRJS"
+    fuentes:
+      - {norma: LRJS, articulo: "71", cita: "La reclamación previa deberá interponerse ante el órgano competente que haya dictado resolución sobre la solicitud inicial del interesado, en el plazo de treinta días desde la notificación de la misma"}
+    notas: "11 días hábiles si se impugna un alta médica emitida antes de agotarse los 365 días de IT (art. 71.2 LRJS)."
+  CIV_VICIOS_OCULTOS_6M:
+    descripcion: "Acción por vicios ocultos en compraventa civil (desde la entrega de la cosa)"
+    duracion: 6
+    computo: meses_fecha_a_fecha
+    naturaleza: caducidad
+    prorroga_inhabil_final: false
+    base_legal: "Art. 1490 CC"
+    fuentes:
+      - {norma: CC, articulo: "1490", cita: "Las acciones que emanan de lo dispuesto en los cinco artículos precedentes se extinguirán a los seis meses, contados desde la entrega de la cosa vendida"}
+    notas: "En Cataluña el plazo de prescripción de las pretensiones de saneamiento es de 3 años desde la entrega (art. 621-44 CCCat)."
+  ADM_RESP_PATRIMONIAL_1A:
+    descripcion: "Reclamar responsabilidad patrimonial a la Administración (desde el hecho o el alta de las lesiones)"
+    duracion: 1
+    computo: anios_fecha_a_fecha
+    naturaleza: prescripcion
+    prorroga_inhabil_final: false
+    base_legal: "Art. 67.1 Ley 39/2015 (LPAC)"
+    fuentes:
+      - {norma: LPAC, articulo: "67", cita: "El derecho a reclamar prescribirá al año de producido el hecho o el acto que motive la indemnización o se manifieste su efecto lesivo"}

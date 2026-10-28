@@ -2,6 +2,8 @@
 
 Referencia rápida de alta densidad para localizar cualquier módulo del proyecto sin ejecutar búsquedas exploratorias globales (`grep` / `find`).
 
+Visión y criterio de alcance: [vision.md](vision.md). Plan en curso: [hoja_de_ruta.md](hoja_de_ruta.md) («Cobertura general verificada»).
+
 ---
 
 ## 1. Núcleo y Pipeline (Backend)
@@ -12,7 +14,7 @@ Referencia rápida de alta densidad para localizar cualquier módulo del proyect
 * **Validación NLI y verificación cruzada:** `core/nli.py`
 * **Fechas estrictas del usuario (anti-invención):** `core/fechas_es.py`
 * **Guardarraíles G1–G10 y citas literales:** `core/validators.py`
-* **Motor determinista de plazos y días hábiles:** `core/calendar_engine.py` (reglas en `config/plazos.yaml`)
+* **Motor determinista de plazos y días hábiles:** `core/calendar_engine.py` (reglas en `config/plazos.yaml`, cada una con citas literales que comprueba `scripts/verificar_plazos.py`)
 * **Abogado, procurador y MASC LO 1/2025:** `core/postulacion_rules.py` (reglas en `config/postulacion.yaml`)
 * **Árbol determinista de trámites:** `core/hoja_de_ruta.py` (reglas en `config/hojas_de_ruta.yaml`)
 * **Router y resiliencia de modelos:** `core/router.py` (config en `config/profiles.toml` y `config/models.toml`)

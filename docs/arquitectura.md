@@ -1,5 +1,8 @@
 # Arquitectura
 
+> Principio de diseño: [vision.md](vision.md) — asesor legal general en el que el LLM solo elige entre fuentes
+> oficiales descargadas en tiempo real y nada llega al ciudadano sin verificar.
+
 ## 1. Visión general
 
 ```mermaid

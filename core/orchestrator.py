@@ -26,7 +26,15 @@ from core.errors import ProviderError
 from core.fechas_es import fecha_consta, fecha_del_evento, fechas_en_texto, mes_consta
 from core.firewall import Contexto, ResultadoFirewall, Seccion, escanear, verificar_afirmaciones
 from core.llm_types import LLMRequest, LLMResult
-from core.materias import Submateria, catalogo_para_prompt, id_norma, normas_aplicables, submaterias
+from core.materias import (
+    Submateria,
+    catalogo_normas_para_prompt,
+    catalogo_para_prompt,
+    id_norma,
+    normas,
+    normas_aplicables,
+    submaterias,
+)
 from core.nli import NLIChecker, extract_json
 from core.normalize import fold
 from core.postulacion_rules import CasoPostulacion, evaluar
@@ -122,6 +130,188 @@ class TriageLLM(BaseModel):
     resumen_hechos: str = ""
     # Campos críticos de la submateria que constan en la consulta, con la frase literal que lo prueba.
     campos_constan: list[dict[str, Any]] = []
+    # Preceptos adicionales sugeridos por el triaje (solo se aceptan alias de config/catalogo_normas.json).
+    normas_sugeridas: list[dict[str, Any]] = []
+
+
+_FALLBACK_JURISDICCION: dict[str, str] = {
+    "civil": "CIV_GENERAL",
+    "mercantil": "CIV_MERCANTIL_SOCIETARIO_CONCURSAL",
+    "familia": "CIV_FAMILIA_DIVORCIO_CUSTODIA",
+    "consumo": "CIV_CONSUMO_DESISTIMIENTO_SUMINISTROS",
+    "social": "SOC_GENERAL",
+    "laboral": "SOC_GENERAL",
+    "administrativa_previa": "ADM_GENERAL",
+    "administrativo": "ADM_GENERAL",
+    "contencioso": "ADM_GENERAL",
+    "tributario": "ADM_TRIBUTARIO_LIQUIDACION",
+    "fiscal": "ADM_TRIBUTARIO_LIQUIDACION",
+    "penal": "PEN_GENERAL",
+}
+
+_NORMA_A_SUBMATERIA: dict[str, str] = {
+    "ET": "SOC_GENERAL",
+    "LRJS": "SOC_GENERAL",
+    "LGSS": "SOC_SEGURIDAD_SOCIAL_PRESTACIONES",
+    "LETA": "SOC_FALSO_AUTONOMO",
+    "LISOS": "SOC_GENERAL",
+    "LPRL": "SOC_ACOSO_PRL",
+    "LPAC": "ADM_GENERAL",
+    "LRJSP": "ADM_RESPONSABILIDAD_PATRIMONIAL",
+    "LJCA": "ADM_GENERAL",
+    "LSV": "ADM_TRAFICO_ORA",
+    "LGT": "ADM_TRIBUTARIO_LIQUIDACION",
+    "TRLRHL": "ADM_PLUSVALIA",
+    "LOEX": "ADM_EXTRANJERIA_FUNCION_PUBLICA",
+    "TREBEP": "ADM_EXTRANJERIA_FUNCION_PUBLICA",
+    "CP": "PEN_GENERAL",
+    "LECRIM": "PEN_GENERAL",
+}
+
+
+def _pistas(alternativas: str) -> re.Pattern[str]:
+    return re.compile(rf"\b({alternativas})\b", re.I)
+
+
+# Pistas para rescatar una consulta que el LLM dejó sin submateria: (inequívocas, comunes, submateria comodín). Basta
+# una inequívoca; las comunes («empresa», «seguro», «banco») también salen en textos no jurídicos y hacen falta dos
+# distintas, para no lanzar el análisis completo con «¿qué seguro de coche me recomiendas?».
+_PISTAS_JURIDICAS: list[tuple[re.Pattern[str], re.Pattern[str], str]] = [
+    (
+        _pistas(
+            r"despid\w*|n[oó]mina\w*|finiquito|convenio\s+colectivo|excedencia|baja\s+m[eé]dica|baja\s+voluntaria|"
+            r"reducci[oó]n\s+de\s+jornada|horas\s+extra\w*|sepe|inss|incapacidad\s+permanente|acoso\s+laboral|"
+            r"mobbing|erte"
+        ),
+        _pistas(r"empresa|trabajador\w*|paro|jefe|jornada|contrato\s+de\s+trabajo"),
+        "SOC_GENERAL",
+    ),
+    (
+        _pistas(
+            r"multa|recurso\s+de\s+alzada|silencio\s+administrativo|extranjer[ií]a|arraigo|agencia\s+tributaria|"
+            r"sanci[oó]n\s+administrativa"
+        ),
+        _pistas(
+            r"ayuntamiento|hacienda|liquidaci[oó]n|reposici[oó]n|subvenci[oó]n|oposici[oó]n|funcionario\w*|"
+            r"residencia|v[ií]a\s+p[uú]blica|recurso"
+        ),
+        "ADM_GENERAL",
+    ),
+    (
+        _pistas(
+            r"delito\w*|denuncia\w*|estafa\w*|phishing|robo|hurto|amenaza\w*|coacci[oó]n\w*|agresi[oó]n|lesiones|"
+            r"alcoholemia|injuria\w*|calumnia\w*"
+        ),
+        _pistas(r"polic[ií]a|guardia\s+civil|enga[nñ]\w*"),
+        "PEN_GENERAL",
+    ),
+    (
+        _pistas(
+            r"arrendamiento|casero|inquilino|fianza|desahucio|cl[aá]usula\w*|comunidad\s+de\s+propietarios|derrama|"
+            r"herencia\w*|testamento|leg[ií]tima|divorcio|custodia|monitorio|vicios\s+ocultos|arras|desistimiento|"
+            r"asnef|morosos|juzgado|demanda\w*|indemnizaci[oó]n|incumpli\w*"
+        ),
+        _pistas(
+            r"contrato\w*|alquiler|hipoteca|banco|comisi[oó]n|vecino\w*|pensi[oó]n|alimentos|deuda\w*|factura\w*|"
+            r"seguro|aseguradora|siniestro|accidente|garant[ií]a|compraventa|abogado|reclamar|devoluci[oó]n|devolver"
+        ),
+        "CIV_GENERAL",
+    ),
+]
+
+
+def _normalizar_num_articulo(raw_art: str) -> str | None:
+    """Extrae el número de artículo para el BOE ('Art. 34.8' -> '34', '553-38.2' -> '553-38', '36 bis' -> '36 bis')."""
+    limpio = re.sub(r"^\s*(?:art[íi]culo|art\.?)\s*", "", str(raw_art or ""), flags=re.I).strip()
+    m = re.match(r"^(\d+(?:-\d+)?)(?:\s*(bis|ter|quater))?", limpio, re.I)
+    if not m:
+        return None
+    sufijo = f" {m.group(2).lower()}" if m.group(2) else ""
+    return f"{m.group(1)}{sufijo}"
+
+
+def _rescatar_submateria(raw: TriageLLM, hechos_txt: str, cat: dict[str, Submateria]) -> str | None:
+    """Garantiza que ninguna consulta jurídica quede sin submateria por devolver el LLM una clave fuera del catálogo."""
+    if raw.submateria_principal in cat:
+        return raw.submateria_principal
+    for r in raw.ramas:
+        sub_r = r.get("submateria")
+        if sub_r in cat and not cat[sub_r].fuera_alcance:
+            return str(sub_r)
+    jur_key = (raw.jurisdiccion_principal or "").lower().strip()
+    if jur_key in _FALLBACK_JURISDICCION:
+        return _FALLBACK_JURISDICCION[jur_key]
+    for r in raw.ramas:
+        r_jur = str(r.get("jurisdiccion") or "").lower().strip()
+        if r_jur in _FALLBACK_JURISDICCION:
+            return _FALLBACK_JURISDICCION[r_jur]
+    catalogo_leyes = normas()
+    for item in raw.normas_sugeridas:
+        alias = str(item.get("norma") or "").strip().upper()
+        if alias in catalogo_leyes:
+            return _NORMA_A_SUBMATERIA.get(alias, "CIV_GENERAL")
+    if raw.convenio_aplicable:
+        return "SOC_GENERAL"
+    # Solo el texto del usuario: el resumen lo escribe el LLM y podría usar vocabulario jurídico que no estaba.
+    for inequivocas, comunes, fallback in _PISTAS_JURIDICAS:
+        distintas = {fold(m.group(0)).lower() for m in comunes.finditer(hechos_txt)}
+        if inequivocas.search(hechos_txt) or len(distintas) >= 2:
+            return fallback
+    return None
+
+
+def _construir_normas_objetivo(
+    sub: Submateria | None,
+    foral: str | None,
+    jur: Jurisdiccion,
+    raw: TriageLLM,
+    cat: dict[str, Submateria],
+) -> list[NormaObjetivo]:
+    """Combina las normas de la submateria principal, las de ramas secundarias y las sugeridas verificadas."""
+    if not sub or sub.fuera_alcance:
+        return []
+    resultado: list[NormaObjetivo] = []
+    vistos: dict[str, list[str]] = {}
+
+    def _anadir(alias: str, arts: list[str], *, sugerida: bool = False) -> None:
+        nid = id_norma(alias)
+        nuevos = [a for a in arts if a not in vistos.get(nid, [])]
+        if not nuevos:
+            return
+        vistos.setdefault(nid, []).extend(nuevos)
+        motivo = f"{alias} (sugerida)" if sugerida else alias
+        resultado.append(NormaObjetivo(id_norma=nid, articulos=nuevos, motivo=motivo))
+
+    for n in normas_aplicables(sub, foral):
+        _anadir(n.norma, list(n.articulos), sugerida=False)
+
+    # Si la consulta toca una segunda rama del catálogo, añadimos sus primeros artículos para cubrir consultas mixtas.
+    for r in raw.ramas[:2]:
+        sub_sec = cat.get(str(r.get("submateria") or ""))
+        if sub_sec and sub_sec.clave != sub.clave and not sub_sec.fuera_alcance:
+            for n in normas_aplicables(sub_sec, foral)[:2]:
+                _anadir(n.norma, list(n.articulos[:2]), sugerida=True)
+
+    # Preceptos específicos propuestos por el triaje dentro de las 44 leyes oficiales del BOE.
+    catalogo_leyes = normas()
+    for item in raw.normas_sugeridas[:3]:
+        if not isinstance(item, dict):
+            continue
+        alias = str(item.get("norma") or "").strip().upper()
+        if alias not in catalogo_leyes:
+            continue
+        arts_raw = item.get("articulos")
+        if not isinstance(arts_raw, list):
+            continue
+        arts_norm = [a for x in arts_raw[:4] if (a := _normalizar_num_articulo(str(x)))]
+        if arts_norm:
+            _anadir(alias, arts_norm, sugerida=True)
+
+    # Toda demanda civil exige antes intentar negociar (arts. 5 y 10 LO 1/2025).
+    if jur == Jurisdiccion.CIVIL:
+        _anadir("LOEFICIENCIA", ["5", "10"], sugerida=False)
+
+    return resultado
 
 
 @dataclass
@@ -264,6 +454,7 @@ class Orchestrator:
             _prompt("triaje")
             .replace("{hoy}", hoy.isoformat())
             .replace("{catalogo}", catalogo_para_prompt())
+            .replace("{normas_disponibles}", catalogo_normas_para_prompt())
             .replace("{convenios}", lista_convenios or "(ninguno indexado: usa null)")
             .replace("{conocidos}", "\n".join(conocidos) or "(ninguno)")
         )
@@ -277,10 +468,12 @@ class Orchestrator:
                 "consulta: no se ha usado."
             )
             fecha_inicio = None
-        sub_previa = submaterias().get(raw.submateria_principal or "")
-        if fecha_inicio is None and sub_previa and sub_previa.plazos:
+        cat = submaterias()
+        principal = _rescatar_submateria(raw, hechos_txt, cat)
+        sub: Submateria | None = cat.get(principal) if principal else None
+        if fecha_inicio is None and sub and sub.plazos:
             # El modelo no la marcó, pero el usuario la escribió junto al evento del plazo: se usa tal cual y se avisa.
-            evento = _campo_fecha(sub_previa)
+            evento = _campo_fecha(sub)
             fecha_inicio = fecha_del_evento(hechos_txt, evento, hoy)
             if fecha_inicio:
                 run.avisos.append(
@@ -290,15 +483,6 @@ class Orchestrator:
         fecha_hechos = raw.fecha_hechos
         if fecha_hechos and not mes_consta(fecha_hechos, hechos_txt, hoy):
             fecha_hechos = None
-        cat = submaterias()
-        principal = (
-            raw.submateria_principal
-            if raw.submateria_principal in cat
-            else next((r.get("submateria") for r in raw.ramas if r.get("submateria") in cat), None)
-        )
-        if principal is None:
-            principal = "FUERA_PENAL" if raw.jurisdiccion_principal == "penal" else None
-        sub: Submateria | None = cat.get(principal) if principal else None
         municipio_ine = c.municipio_ine or self._municipio_ine(raw.municipio)
         candidatas_modelo = [
             normalizar_pregunta(PreguntaAclaratoria.model_validate({"tipo_respuesta": "texto", **p}))
@@ -435,17 +619,7 @@ class Orchestrator:
                 )
                 for p in (sub.plazos if sub else [])
             ],
-            normas_boe_objetivo=[
-                NormaObjetivo(id_norma=id_norma(n.norma), articulos=n.articulos, motivo=n.norma)
-                for n in (normas_aplicables(sub, foral) if sub else [])
-            ]
-            # Toda demanda civil exige antes intentar negociar (arts. 5 y 10 LO 1/2025): el debate debe tener el
-            # texto delante para no contradecir el aviso de postulación (benchmark, caso de la comisión bancaria).
-            + (
-                [NormaObjetivo(id_norma=id_norma("LOEFICIENCIA"), articulos=["5", "10"], motivo="LOEFICIENCIA")]
-                if jur == Jurisdiccion.CIVIL and sub and not sub.fuera_alcance
-                else []
-            ),
+            normas_boe_objetivo=_construir_normas_objetivo(sub, foral, jur, raw, cat),
             terminos_cendoj=(raw.terminos_cendoj or (sub.terminos_cendoj if sub else []))[:8],
             # Solo códigos que existen en la base local: un código inventado por el modelo se descarta.
             convenio_aplicable=raw.convenio_aplicable if raw.convenio_aplicable in convenios else None,
@@ -463,7 +637,7 @@ class Orchestrator:
                 "submateria_descripcion": sub.descripcion if sub else None,
             },
         )
-        if sub is None or sub.fuera_alcance or jur in (Jurisdiccion.PENAL, Jurisdiccion.FUERA_ALCANCE):
+        if sub is None or sub.fuera_alcance or jur == Jurisdiccion.FUERA_ALCANCE:
             self._estado(run, Estado.FUERA_DE_ALCANCE)
             self._emit(
                 run,
@@ -471,8 +645,8 @@ class Orchestrator:
                 {
                     "estado": "FUERA_DE_ALCANCE",
                     "mensaje": (
-                        "Esta consulta queda fuera del alcance de Iuris-IA (asuntos penales o no identificados). "
-                        "Consulta con un abogado o solicita asistencia jurídica gratuita."
+                        "Esta consulta no parece tratar sobre una cuestión jurídica. "
+                        "Si tienes una duda o problema legal, describe los hechos ocurridos para poder analizarlo."
                     ),
                     "aviso_legal": AVISO_LEGAL,
                 },
@@ -533,20 +707,28 @@ class Orchestrator:
         c = self.s.store.get(run.consulta_id)
         avisos: list[str] = []
         articulos: list[ArticuloBOE] = []
+        vistos_boe: set[str] = set()
         for norma in triage.normas_boe_objetivo:
+            es_sugerida = norma.motivo.endswith(" (sugerida)")
+            motivo_limpio = norma.motivo.removesuffix(" (sugerida)")
             for art in norma.articulos:
                 try:
                     bloque = await self.s.boe.get_articulo(norma.id_norma, art)
                 except BOEError as exc:
-                    avisos.append(f"No se pudo obtener el art. {art} ({norma.motivo}) del BOE: {exc}")
+                    if not es_sugerida:
+                        avisos.append(f"No se pudo obtener el art. {art} ({motivo_limpio}) del BOE: {exc}")
                     continue
                 va = select_version(bloque, triage.fecha_hechos)
                 avisos.extend(va.avisos)
                 if va.version is None:
                     continue
+                sid = f"BOE:{norma.id_norma}:{bloque.id_bloque}:{va.version.vigencia_desde.isoformat()}"
+                if sid in vistos_boe:
+                    continue
+                vistos_boe.add(sid)
                 fuente = ArticuloBOE(
-                    source_id=f"BOE:{norma.id_norma}:{bloque.id_bloque}:{va.version.vigencia_desde.isoformat()}",
-                    titulo=f"{bloque.titulo} {norma.motivo}",
+                    source_id=sid,
+                    titulo=f"{bloque.titulo} {motivo_limpio}",
                     texto_verbatim=va.version.texto[:MAX_FUENTE_CHARS],
                     url_oficial=f"https://www.boe.es/buscar/act.php?id={norma.id_norma}#{bloque.id_bloque}",
                     id_norma=norma.id_norma,

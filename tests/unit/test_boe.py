@@ -145,6 +145,28 @@ def test_articulo_con_guion_del_codigo_civil_catalan():
     assert _titulo_es_articulo("Artículo 36 bis", "36bis") is True
 
 
+@pytest.mark.parametrize(
+    ("titulo", "numero", "esperado"),
+    [
+        ("Artículo treinta y ocho", "38", True),
+        ("Artículo treinta y ocho", "39", False),
+        ("Artículo ciento cuatro", "104", True),
+        ("Artículo cien", "100", True),
+        ("Artículo noveno bis", "9bis", True),
+        ("Artículo noveno bis", "9", False),
+        ("Artículo diez. Objeto", "10", True),
+        ("Artículo diez Objeto", "10", True),
+        ("Artículo primero Ámbito de aplicación", "1", True),
+        ("Artículo ciento", "100", None),
+        ("Disposición adicional primera", "1", None),
+    ],
+)
+def test_titulo_es_articulo_con_numerales_en_palabras(titulo, numero, esperado):
+    from connectors.boe_client import _titulo_es_articulo
+
+    assert _titulo_es_articulo(titulo, numero) is esperado
+
+
 def test_las_notas_editoriales_del_boe_no_forman_parte_del_texto():
     xml = """<?xml version="1.0" encoding="utf-8"?><response><status><code>200</code></status><data>
     <bloque id="a250" tipo="precepto" titulo="Artículo 250">

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { ExternalLink, Loader2, X } from "lucide-react";
 import { api } from "../lib/api";
 import { highlightParts } from "../lib/highlight";
@@ -14,6 +14,8 @@ export function SourceViewer({ abierta, consultaId, onClose }: {
   const [data, setData] = useState<Awaited<ReturnType<typeof api.fuente>> | null>(null);
   const [error, setError] = useState<string | null>(null);
   const markRef = useRef<HTMLElement>(null);
+  const panelRef = useRef<HTMLElement>(null);
+  const tituloId = useId();
 
   useEffect(() => {
     if (!abierta) return;
@@ -33,14 +35,27 @@ export function SourceViewer({ abierta, consultaId, onClose }: {
     return () => document.removeEventListener("keydown", esc);
   }, [abierta, onClose]);
 
+  // Teclado: al abrir, el foco pasa al panel; al cerrar vuelve a la cita que lo abrió (si sigue en la página).
+  const abierto = Boolean(abierta);
+  useEffect(() => {
+    if (!abierto) return;
+    const origen = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    panelRef.current?.focus();
+    return () => {
+      if (origen?.isConnected) origen.focus();
+    };
+  }, [abierto]);
+
   if (!abierta) return null;
   const [antes, resaltado, despues] = highlightParts(data?.texto ?? "", data?.resaltado?.offsets);
   return (
-    <aside aria-label="Visor de fuentes"
-           className="fade-in print:hidden fixed inset-0 z-40 flex flex-col bg-bg lg:static lg:inset-auto lg:z-auto lg:my-2 lg:mr-2 lg:w-[30rem] lg:shrink-0 lg:rounded-3xl lg:bg-surface">
+    <aside aria-labelledby={tituloId} ref={panelRef} tabIndex={-1}
+           className="fade-in outline-none print:hidden fixed inset-0 z-40 flex flex-col bg-bg lg:static lg:inset-auto lg:z-auto lg:my-2 lg:mr-2 lg:w-[30rem] lg:shrink-0 lg:rounded-3xl lg:bg-surface">
       <div className="flex items-start gap-2 px-5 pb-3 pt-4">
         <div className="min-w-0 flex-1">
-          <p className="text-base font-medium text-ink">{data?.titulo ?? abierta.sourceId}</p>
+          <h2 id={tituloId} className="text-base font-medium text-ink">
+            <span className="sr-only">Fuente oficial: </span>{data?.titulo ?? abierta.sourceId}
+          </h2>
           <p className="truncate text-xs text-ink-3">{abierta.sourceId}</p>
         </div>
         {data?.url && (
@@ -51,7 +66,8 @@ export function SourceViewer({ abierta, consultaId, onClose }: {
         )}
         <button className="icon-btn" onClick={onClose} aria-label="Cerrar visor"><X className="h-5 w-5" /></button>
       </div>
-      <div className="flex-1 overflow-auto px-5 pb-6 scroll-thin">
+      <div className="flex-1 overflow-auto px-5 pb-6 scroll-thin" tabIndex={0} role="region" aria-label="Texto oficial">
+
         {error && <p className="text-sm text-danger">{error}</p>}
         {!data && !error && <Loader2 className="h-5 w-5 animate-spin text-ink-3" />}
         {data && (

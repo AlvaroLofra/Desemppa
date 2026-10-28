@@ -95,6 +95,50 @@ pasos_comunes:
       - {norma: LJCA, articulo: "46", cita: "El plazo para interponer el recurso contencioso-administrativo será de dos meses"}
     plazo: ADM_REPOSICION_1M
     escrito: recurso_reposicion
+  alzada_y_contencioso:
+    titulo: "Recurso de alzada en el plazo de un mes"
+    que_hacer: >-
+      Si la resolución no pone fin a la vía administrativa, cabe recurso de alzada ante el órgano superior jerárquico
+      en el plazo de un mes si el acto es expreso. Si después la desestiman, el plazo para el recurso
+      contencioso-administrativo es de dos meses.
+    quien: tu
+    base:
+      - {norma: LPAC, articulo: "121", cita: "cuando no pongan fin a la vía administrativa, podrán ser recurridos en alzada ante el órgano superior jerárquico del que los dictó"}
+      - {norma: LPAC, articulo: "122", cita: "El plazo para la interposición del recurso de alzada será de un mes, si el acto fuera expreso"}
+      - {norma: LJCA, articulo: "46", cita: "El plazo para interponer el recurso contencioso-administrativo será de dos meses"}
+    plazo: ADM_ALZADA_1M
+  denuncia_penal:
+    titulo: "Presentar denuncia con el relato de los hechos y las pruebas"
+    que_hacer: >-
+      La denuncia puede presentarse por escrito o de palabra, identificando al denunciante y narrando de forma
+      detallada los hechos, las personas implicadas si se conocen y las fuentes de conocimiento o pruebas disponibles.
+    quien: tu
+    base:
+      - {norma: LECRIM, articulo: "265", cita: "Las denuncias podrán hacerse por escrito o de palabra, personalmente o por medio de mandatario con poder especial"}
+      - {norma: LECRIM, articulo: "265", cita: "La denuncia contendrá la identificación de la persona denunciante y la narración circunstanciada del hecho"}
+  defensa_penal:
+    titulo: "Asistencia de abogado y derecho a asistencia jurídica gratuita"
+    que_hacer: >-
+      En las actuaciones penales tienes derecho a designar libremente abogado y a solicitar asistencia jurídica
+      gratuita si cumples los requisitos legales.
+    quien: abogado
+    base:
+      - {norma: LECRIM, articulo: "118", cita: "Toda persona a quien se atribuya un hecho punible podrá ejercitar el derecho de defensa, interviniendo en las actuaciones"}
+      - {norma: LECRIM, articulo: "118", cita: "Derecho a designar libremente abogado, sin perjuicio de lo dispuesto en el apartado 1 a) del artículo 527"}
+      - {norma: LECRIM, articulo: "118", cita: "Derecho a solicitar asistencia jurídica gratuita, procedimiento para hacerlo y condiciones para obtenerla"}
+
+  prescripcion_penal:
+    titulo: "No esperes: el delito puede prescribir"
+    que_hacer: >-
+      El tiempo para perseguir un delito depende de la pena máxima que la ley le señala: los delitos leves y los de
+      injurias y calumnias prescriben al año; los demás, a los cinco, diez, quince o veinte años según su gravedad.
+      Como depende de la calificación del delito, la herramienta no calcula una fecha límite: denuncia cuanto antes.
+    quien: tu
+    base:
+      - {norma: CP, articulo: "131", cita: "A los cinco, los demás delitos, excepto los delitos leves y los delitos de injurias y calumnias, que prescriben al año"}
+      - {norma: CP, articulo: "131", cita: "A los diez, cuando la pena máxima señalada por la ley sea prisión o inhabilitación por más de cinco años y que no exceda de diez"}
+      - {norma: CP, articulo: "131", cita: "A los quince, cuando la pena máxima señalada por la ley sea inhabilitación por más de diez años"}
+      - {norma: CP, articulo: "131", cita: "A los veinte años, cuando la pena máxima señalada al delito sea prisión de quince o más años"}
 
 hojas:
   CIV_LAU_FIANZA:
@@ -302,3 +346,119 @@ hojas:
       base:
         - {norma: TRLRHL, articulo: "14", cita: "pudiendo los interesados interponer directamente recurso contencioso-administrativo"}
         - {norma: LJCA, articulo: "46", cita: "El plazo para interponer el recurso contencioso-administrativo será de dos meses"}
+  CIV_LAU_DESAHUCIO_IMPAGO:
+    - comun: masc
+    - comun: demanda_verbal
+  CIV_COMPRAVENTA_ARRAS_VICIOS:
+    - comun: masc
+    - comun: demanda_verbal
+  CIV_DEUDAS_CONTRATOS_MONITORIO:
+    - comun: masc
+    - comun: monitorio
+    - comun: demanda_verbal
+  CIV_SEGUROS_TRAFICO:
+    - comun: reclamacion_consumo
+    - comun: masc
+    - comun: demanda_verbal
+  CIV_FAMILIA_DIVORCIO_CUSTODIA:
+    - comun: masc
+    - comun: demanda_verbal
+  CIV_HERENCIAS_SUCESIONES:
+    - comun: masc
+    - comun: demanda_verbal
+  CIV_CONSUMO_DESISTIMIENTO_SUMINISTROS:
+    - comun: reclamacion_consumo
+    - comun: masc
+    - comun: demanda_verbal
+  CIV_DATOS_MOROSOS_HONOR:
+    - comun: reclamacion_consumo
+    - comun: masc
+    - comun: demanda_verbal
+  CIV_MERCANTIL_SOCIETARIO_CONCURSAL:
+    - comun: masc
+    - comun: demanda_verbal
+  SOC_MODIFICACION_MOVILIDAD:
+    - titulo: "Plazo de caducidad de veinte días hábiles"
+      que_hacer: >-
+        La demanda contra la modificación sustancial o movilidad debe presentarse en el plazo de caducidad de veinte
+        días hábiles siguientes a la notificación por escrito de la decisión empresarial.
+      quien: tu
+      base:
+        - {norma: LRJS, articulo: "138", cita: "La demanda deberá presentarse en el plazo de caducidad de los veinte días hábiles siguientes a la notificación por escrito de la decisión a los trabajadores o a sus representantes"}
+      plazo: SOC_MODIFICACION_20H
+    - comun: conciliacion_social
+    - comun: demanda_social
+  SOC_CONCILIACION_EXCEDENCIA:
+    - titulo: "Plazo de veinte días ante la negativa de la empresa"
+      que_hacer: >-
+        Para los derechos de conciliación de la vida personal, familiar y laboral dispones de un plazo de veinte días
+        desde que la empresa te comunique su negativa o disconformidad para presentar demanda en el Juzgado de lo
+        Social.
+      quien: tu
+      base:
+        - {norma: LRJS, articulo: "139", cita: "El trabajador dispondrá de un plazo de veinte días, a partir de que el empresario le comunique su negativa o su disconformidad con la propuesta realizada por el trabajador, para presentar demanda ante el Juzgado de lo Social"}
+      plazo: SOC_VACACIONES_20H
+    - comun: conciliacion_social
+    - comun: demanda_social
+  SOC_BAJA_VOLUNTARIA_EXTINCION:
+    - comun: conciliacion_social
+    - comun: demanda_social
+  SOC_ACOSO_PRL:
+    - comun: conciliacion_social
+    - comun: demanda_social
+  SOC_SEGURIDAD_SOCIAL_PRESTACIONES:
+    - titulo: "Reclamación administrativa previa en treinta días"
+      que_hacer: >-
+        Antes de demandar en materia de prestaciones de Seguridad Social es obligatorio presentar una reclamación
+        previa ante la Entidad gestora en el plazo de treinta días desde la notificación de la resolución (u once días
+        en determinadas altas médicas).
+      quien: tu
+      base:
+        - {norma: LRJS, articulo: "71", cita: "Será requisito necesario para formular demanda en materia de prestaciones de Seguridad Social, que los interesados interpongan reclamación previa ante la Entidad gestora de las mismas"}
+        - {norma: LRJS, articulo: "71", cita: "La reclamación previa deberá interponerse ante el órgano competente que haya dictado resolución sobre la solicitud inicial del interesado, en el plazo de treinta días desde la notificación de la misma"}
+        - {norma: LRJS, articulo: "71", cita: "la reclamación previa se interpondrá en el plazo de once días desde la notificación de la resolución"}
+      plazo: SOC_RECLAMACION_PREVIA_SS_30H
+    - comun: demanda_social
+  ADM_RESPONSABILIDAD_PATRIMONIAL:
+    - titulo: "Reclamación de responsabilidad patrimonial en el plazo de un año"
+      que_hacer: >-
+        El derecho a reclamar prescribe al año de producido el hecho o manifestarse su efecto lesivo; si hay daños
+        físicos o psíquicos, el plazo empieza a contarse desde la curación o la determinación del alcance de las
+        secuelas.
+      quien: tu
+      base:
+        - {norma: LPAC, articulo: "67", cita: "El derecho a reclamar prescribirá al año de producido el hecho o el acto que motive la indemnización o se manifieste su efecto lesivo"}
+        - {norma: LPAC, articulo: "67", cita: "En caso de daños de carácter físico o psíquico a las personas, el plazo empezará a computarse desde la curación o la determinación del alcance de las secuelas"}
+      plazo: ADM_RESP_PATRIMONIAL_1A
+    - comun: reposicion_y_contencioso
+  ADM_RECURSOS_SILENCIO_GENERAL:
+    - comun: alzada_y_contencioso
+    - comun: reposicion_y_contencioso
+  ADM_EXTRANJERIA_FUNCION_PUBLICA:
+    - comun: alzada_y_contencioso
+    - comun: reposicion_y_contencioso
+  PEN_ESTAFAS_PATRIMONIO:
+    - comun: prescripcion_penal
+    - comun: denuncia_penal
+    - comun: defensa_penal
+  PEN_AMENAZAS_LESIONES_HONOR:
+    - comun: prescripcion_penal
+    - comun: denuncia_penal
+    - comun: defensa_penal
+  PEN_SEGURIDAD_VIAL_ALCOHOLEMIA:
+    - comun: prescripcion_penal
+    - comun: defensa_penal
+  CIV_GENERAL:
+    - comun: masc
+    - comun: demanda_verbal
+  SOC_GENERAL:
+    - comun: conciliacion_social
+    - comun: demanda_social
+  ADM_GENERAL:
+    - comun: alzada_y_contencioso
+    - comun: reposicion_y_contencioso
+  PEN_GENERAL:
+    - comun: prescripcion_penal
+    - comun: denuncia_penal
+    - comun: defensa_penal
+

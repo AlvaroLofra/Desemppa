@@ -77,8 +77,8 @@ reglas:
     abogado: true
     procurador: false
     bloquea_escritos: true
-    base_legal: "LECrim"
-    texto: "Los asuntos penales están fuera del alcance de esta herramienta: consulta a un abogado."
+    base_legal: "Arts. 118 y 767 LECrim"
+    texto: "Para presentar una denuncia inicial ante la Policía, Guardia Civil o el juzgado de guardia no necesitas abogado ni procurador, pero para intervenir como acusación particular o como investigado en el procedimiento penal la ley exige abogado y procurador (salvo determinados delitos leves). La herramienta te informa con los artículos vigentes del Código Penal y de la LECrim, pero no redacta escritos procesales penales: consulta a un abogado o solicita asistencia jurídica gratuita."
   - id: POR_DEFECTO
     si: {}
     abogado: true

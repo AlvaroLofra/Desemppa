@@ -9,6 +9,10 @@
 ## 1. Perfil del Usuario y Alcance del Proyecto
 
 1. **Perfil del usuario**: El usuario es **informático / desarrollador de software**, pero **no tiene conocimientos de Derecho**. Siempre que expliques cualquier cuestión legal (plazos, caducidad vs. prescripción, postulación, MASC de la LO 1/2025, convenios, jurisprudencia), hazlo en **lenguaje sencillo, claro y con analogías de ingeniería de software** (ver [`docs/guia_juridica_para_informaticos.md`](docs/guia_juridica_para_informaticos.md)).
+1b. **Visión del producto (decisión del usuario, 28-10-2026)** — detalle en [`docs/vision.md`](docs/vision.md):
+   - Desemppa es un **asesor legal general**: debe responder a **cualquier** inquietud o problema legal (también penal). Solo queda fuera lo que no es jurídico.
+   - **Todo lo que afirma se basa en leyes reales, vigentes y comprobadas en tiempo real** contra la fuente oficial (BOE). Si no hay norma verificable, se dice así; nunca se rellena con conocimiento del modelo.
+   - **Mínima ventana para alucinar**: el LLM solo propone términos de búsqueda, elige entre listas cerradas obtenidas del BOE y redacta sobre el texto oficial; nunca aporta normas, artículos, cifras, plazos ni fechas. El alcance se amplía **descubriendo normas en el BOE**, no ampliando lo que «sabe» el modelo.
 2. **Alcance actual (Opción A — Proyecto Personal Local)**:
    - El proyecto es de **uso exclusivamente personal y local** (`127.0.0.1:8000`) en Windows. No se va a comercializar ni publicar por ahora (aunque el análisis de viabilidad futura ya está documentado en [`docs/viabilidad_y_estrategia.md`](docs/viabilidad_y_estrategia.md)).
 3. **Suscripciones y Modelos del Usuario (REGLA ESTRICTA)**:
@@ -33,6 +37,7 @@
 Cuando inicies una nueva sesión, consulta directamente estos ficheros según la tarea:
 
 1. **Estado actual, navegación quirúrgica y qué falta por hacer**:
+   - [`docs/vision.md`](docs/vision.md) — Visión del producto: asesor legal general con todo verificado contra el BOE en tiempo real.
    - [`docs/estado_implementacion.md`](docs/estado_implementacion.md) — Qué está implementado, qué se corrigió en la última sesión y resultados de la suite de tests.
    - [`docs/mapa_codigo.md`](docs/mapa_codigo.md) — Mapa de navegación quirúrgica (a qué fichero acudir directamente sin búsquedas exploratorias).
    - [`docs/hoja_de_ruta.md`](docs/hoja_de_ruta.md) — Tareas completadas y próximos pasos priorizados.
@@ -54,6 +59,7 @@ Cuando inicies una nueva sesión, consulta directamente estos ficheros según la
      - **Fase 4 (`_certificar`)**: Guardarraíles deterministas G1–G10 (`core/validators.py`, coincidencia literal `rapidfuzz >= 92 %`, prohibición de porcentajes de éxito), verificación NLI (`core/nli.py`), motor determinista de plazos (`core/calendar_engine.py`, `config/plazos.yaml`) y reglas de abogado/procurador + aviso MASC LO 1/2025 (`core/postulacion_rules.py`, `config/postulacion.yaml`).
 5. **Batería verificable de 30 casos reales**: [`docs/bateria_verificable.md`](docs/bateria_verificable.md) (`benchmark/ejecutar.py`, `evaluar.py`, `juez.py`, hojas de verdad con texto oficial y SHA-256).
 6. **API Local y Frontend React/Vite**:
+   - [`DESIGN.md`](DESIGN.md) — Contrato visual (tokens, tipografía, estados, reglas negativas). **Léelo antes de tocar la interfaz.**
    - [`docs/api.md`](docs/api.md) y [`api/main.py`](api/main.py)
    - [`docs/operacion.md`](docs/operacion.md), [`web/src/App.tsx`](web/src/App.tsx), [`web/src/components/settings/SettingsPage.tsx`](web/src/components/settings/SettingsPage.tsx), [`web/src/lib/api.ts`](web/src/lib/api.ts)
 
@@ -64,6 +70,7 @@ Cuando inicies una nueva sesión, consulta directamente estos ficheros según la
 0. **Nombre**: la app se llama **Desemppa** en todo lo visible. Los identificadores internos conservan `iuris` (`X-Iuris-Token`, variables `IURIS_*`, claves de `localStorage`, `data/local/iuris.log`, nombre de carpeta) para no romper datos ni scripts: no los renombres.
 1. **Nada de memoria: todo dato se verifica contra la fuente en la misma sesión.** Referencias BOE, códigos REGCON, artículos de ley e ids de modelos se comprueban (BOE, `agy models`, documentación oficial) antes de escribirlos en configuración, datos o documentación. Lo que no se pueda verificar se marca como «sin verificar». Todo script nuevo lleva al menos un test de humo. (Motivo: el 23-10-2026 se introdujeron 9 referencias BOE inventadas; ver [`docs/informe_revision_2026-10-24.md`](docs/informe_revision_2026-10-24.md).)
 2. **El LLM nunca calcula fechas ni inventa normas ni hechos**: las fechas del triaje solo valen si constan en el texto del usuario (`core/fechas_es.py`); el texto para el ciudadano se contrasta con sus hechos (`core/nli.py::hechos_no_constatados`); el Magistrado debe dar una `respuesta_directa` a la pregunta. Todo cálculo de plazos pasa por `CalendarEngine` (`core/calendar_engine.py`) y toda cita se verifica literalmente contra el texto del BOE/sentencia/convenio con `verify_quote` (`core/validators.py`). Nada del Magistrado llega al ciudadano sin pasar por el cortafuegos (`core/firewall.py::verificar_afirmaciones`); no lo debilites, y el verificador NLI debe ser de **otra familia** que el Magistrado, salvo en el modo **Eco**, donde por decisión expresa del usuario (25-10-2026) verifica Gemini 3.8 Flash para no gastar cuota de Claude (lo comprueba `tests/unit/test_settings.py`). Si un modelo falla, el router solo usa otro de la **misma familia** (`respaldo = "familia"` en `config/profiles.toml`) y avisa en el progreso y en «Modelos usados».
+2a. **Ampliar el alcance = descubrir normas en el BOE**: cualquier materia nueva se cubre buscando la ley en el catálogo consolidado del BOE y dejando que el LLM elija solo entre artículos descargados; nunca con normas, artículos o plazos propuestos de memoria por el modelo. Todo plazo de `config/plazos.yaml` lleva `fuentes` con cita literal del artículo que fija su duración; tras editarlo ejecuta `uv run python scripts/verificar_plazos.py`. Los plazos penales de prescripción no se calculan (dependen de la pena, art. 131.1 CP).
 2b. **Hoja de ruta y escritos sin LLM**: `config/hojas_de_ruta.yaml` solo admite pasos con cita literal del artículo vigente (cualquier cifra del texto debe estar en sus citas); tras editarla ejecuta `uv run python scripts/verificar_hojas_de_ruta.py`. Los borradores de escritos (`web/src/lib/escritos.ts`) se componen sin LLM con el relato del usuario y afirmaciones «norma» verificadas. El texto del BOE excluye las notas editoriales (redacción anterior): no lo cambies.
 3. **Seguridad de subprocesos CLI**: Jamás añadas flags de autoaprobación como `--dangerously-skip-permissions` en `config/providers.toml` (`config/settings.py` los rechaza expresamente). En Windows, `uvicorn` debe ejecutarse **sin `--reload`** para no romper el `ProactorEventLoop` necesario para subprocesos asíncronos.
 4. **Privacidad, loopback y red local**: El servidor escucha en `0.0.0.0` pero `api/red_local.py` rechaza todo lo que no venga de este equipo salvo que el dueño active «Compartir en la red local» (solo IPs privadas, `Host` = IP del equipo, rol invitado con token propio, solo sus consultas, solo modos permitidos y límites de uso). Nunca expongas el token del dueño ni rutas de ajustes a invitados. El servidor valida el `Host` contra DNS rebinding, exige cabecera `X-Iuris-Token` en escrituras, seudonimiza PII antes de llamar a cualquier LLM (`core/pii_redactor.py`) y cifra datos sensibles y API keys con Windows DPAPI (`core/secure_store.py`).
@@ -75,6 +82,7 @@ Cuando inicies una nueva sesión, consulta directamente estos ficheros según la
    uv run pytest -q
    cd web && npm run build && npx vitest run
    uv run pytest -m e2e -q
+   uv run python scripts/verificar_hojas_de_ruta.py ; uv run python scripts/verificar_plazos.py   # si tocas config/
    uv run pytest -m live tests/contract/test_live_convenios_boe.py -q   # si tocas data/convenios_seed.yaml
    ```
 

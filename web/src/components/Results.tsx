@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useId, useRef, useState } from "react";
 import { AlertCircle, BookOpen, Square, CalendarPlus, Check, ChevronDown, Copy, FileDown, Info, Loader2, Printer, X } from "lucide-react";
 import type { ConsultaState, Rol } from "../lib/useConsulta";
 import {
@@ -10,6 +10,7 @@ import { numerarFuentes } from "../lib/citas";
 import { descargar, nombreFichero } from "../lib/descargar";
 import { diasNaturalesHasta, fechaLarga } from "../lib/highlight";
 import { plazosIcs } from "../lib/ics";
+import { BANDA_COLOR, BANDA_ICONO, BANDA_TONO } from "../lib/solidez";
 import { MunicipioPicker, type Municipio } from "./MunicipioPicker";
 import { DatePicker } from "./ui/DatePicker";
 import { HojaDeRuta } from "./HojaDeRuta";
@@ -77,7 +78,9 @@ export function Clarification({ preguntas, onResponder }: {
                 <span className="flex flex-wrap gap-2" role="group" aria-label={p.texto}>
                   {opciones.map((o) => (
                     <button key={o} type="button" onClick={() => poner(p, o)} aria-pressed={resp[p.id] === o}
-                            className={resp[p.id] === o ? "btn-tonal" : "btn-outline"}>{o}</button>
+                            className={resp[p.id] === o ? "btn-tonal border border-accent" : "btn-outline"}>
+                      {resp[p.id] === o && <Check className="h-4 w-4" aria-hidden />}{o}
+                    </button>
                   ))}
                 </span>
               ) : p.tipo_respuesta === "municipio" ? (
@@ -109,7 +112,7 @@ export function Clarification({ preguntas, onResponder }: {
                 <button type="button" aria-pressed={resp[p.id] === NO_SE} onClick={() => poner(p, NO_SE)}
                         className={`rounded-full px-3 py-1 text-xs transition-colors ${
                           resp[p.id] === NO_SE ? "bg-accent-container text-on-accent-container" : "text-ink-2 hover:bg-surface-2"}`}>
-                  {NO_SE}
+                  {resp[p.id] === NO_SE && <Check className="mr-1 inline h-3 w-3" aria-hidden />}{NO_SE}
                 </button>
               </span>
             </div>
@@ -187,11 +190,24 @@ function Debate({ state, onAbrir }: { state: ConsultaState; onAbrir: AbrirFuente
     { id: "magistrado", label: "Magistrado" },
   ];
   const borrador = state.borradores[tab];
+  const base = useId();
+  const refs = useRef<Partial<Record<Rol, HTMLButtonElement | null>>>({});
+  // Patrón de pestañas WAI-ARIA: Tab entra en la pestaña activa y las flechas, Inicio y Fin cambian de pestaña.
+  const teclas = (e: React.KeyboardEvent) => {
+    const i = tabs.findIndex((t) => t.id === tab);
+    const destino = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: tabs.length - 1 }[e.key];
+    if (destino === undefined) return;
+    e.preventDefault();
+    const sig = tabs[(destino + tabs.length) % tabs.length].id;
+    setTab(sig);
+    refs.current[sig]?.focus();
+  };
   return (
     <div>
-      <div role="tablist" className="flex gap-6 border-b border-outline">
+      <div role="tablist" aria-label="Partes del debate" className="flex gap-6 border-b border-outline" onKeyDown={teclas}>
         {tabs.map(({ id, label }) => (
-          <button key={id} role="tab" aria-selected={tab === id} onClick={() => setTab(id)}
+          <button key={id} role="tab" id={`${base}-${id}`} aria-selected={tab === id} aria-controls={`${base}-panel`}
+                  tabIndex={tab === id ? 0 : -1} ref={(el) => { refs.current[id] = el; }} onClick={() => setTab(id)}
                   className={`-mb-px flex items-center gap-2 border-b-2 pb-2 pt-1 text-sm transition-colors ${
                     tab === id ? "border-accent font-medium text-accent" : "border-transparent text-ink-2 hover:text-ink"
                   }`}>
@@ -199,7 +215,7 @@ function Debate({ state, onAbrir }: { state: ConsultaState; onAbrir: AbrirFuente
           </button>
         ))}
       </div>
-      <div role="tabpanel" tabIndex={0} aria-label="Contenido del debate" className="max-h-[28rem] overflow-auto pt-4 scroll-thin print:max-h-none print:overflow-visible">
+      <div role="tabpanel" tabIndex={0} id={`${base}-panel`} aria-labelledby={`${base}-${tab}`} className="max-h-[28rem] overflow-auto pt-4 scroll-thin print:max-h-none print:overflow-visible">
         {borrador && !state.final && <pre className="whitespace-pre-wrap font-mono text-xs text-ink-3 print:hidden">{borrador.slice(-4000)}</pre>}
         {(!borrador || state.final) && tab !== "magistrado" && state.alegatos[tab] && (
           <div className="space-y-4">
@@ -230,13 +246,15 @@ function Debate({ state, onAbrir }: { state: ConsultaState; onAbrir: AbrirFuente
 function Plegable({ titulo, abiertoInicial = false, children }: { titulo: string; abiertoInicial?: boolean; children: React.ReactNode }) {
   const [abierto, setAbierto] = useState(abiertoInicial);
   const imprimiendo = useContext(ImprimiendoContext);
+  const id = useId();
+  const visible = abierto || imprimiendo;
   return (
     <div>
-      <button className="flex items-center gap-1 text-sm text-ink-2 hover:text-ink" aria-expanded={abierto}
-              onClick={() => setAbierto(!abierto)}>
+      <button className="flex items-center gap-1 text-sm text-ink-2 hover:text-ink" aria-expanded={visible}
+              aria-controls={id} onClick={() => setAbierto(!abierto)}>
         {titulo}<ChevronDown className={`h-4 w-4 transition-transform ${abierto ? "rotate-180" : ""}`} aria-hidden />
       </button>
-      {(abierto || imprimiendo) && <div className="fade-in pt-3">{children}</div>}
+      <div id={id} hidden={!visible} className="fade-in pt-3">{visible && children}</div>
     </div>
   );
 }
@@ -282,50 +300,49 @@ export function ProcessDetails({ state, onAbrir }: { state: ConsultaState; onAbr
 
 // ---------- respuesta ----------
 
-const BANDA_COLOR: Record<Banda, string> = {
-  criterio_consolidado_favorable: "bg-success",
-  argumento_solido_sin_doctrina: "bg-accent",
-  disparidad_de_criterio: "bg-warning",
-  riesgo_probatorio_alto: "bg-warning",
-  criterio_consolidado_desfavorable: "bg-danger",
-  no_determinable: "bg-ink-3",
-};
-
-/** Solidez en lenguaje sencillo: medidor de 5 niveles, qué significa y por qué (motivos deterministas). */
+/** Solidez en lenguaje sencillo: medidor de 5 niveles, qué significa y por qué (motivos deterministas).
+ *  Color, icono, texto y número de nivel dicen lo mismo: se entiende sin distinguir colores y en blanco y negro. */
 function Solidez({ banda, motivos }: { banda: Banda; motivos: string[] }) {
   const nivel = BANDA_NIVEL[banda];
+  const Icono = BANDA_ICONO[banda];
   const [abiertoUsuario, setAbierto] = useState(false);
   const imprimiendo = useContext(ImprimiendoContext);
   const abierto = abiertoUsuario || imprimiendo;
+  const motivosId = useId();
   return (
-    <div className="mb-4 rounded-2xl bg-surface p-4" aria-label="Solidez de tu posición">
+    <section className="mb-4 rounded-2xl bg-surface p-4" aria-label="Solidez de tu posición">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <span className="text-sm text-ink-2">Solidez de tu posición</span>
-        <span className="flex gap-1" role="img"
-              aria-label={nivel ? `Nivel ${nivel} de 5` : "Sin valorar"}>
-          {[1, 2, 3, 4, 5].map((i) => (
-            <span key={i} className={`h-1.5 w-6 rounded-full ${i <= nivel ? BANDA_COLOR[banda] : "bg-surface-2"}`} />
-          ))}
+        <span className="flex items-center gap-2">
+          <span className="flex gap-1" role="img"
+                aria-label={nivel ? `Nivel ${nivel} de 5` : "Sin valorar"}>
+            {[1, 2, 3, 4, 5].map((i) => (
+              <span key={i} className={`h-2 w-6 rounded-full border ${
+                i <= nivel ? `${BANDA_COLOR[banda]} border-transparent print:border-ink` : "border-outline bg-transparent"}`} />
+            ))}
+          </span>
+          <span className="text-xs text-ink-3" aria-hidden>{nivel ? `${nivel}/5` : "—"}</span>
         </span>
       </div>
-      <p className="mt-1.5 text-base font-medium text-ink">{BANDA_TEXTO[banda]}</p>
+      <p className="mt-1.5 flex items-start gap-2 text-base font-medium text-ink">
+        <Icono className={`mt-0.5 h-5 w-5 shrink-0 ${BANDA_TONO[banda]}`} aria-hidden />
+        {BANDA_TEXTO[banda]}
+      </p>
       <p className="mt-1 text-sm text-ink-2">{BANDA_EXPLICACION[banda]}</p>
       {motivos.length > 0 && (
         <div className="mt-2">
           <button type="button" className="flex items-center gap-1 text-xs text-ink-2 hover:text-ink"
-                  aria-expanded={abierto} onClick={() => setAbierto((v) => !v)}>
+                  aria-expanded={abierto} aria-controls={motivosId} onClick={() => setAbierto((v) => !v)}>
             <ChevronDown className={`h-3.5 w-3.5 transition-transform ${abierto ? "rotate-180" : ""}`} aria-hidden />
             Por qué este nivel
           </button>
-          {abierto && (
-            <ul className="mt-1.5 list-disc space-y-1 pl-5 text-xs text-ink-2">
-              {motivos.map((m) => <li key={m}>{m}</li>)}
-            </ul>
-          )}
+          <ul id={motivosId} hidden={!abierto} className="mt-1.5 list-disc space-y-1 pl-5 text-xs text-ink-2">
+            {motivos.map((m) => <li key={m}>{m}</li>)}
+          </ul>
         </div>
       )}
       <p className="mt-2 text-[11px] text-ink-3">No es una probabilidad de ganar: resume cuánto respaldo verificado tiene tu posición.</p>
-    </div>
+    </section>
   );
 }
 

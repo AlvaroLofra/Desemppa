@@ -81,4 +81,9 @@ def catalogo_para_prompt() -> str:
         f"- {s.clave} [{s.jurisdiccion}]: {s.descripcion}"
         + (f" · campos críticos: {'; '.join(s.campos_criticos)}" if s.campos_criticos else "")
         for s in submaterias().values()
+        if not s.fuera_alcance
     )
+
+
+def catalogo_normas_para_prompt() -> str:
+    return "\n".join(f"- {alias}: {meta['titulo']}" for alias, meta in normas().items())
