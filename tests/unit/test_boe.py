@@ -182,3 +182,89 @@ def test_las_notas_editoriales_del_boe_no_forman_parte_del_texto():
     texto = parse_bloque_xml("BOE-A-2000-323", xml).versiones[-1].texto
     assert "quince mil euros" in texto
     assert "seis mil" not in texto and "Téngase" not in texto and "Se modifica" not in texto
+
+
+# Extracto sintético con la forma real de `/id/{id}/texto` (comprobada contra el BOE el 01-11-2026).
+TEXTO_XML = """<?xml version="1.0" encoding="utf-8"?>
+<response><status><code>200</code><text>ok</text></status><data><texto>
+  <bloque id="ti" tipo="encabezado" titulo="TÍTULO I">
+    <version id_norma="BOE-A-1994-26003" fecha_publicacion="19941125" fecha_vigencia="19950101">
+      <p class="titulo">TÍTULO I</p></version></bloque>
+  <bloque id="a1" tipo="precepto" titulo="Artículo 1">
+    <version id_norma="BOE-A-1994-26003" fecha_publicacion="19941125" fecha_vigencia="19950101">
+      <p class="parrafo">Texto sintético del ámbito de aplicación.</p></version></bloque>
+  <bloque id="a2" tipo="precepto" titulo="Artículo 2">
+    <version id_norma="BOE-A-1994-26003" fecha_publicacion="19941125" fecha_vigencia="19950101">
+      <p class="parrafo">Redacción original sintética.</p></version>
+    <version id_norma="BOE-A-2019-3244" fecha_publicacion="20190305" fecha_vigencia="20190306">
+      <p class="parrafo">Redacción vigente sintética de la vivienda habitual.</p>
+      <blockquote><p class="nota_pie">Redacción anterior: no es ley vigente.</p></blockquote></version></bloque>
+</texto></data></response>""".encode()
+
+
+def test_parse_texto_completo():
+    from connectors.boe_models import parse_texto_xml
+
+    bloques = parse_texto_xml(LAU, TEXTO_XML)
+    assert [b.id_bloque for b in bloques] == ["ti", "a1", "a2"]
+    a2 = bloques[2]
+    assert a2.tipo == "precepto" and len(a2.versiones) == 2
+    assert a2.versiones[0].vigencia_hasta == date(2019, 3, 6)
+    assert "Redacción anterior" not in a2.versiones[-1].texto
+
+
+async def test_cachear_norma_completa_permite_buscar_en_toda_la_ley(db):
+    calls: list[str] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        calls.append(request.url.path)
+        if request.url.path.endswith("/metadatos"):
+            return httpx.Response(
+                200, json={"data": [{"identificador": LAU, "titulo": "LAU", "estatus_derogacion": "N"}]}
+            )
+        if request.url.path.endswith(f"/id/{LAU}/texto"):
+            return httpx.Response(200, content=TEXTO_XML)
+        return httpx.Response(404)
+
+    client = httpx.AsyncClient(base_url="https://x", transport=httpx.MockTransport(handler))
+    repo = BOERepository(db, BOEClient(client=client, max_rps=1000))
+    assert await repo.cachear_norma_completa(LAU) == 3
+    assert len(calls) == 2  # metadatos + texto completo, en una sola descarga
+    hits = repo.search("vivienda habitual")
+    assert hits and hits[0]["id_bloque"] == "a2"
+    assert (await repo.get_articulo(LAU, "2")).versiones[-1].texto.startswith("Redacción vigente")
+
+
+async def test_search_acotada_a_las_normas_descubiertas(db):
+    calls: list[str] = []
+    repo = BOERepository(db, BOEClient(client=_mock_boe(calls), max_rps=1000))
+    await repo.get_articulo(LAU, "36")
+    assert repo.search("fianza", normas=[LAU])
+    assert repo.search("fianza", normas=["BOE-A-1889-4763"]) == []
+    assert repo.search("fianza", normas=[]) == []
+
+
+async def test_buscar_normas_solo_palabras_y_descarta_derogadas():
+    import json as _json
+
+    vistas: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        vistas.append(request)
+        data = [
+            {"identificador": LAU, "titulo": "Ley 29/1994 de Arrendamientos Urbanos", "estatus_derogacion": "N"},
+            {"identificador": "BOE-A-1964-99999", "titulo": "Norma derogada sintética", "estatus_derogacion": "S"},
+        ]
+        return httpx.Response(200, json={"data": data})
+
+    client = httpx.AsyncClient(
+        base_url="https://www.boe.es/datosabiertos/api/legislacion-consolidada", transport=httpx.MockTransport(handler)
+    )
+    boe = BOEClient(client=client, max_rps=1000)
+    normas = await boe.buscar_normas('arrendamientos "urbanos") or ambito@codigo:1')
+    assert [n.id_norma for n in normas] == [LAU]
+    req = vistas[0]
+    assert req.url.path == "/datosabiertos/api/legislacion-consolidada"
+    consulta = _json.loads(req.url.params["query"])["query"]["query_string"]["query"]
+    assert consulta == "titulo:arrendamientos and titulo:urbanos and titulo:ambito and titulo:codigo"
+    assert await boe.buscar_normas("a 12") == []

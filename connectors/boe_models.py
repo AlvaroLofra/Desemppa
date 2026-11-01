@@ -100,6 +100,22 @@ def parse_bloque_xml(id_norma: str, xml: bytes) -> Bloque:
     node = root.find("data/bloque")
     if node is None:
         raise ValueError("respuesta del BOE sin <bloque>")
+    return _parse_bloque_node(id_norma, node)
+
+
+def parse_texto_xml(id_norma: str, xml: bytes) -> list[Bloque]:
+    """Texto completo de una norma (`/id/{id}/texto`): todos sus bloques con sus versiones."""
+    root = etree.fromstring(xml)
+    code = root.findtext("status/code")
+    if code and code != "200":
+        raise ValueError(f"BOE respondió {code}: {root.findtext('status/text')}")
+    texto = root.find("data/texto")
+    if texto is None:
+        raise ValueError("respuesta del BOE sin <texto>")
+    return [_parse_bloque_node(id_norma, node) for node in texto.findall("bloque")]
+
+
+def _parse_bloque_node(id_norma: str, node: etree._Element) -> Bloque:
     versiones: list[BloqueVersion] = []
     for v in node.findall("version"):
         start = parse_boe_date(v.get("fecha_vigencia")) or parse_boe_date(v.get("fecha_publicacion"))

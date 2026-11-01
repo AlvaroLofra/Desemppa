@@ -30,7 +30,7 @@ Objetivo: [vision.md](vision.md). Cada fase es una sesión quirúrgica y cierra 
 |---|---|---|
 | 0 | Visión documentada (`docs/vision.md`, `CLAUDE.md`/`GEMINI.md` §1 y regla 2a) | ✅ |
 | 1 | Fallos de la sesión de Argon: numerales del BOE («noveno bis», «diez Objeto»), quitar el plazo penal de 1 año de las submaterias `PEN_*` (art. 131.1 CP: solo leves e injurias/calumnias), rescate léxico con ≥ 2 pistas, `fuente.cita` literal en cada plazo + `scripts/verificar_plazos.py` | ✅ 28-10 |
-| 2a | Cliente BOE: `buscar_normas` (catálogo consolidado, vigentes, estatal o CCAA del usuario), `texto_completo` (`/id/{id}/texto`) y caché de todos los bloques para FTS5 | ⏳ |
+| 2a | Cliente BOE: `buscar_normas` (catálogo consolidado, vigentes, estatal o CCAA del usuario), `texto_completo` (`/id/{id}/texto`) y caché de todos los bloques para FTS5 | 🟡 01-11: `texto_completo`, `cachear_norma_completa` y `search(normas=…)` hechos y comprobados en vivo; `buscar_normas` escrito según la documentación oficial pero **sin verificar en vivo** (el BOE respondía `500 Code: 101` hasta a sus ejemplos): ejecutar `uv run pytest -m live tests/contract/test_live_boe_busqueda.py -q` |
 | 2b | Triaje con `busquedas_boe` + `conceptos` (sin ids ni artículos); ingesta `_descubrir_normas`: BM25 en las leyes encontradas → el LLM elige ≤ 8 artículos de esa lista cerrada; sin norma verificable → mensaje fijo; 5 casos nuevos en la batería | ⏳ |
 | 3a | `DESIGN.md`, solidez con icono + texto, teclado/foco en fuentes y aclaraciones, e2e axe y movimiento reducido ([plan_ui_ux.md](plan_ui_ux.md) fases 1–2) | ✅ 28-10 |
 | 3b | Cabecera veredicto + plazo más urgente y monitor de proceso con eventos reales, incluidas las leyes descubiertas ([plan_ui_ux.md](plan_ui_ux.md) fases 3–4) | ⏳ |
@@ -56,8 +56,8 @@ Dependencias: 2a/2b después de 1 (tocan `connectors/boe_client.py` y `core/orch
 ### Paso 3 · Mejoras futuras de interfaz y comodidad (Fase 4 opcional)
 | # | Tarea | Descripción | Quién |
 |---|---|---|---|
-| 3.1 | Exportar el dictamen a Markdown | Ya hay «Copiar» e «Imprimir» (guardar como PDF desde el navegador) al pie de la respuesta; falta la descarga en Markdown con todas las citas y plazos. | 🤖 Desarrollo |
-| 3.2 | Borrar consultas individuales del historial | Añadir `DELETE /api/consultas/{id}` y un icono de papelera en la barra lateral (`Sidebar.tsx`). | 🤖 Desarrollo |
+| 3.1 | Exportar el dictamen a Markdown | Ya hay «Copiar» e «Imprimir» (guardar como PDF desde el navegador) al pie de la respuesta; falta la descarga en Markdown con todas las citas y plazos. | ✅ Hecho (ver `mejoras_futuras.md` §3 y `estado_implementacion.md`) |
+| 3.2 | Borrar consultas individuales del historial | Añadir `DELETE /api/consultas/{id}` y un icono de papelera en la barra lateral (`Sidebar.tsx`). | ✅ Hecho (ver `mejoras_futuras.md` §3 y `estado_implementacion.md`) |
 | 3.3 | Vista «Biblioteca» en la web (patrón Fuentes de NotebookLM) | Pestaña para arrastrar PDFs de sentencias o convenios provinciales directamente desde el navegador sin usar los scripts de consola. | 🤖 Desarrollo |
 | 3.4 | Si en el futuro decides comercializarlo (Opción B) | Seguir el playbook de [viabilidad_y_estrategia.md §3](viabilidad_y_estrategia.md): cambiar en Ajustes a APIs por clave (BYOK) y hacer una revisión de 4 h de los 3 ficheros YAML con un abogado colegiado. | 🧑+🤖 |
 | 3.5 | Integrar en los convenios sus modificaciones posteriores | Hoy se indexa el texto original publicado; las actas y revisiones salariales que lo modifican (el importador las lista) no se aplican. | 🤖 Desarrollo |

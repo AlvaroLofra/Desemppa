@@ -21,6 +21,7 @@ from connectors.boe_models import (
     articulo_to_bloque,
     parse_bloque_xml,
     parse_indice_json,
+    parse_texto_xml,
 )
 from core.normalize import fold, normalize
 
@@ -46,14 +47,14 @@ class BOEClient:
     async def aclose(self) -> None:
         await self._client.aclose()
 
-    async def _get(self, path: str, accept: str) -> httpx.Response:
+    async def _get(self, path: str, accept: str, params: dict[str, Any] | None = None) -> httpx.Response:
         async with self._lock:
             wait = self._interval - (time.monotonic() - self._last)
             if wait > 0:
                 await asyncio.sleep(wait)
             self._last = time.monotonic()
         try:
-            response = await self._client.get(path, headers={"Accept": accept})
+            response = await self._client.get(path, headers={"Accept": accept}, params=params)
         except httpx.HTTPError as exc:
             raise BOEError(f"BOE no accesible: {exc}") from exc
         if response.status_code == 404:
@@ -78,6 +79,31 @@ class BOEClient:
         response = await self._get(f"/id/{id_norma}/texto/bloque/{id_bloque}", "application/xml")
         try:
             return parse_bloque_xml(id_norma, response.content)
+        except ValueError as exc:
+            raise BOEError(str(exc)) from exc
+
+    async def buscar_normas(self, terminos: str, *, limit: int = 20) -> list[NormaMeta]:
+        """Busca en el catálogo de legislación consolidada normas cuyo título contenga todas las palabras de
+        `terminos` (sintaxis `query_string` de la documentación oficial de la API). El LLM solo aporta palabras:
+        se quitan signos para que no pueda inyectar campos u operadores, y las derogadas se descartan aquí.
+        Pendiente de verificar en vivo: el 01-11-2026 el BOE respondía 500 incluso a sus ejemplos documentados
+        (ver `tests/contract/test_live_boe_busqueda.py`)."""
+        palabras = [p for p in re.findall(r"\w+", fold(terminos)) if len(p) > 2 and not p.isdigit()][:6]
+        if not palabras:
+            return []
+        consulta = {"query": {"query_string": {"query": " and ".join(f"titulo:{p}" for p in palabras)}}}
+        params = {"query": json.dumps(consulta, ensure_ascii=False), "limit": limit}
+        # Ruta absoluta: con base_url y ruta vacía httpx añadiría una "/" final que no es el recurso documentado.
+        response = await self._get(str(self._client.base_url).rstrip("/"), "application/json", params)
+        data = response.json().get("data")
+        items = data if isinstance(data, list) else [data] if data else []
+        normas = [NormaMeta.from_api(i) for i in items if isinstance(i, dict) and i.get("identificador")]
+        return [n for n in normas if not n.derogada]
+
+    async def texto_completo(self, id_norma: str) -> list[Bloque]:
+        response = await self._get(f"/id/{id_norma}/texto", "application/xml")
+        try:
+            return parse_texto_xml(id_norma, response.content)
         except ValueError as exc:
             raise BOEError(str(exc)) from exc
 
@@ -216,17 +242,35 @@ class BOERepository:
         self._store_bloque(bloque)
         return bloque
 
+    async def cachear_norma_completa(self, id_norma: str) -> int:
+        """Descarga el texto completo de una norma en una sola petición y guarda en caché todos sus bloques con
+        versiones, para que `search` (FTS5) pueda buscar en toda la ley. Devuelve cuántos bloques guardó."""
+        await self.ensure_norma(id_norma)
+        guardados = 0
+        for bloque in await self._client.texto_completo(id_norma):
+            if bloque.id_bloque and bloque.versiones:
+                self._store_bloque(bloque)
+                guardados += 1
+        return guardados
+
     async def get_articulo(self, id_norma: str, articulo: str) -> Bloque:
         return await self.get_bloque(id_norma, await self.resolve_bloque(id_norma, articulo))
 
-    def search(self, query: str, limit: int = 10) -> list[dict[str, Any]]:
-        """Búsqueda léxica (FTS5/BM25) sobre la versión vigente de los bloques cacheados."""
+    def search(self, query: str, limit: int = 10, *, normas: list[str] | None = None) -> list[dict[str, Any]]:
+        """Búsqueda léxica (FTS5/BM25) sobre la versión vigente de los bloques cacheados. Con `normas`, solo en
+        esas leyes (las descubiertas para la consulta): la lista cerrada de la que el LLM elegirá artículos."""
+        filtro, params = "", [fts_query(query)]
+        if normas is not None:
+            if not normas:
+                return []
+            filtro = f" AND b.id_norma IN ({', '.join('?' * len(normas))})"
+            params += normas
         rows = self._con.execute(
-            """SELECT b.id_norma, b.id_bloque, b.titulo, snippet(boe_bloques_fts, 0, '[', ']', '…', 12)
+            f"""SELECT b.id_norma, b.id_bloque, b.titulo, snippet(boe_bloques_fts, 0, '[', ']', '…', 12)
                FROM boe_bloques_fts JOIN boe_bloques b ON b.id = boe_bloques_fts.rowid
-               WHERE boe_bloques_fts MATCH ? AND b.version_vigencia_hasta IS NULL
+               WHERE boe_bloques_fts MATCH ? AND b.version_vigencia_hasta IS NULL{filtro}
                ORDER BY bm25(boe_bloques_fts) LIMIT ?""",
-            (fts_query(query), limit),
+            (*params, limit),
         ).fetchall()
         return [{"id_norma": r[0], "id_bloque": r[1], "titulo": r[2], "snippet": r[3]} for r in rows]
 
