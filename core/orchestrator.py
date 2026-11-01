@@ -544,6 +544,19 @@ class Orchestrator:
             if sub
             else []
         )
+        # Asunto laboral sin convenio identificado: se pregunta con la lista cerrada de convenios indexados (en la
+        # segunda ronda el triaje elige el código de esa misma lista), para poder citar sus cláusulas.
+        es_social = (sub.jurisdiccion if sub else raw.jurisdiccion_principal) == Jurisdiccion.SOCIAL.value
+        if es_social and convenios and raw.convenio_aplicable not in convenios:
+            criticos.append(
+                PreguntaAclaratoria(
+                    id="q_convenio",
+                    texto="¿Qué convenio colectivo se aplica en tu trabajo? (suele figurar en la nómina o el contrato)",
+                    tipo_respuesta="opcion",
+                    opciones=[str(cv["denominacion"]) for cv in convenios.values()][:12] + ["Otro / no lo sé"],
+                    motivo="citar las cláusulas de tu convenio",
+                )
+            )
         # Sin duplicados aunque estén redactadas de otra forma (el modelo y el catálogo a veces piden lo mismo).
         preguntas: list[PreguntaAclaratoria] = []
         for p in esenciales + criticos + preguntas_modelo:

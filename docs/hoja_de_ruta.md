@@ -61,5 +61,5 @@ Dependencias: 2a/2b después de 1 (tocan `connectors/boe_client.py` y `core/orch
 | 3.3 | Vista «Biblioteca» en la web (patrón Fuentes de NotebookLM) | Pestaña para arrastrar PDFs de sentencias o convenios provinciales directamente desde el navegador sin usar los scripts de consola. | 🤖 Desarrollo |
 | 3.4 | Si en el futuro decides comercializarlo (Opción B) | Seguir el playbook de [viabilidad_y_estrategia.md §3](viabilidad_y_estrategia.md): cambiar en Ajustes a APIs por clave (BYOK) y hacer una revisión de 4 h de los 3 ficheros YAML con un abogado colegiado. | 🧑+🤖 |
 | 3.5 | Integrar en los convenios sus modificaciones posteriores | Hoy se indexa el texto original publicado; las actas y revisiones salariales que lo modifican (el importador las lista) no se aplican. | 🤖 Desarrollo |
-| 3.6 | Que el triaje pregunte el convenio si falta en un asunto laboral | Ahora se avisa de que no se ha identificado y no se citan cláusulas. | 🤖 Desarrollo |
+| 3.6 | Que el triaje pregunte el convenio si falta en un asunto laboral | Ahora se avisa de que no se ha identificado y no se citan cláusulas. | ✅ 01-11: pregunta `q_convenio` con la lista cerrada de convenios indexados |
 | 3.7 | Ajustes finos del rediseño | Lo que vayas viendo al usarlo (colores, densidad, textos). | 🧑+🤖 |

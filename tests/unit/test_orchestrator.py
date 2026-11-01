@@ -389,7 +389,11 @@ async def test_triaje_solo_acepta_convenios_indexados(services, db, propuesto, e
     s, _ = services({"triaje": [triaje]})
     cid = s.store.create("Soy camarero y me despidieron el 1 de junio de 2026.", "eco")
     t = await Orchestrator(s)._triaje(_Run(cid, "eco"))
-    assert t is not None and t.convenio_aplicable == esperado
+    if esperado:
+        assert t is not None and t.convenio_aplicable == esperado
+    else:  # el código inventado se descarta y, al no haber convenio, se pregunta con la lista cerrada
+        preguntas = next(d for tipo, d in _events(s, cid) if tipo == "clarification_needed")["preguntas"]
+        assert t is None and [q["id"] for q in preguntas] == ["q_convenio"]
 
 
 async def test_fecha_de_inicio_que_no_consta_se_descarta(services):
@@ -928,3 +932,32 @@ async def test_rescate_lexico_solo_con_pistas_juridicas_claras(services, texto, 
         assert t is not None
         assert t.submateria_principal == esperada
         assert s.store.get(cid).estado != Estado.FUERA_DE_ALCANCE
+
+
+@pytest.mark.parametrize(("propuesto", "pregunta"), [("99010365011900", False), (None, True)])
+async def test_triaje_pregunta_el_convenio_si_falta_en_un_asunto_laboral(services, db, propuesto, pregunta):
+    from core.orchestrator import _Run
+
+    repo = ConveniosRepository(db)
+    repo.upsert_convenio("99010365011900", "VI ALEH", "Hostelería", "estatal", prioridad=3)
+    repo.add_version(
+        "99010365011900", "Artículo 1. Ámbito.\nTexto.", boletin_ref="BOE-A-2023-6344", vigencia_desde=date(2023, 3, 10)
+    )
+    triaje = {
+        **TRIAJE_OK,
+        "jurisdiccion_principal": "social",
+        "submateria_principal": "SOC_DESPIDO_DISC",
+        "ramas": [{"submateria": "SOC_DESPIDO_DISC", "jurisdiccion": "social", "peso_enrutamiento": 1.0}],
+        "convenio_aplicable": propuesto,
+        "campos_constan": [
+            {"campo": c, "cita": "despidieron"} for c in submaterias()["SOC_DESPIDO_DISC"].campos_criticos
+        ],
+    }
+    s, _ = services({"triaje": [triaje]})
+    cid = s.store.create("Me despidieron el 1 de junio de 2026 en Madrid.", "eco")
+    t = await Orchestrator(s)._triaje(_Run(cid, "eco"))
+    eventos = [d for tipo, d in _events(s, cid) if tipo == "clarification_needed"]
+    q = [p for p in (eventos[0]["preguntas"] if eventos else []) if p["id"] == "q_convenio"]
+    assert bool(q) == pregunta and (t is None) == pregunta
+    if q:
+        assert q[0]["opciones"] == ["VI ALEH", "Otro / no lo sé"]
