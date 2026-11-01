@@ -1,74 +1,67 @@
-import { AbsoluteFill, Easing, Interactive, interpolate, useCurrentFrame } from "remotion";
-import { C, sans } from "./theme";
+import React from "react";
+import { interpolate, useCurrentFrame } from "remotion";
+import { C } from "./theme";
+import { Icono, Lienzo, Rev, rev } from "./ui";
+import { CONSULTA } from "./datos";
 
-const TEXTO = "Me han despedido estando de baja médica, me entregaron la carta ayer.";
-const OUT = Easing.bezier(0.2, 0, 0, 1);
+const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 
 export const Scene1: React.FC = () => {
   const frame = useCurrentFrame();
-  const chars = Math.floor(
-    interpolate(frame, [20, 54], [0, TEXTO.length], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
-  );
-  const caret = chars < TEXTO.length || Math.floor(frame / 8) % 2 === 0 ? 1 : 0;
+  const chars = Math.floor(interpolate(frame, [18, 108], [0, CONSULTA.length], clamp));
+  const escribiendo = chars < CONSULTA.length;
+  const caret = escribiendo || Math.floor(frame / 10) % 2 === 0 ? 1 : 0;
+  const listo = frame >= 108;
+  const pulso = listo ? 1 + 0.08 * Math.max(0, Math.sin((frame - 108) / 4)) : 1;
 
   return (
-    <AbsoluteFill name="Placa 1" style={{ backgroundColor: C.bg, opacity: interpolate(frame, [54, 60], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }), fontFamily: sans, alignItems: "center", justifyContent: "center" }}>
-      <div style={{ width: 1360 }}>
-        <Interactive.Div
-          name="Título"
-          style={{
-            fontSize: 96,
-            fontWeight: 400,
-            letterSpacing: "-0.03em",
-            textAlign: "center",
-            color: C.text,
-            marginBottom: 56,
-            opacity: interpolate(frame, [0, 16], [0, 1], { extrapolateRight: "clamp", easing: OUT }),
-            translate: interpolate(frame, [0, 16], ["0px 24px", "0px 0px"], { extrapolateRight: "clamp", easing: OUT }),
-          }}
-        >
-          ¿En qué te puedo ayudar?
-        </Interactive.Div>
-        <Interactive.Div
-          name="Compositor"
+    <Lienzo name="Placa 1 · Pregunta" style={{ alignItems: "center", justifyContent: "center" }}>
+      <div style={{ width: 1440 }}>
+        <Rev at={0} dy={28} d={18}>
+          <div style={{ fontSize: 100, fontWeight: 400, letterSpacing: "-0.03em", textAlign: "center", marginBottom: 20 }}>
+            ¿En qué te puedo ayudar?
+          </div>
+        </Rev>
+        <Rev at={8} dy={16}>
+          <div style={{ fontSize: 34, color: C.text2, textAlign: "center", marginBottom: 56 }}>
+            Analizo tu caso con la ley vigente y compruebo cada cita contra el texto oficial.
+          </div>
+        </Rev>
+        <div
           style={{
             background: C.surface,
             border: `1.5px solid ${C.outline}`,
             borderRadius: 56,
             boxShadow: C.shadowBig,
-            padding: "44px 56px",
-            minHeight: 250,
-            display: "flex",
-            alignItems: "flex-end",
-            justifyContent: "space-between",
-            gap: 32,
-            opacity: interpolate(frame, [6, 22], [0, 1], { extrapolateRight: "clamp", extrapolateLeft: "clamp", easing: OUT }),
-            translate: interpolate(frame, [6, 22], ["0px 60px", "0px 0px"], { extrapolateRight: "clamp", extrapolateLeft: "clamp", easing: OUT }),
+            padding: "48px 60px 40px",
+            opacity: rev(frame, 6, 18),
+            translate: `0px ${(1 - rev(frame, 6, 18)) * 60}px`,
           }}
         >
-          <div style={{ fontSize: 48, lineHeight: 1.4, color: C.text, flex: 1 }}>
-            {TEXTO.slice(0, chars)}
+          <div style={{ fontSize: 42, lineHeight: 1.45, minHeight: 4 * 61 }}>
+            {CONSULTA.slice(0, chars)}
             <span style={{ opacity: caret, color: C.accent }}>|</span>
           </div>
-          <div
-            style={{
-              width: 76,
-              height: 76,
-              borderRadius: 38,
-              background: C.accent,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-              opacity: interpolate(frame, [50, 56], [0.35, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
-            }}
-          >
-            <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke={C.onAccent} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 19V5M5 12l7-7 7 7" />
-            </svg>
+          <div style={{ display: "flex", alignItems: "center", marginTop: 24 }}>
+            <Icono n="clip" size={44} color={C.text2} />
+            <div
+              style={{
+                marginLeft: "auto",
+                width: 84,
+                height: 84,
+                borderRadius: 42,
+                background: listo ? C.accent : C.surface2,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                scale: pulso,
+              }}
+            >
+              <Icono n="arriba" size={44} color={listo ? C.onAccent : C.text3} sw={2.4} />
+            </div>
           </div>
-        </Interactive.Div>
+        </div>
       </div>
-    </AbsoluteFill>
+    </Lienzo>
   );
 };

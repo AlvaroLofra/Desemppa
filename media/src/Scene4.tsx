@@ -1,74 +1,48 @@
-import { AbsoluteFill, Easing, Interactive, interpolate, useCurrentFrame } from "remotion";
-import { C, sans } from "./theme";
+import React from "react";
+import { C } from "./theme";
+import { CheckRedondo, Eyebrow, Lienzo, Rev } from "./ui";
+import { FASES, FUENTES_LEGISLACION } from "./datos";
+import { useCurrentFrame } from "remotion";
 
-const OUT = Easing.bezier(0.2, 0, 0, 1);
-const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
-const PALABRAS = ["Los", "plazos", "los", "calcula", "el", "código,", "no", "el", "modelo."];
+const Grupo: React.FC<{ at: number; titulo: string; items: string[] }> = ({ at, titulo, items }) => (
+  <Rev at={at} dy={14} style={{ marginBottom: 26 }}>
+    <div style={{ fontSize: 26, fontWeight: 500, letterSpacing: "0.1em", textTransform: "uppercase", color: C.text3, marginBottom: 8 }}>{titulo}</div>
+    {items.map((x) => (
+      <div key={x} style={{ fontSize: 36, padding: "6px 0" }}>{x}</div>
+    ))}
+  </Rev>
+);
 
 export const Scene4: React.FC = () => {
   const frame = useCurrentFrame();
+  const AT = [14, 36, 58, 80];
   return (
-    <AbsoluteFill
-      name="Placa 4"
-      style={{
-        backgroundColor: C.bg,
-        fontFamily: sans,
-        alignItems: "center",
-        justifyContent: "center",
-        opacity: interpolate(frame, [0, 5, 39, 45], [0, 1, 1, 0], clamp),
-      }}
-    >
-      <Interactive.Div
-        name="Tarjeta"
-        style={{
-          width: 1380,
-          background: C.surface,
-          borderRadius: 48,
-          boxShadow: C.shadow,
-          padding: "72px 80px",
-          display: "flex",
-          alignItems: "center",
-          gap: 64,
-          opacity: interpolate(frame, [0, 12], [0, 1], { ...clamp, easing: OUT }),
-          translate: interpolate(frame, [0, 12], ["0px 40px", "0px 0px"], { ...clamp, easing: OUT }),
-        }}
-      >
-        <div
-          style={{
-            width: 190,
-            height: 190,
-            borderRadius: 56,
-            background: C.accentContainer,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            flexShrink: 0,
-            scale: interpolate(frame, [2, 14], [0.6, 1], { ...clamp, easing: Easing.bezier(0.34, 1.56, 0.64, 1) }),
-          }}
-        >
-          <svg width="104" height="104" viewBox="0 0 24 24" fill="none" stroke={C.accent} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="4.5" width="18" height="16" rx="3" />
-            <path d="M3 9.5h18M8 2.5v4M16 2.5v4" />
-            <path d="M8.5 15l2.5 2.5 4.5-5" />
-          </svg>
-        </div>
-        <div>
-          <div style={{ fontSize: 76, lineHeight: 1.15, letterSpacing: "-0.03em", color: C.text }}>
-            {PALABRAS.map((p, i) => {
-              const at = 8 + i * 2.5;
-              const o = interpolate(frame, [at, at + 7], [0, 1], { ...clamp, easing: OUT });
+    <Lienzo name="Placa 4 · Fuentes" style={{ alignItems: "center", justifyContent: "center" }}>
+      <div style={{ width: 1640 }}>
+        <Eyebrow>Fuentes oficiales</Eyebrow>
+        <Rev at={2}>
+          <div style={{ fontSize: 80, letterSpacing: "-0.03em", lineHeight: 1.1, marginBottom: 56 }}>Va a buscar las fuentes de verdad</div>
+        </Rev>
+        <div style={{ display: "flex", gap: 56, alignItems: "flex-start" }}>
+          <div style={{ flex: 1 }}>
+            {FASES.map((f, i) => {
+              const hecha = frame >= (AT[i + 1] ?? 9999);
               return (
-                <span key={i} style={{ display: "inline-block", opacity: o, translate: `0px ${(1 - o) * 18}px`, marginRight: "0.28em" }}>
-                  {p}
-                </span>
+                <Rev key={f} at={AT[i]} dy={18} style={{ display: "flex", alignItems: "center", gap: 24, marginBottom: 38 }}>
+                  <CheckRedondo size={52} hecho={hecha} />
+                  <div style={{ fontSize: 42, letterSpacing: "-0.02em", lineHeight: 1.2, color: frame >= AT[i] ? C.text : C.text2 }}>{f}</div>
+                </Rev>
               );
             })}
           </div>
-          <div style={{ fontSize: 32, color: C.text2, marginTop: 28, opacity: interpolate(frame, [30, 38], [0, 1], { ...clamp, easing: OUT }) }}>
-            Motor de calendario determinista
-          </div>
+          <Rev at={22} dy={30} style={{ width: 640, background: C.surface, borderRadius: 48, padding: "40px 48px", boxShadow: C.shadow }}>
+            <div style={{ fontSize: 36, fontWeight: 500, marginBottom: 28 }}>Fuentes consultadas</div>
+            <Grupo at={34} titulo="Legislación" items={FUENTES_LEGISLACION} />
+            <Grupo at={60} titulo="Jurisprudencia" items={["Sentencia del Tribunal Supremo 185/2025"]} />
+            <Grupo at={84} titulo="Tus documentos" items={["carta_despido.pdf"]} />
+          </Rev>
         </div>
-      </Interactive.Div>
-    </AbsoluteFill>
+      </div>
+    </Lienzo>
   );
 };

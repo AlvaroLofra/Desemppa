@@ -1,98 +1,61 @@
-import { AbsoluteFill, Easing, Interactive, interpolate, useCurrentFrame } from "remotion";
-import { C, sans, serif } from "./theme";
+import React from "react";
+import { interpolate, useCurrentFrame } from "remotion";
+import { C } from "./theme";
+import { Boton, Eyebrow, Lienzo, Rev, rev } from "./ui";
 
-const OUT = Easing.bezier(0.2, 0, 0, 1);
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 
-// Literal de la API de datos abiertos del BOE (BOE-A-2015-11430, bloque a55, apartado 3), comprobado el 25-10-2026.
-const PRE = "El despido será calificado como ";
-const RES = "procedente, improcedente o nulo.";
+// Preguntas reales de la app para un despido (eventos `clarification_needed` de data/local/local_cache.db).
+const Q1 = {
+  texto: "¿Firmaste la carta de despido haciendo constar «no conforme» y la fecha?",
+  motivo: "si la firma acredita la fecha fehaciente de notificación, queda determinada con certeza la base para el cómputo de plazos de reclamación.",
+};
+const Q2 = {
+  texto: "¿En qué municipio está el juzgado o el organismo (o, si no lo sabes, tu municipio)?",
+  motivo: "festivos locales del calendario",
+};
 
 export const Scene3: React.FC = () => {
   const frame = useCurrentFrame();
-  const sweep = interpolate(frame, [22, 38], [0, 100], { ...clamp, easing: Easing.bezier(0.4, 0, 0.2, 1) });
-  const pop = interpolate(frame, [40, 48], [0, 1], { ...clamp, easing: Easing.bezier(0.34, 1.56, 0.64, 1) });
-  return (
-    <AbsoluteFill
-      name="Placa 3"
-      style={{
-        backgroundColor: C.bg,
-        fontFamily: sans,
-        alignItems: "center",
-        justifyContent: "center",
-        opacity: interpolate(frame, [0, 5, 54, 60], [0, 1, 1, 0], clamp),
-      }}
-    >
-      <div style={{ width: 1280 }}>
-        <Interactive.Div
-          name="Fase"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 24,
-            fontSize: 46,
-            letterSpacing: "-0.02em",
-            color: C.text,
-            marginBottom: 56,
-            opacity: interpolate(frame, [0, 10], [0, 1], { ...clamp, easing: OUT }),
-          }}
-        >
-          <div style={{ width: 40, height: 40, borderRadius: 20, background: pop > 0.5 ? C.accent : C.accentContainer, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            {pop > 0.5 ? (
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={C.onAccent} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12l5 5 9-10" /></svg>
-            ) : (
-              <div style={{ width: 14, height: 14, borderRadius: 7, background: C.accent, scale: 0.8 + 0.2 * Math.sin(frame / 3) }} />
-            )}
-          </div>
-          Verificando cada cita contra el texto oficial
-        </Interactive.Div>
+  const sel = frame >= 96;
+  const muni = "Sevilla (Sevilla)".slice(0, Math.floor(interpolate(frame, [104, 126], [0, 17], clamp)));
 
-        <Interactive.Div
-          name="Tarjeta"
-          style={{
-            background: C.surface,
-            borderRadius: 48,
-            padding: "52px 64px 48px",
-            boxShadow: C.shadow,
-            opacity: interpolate(frame, [8, 22], [0, 1], { ...clamp, easing: OUT }),
-            translate: interpolate(frame, [8, 22], ["0px 40px", "0px 0px"], { ...clamp, easing: OUT }),
-          }}
-        >
-          <div style={{ fontSize: 28, fontWeight: 500, color: C.text2, marginBottom: 28 }}>Fundamentos verificados</div>
-          <div style={{ fontFamily: serif, fontSize: 58, lineHeight: 1.4, color: C.text }}>
-            {PRE}
-            <span
-              style={{
-                backgroundImage: `linear-gradient(${C.highlight}, ${C.highlight})`,
-                backgroundRepeat: "no-repeat",
-                backgroundSize: `${sweep}% 100%`,
-                padding: "0 6px",
-                margin: "0 -6px",
-              }}
-            >
-              {RES}
-            </span>
+  return (
+    <Lienzo name="Placa 3 · Aclaraciones" style={{ alignItems: "center", justifyContent: "center" }}>
+      <div style={{ width: 1520 }}>
+        <Eyebrow>Aclaraciones</Eyebrow>
+        <Rev at={4}>
+          <div style={{ fontSize: 80, letterSpacing: "-0.03em", lineHeight: 1.1, marginBottom: 40 }}>Te pregunta lo que necesita saber</div>
+        </Rev>
+        <div style={{ background: C.surface, borderRadius: 48, padding: "44px 56px 44px", opacity: rev(frame, 10, 16), translate: `0px ${(1 - rev(frame, 10, 16)) * 40}px` }}>
+          <div style={{ fontSize: 40 }}>Antes de seguir, necesito algunos datos para no equivocarme:</div>
+          <div style={{ fontSize: 28, color: C.text2, marginTop: 10, marginBottom: 34 }}>
+            Cuanto más precisas sean tus respuestas, más fiable será el resultado. Si no sabes algo, dilo: no se supondrá.
           </div>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 40 }}>
-            <div style={{ fontSize: 28, color: C.text2 }}>Estatuto de los Trabajadores, art. 55.3 · BOE</div>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-                fontSize: 28,
-                fontWeight: 500,
-                color: C.success,
-                opacity: pop,
-                scale: 0.8 + 0.2 * pop,
-              }}
-            >
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={C.success} strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M7.5 12.5l3 3 6-7" /></svg>
-              Cita verificada
+
+          <Rev at={26} dy={16} style={{ marginBottom: 30 }}>
+            <div style={{ fontSize: 34 }}>{Q1.texto}</div>
+            <div style={{ fontSize: 26, color: C.text3, margin: "6px 0 16px" }}>Por qué lo pregunto: {Q1.motivo}</div>
+            <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+              <Boton tipo={sel ? "tonal" : "outline"} size={30}>Sí</Boton>
+              <Boton tipo="outline" size={30}>No</Boton>
+              <div style={{ fontSize: 26, color: C.text2, marginLeft: 12 }}>No lo sé</div>
             </div>
-          </div>
-        </Interactive.Div>
+          </Rev>
+
+          <Rev at={60} dy={16} style={{ marginBottom: 34 }}>
+            <div style={{ fontSize: 34 }}>{Q2.texto}</div>
+            <div style={{ fontSize: 26, color: C.text3, margin: "6px 0 14px" }}>Por qué lo pregunto: {Q2.motivo}</div>
+            <div style={{ width: 640, border: `2px solid ${frame >= 104 ? C.accent : C.outline}`, borderRadius: 16, padding: "14px 22px", fontSize: 32, minHeight: 30, background: C.bg }}>
+              {muni || <span style={{ color: C.text3 }}>Municipio del juzgado u organismo</span>}
+            </div>
+          </Rev>
+
+          <Rev at={40} dy={10}>
+            <Boton tipo="primario" size={32}>Continuar</Boton>
+          </Rev>
+        </div>
       </div>
-    </AbsoluteFill>
+    </Lienzo>
   );
 };
