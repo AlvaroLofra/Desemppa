@@ -24,7 +24,7 @@ from core.nli import NLIChecker, hechos_no_constatados
 from core.normalize import fold
 from core.router import ModelRouter
 from core.schemas import Afirmacion, ArticuloBOE, ArticuloUE, FragmentoFuente, PlazoCalculado
-from core.validators import verify_quote
+from core.validators import find_pronosticos, verify_quote
 
 Seccion = Literal["respuesta", "resumen", "fortaleza", "riesgo", "paso", "fundamento"]
 
@@ -398,6 +398,12 @@ async def verificar_afirmaciones(
         if hallazgos:
             v.tipo_final = None
             v.motivos += [f"{h.motivo}: «{h.fragmento}»" for h in hallazgos]
+        # Un pronóstico porcentual de éxito está prohibido siempre (G4), aunque la cifra la haya escrito el
+        # ciudadano: su texto no convierte en fuente un «85 % de probabilidades» (inyección, 04-11-2026).
+        pronosticos = find_pronosticos(v.texto)
+        if pronosticos:
+            v.tipo_final = None
+            v.motivos.append(f"pronóstico porcentual de éxito, prohibido: «{pronosticos[0]}»")
         v.citas = validas
         resultado.veredictos.append(v)
         if v.tipo_final is not None and a.tipo in ("norma", "razonamiento"):
