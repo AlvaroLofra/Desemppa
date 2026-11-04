@@ -7,6 +7,7 @@ import asyncio
 import hashlib
 import logging
 import re
+import sqlite3
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, date, datetime
@@ -17,6 +18,7 @@ from pydantic import BaseModel, ValidationError
 from rapidfuzz import fuzz
 
 from connectors.boe_client import BOEError, BOERepository
+from connectors.boe_models import Bloque
 from connectors.cendoj_fetcher import CendojRepository
 from connectors.convenios_db import ConveniosRepository
 from connectors.corpus_legal import CorpusLegal
@@ -30,6 +32,7 @@ from core.firewall import Contexto, ResultadoFirewall, Seccion, escanear, verifi
 from core.llm_types import LLMRequest, LLMResult
 from core.materias import (
     Submateria,
+    alias_de,
     catalogo_normas_para_prompt,
     catalogo_para_prompt,
     id_norma,
@@ -134,6 +137,59 @@ class TriageLLM(BaseModel):
     campos_constan: list[dict[str, Any]] = []
     # Preceptos adicionales sugeridos por el triaje (solo se aceptan alias de config/catalogo_normas.json).
     normas_sugeridas: list[dict[str, Any]] = []
+    # Conceptos para buscar en el corpus legal (se limpian de números de artículo e identificadores).
+    busquedas_boe: list[Any] = []
+
+
+class CribadoLLM(BaseModel):
+    """Salida del cribado: índices de la lista cerrada de preceptos (lo demás se descarta)."""
+
+    elegidos: list[Any] = []
+    motivo: str = ""
+
+
+# Núcleo de búsqueda por orden jurisdiccional (alias del catálogo); se suma a las normas de la submateria.
+_NUCLEO_JURISDICCION: dict[str, list[str]] = {
+    "civil": ["CC", "LEC", "CCOM", "LAU", "TRLGDCU", "LSC", "TRLC"],
+    "social": ["ET", "LRJS", "LGSS"],
+    "contencioso": ["LPAC", "LRJSP", "LJCA", "LGT"],
+    "administrativa_previa": ["LPAC", "LRJSP", "LJCA", "LGT"],
+    "penal": ["CP", "LECRIM"],
+}
+MAX_DESCUBIERTOS = 8
+_REF_LEGAL = re.compile(
+    r"\bBOE-A-\d{4}-\d+\b|\b(?:art[íi]culos?|arts?\.?)\s*\d+[\w.-]*(?:\s*(?:bis|ter|quater))?|\b\d+[\w./-]*\b",
+    re.I,
+)
+
+
+def limpiar_busquedas(raw: list[Any]) -> list[str]:
+    """Términos de búsqueda sin identificadores BOE ni números de artículo (docs/vision.md: el modelo propone
+    conceptos, nunca normas). Se quedan las 5 primeras distintas con al menos 3 caracteres."""
+    salida: list[str] = []
+    for x in raw[:10]:
+        if not isinstance(x, str):
+            continue
+        t = " ".join(_REF_LEGAL.sub(" ", x).split())[:120]
+        if len(t) >= 3 and fold(t).lower() not in {fold(s).lower() for s in salida}:
+            salida.append(t)
+    return salida[:5]
+
+
+def indices_elegidos(raw: list[Any], n: int) -> list[int]:
+    """Índices válidos (0 <= i < n), sin repetir y en el orden dado; acepta 3, "3", "[3]" o {"n": 3}."""
+    salida: list[int] = []
+    for x in raw:
+        if isinstance(x, dict):
+            x = x.get("n", x.get("indice", x.get("i")))
+        if isinstance(x, bool):
+            continue
+        if isinstance(x, str):
+            m = re.fullmatch(r"\s*\[?\s*(\d+)\s*\]?\s*", x)
+            x = int(m.group(1)) if m else None
+        if isinstance(x, int) and 0 <= x < n and x not in salida:
+            salida.append(x)
+    return salida
 
 
 _FALLBACK_JURISDICCION: dict[str, str] = {
@@ -275,13 +331,13 @@ def _construir_normas_objetivo(
     resultado: list[NormaObjetivo] = []
     vistos: dict[str, list[str]] = {}
 
-    def _anadir(alias: str, arts: list[str], *, sugerida: bool = False) -> None:
+    def _anadir(alias: str, arts: list[str], *, sugerida: bool = False, propuesta: bool = False) -> None:
         nid = id_norma(alias)
         nuevos = [a for a in arts if a not in vistos.get(nid, [])]
         if not nuevos:
             return
         vistos.setdefault(nid, []).extend(nuevos)
-        motivo = f"{alias} (sugerida)" if sugerida else alias
+        motivo = f"{alias} (propuesta)" if propuesta else f"{alias} (sugerida)" if sugerida else alias
         resultado.append(NormaObjetivo(id_norma=nid, articulos=nuevos, motivo=motivo))
 
     for n in normas_aplicables(sub, foral):
@@ -307,7 +363,7 @@ def _construir_normas_objetivo(
             continue
         arts_norm = [a for x in arts_raw[:4] if (a := _normalizar_num_articulo(str(x)))]
         if arts_norm:
-            _anadir(alias, arts_norm, sugerida=True)
+            _anadir(alias, arts_norm, propuesta=True)
 
     # Toda demanda civil exige antes intentar negociar (arts. 5 y 10 LO 1/2025).
     if jur == Jurisdiccion.CIVIL:
@@ -628,6 +684,14 @@ class Orchestrator:
             # Solo códigos que existen en la base local: un código inventado por el modelo se descarta.
             convenio_aplicable=raw.convenio_aplicable if raw.convenio_aplicable in convenios else None,
             competencia_local=bool(sub and sub.competencia_local),
+            busquedas_boe=limpiar_busquedas(raw.busquedas_boe),
+            leyes_pista=list(
+                dict.fromkeys(
+                    a
+                    for item in raw.normas_sugeridas
+                    if isinstance(item, dict) and (a := str(item.get("norma") or "").strip().upper()) in normas()
+                )
+            )[:6],
         )
         self.s.store.save(
             run.consulta_id, triage_json={**triage.model_dump(mode="json"), "resumen_hechos": raw.resumen_hechos}
@@ -712,9 +776,15 @@ class Orchestrator:
         avisos: list[str] = []
         articulos: list[ArticuloBOE] = []
         vistos_boe: set[str] = set()
+        # Con la ley descargada entera (corpus legal), los artículos que el triaje propone de memoria no se piden
+        # directamente: esa ley entra en la búsqueda y el cribado elige de la lista cerrada de lo que existe.
+        descargadas = set(self.s.corpus.ids_descargados()) if self.s.corpus is not None else set()
         for norma in triage.normas_boe_objetivo:
-            es_sugerida = norma.motivo.endswith(" (sugerida)")
-            motivo_limpio = norma.motivo.removesuffix(" (sugerida)")
+            es_propuesta = norma.motivo.endswith(" (propuesta)")
+            es_sugerida = es_propuesta or norma.motivo.endswith(" (sugerida)")
+            motivo_limpio = norma.motivo.removesuffix(" (propuesta)").removesuffix(" (sugerida)")
+            if es_propuesta and norma.id_norma in descargadas and self.s.legislacion is not None:
+                continue
             for art in norma.articulos:
                 try:
                     bloque = await self.s.boe.get_articulo(norma.id_norma, art)
@@ -722,37 +792,10 @@ class Orchestrator:
                     if not es_sugerida:
                         avisos.append(f"No se pudo obtener el art. {art} ({motivo_limpio}) del BOE: {exc}")
                     continue
-                va = select_version(bloque, triage.fecha_hechos)
-                avisos.extend(va.avisos)
-                if va.version is None:
-                    continue
-                sid = f"BOE:{norma.id_norma}:{bloque.id_bloque}:{va.version.vigencia_desde.isoformat()}"
-                if sid in vistos_boe:
-                    continue
-                vistos_boe.add(sid)
-                fuente = ArticuloBOE(
-                    source_id=sid,
-                    titulo=f"{bloque.titulo} {motivo_limpio}",
-                    texto_verbatim=va.version.texto[:MAX_FUENTE_CHARS],
-                    url_oficial=f"https://www.boe.es/buscar/act.php?id={norma.id_norma}#{bloque.id_bloque}",
-                    id_norma=norma.id_norma,
-                    id_bloque=bloque.id_bloque,
-                    version_fecha_vigencia=va.version.vigencia_desde,
-                    vigente_a_fecha_hechos=va.vigente_a_fecha_hechos,
-                    reformado_tras_fecha_hechos=va.reformado_tras_fecha_hechos,
-                )
-                articulos.append(fuente)
-                self._emit(
-                    run,
-                    "source",
-                    {
-                        "source_id": fuente.source_id,
-                        "tipo": "boe",
-                        "titulo": fuente.titulo,
-                        "url": fuente.url_oficial,
-                        "extracto": fuente.texto_verbatim[:280],
-                    },
-                )
+                fuente = self._fuente_boe(run, bloque, motivo_limpio, triage.fecha_hechos, vistos_boe, avisos)
+                if fuente is not None:
+                    articulos.append(fuente)
+        articulos.extend(await self._descubrir_articulos(run, triage, resumen, vistos_boe, avisos))
         articulos_ue: list[ArticuloUE] = []
         sub_ingesta = submaterias().get(triage.submateria_principal)
         for norma_ue in sub_ingesta.normas_ue if sub_ingesta else []:
@@ -912,6 +955,148 @@ class Orchestrator:
         if cobertura != "completa":
             self._estado(run, Estado.INGESTA_DEGRADADA)
         return dossier
+
+    def _fuente_boe(
+        self,
+        run: _Run,
+        bloque: Bloque,
+        motivo: str,
+        fecha_hechos: date | None,
+        vistos: set[str],
+        avisos: list[str],
+        *,
+        origen: str = "catalogo",
+    ) -> ArticuloBOE | None:
+        """El precepto en la redacción vigente a la fecha de los hechos, como fuente del dossier (y evento)."""
+        va = select_version(bloque, fecha_hechos)
+        avisos.extend(va.avisos)
+        if va.version is None:
+            return None
+        sid = f"BOE:{bloque.id_norma}:{bloque.id_bloque}:{va.version.vigencia_desde.isoformat()}"
+        if sid in vistos:
+            return None
+        vistos.add(sid)
+        fuente = ArticuloBOE(
+            source_id=sid,
+            titulo=f"{bloque.titulo} {motivo}",
+            texto_verbatim=va.version.texto[:MAX_FUENTE_CHARS],
+            url_oficial=f"https://www.boe.es/buscar/act.php?id={bloque.id_norma}#{bloque.id_bloque}",
+            id_norma=bloque.id_norma,
+            id_bloque=bloque.id_bloque,
+            version_fecha_vigencia=va.version.vigencia_desde,
+            vigente_a_fecha_hechos=va.vigente_a_fecha_hechos,
+            reformado_tras_fecha_hechos=va.reformado_tras_fecha_hechos,
+        )
+        self._emit(
+            run,
+            "source",
+            {
+                "source_id": fuente.source_id,
+                "tipo": "boe",
+                "titulo": fuente.titulo,
+                "url": fuente.url_oficial,
+                "extracto": fuente.texto_verbatim[:280],
+                "origen": origen,
+            },
+        )
+        return fuente
+
+    def _ambito_busqueda(self, triage: TriageOutputSchema, descargadas: list[str]) -> list[str]:
+        """Leyes donde buscar: las de la submateria y sus ramas, las que señala el triaje y el núcleo de su orden
+        jurisdiccional, de entre las descargadas. Si ninguna lo está, todas las descargadas."""
+        cat = submaterias()
+        aliases: list[str] = []
+        for clave in [triage.submateria_principal, *(r.submateria for r in triage.ramas)]:
+            if (sub := cat.get(clave)) is not None:
+                aliases.extend(n.norma for n in sub.normas)
+        aliases.extend(triage.leyes_pista)
+        aliases.extend(_NUCLEO_JURISDICCION.get(triage.jurisdiccion_principal.value, []))
+        catalogo = normas()
+        ids = [str(catalogo[a]["id"]) for a in dict.fromkeys(aliases) if a in catalogo]
+        dentro = [i for i in dict.fromkeys(ids) if i in set(descargadas)]
+        return dentro or list(descargadas)
+
+    async def _descubrir_articulos(
+        self, run: _Run, triage: TriageOutputSchema, resumen: str, vistos: set[str], avisos: list[str]
+    ) -> list[ArticuloBOE]:
+        """Busca en el corpus legal (redacción vigente a la fecha de los hechos) y deja que el rol `cribado` elija
+        de esa LISTA CERRADA. Un índice fuera de la lista se descarta; si el cribado falla, se toman los mejor
+        puntuados por la búsqueda y se avisa. Nada de lo elegido puede ser una norma que no exista."""
+        if self.s.legislacion is None or self.s.corpus is None:
+            return []
+        descargadas = self.s.corpus.ids_descargados()
+        if not descargadas:
+            return []
+        fecha = triage.fecha_hechos or self.s.today()
+        ya = {tuple(sid.split(":")[1:3]) for sid in vistos}
+        consultas = [*triage.busquedas_boe, " ".join(triage.terminos_cendoj), resumen[:600]]
+        try:
+            candidatos = [
+                c
+                for c in await self.s.legislacion.buscar(
+                    consultas, fecha, normas=self._ambito_busqueda(triage, descargadas), k=24
+                )
+                if c.clave not in ya
+            ]
+        except sqlite3.Error as exc:
+            log.warning("búsqueda en el corpus legal fallida: %s", exc)
+            return []
+        if not candidatos:
+            return []
+        lineas = []
+        for i, c in enumerate(candidatos):
+            pr = c.precepto
+            ley = alias_de(pr.id_norma) or pr.id_norma
+            donde = f" ({pr.ubicacion})" if pr.ubicacion else ""
+            lineas.append(f"[{i}] {ley} · {pr.titulo}{donde}: {' '.join(pr.inicio.split())[:300]}")
+        c_actual = self.s.store.get(run.consulta_id)
+        consulta = c_actual.texto_seudonimizado + "".join(
+            f"\n- {a.get('pregunta', '')}: {a.get('respuesta', '')}" for a in c_actual.aclaraciones
+        )
+        prompt = (
+            f"CONSULTA DEL CIUDADANO (seudonimizada):\n{consulta}\n\nRESUMEN DE LOS HECHOS:\n{resumen}\n\n"
+            f"LISTA CERRADA DE PRECEPTOS (redacción vigente el {fecha:%d/%m/%Y}):\n" + "\n".join(lineas)
+        )
+        try:
+            sel = await self._llm_json(run, "cribado", _prompt("cribado"), prompt, CribadoLLM)
+            elegidos = indices_elegidos(sel.elegidos, len(candidatos))[:MAX_DESCUBIERTOS]
+            descartados = len(sel.elegidos) - len(elegidos)
+        except ProviderError as exc:
+            elegidos, descartados = list(range(min(5, len(candidatos)))), 0
+            avisos.append(
+                f"El cribado de preceptos no respondió ({type(exc).__name__}): se usan los "
+                f"{len(elegidos)} más pertinentes según la búsqueda en el BOE."
+            )
+        salida: list[ArticuloBOE] = []
+        for i in elegidos:
+            pr = candidatos[i].precepto
+            ley = alias_de(pr.id_norma) or pr.id_norma
+            try:
+                bloque = await self.s.boe.get_bloque(pr.id_norma, pr.id_bloque)  # texto vigente del BOE (o caché)
+            except BOEError as exc:
+                local = self.s.boe.get_bloque_local(pr.id_norma, pr.id_bloque)
+                if local is None:
+                    continue
+                bloque = local
+                cuando = (self.s.boe.descargado_en(pr.id_norma, pr.id_bloque) or "")[:10]
+                avisos.append(
+                    f"{pr.titulo} {ley}: el BOE no respondió ({exc}); se usa la copia descargada el {cuando}."
+                )
+            fuente = self._fuente_boe(run, bloque, ley, triage.fecha_hechos, vistos, avisos, origen="descubierto")
+            if fuente is not None:
+                salida.append(fuente)
+        self._emit(
+            run,
+            "descubrimiento",
+            {
+                "fecha": fecha.isoformat(),
+                "candidatos": len(candidatos),
+                "elegidos": [f.titulo for f in salida],
+                "descartados": descartados,
+                "vectorial": self.s.legislacion.vectorial,
+            },
+        )
+        return salida
 
     # ---------- Fase 3 ----------
     @staticmethod
@@ -1484,6 +1669,37 @@ class Orchestrator:
         self._emit(run, "final", payload)
 
     # ---------- punto de entrada ----------
+    def _sin_norma_verificable(self, run: _Run, triage: TriageOutputSchema, dossier: DossierIngestaSchema) -> None:
+        """Ninguna ley, sentencia ni convenio verificable: no hay debate (no se rellena el hueco con lo que «sabe» un
+        modelo, docs/vision.md §2). Se dan los plazos y la postulación, que no dependen de los modelos."""
+        plazos, avisos_plazos = self._plazos(triage)
+        sub = submaterias().get(triage.submateria_principal)
+        postulacion = evaluar(
+            CasoPostulacion(
+                jurisdiccion=triage.jurisdiccion_principal.value,
+                procedimiento=sub.procedimiento if sub else None,
+                fase="instancia",
+                cuantia_eur=triage.cuantia_estimada_eur,
+            )
+        )
+        self._estado(run, Estado.BLOQUEADA)
+        payload = {
+            "estado": "BLOQUEADA",
+            "motivo": "sin_norma_verificable",
+            "mensaje": (
+                "No he encontrado ninguna norma, sentencia ni convenio que pueda comprobar en las fuentes oficiales "
+                "para tu consulta, así que no te doy una respuesta jurídica: prefiero decirlo a rellenar el hueco con "
+                "algo que no está verificado. Si el BOE no respondía, vuelve a intentarlo más tarde; también puedes "
+                "descargar los códigos legales en Biblioteca → Códigos legales para buscar en ellos sin conexión."
+            ),
+            "plazos": [p.model_dump(mode="json") for p in plazos],
+            "postulacion": postulacion.model_dump(),
+            "avisos": list(dict.fromkeys([*run.avisos, *dossier.avisos, *avisos_plazos])),
+            "aviso_legal": AVISO_LEGAL,
+        }
+        self.s.store.save(run.consulta_id, dictamen_json=payload, banda_solidez=BandaSolidez.NO_DETERMINABLE.value)
+        self._emit(run, "final", payload)
+
     async def run(self, consulta_id: str) -> None:
         c = self.s.store.get(consulta_id)
         run = _Run(consulta_id=consulta_id, modo=c.modo)
@@ -1493,6 +1709,9 @@ class Orchestrator:
                 return
             resumen = (self.s.store.get(consulta_id).triage or {}).get("resumen_hechos") or c.texto_seudonimizado
             dossier = await self._ingesta(run, triage, resumen)
+            if not (dossier.articulos_boe or dossier.articulos_ue or dossier.sentencias or dossier.clausulas_convenio):
+                self._sin_norma_verificable(run, triage, dossier)
+                return
             debate = await self._debate(run, dossier)
             if self._pedir_hechos_determinantes(run, debate):
                 return

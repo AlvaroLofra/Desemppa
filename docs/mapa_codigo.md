@@ -18,7 +18,8 @@ Visión y criterio de alcance: [vision.md](vision.md). Plan en curso: [hoja_de_r
 * **Abogado, procurador y MASC LO 1/2025:** `core/postulacion_rules.py` (reglas en `config/postulacion.yaml`)
 * **Árbol determinista de trámites:** `core/hoja_de_ruta.py` (reglas en `config/hojas_de_ruta.yaml`)
 * **Router y resiliencia de modelos:** `core/router.py` (config en `config/profiles.toml` y `config/models.toml`)
-* **Prompts del sistema de los agentes:** `core/prompts/` (`magistrado.md`, `triaje.md`, `defensa.md`, `contraparte.md`)
+* **Prompts del sistema de los agentes:** `core/prompts/` (`magistrado.md`, `triaje.md`, `defensa.md`, `contraparte.md`, `cribado.md`)
+* **Descubrimiento de preceptos (lista cerrada):** `Orchestrator._descubrir_articulos` / `_fuente_boe` / `_sin_norma_verificable` en `core/orchestrator.py`; `limpiar_busquedas` e `indices_elegidos`; tests en `tests/unit/test_descubrimiento.py`
 * **Esquema de base de datos SQLite y migraciones:** `storage/database.py` y `storage/migrations/`
 
 ---

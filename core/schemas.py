@@ -144,6 +144,10 @@ class TriageOutputSchema(BaseModel):
     terminos_cendoj: list[str] = Field(default_factory=list, max_length=8)
     convenio_aplicable: str | None = None
     competencia_local: bool = False
+    # Términos para buscar en el corpus legal (nunca identificadores ni números de artículo) y leyes del catálogo que
+    # el triaje considera pertinentes: solo acotan dónde se busca; los preceptos los elige el cribado de una lista.
+    busquedas_boe: list[str] = Field(default_factory=list, max_length=5)
+    leyes_pista: list[str] = Field(default_factory=list, max_length=6)
 
     @model_validator(mode="after")
     def _coherencia(self) -> TriageOutputSchema:

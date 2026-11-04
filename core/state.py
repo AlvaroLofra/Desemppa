@@ -34,8 +34,8 @@ TRANSICIONES: dict[Estado, set[Estado]] = {
     Estado.RECIBIDA: {Estado.TRIAJE, Estado.ERROR},
     Estado.TRIAJE: {Estado.ESPERANDO_ACLARACION, Estado.FUERA_DE_ALCANCE, Estado.INGESTA, Estado.ERROR},
     Estado.ESPERANDO_ACLARACION: {Estado.TRIAJE, Estado.ERROR},
-    Estado.INGESTA: {Estado.INGESTA_DEGRADADA, Estado.DEBATE, Estado.ERROR},
-    Estado.INGESTA_DEGRADADA: {Estado.DEBATE, Estado.ERROR},
+    Estado.INGESTA: {Estado.INGESTA_DEGRADADA, Estado.DEBATE, Estado.BLOQUEADA, Estado.ERROR},
+    Estado.INGESTA_DEGRADADA: {Estado.DEBATE, Estado.BLOQUEADA, Estado.ERROR},  # BLOQUEADA: sin norma verificable
     Estado.DEBATE: {Estado.GUARDARRAILES, Estado.ESPERANDO_ACLARACION, Estado.ERROR},
     Estado.GUARDARRAILES: {Estado.DEBATE, Estado.CERTIFICADA, Estado.BLOQUEADA, Estado.ERROR},
     Estado.CERTIFICADA: set(),

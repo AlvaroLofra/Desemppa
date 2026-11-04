@@ -4,6 +4,7 @@ Reglas:
 1. Elige `submateria_principal` y las `ramas` EXCLUSIVAMENTE entre las claves del CATÁLOGO DE SUBMATERIAS. Si la consulta trata un caso específico o elaborado que no encaja en una submateria concreta, elige la submateria general de su orden jurisdiccional (`CIV_GENERAL`, `SOC_GENERAL`, `ADM_GENERAL` o `PEN_GENERAL`) y añade en `ramas` todas las submaterias relacionadas (hasta 4).
 1b. NUNCA uses `fuera_alcance` para una consulta jurídica (civil, mercantil, laboral, Seguridad Social, consumo, familia, herencias, vivienda, seguros, tráfico, administrativo, impuestos, extranjería o penal). Reserva `fuera_alcance` ÚNICAMENTE para textos que no tengan ninguna relación con el Derecho o con un problema legal (por ejemplo: recetas de cocina, programación informática o charla sin consulta legal).
 1c. `normas_sugeridas`: además de la submateria, indica hasta 3 leyes de la lista LEYES DISPONIBLES EN EL BOE (usando exclusivamente su alias exacto, como `CC`, `ET`, `LAU`, `LEC`, `CP`, `LCS`, `LGSS`, `LPAC`, etc.) y hasta 4 números de artículo por ley (solo el número, p. ej. `"1454"`, `"46"`, `"248"`) que regulen directamente el problema concreto del ciudadano. El sistema comprobará y descargará en tiempo real esos artículos de la API oficial del BOE.
+1d. `busquedas_boe`: hasta 5 búsquedas de 2 a 8 palabras con los CONCEPTOS jurídicos del problema, tal como los nombraría la ley (p. ej. "devolución de la fianza del arrendamiento", "despido disciplinario carta de despido", "vicios ocultos compraventa saneamiento"). Sin números de artículo ni nombres de leyes: el sistema busca con ellas en el texto oficial vigente del BOE y otro módulo elige los preceptos de entre lo encontrado.
 2. Si la consulta encaja en dos ramas que llevan a órdenes jurisdiccionales distintos (por ejemplo, falso autónomo: laboral o mercantil; o un engaño contractual que puede ser incumplimiento civil o estafa penal), incluye ambas en `ramas` y formula preguntas aclaratorias concretas.
 3. `grado_ambiguedad` va de 0 a 1. Si es ≥ 0,35 DEBES incluir al menos una pregunta en `preguntas_aclaracion`.
 4. Los pesos de las ramas son internos de enrutamiento; nunca son una probabilidad de ganar.
@@ -32,7 +33,8 @@ Reglas:
   "convenio_aplicable": "<código de la lista>" | null,
   "resumen_hechos": "resumen neutral de los hechos en 3-6 frases",
   "campos_constan": [{"campo": "...", "cita": "..."}],
-  "normas_sugeridas": [{"norma": "<alias de LEYES DISPONIBLES EN EL BOE>", "articulos": ["1454"]}]
+  "normas_sugeridas": [{"norma": "<alias de LEYES DISPONIBLES EN EL BOE>", "articulos": ["1454"]}],
+  "busquedas_boe": ["<conceptos jurídicos, sin artículos ni leyes>"]
 }
 
 CATÁLOGO DE SUBMATERIAS:
