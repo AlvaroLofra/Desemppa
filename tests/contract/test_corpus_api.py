@@ -52,3 +52,19 @@ def test_el_invitado_no_ve_ni_descarga_el_corpus(app):  # noqa: F811
         _activar(dueno)
         assert inv.get("/api/corpus").status_code == 403
         assert inv.get("/api/corpus/buscar", params={"q": "fianza"}).status_code == 403
+
+
+def test_descarga_del_dictamen_en_word(app):  # noqa: F811
+    with _dueno(app) as cli:
+        token = {"X-Iuris-Token": cli.app.state.services.token}
+        r = cli.post(
+            "/api/consultas", headers=token, json={"texto": "El casero no me devuelve la fianza", "modo": "eco"}
+        )
+        cid = r.json()["consulta_id"]
+        p = cli.app.state.services.pipeline
+        if not p.store.get(cid).dictamen:
+            p.store.save(cid, dictamen_json={"estado": "FUERA_DE_ALCANCE", "mensaje": "Fuera de alcance de prueba."})
+        w = cli.get(f"/api/consultas/{cid}/dictamen.docx")
+        assert w.status_code == 200 and w.content[:2] == b"PK"
+        assert "wordprocessingml" in w.headers["content-type"] and "attachment" in w.headers["content-disposition"]
+        assert cli.get("/api/consultas/no-existe/dictamen.docx").status_code in (403, 404)

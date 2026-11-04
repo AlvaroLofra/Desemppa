@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 import { api, resetToken, streamUrl } from "./api";
 import { createDeltaBuffer } from "./deltaBuffer";
-import type { Alegato, Estado, FinalPayload, Fuente, Guardrail, Plazo, Pregunta, Resolucion, Triage } from "./types";
+import type { Alegato, Descubrimiento, Estado, FinalPayload, Fuente, Guardrail, Plazo, Pregunta, Resolucion, Triage } from "./types";
 
 export type Rol = "defensa" | "contraparte" | "magistrado";
 
@@ -18,18 +18,19 @@ export interface ConsultaState {
   guardrails: Guardrail[];
   plazos: Plazo[];
   avisosQuota: string[];
+  descubrimiento: Descubrimiento | null;
   final: FinalPayload | null;
   error: string | null;
   streaming: boolean;
 }
 
-const inicial: ConsultaState = {
+export const inicial: ConsultaState = {
   id: null, pregunta: null, estado: null, triage: null, preguntas: [], fuentes: [],
   borradores: { defensa: "", contraparte: "", magistrado: "" }, alegatos: {}, resolucion: null,
-  guardrails: [], plazos: [], avisosQuota: [], final: null, error: null, streaming: false,
+  guardrails: [], plazos: [], avisosQuota: [], descubrimiento: null, final: null, error: null, streaming: false,
 };
 
-type Accion =
+export type Accion =
   | { t: "reset"; id: string | null; pregunta?: string | null }
   | { t: "pregunta"; texto: string }
   | { t: "evento"; tipo: string; data: any }
@@ -47,7 +48,7 @@ export function avisoSustitucion(d: { rol: string; modelo: string; previsto: str
   return `${NOMBRE_ROL[d.rol] ?? d.rol} lo ha resuelto ${d.modelo} porque ${d.previsto} falló (${d.motivo ?? "no disponible"}).`;
 }
 
-function reducer(s: ConsultaState, a: Accion): ConsultaState {
+export function reducer(s: ConsultaState, a: Accion): ConsultaState {
   switch (a.t) {
     case "reset":
       return { ...inicial, id: a.id, pregunta: a.pregunta ?? null, streaming: a.id !== null };
@@ -86,6 +87,8 @@ function reducer(s: ConsultaState, a: Accion): ConsultaState {
           return { ...s, guardrails: [...s.guardrails, d] };
         case "deadline":
           return { ...s, plazos: d.plazos };
+        case "descubrimiento":
+          return { ...s, descubrimiento: d };
         case "quota":
           return { ...s, avisosQuota: [...s.avisosQuota, ...(d.previsto ? [avisoSustitucion(d)] : d.avisos ?? [])] };
         case "final":
@@ -102,8 +105,8 @@ function reducer(s: ConsultaState, a: Accion): ConsultaState {
   }
 }
 
-const EVENTOS = ["phase", "triage", "clarification_needed", "source", "debate_done", "guardrail", "deadline",
-  "quota", "final", "error", "fin"];
+const EVENTOS = ["phase", "triage", "clarification_needed", "source", "descubrimiento", "debate_done", "guardrail",
+  "deadline", "quota", "final", "error", "fin"];
 
 export function useConsulta() {
   const [state, dispatch] = useReducer(reducer, inicial);

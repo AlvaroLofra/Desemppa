@@ -10,6 +10,18 @@ export function descargar(nombre: string, contenido: string, tipo: string): void
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
+/** Descarga un fichero binario que ya ha generado el servidor (p. ej. el dictamen en Word). */
+export function descargarBlob(nombre: string, blob: Blob): void {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = nombre;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
 /** Nombre de fichero seguro a partir de un texto («Mi casero no…» → «mi-casero-no»). */
 export function nombreFichero(texto: string, max = 40): string {
   const base = texto.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase()

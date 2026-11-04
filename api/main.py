@@ -53,6 +53,7 @@ from connectors.retriever import HybridRetriever
 from core.calendar_engine import CalendarEngine, CalendarioFestivos, PlazoError
 from core.circuit_breaker import CircuitBreaker
 from core.errors import ProviderError
+from core.exportar_docx import dictamen_docx
 from core.gemini_client import GeminiClient
 from core.hoja_de_ruta import aplicables as pasos_aplicables
 from core.llm_types import LLMRequest, LLMResult
@@ -802,6 +803,18 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
             "texto": p.store.restore_pii(consulta_id, c.texto_seudonimizado),
             "adjuntos": [{k: a[k] for k in ("adjunto_id", "nombre", "tipo")} for a in c.adjuntos],
         }
+
+    @app.get("/api/consultas/{consulta_id}/dictamen.docx", response_model=None)
+    def dictamen_word(consulta_id: str, request: Request) -> Response:
+        """El dictamen en Word, con el mismo contenido verificado que la pantalla (core/exportar_docx.py)."""
+        datos = detalle(consulta_id, request)  # misma autorización: el invitado solo descarga las suyas
+        if not datos["dictamen"]:
+            raise HTTPException(409, "la consulta aún no tiene resultado")
+        return Response(
+            dictamen_docx(datos),
+            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            headers={"Content-Disposition": f'attachment; filename="dictamen-{consulta_id[:8]}.docx"', **NO_CACHE},
+        )
 
     @app.get("/api/consultas/{consulta_id}/vigencia")
     async def vigencia(consulta_id: str, request: Request) -> list[dict[str, Any]]:

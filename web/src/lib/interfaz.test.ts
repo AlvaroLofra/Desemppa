@@ -41,7 +41,7 @@ function estado(extra: Partial<ConsultaState> = {}): ConsultaState {
     id: "c1", pregunta: "El casero no me devuelve la fianza", estado: "CERTIFICADA", triage: null, preguntas: [],
     fuentes: [{ source_id: LAU36, tipo: "boe", titulo: "Artículo 36 LAU", url: "https://www.boe.es/x", extracto: "" }],
     borradores: { defensa: "", contraparte: "", magistrado: "" }, alegatos: {}, resolucion: null, guardrails: [],
-    plazos: [], avisosQuota: [], final, error: null, streaming: false, ...extra,
+    plazos: [], avisosQuota: [], descubrimiento: null, final, error: null, streaming: false, ...extra,
   };
 }
 

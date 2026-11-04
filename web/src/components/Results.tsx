@@ -1,5 +1,5 @@
 import { createContext, useContext, useId, useRef, useState } from "react";
-import { AlertCircle, BookOpen, Square, CalendarPlus, Check, ChevronDown, Copy, FileDown, Info, Loader2, Printer, X } from "lucide-react";
+import { AlertCircle, BookOpen, Square, CalendarPlus, Check, ChevronDown, Copy, FileDown, FileText, Hourglass, Info, Loader2, Printer, X } from "lucide-react";
 import type { ConsultaState, Rol } from "../lib/useConsulta";
 import {
   BANDA_EXPLICACION, BANDA_NIVEL, BANDA_TEXTO, type SelloVerificacion, type AfirmacionVerificada, type Argumento, type Banda, type EntradaAuditoria, type Fuente, type Plazo,
@@ -14,6 +14,9 @@ import { BANDA_COLOR, BANDA_ICONO, BANDA_TONO } from "../lib/solidez";
 import { MunicipioPicker, type Municipio } from "./MunicipioPicker";
 import { DatePicker } from "./ui/DatePicker";
 import { HojaDeRuta } from "./HojaDeRuta";
+import { ArbolArgumentos } from "./Informe";
+import { hitosLinea, NATURALEZA, type Hito } from "../lib/lineaTemporal";
+import { apuntables, masUrgente } from "../lib/plazos";
 import { VistaProfesional } from "./VistaProfesional";
 import type { PasoHoja } from "../lib/api";
 
@@ -369,6 +372,7 @@ export interface AccionesDictamen {
   onLectura: () => void;
   onExportar: () => void;
   onImprimir: () => void;
+  onWord?: () => void;
 }
 
 type Numeracion = Map<string, number>;
@@ -440,21 +444,87 @@ function BotonCalendario({ plazos, asunto, etiqueta }: { plazos: Plazo[]; asunto
   );
 }
 
-/** Plazos que interesa apuntar: los del usuario que no han vencido. */
-const apuntables = (plazos: Plazo[]) =>
-  plazos.filter((p) => p.titular !== "contraparte" && diasNaturalesHasta(p.fecha_limite_segura) >= 0);
+const hoyISO = () => {
+  const h = new Date();
+  return `${h.getFullYear()}-${String(h.getMonth() + 1).padStart(2, "0")}-${String(h.getDate()).padStart(2, "0")}`;
+};
 
-function Plazos({ plazos, asunto }: { plazos: Plazo[]; asunto: string }) {
+/** Forma de cada hito (además del color): círculo = hechos, barra = hoy, rombo = fecha límite. */
+function MarcaHito({ h }: { h: Hito }) {
+  if (h.tipo === "hechos") return <span className="block h-3 w-3 rounded-full border-2 border-ink-3 bg-surface" />;
+  if (h.tipo === "hoy") return <span className="block h-5 w-1 rounded-full bg-accent" />;
+  const tono = h.tipo === "limite_contraparte" ? "border-ink-3 bg-surface" : h.vencido ? "border-danger bg-danger" : "border-ink bg-ink";
+  return <span className={`block h-3 w-3 rotate-45 border-2 ${tono}`} />;
+}
+
+/** Línea temporal de los plazos: hechos → hoy → fechas límite, a escala. La lista de debajo dice lo mismo en texto
+ *  (la barra es decorativa para el lector de pantalla). */
+function LineaTemporal({ plazos, fechaHechos }: { plazos: Plazo[]; fechaHechos?: string | null }) {
+  const hitos = hitosLinea(plazos, hoyISO(), fechaHechos);
+  if (hitos.length < 3) return null;
+  return (
+    <div className="rounded-3xl bg-surface p-5">
+      <p className="eyebrow mb-3">Línea temporal</p>
+      <div className="relative mx-2 mb-4 h-6" aria-hidden>
+        <div className="absolute left-0 right-0 top-1/2 h-px bg-outline" />
+        {hitos.map((h, i) => (
+          <span key={i} className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2" style={{ left: `${h.posicion}%` }}
+                title={`${h.etiqueta}: ${fechaLarga(h.fecha)}`}>
+            <MarcaHito h={h} />
+          </span>
+        ))}
+      </div>
+      <ol className="space-y-1.5 text-sm">
+        {hitos.map((h, i) => (
+          <li key={i} className="flex items-start gap-3">
+            <span className="mt-1 flex w-4 shrink-0 justify-center" aria-hidden><MarcaHito h={h} /></span>
+            <span className="w-28 shrink-0 tabular-nums text-ink-2">{fechaLarga(h.fecha)}</span>
+            <span className="min-w-0 text-ink">
+              {h.etiqueta}
+              {h.tipo === "limite_contraparte" && <span className="text-ink-3"> (plazo de la otra parte)</span>}
+              {h.vencido && h.tipo === "limite" && <span className="text-danger"> · vencido</span>}
+              {h.naturaleza && <span className="block text-xs text-ink-3">{h.naturaleza}</span>}
+            </span>
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}
+
+/** Cabecera del dictamen: el plazo propio que vence antes, a la vista desde el principio. */
+function PlazoUrgente({ plazos, asunto }: { plazos: Plazo[]; asunto: string }) {
+  const p = masUrgente(plazos);
+  if (!p) return null;
+  const restan = diasNaturalesHasta(p.fecha_limite_segura);
+  const urgente = restan <= 7;
+  return (
+    <aside aria-label="Plazo más urgente" className="rounded-3xl bg-surface p-5">
+      <p className="eyebrow flex items-center gap-1.5"><Hourglass className="h-3.5 w-3.5" aria-hidden />Plazo más urgente</p>
+      <p className={`mt-1 text-2xl tabular-nums ${urgente ? "text-danger" : "text-ink"}`}>{fechaLarga(p.fecha_limite_segura)}</p>
+      <p className="mt-1 text-sm text-ink-2">{urgente && <span className="font-medium text-danger">Urgente: </span>}Quedan {restan} días naturales</p>
+      <p className="mt-1 text-sm text-ink">{p.descripcion}</p>
+      <p className="mt-1 text-xs text-ink-3">{NATURALEZA[p.naturaleza] ?? p.naturaleza}</p>
+      <div className="mt-3 flex items-center gap-2 print:hidden">
+        <BotonCalendario plazos={[p]} asunto={asunto} etiqueta="Añadir al calendario" />
+        <a href="#plazos" className="text-sm text-accent underline-offset-2 hover:underline">Todos los plazos</a>
+      </div>
+    </aside>
+  );
+}
+
+function Plazos({ plazos, asunto, fechaHechos }: { plazos: Plazo[]; asunto: string; fechaHechos?: string | null }) {
   if (!plazos.length) return null;
   const todos = apuntables(plazos);
   return (
-    <section aria-label="Plazos" className="space-y-3">
+    <section aria-label="Plazos" id="plazos" className="scroll-mt-4 space-y-3">
       <div className="flex items-center gap-2">
         <h3 className="flex-1 text-base font-medium text-ink">Plazos</h3>
         {todos.length > 1 && (
           <span className="print:hidden"><BotonCalendario plazos={todos} asunto={asunto} etiqueta="Añadir todos al calendario" /></span>
         )}
       </div>
+      <LineaTemporal plazos={plazos} fechaHechos={fechaHechos} />
       {plazos.map((p) => {
         const restan = diasNaturalesHasta(p.fecha_limite_segura);
         const ajeno = p.titular === "contraparte";
@@ -562,6 +632,12 @@ function Acciones({ texto, acciones }: { texto: string; acciones?: AccionesDicta
                   title="Exportar el expediente completo (.md) · Alt+E" onClick={acciones.onExportar}>
             <FileDown className="h-4 w-4" />
           </button>
+          {acciones.onWord && (
+            <button className="icon-btn h-9 w-9" aria-label="Descargar el dictamen en Word"
+                    title="Descargar el dictamen en Word (.docx)" onClick={acciones.onWord}>
+              <FileText className="h-4 w-4" />
+            </button>
+          )}
           <button className="icon-btn h-9 w-9" aria-label="Imprimir o guardar el expediente como PDF"
                   title="Imprimir o guardar como PDF (con el proceso y la verificación)" onClick={acciones.onImprimir}>
             <Printer className="h-4 w-4" />
@@ -596,7 +672,7 @@ export function Answer({ state, onAbrir, acciones, hoja = [], profesional = fals
           </div>
         </div>
         {f.postulacion && <Postulacion p={f.postulacion} />}
-        <Plazos plazos={f.plazos ?? []} asunto={asunto} />
+        <Plazos plazos={f.plazos ?? []} asunto={asunto} fechaHechos={state.triage?.fecha_hechos} />
         <HojaDeRuta pasos={hoja} plazos={f.plazos ?? []} postulacion={f.postulacion} relato={state.pregunta ?? ""}
                     titulos={new Map(state.fuentes.map((x) => [x.source_id, x.titulo]))} />
         <Avisos avisos={f.avisos ?? []} />
@@ -615,11 +691,16 @@ export function Answer({ state, onAbrir, acciones, hoja = [], profesional = fals
   const hayRiesgos = riesgos.length > 0 || d.riesgos_propios.length > 0;
   return (
     <article className="fade-in space-y-8" aria-label="Dictamen">
-      {respuesta.length > 0
-        ? <p className="text-xl leading-snug text-ink"><TextoVerificado afirmaciones={respuesta} num={num} onAbrir={onAbrir} /></p>
-        : d.respuesta_directa && <p className="text-xl leading-snug text-ink">{d.respuesta_directa}</p>}
+      <div className={masUrgente(d.plazos) ? "grid items-start gap-6 md:grid-cols-[2fr_1fr]" : undefined}>
+        <div className="space-y-4">
+          {respuesta.length > 0
+            ? <p className="text-xl leading-snug text-ink"><TextoVerificado afirmaciones={respuesta} num={num} onAbrir={onAbrir} /></p>
+            : d.respuesta_directa && <p className="text-xl leading-snug text-ink">{d.respuesta_directa}</p>}
+          <Solidez banda={d.banda_solidez} motivos={d.motivos_banda ?? []} />
+        </div>
+        <PlazoUrgente plazos={d.plazos} asunto={asunto} />
+      </div>
       <div>
-        <Solidez banda={d.banda_solidez} motivos={d.motivos_banda ?? []} />
         {resumen.length > 0
           ? <p className="legal"><TextoVerificado afirmaciones={resumen} num={num} onAbrir={onAbrir} /></p>
           : <p className="legal whitespace-pre-line">{d.resumen_ciudadano}</p>}
@@ -639,6 +720,11 @@ export function Answer({ state, onAbrir, acciones, hoja = [], profesional = fals
         </section>
       )}
       {profesional && <VistaProfesional state={state} d={d} onAbrir={onAbrir} />}
+      {(state.resolucion || state.alegatos.defensa) && (
+        <Plegable titulo={`Árbol de argumentos (${state.resolucion?.cuestiones.length ?? 0} cuestiones)`} abiertoInicial={profesional}>
+          <ArbolArgumentos state={state} onAbrir={onAbrir} />
+        </Plegable>
+      )}
 
       {(pasos.length > 0 || d.pasos_inmediatos.length > 0) && (
         <section>
@@ -663,7 +749,7 @@ export function Answer({ state, onAbrir, acciones, hoja = [], profesional = fals
         </div>
       )}
 
-      <Plazos plazos={d.plazos} asunto={asunto} />
+      <Plazos plazos={d.plazos} asunto={asunto} fechaHechos={state.triage?.fecha_hechos} />
       {d.postulacion && <Postulacion p={d.postulacion} />}
       <HojaDeRuta pasos={hoja} dictamen={d} plazos={d.plazos} postulacion={d.postulacion} relato={state.pregunta ?? ""}
                   titulos={titulos} />

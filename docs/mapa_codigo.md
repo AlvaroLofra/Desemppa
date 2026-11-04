@@ -49,7 +49,10 @@ Visión y criterio de alcance: [vision.md](vision.md). Plan en curso: [hoja_de_r
 * **Tipos globales:** `web/src/lib/types.ts`
 * **Cliente API y SSE:** `web/src/lib/api.ts`
 * **Generación determinista de escritos sin LLM:** `web/src/lib/escritos.ts`
-* **Vista principal y dictamen:** `web/src/components/Results.tsx`
+* **Vista principal y dictamen:** `web/src/components/Results.tsx` (cabecera `PlazoUrgente`, `LineaTemporal`, botón Word)
+* **Monitor del análisis y árbol de argumentos:** `web/src/components/Informe.tsx` (lógica pura en `web/src/lib/monitor.ts`, `arbol.ts`, `lineaTemporal.ts`, `plazos.ts`; tests en `interfaz2.test.ts` y `plazos.test.ts`)
+* **Dictamen en Word:** `core/exportar_docx.py` → `GET /api/consultas/{id}/dictamen.docx`
+* **Biblioteca → Códigos legales (descarga y búsqueda del corpus):** `web/src/components/CodigosLegales.tsx`
 * **Vista técnica procesal:** `web/src/components/VistaProfesional.tsx`
 * **Visor lateral de fuentes (drawer):** `web/src/components/SourceViewer.tsx`
 * **Preguntas aclaratorias (UI):** `Clarification` en `web/src/components/Results.tsx` + `web/src/lib/aclaraciones.ts`; backend `normalizar_pregunta` / `ya_preguntado` en `core/orchestrator.py`

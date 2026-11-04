@@ -33,6 +33,17 @@ export interface Fuente {
   titulo: string;
   url?: string | null;
   extracto: string;
+  /** catalogo: artículo previsto para la materia; descubierto: encontrado en los códigos descargados (cribado). */
+  origen?: "catalogo" | "descubierto";
+}
+
+/** Evento `descubrimiento`: búsqueda en los códigos descargados a la fecha de los hechos. */
+export interface Descubrimiento {
+  fecha: string;
+  candidatos: number;
+  elegidos: string[];
+  descartados: number;
+  vectorial: boolean;
 }
 
 export interface Cita { source_id: string; verbatim_quote: string }
@@ -145,6 +156,7 @@ export interface EntradaAuditoria {
 
 export interface FinalPayload {
   estado: "CERTIFICADA" | "BLOQUEADA" | "FUERA_DE_ALCANCE";
+  motivo?: "sin_norma_verificable";
   dictamen?: Dictamen;
   banda_texto?: string;
   mensaje?: string;

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type DragEvent } from "react";
 import { FileText, Library, Loader2, Plus, Trash2, Upload, X } from "lucide-react";
 import { api, type DocumentoBiblioteca } from "../lib/api";
 import { Jurisprudencia } from "./Jurisprudencia";
+import { CodigosLegales } from "./CodigosLegales";
 
 const TIPO_DOC: Record<string, string> = {
   nomina: "Nómina", contrato: "Contrato", carta_despido: "Carta de despido", sancion: "Sanción o multa", otro: "Documento",
@@ -103,6 +104,7 @@ export function Biblioteca({ onMensaje }: { onMensaje: (m: string) => void }) {
         </ul>
       )}
 
+      <CodigosLegales onMensaje={onMensaje} />
       <Jurisprudencia onMensaje={onMensaje} />
 
       {abierto && (

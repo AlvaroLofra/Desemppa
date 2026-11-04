@@ -33,7 +33,7 @@ Objetivo: [vision.md](vision.md). Cada fase es una sesión quirúrgica y cierra 
 | 2a | Corpus legal local: `texto_completo` (`/id/{id}/texto`, con respaldo bloque a bloque), 17 cuerpos del núcleo con todas sus versiones, `buscar_a_fecha` (FTS5 + LanceDB filtrados por vigencia) y embeddings locales. Pendiente: `buscar_normas` en el catálogo consolidado (formato de la búsqueda sin verificar: el entorno de la nube no llega al BOE) | ✅ 04-11 (salvo `buscar_normas`) |
 | 2b | Triaje con `busquedas_boe` (sin ids ni artículos); ingesta `_descubrir_articulos`: BM25 + vectores a la fecha → el rol `cribado` elige ≤ 8 de esa lista cerrada; sin norma verificable → mensaje fijo sin debate. Pendiente: 5 casos nuevos en la batería (exigen el BOE real) | ✅ 04-11 (salvo batería) |
 | 3a | `DESIGN.md`, solidez con icono + texto, teclado/foco en fuentes y aclaraciones, e2e axe y movimiento reducido ([plan_ui_ux.md](plan_ui_ux.md) fases 1–2) | ✅ 28-10 |
-| 3b | Cabecera veredicto + plazo más urgente y monitor de proceso con eventos reales, incluidas las leyes descubiertas ([plan_ui_ux.md](plan_ui_ux.md) fases 3–4) | ⏳ |
+| 3b | Cabecera veredicto + plazo más urgente y monitor de proceso con eventos reales, incluidas las leyes descubiertas ([plan_ui_ux.md](plan_ui_ux.md) fases 3–4); además árbol de argumentos, línea temporal de plazos, Word (.docx) y Biblioteca → Códigos legales | ✅ 04-11 |
 
 Dependencias: 2a/2b después de 1 (tocan `connectors/boe_client.py` y `core/orchestrator.py`); 3a es independiente;
 3b después de 2b.
