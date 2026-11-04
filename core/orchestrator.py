@@ -163,6 +163,19 @@ _REF_LEGAL = re.compile(
 )
 
 
+def avisos_cuestiones_plazo(res: ResolucionMagistradoSchema, plazos: list[PlazoCalculado]) -> list[str]:
+    """Una cuestión de tipo «plazo» sin ningún plazo calculado por el motor determinista: se dice expresamente que
+    no se da fecha (las fechas solo salen de core/calendar_engine.py, nunca del modelo)."""
+    if plazos:
+        return []
+    return [
+        f"La cuestión «{q.enunciado[:160]}» trata de un plazo, pero para tu caso no hay un plazo calculado por el "
+        "motor de plazos: no se da ninguna fecha límite. Confirma el plazo exacto con un profesional."
+        for q in res.cuestiones
+        if q.tipo == "plazo"
+    ]
+
+
 def limpiar_busquedas(raw: list[Any]) -> list[str]:
     """Términos de búsqueda sin identificadores BOE ni números de artículo (docs/vision.md: el modelo propone
     conceptos, nunca normas). Se quedan las 5 primeras distintas con al menos 3 caracteres."""
@@ -734,6 +747,11 @@ class Orchestrator:
         escalado = _ESCALADO.get(resolver(run.modo, "magistrado").model) if resolver else None
         return escalado if escalado and escalado in self.s.router.catalog.models else None
 
+    def _replica(self, run: _Run) -> bool:
+        catalogo = getattr(self.s.router, "catalog", None)
+        perfil = getattr(catalogo, "profiles", {}).get(run.modo)
+        return bool(getattr(perfil, "replica", False))
+
     def _magistrado_doble(self, run: _Run) -> bool:
         catalogo = getattr(self.s.router, "catalog", None)
         perfil = getattr(catalogo, "profiles", {}).get(run.modo)
@@ -1185,13 +1203,17 @@ class Orchestrator:
                     ],
                 },
             )
+            replica = await self._replicar(run, base, alegato_fmt, cuestiones_txt, defensa, contraparte, fuentes)
         else:
             defensa = AlegatoSchema.model_validate(previo["defensa"])
             contraparte = AlegatoSchema.model_validate(previo["contraparte"])
+            replica = AlegatoSchema.model_validate(previo["replica"]) if previo.get("replica") else None
         prompt = (
             base + f"\n\nALEGATO DE LA DEFENSA:\n{defensa.model_dump_json()}\n\n"
             f"ALEGATO DE LA CONTRAPARTE:\n{contraparte.model_dump_json()}"
         )
+        if replica is not None:
+            prompt += f"\n\nRÉPLICA DE LA DEFENSA (responde a la contraparte):\n{replica.model_dump_json()}"
         if feedback:
             prompt += f"\n\nCORRECCIONES OBLIGATORIAS (verificación automática de tu resolución anterior):\n{feedback}"
         llamada = self._llm_json(
@@ -1239,8 +1261,62 @@ class Orchestrator:
             "contraparte": contraparte.model_dump(),
             "magistrado": magistrado.model_dump(),
         }
+        if replica is not None:
+            debate["replica"] = replica.model_dump()
         self.s.store.save(run.consulta_id, debate_json=debate)
         return debate
+
+    async def _replicar(
+        self,
+        run: _Run,
+        base: str,
+        alegato_fmt: str,
+        cuestiones_txt: str,
+        defensa: AlegatoSchema,
+        contraparte: AlegatoSchema,
+        fuentes: dict[str, FragmentoFuente],
+    ) -> AlegatoSchema | None:
+        """Réplica de la Defensa (modo con `replica = true`): responde a la Contraparte con citas del dossier. Sus
+        argumentos se añaden a los de la Defensa (con la verificación de cada cita) y el Magistrado los ve aparte.
+        Si falla, el debate sigue sin réplica: es un refuerzo, no un requisito."""
+        if not self._replica(run):
+            return None
+        try:
+            replica = await self._llm_json(
+                run,
+                "defensa",
+                _prompt_rol("replica") + "\n\n" + alegato_fmt.replace("{rol}", "DEFENSA"),
+                base + f"\n\nCUESTIONES LITIGIOSAS:\n{cuestiones_txt}\n\n"
+                f"TU ALEGATO ANTERIOR (DEFENSA):\n{defensa.model_dump_json()}\n\n"
+                f"ALEGATO DE LA CONTRAPARTE AL QUE REPLICAS:\n{contraparte.model_dump_json()}",
+                AlegatoSchema,
+                delta_rol="defensa",
+            )
+        except ProviderError as exc:
+            run.avisos.append(
+                f"La réplica de la defensa no se pudo completar ({type(exc).__name__}): se resuelve sin ella."
+            )
+            return None
+        unido = defensa.model_copy(deep=True)
+        por_id = {q.id: q for q in unido.cuestiones}
+        for q in replica.cuestiones:
+            if q.id in por_id:
+                por_id[q.id].argumentos.extend(q.argumentos)
+            else:
+                unido.cuestiones.append(q)
+        self._emit(
+            run,
+            "debate_done",
+            {
+                "rol": "defensa",
+                "replica": True,
+                "alegato": unido.model_dump(),
+                "verificacion": [
+                    self._verificar_citas(a.citas, fuentes) for q in unido.cuestiones for a in q.argumentos
+                ],
+            },
+        )
+        return replica
 
     # ---------- Fase 4 ----------
     def _fallos_magistrado(self, res: ResolucionMagistradoSchema, fuentes: dict[str, FragmentoFuente]) -> list[str]:
@@ -1552,6 +1628,7 @@ class Orchestrator:
             },
         )
 
+        run.avisos.extend(avisos_cuestiones_plazo(res, plazos))
         notas = [sub.notas] if sub and sub.notas else []  # nota fija de la materia en el catálogo
         avisos = list(dict.fromkeys([*notas, *run.avisos, *dossier.avisos, *avisos_plazos, *motivos]))
         if not fundamentos:

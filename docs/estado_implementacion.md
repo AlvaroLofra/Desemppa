@@ -1,15 +1,16 @@
 # Estado de la implementación
 
-Actualizado: 25-10-2026 · Especificación base: [IURIS_IA_Dossier_Planificacion_v3.md](IURIS_IA_Dossier_Planificacion_v3.md).
+Actualizado: 04-11-2026 · Especificación base: [IURIS_IA_Dossier_Planificacion_v3.md](IURIS_IA_Dossier_Planificacion_v3.md).
 Qué queda y cómo: [hoja_de_ruta.md](hoja_de_ruta.md). Explicación legal para informáticos: [guia_juridica_para_informaticos.md](guia_juridica_para_informaticos.md).
 
-## Verificación actual (25-10-2026: cortafuegos, batería verificable y mejoras de interfaz)
+## Verificación actual (04-11-2026: corpus legal, descubrimiento, robustez, interfaz profesional y réplica)
 | Comprobación | Resultado |
 |---|---|
-| `uv run pytest` (unitarias, contrato, golden) | **322 en verde** |
-| `uv run pytest -m e2e` (navegador real: consulta, tokens, autorreparación, citas en línea, exportar, lectura, atajos, biblioteca, comparar, axe-core y Lighthouse) | **10 en verde** · Lighthouse: accesibilidad 100, buenas prácticas 100 |
-| `ruff check .`, `ruff format --check .`, `mypy` (50 ficheros) | **En verde** |
-| `cd web && npm run build && npx vitest run` | **En verde** (16 tests) |
+| `uv run pytest` (unitarias, contrato, golden, casos dorados adversariales, estrés, propiedades del calendario) | **548 en verde** (Linux, sin red al BOE) |
+| `uv run pytest -m e2e` (navegador real; también cabecera, línea temporal, árbol, Word, códigos legales, axe-core y Lighthouse) | **21 en verde** |
+| `ruff check .`, `ruff format --check .`, `mypy` (61 ficheros) | **En verde** |
+| `cd web && npm run build && npx vitest run` | **En verde** (38 tests) |
+| `scripts/verificar_plazos.py`, `verificar_hojas_de_ruta.py`, tests `live` | **No ejecutables en la nube** (BOE bloqueado): ejecútalos en tu PC |
 | Batería verificable real en Eco ([bateria_verificable.md](bateria_verificable.md)) | **23/30 con 7/7** (`benchmark/expedientes/20261025_1843_eco/informe.md`), congelados como regresión |
 
 Novedades del 25-10-2026: [cortafuegos anti-invención](cortafuegos.md), batería de 30 casos con hojas de verdad
@@ -87,5 +88,7 @@ ha rediseñado según [propuesta_rediseno.md](propuesta_rediseno.md).
 - **Fase C — Descubrimiento en el pipeline (04-11-2026)**: el triaje da `busquedas_boe` (conceptos; el código quita ids y números de artículo); `_descubrir_articulos` busca en el corpus a la fecha de los hechos y el rol `cribado` (`core/prompts/cribado.md`) elige ≤ 8 índices de la lista cerrada (los de fuera se descartan; si falla, los 5 mejores con aviso; si el BOE no responde, copia local con aviso). Con la ley descargada, los artículos «propuestos» de memoria ya no se piden. Sin ninguna fuente verificable → `BLOQUEADA` con `motivo: sin_norma_verificable`, sin debate. 465 pytest.
 - **Fase D — Robustez (04-11-2026)**: `tests/golden/test_pipeline_dorado.py` (8 materias contra un LLM adversarial que inventa artículos, porcentajes, fechas, citas, fuentes, jurisprudencia y hechos: todo eliminado y auditado, plazos idénticos al motor, sin PII en prompts), `tests/unit/test_estres.py` (basura del LLM, inyección, 12 consultas concurrentes) y `tests/unit/test_calendario_propiedades.py` (invariantes en 120 fechas × 23 plazos). 540 pytest.
 - **Fallos reales que destaparon (corregidos)**: (1) `CA_RECURSO_2M` notificado en agosto vencía un mes TARDE (15-08 → 16-11; ahora 02-11, como el 01-09); (2) `verify_quote` aceptaba citas con una negación añadida, otro plazo u otra cifra (≥ 95 % de similitud) → `cambio_critico` las rechaza; (3) un «85 % de probabilidades» pasaba si el ciudadano había escrito «85 %» → el cortafuegos elimina siempre los pronósticos porcentuales.
-- **Fase E — Interfaz profesional (04-11-2026)**: cabecera con respuesta + solidez + «Plazo más urgente»; línea temporal de plazos (forma por tipo de hito, texto accesible); árbol de argumentos por cuestión con ✓/✗ por cita y decisión del Magistrado; monitor de 4 pasos con eventos reales (incluido `descubrimiento`); dictamen en Word (`python-docx`, `core/exportar_docx.py`); Biblioteca → Códigos legales (descargar, actualizar y buscar a una fecha). `DESIGN.md` §6b. 38 vitest, 22 e2e (axe y Lighthouse).
+- **Fase E — Interfaz profesional (04-11-2026)**: cabecera con respuesta + solidez + «Plazo más urgente»; línea temporal de plazos (forma por tipo de hito, texto accesible); árbol de argumentos por cuestión con ✓/✗ por cita y decisión del Magistrado; monitor de 4 pasos con eventos reales (incluido `descubrimiento`); dictamen en Word (`python-docx`, `core/exportar_docx.py`); Biblioteca → Códigos legales (descargar, actualizar y buscar a una fecha). `DESIGN.md` §6b. 38 vitest, 21 e2e (axe y Lighthouse).
+- **Fase F — Debate reforzado (04-11-2026)**: en Pro (`replica = true` en `config/profiles.toml`) la Defensa replica a la Contraparte con citas del dossier antes del Magistrado (se suma a su alegato con la verificación de cada cita; si falla, se sigue sin ella); una cuestión de tipo «plazo» sin plazo del motor avisa de que no se da fecha (`avisos_cuestiones_plazo`). 548 pytest, 21 e2e.
+- **Pendiente para tu PC (red al BOE)**: `uv run pytest -m live tests/contract/test_live_boe_corpus.py -q` (formato de `/texto` e id de CCOM) → `uv sync --extra embeddings` (opcional) → `uv run python scripts/ingerir_corpus.py`; además `scripts/verificar_plazos.py` y `verificar_hojas_de_ruta.py` como siempre. Siguiente: `buscar_normas` en el catálogo consolidado y 5 casos nuevos de la batería con descubrimiento.
 

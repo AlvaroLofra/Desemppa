@@ -161,6 +161,8 @@ class Profile(BaseModel):
     # Dos resoluciones independientes del Magistrado; si discrepan en una cuestión, la solidez pasa a
     # «disparidad de criterio» (mide la estabilidad del resultado a cambio de una llamada más).
     magistrado_doble: bool = False
+    # La Defensa replica a la Contraparte antes de que resuelva el Magistrado (una llamada más del rol defensa).
+    replica: bool = False
     roles: dict[Role, RoleAssignment]
 
 
@@ -212,6 +214,7 @@ _PROFILE_META = {
     "nli_cross_family",
     "respaldo",
     "magistrado_doble",
+    "replica",
 }
 USER_PROFILES = "user_profiles.toml"  # asignaciones del usuario (excluido de git); se superpone a profiles.toml
 USER_MODELS = "user_models.toml"  # modelos o activaciones de proveedor personalizados por el usuario

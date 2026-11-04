@@ -38,6 +38,7 @@ nli         = { model = "agy_gemini_flash", effort = "low" }
 [profiles.pro]
 label = "Pro"
 magistrado_doble = true  # dos resoluciones independientes; si discrepan, «disparidad de criterio»
+replica = true  # la Defensa replica a la Contraparte antes del Magistrado (una llamada más)
 claude_calls_per_query = 2
 triaje      = { model = "agy_gemini_flash", effort = "low" }
 cribado     = { model = "agy_gemini_flash", effort = "medium" }
