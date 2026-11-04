@@ -93,3 +93,16 @@ def test_comparar_ejecuciones_marca_lo_que_empeora(tmp_path):
     b = _ejecucion(tmp_path / "b", {"V01": (5, "BLOQUEADA"), "V02": (7, "CERTIFICADA")})
     informe = comparar(a, b)
     assert "⚠ empeora" in informe and "mejora" in informe and "Casos perfectos: **1/2 → 1/2**" in informe
+
+
+def test_ingerir_corpus_descarga_y_muestra_el_estado(datos, capsys):
+    """Humo: con un BOE simulado descarga la LAU entera y el estado lo refleja; un alias desconocido se rechaza."""
+    from scripts import ingerir_corpus
+    from tests.unit.test_corpus_legal import BOEFalso
+
+    assert ingerir_corpus.main(["--normas", "NOEXISTE"]) == 2
+    assert ingerir_corpus.main(["--normas", "lau", "--sin-vectores"], client=BOEFalso().cliente()) == 0
+    salida = capsys.readouterr().out
+    assert "4 descargados" in salida and "LAU       completa" in salida
+    assert ingerir_corpus.main(["--estado"]) == 0
+    assert "CC        pendiente" in capsys.readouterr().out

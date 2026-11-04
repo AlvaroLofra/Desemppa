@@ -40,7 +40,7 @@ checklist de `CLAUDE.md` §3.5.
    una ronda de aclaración; añadir un test que emule `prefers-reduced-motion: reduce` y compruebe la duración de
    animación calculada del spinner. Lighthouse debe seguir en 100.
 
-## Fase 3 — Cabecera de resumen (veredicto + plazo)
+## Fase 3 — Cabecera de resumen (veredicto + plazo) ✅ 04-11-2026
 
 - Nuevo componente `ResumenCabecera` en `web/src/components/Results.tsx` (o fichero propio si pasa de ~80 líneas),
   colocado antes del texto largo del dictamen (`Results.tsx:603`).
@@ -54,7 +54,7 @@ checklist de `CLAUDE.md` §3.5.
 - Tests: vitest de selección del plazo más urgente (ignora `titular: "contraparte"` y vencidos) y e2e de que la
   cabecera aparece y es lo primero que lee un lector de pantalla tras el título.
 
-## Fase 4 — Monitor de proceso con eventos reales
+## Fase 4 — Monitor de proceso con eventos reales ✅ 04-11-2026 (`MonitorProceso` en `web/src/components/Informe.tsx`; el aviso de fin ya lo daba `useFinAnalisis`)
 
 Eventos que el backend **ya emite** (`useConsulta.ts:105`): `phase`, `triage`, `source`, `debate_done`, `guardrail`,
 `deadline`, `quota`. Con ellos, sin inventar texto:

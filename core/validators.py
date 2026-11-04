@@ -2,15 +2,51 @@
 
 from __future__ import annotations
 
+import difflib
+import re
 from dataclasses import dataclass
 
 from rapidfuzz import fuzz
 
-from core.normalize import normalize_with_map
+from core.normalize import fold, normalize_with_map
 from core.schemas import BANDA_ORDEN, PRONOSTICO_PORCENTUAL_RE, BandaSolidez
 
 FUZZY_THRESHOLD = 95.0
 MIN_QUOTE_CHARS = 40
+
+
+# Palabras que cambian el sentido de una norma: una cita «casi literal» que añade, quita o cambia una de ellas no es
+# literal (04-11-2026: «el arrendador NO devolverá» pasaba con 98,6 % y «un AÑO» por «un mes» con 97,1 %).
+_CRITICAS = frozenset(
+    """
+    no ni nunca jamas tampoco sin salvo excepto nadie nada ningun ninguno ninguna prohibido prohibida prohibidos
+    podra podran debera deberan puede pueden debe deben sera seran obligatorio obligatoria potestativo
+    solo unicamente siempre todos todas cualquier
+    dia dias mes meses ano anos semana semanas hora horas habil habiles natural naturales
+    un una uno dos tres cuatro cinco seis siete ocho nueve diez once doce trece catorce quince dieciseis diecisiete
+    dieciocho diecinueve veinte treinta cuarenta cincuenta sesenta setenta ochenta noventa cien ciento doscientos
+    trescientos cuatrocientos quinientos mil millon millones primero primera segundo segunda doble triple mitad
+    """.split()
+)
+_TOKEN = re.compile(r"\w+")
+
+
+def _critica(token: str) -> bool:
+    return token in _CRITICAS or any(c.isdigit() for c in token)
+
+
+def cambio_critico(quote: str, ventana: str) -> str | None:
+    """Primera diferencia de palabras entre la cita y el fragmento de la fuente que cambia el sentido (negación,
+    cifra, plazo, modal), o None. Las diferencias de mayúsculas, tildes, puntuación y espacios no cuentan."""
+    a = _TOKEN.findall(fold(quote).lower())
+    b = _TOKEN.findall(fold(ventana).lower())
+    for op, i1, i2, j1, j2 in difflib.SequenceMatcher(a=a, b=b, autojunk=False).get_opcodes():
+        if op == "equal":
+            continue
+        tocadas = [*a[i1:i2], *b[j1:j2]]
+        if any(_critica(t) for t in tocadas):
+            return " ".join(a[i1:i2]) or f"falta «{' '.join(b[j1:j2])}»"
+    return None
 
 
 @dataclass
@@ -43,6 +79,15 @@ def verify_quote(quote: str, source_text: str, *, threshold: float = FUZZY_THRES
     score = float(al.score) * min(1.0, len(norm_src) / len(norm_quote))
     if score < threshold:
         return QuoteCheck(False, score, span, f"similitud {score:.1f} < {threshold:.0f}")
+    # Ventana alineada de la fuente, ampliada a palabras completas, para comparar palabra a palabra.
+    ini, fin = al.dest_start, al.dest_end
+    while ini > 0 and norm_src[ini - 1].isalnum():
+        ini -= 1
+    while fin < len(norm_src) and norm_src[fin].isalnum():
+        fin += 1
+    cambio = cambio_critico(norm_quote, norm_src[ini:fin])
+    if cambio:
+        return QuoteCheck(False, score, span, f"la cita cambia el sentido de la fuente («{cambio}»)")
     return QuoteCheck(True, score, span)
 
 

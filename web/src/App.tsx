@@ -6,7 +6,7 @@ import { Comparar } from "./components/Comparar";
 import { useHojaDeRuta } from "./components/HojaDeRuta";
 import { Composer, SUGERENCIAS } from "./components/Composer";
 import {
-  Answer, Clarification, ImprimiendoContext, ProcesoImpresion, ProcessDetails, ProgressLine, type AbrirFuente,
+  Answer, Clarification, ImprimiendoContext, ProcesoImpresion, ProcessDetails, type AbrirFuente,
 } from "./components/Results";
 import { SettingsPage } from "./components/settings/SettingsPage";
 import { Sidebar } from "./components/Sidebar";
@@ -16,9 +16,11 @@ import type { Modo } from "./lib/types";
 import { useConsulta } from "./lib/useConsulta";
 import { ApiError, api, type Sesion } from "./lib/api";
 import { accionAtajo } from "./lib/atajos";
-import { descargar, nombreFichero } from "./lib/descargar";
+import { descargar, descargarBlob, nombreFichero } from "./lib/descargar";
 import { expedienteMarkdown } from "./lib/expediente";
 import { pedirPermisoNotificaciones, useFinAnalisis } from "./lib/finAnalisis";
+import { MonitorProceso } from "./components/Informe";
+import { dictamenWord } from "./lib/api";
 
 function leer<T extends string>(clave: string, defecto: T): T {
   try {
@@ -174,6 +176,11 @@ export default function App() {
     onLectura: () => setLectura((v) => !v),
     onExportar: exportar,
     onImprimir: () => setImprimiendo(true),
+    onWord: () => {
+      if (!state.id) return;
+      const nombre = `dictamen-${nombreFichero(state.triage?.submateria_descripcion ?? state.pregunta ?? "consulta")}.docx`;
+      dictamenWord(state.id).then((b) => descargarBlob(nombre, b)).catch((e: Error) => window.alert(e.message));
+    },
   };
 
   return (
@@ -261,7 +268,7 @@ export default function App() {
                           </p>
                         </div>
                       )}
-                      <ProgressLine estado={state.estado} streaming={state.streaming} onDetener={() => void detener()} />
+                      <MonitorProceso state={state} onDetener={() => void detener()} />
                       {state.error && (
                         <div role="alert" className="flex gap-3 rounded-2xl bg-danger-container px-4 py-3 text-sm text-danger">
                           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />{state.error}

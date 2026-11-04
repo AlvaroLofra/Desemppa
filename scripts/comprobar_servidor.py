@@ -67,7 +67,7 @@ def _procesos() -> dict[int, tuple[int, str]]:
 
 def _es_nuestro(cmdline: str) -> bool:
     texto = cmdline.lower().replace("/", "\\")
-    return str(ROOT).lower() in texto and "api.main:app" in texto
+    return str(ROOT).lower().replace("/", "\\") in texto and "api.main:app" in texto
 
 
 def _raiz_del_arbol(pid: int, procesos: dict[int, tuple[int, str]]) -> int:

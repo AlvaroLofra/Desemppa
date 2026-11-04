@@ -72,6 +72,17 @@ def normas() -> dict[str, dict[str, Any]]:
     return dict(json.loads((CONFIG / "catalogo_normas.json").read_text(encoding="utf-8"))["normas"])
 
 
+@lru_cache
+def nucleo() -> list[str]:
+    """Alias de los grandes cuerpos legales que se descargan enteros (corpus local versionado)."""
+    data = json.loads((CONFIG / "catalogo_normas.json").read_text(encoding="utf-8"))
+    return [str(a) for a in data.get("nucleo", [])]
+
+
+def alias_de(id_norma_boe: str) -> str | None:
+    return next((a for a, m in normas().items() if m.get("id") == id_norma_boe), None)
+
+
 def id_norma(alias: str) -> str:
     return str(normas()[alias]["id"])
 

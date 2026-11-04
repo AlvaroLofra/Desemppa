@@ -74,6 +74,21 @@ en blanco y negro), icono propio por banda (`BANDA_ICONO`, `web/src/lib/solidez.
 «n/5». Verde = favorable, azul = fundado sin doctrina, ámbar = incierto o dependiente de prueba, rojo = desfavorable,
 gris = no valorable. Lo comprueba `web/src/lib/solidez.test.ts`.
 
+## 6b. Patrones del informe (04-11-2026)
+
+- **Cabecera del dictamen:** respuesta directa + solidez a la izquierda y, si hay un plazo propio sin vencer, la tarjeta
+  «Plazo más urgente» a la derecha (`grid md:grid-cols-[2fr_1fr]`, apilado en móvil). Urgente (≤ 7 días) = texto
+  `text-danger` **y** la palabra «Urgente».
+- **Línea temporal de plazos:** barra a escala decorativa (`aria-hidden`) + lista en texto con lo mismo. Cada hito se
+  distingue por la **forma**, no solo por el color: círculo = hechos, barra vertical = hoy, rombo = fecha límite
+  (relleno si es tuya, hueco si es de la otra parte, `danger` si ha vencido).
+- **Árbol de argumentos:** tarjeta por cuestión con la decisión (icono de balanza + texto «da la razón a…»), dos
+  columnas (defensa con borde sólido, otra parte con borde discontinuo) y cada cita como `.chip` con icono ✓/✗ y el
+  texto «Cita verificada» / «Cita no literal».
+- **Monitor del análisis:** lista de 4 pasos con icono (✓ hecho, girando en curso, círculo vacío pendiente), texto
+  «Hecho/En curso/Pendiente» para lectores de pantalla y `aria-live` solo en el detalle del paso en curso. Solo datos
+  de los eventos del servidor.
+
 ## 7. Reglas negativas
 
 - Sin degradados llamativos, *glow*, cristal (*glassmorphism*) ni efectos de *shader*.

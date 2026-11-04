@@ -10,12 +10,12 @@ impacto en «no inventar y acertar» frente al esfuerzo.
 |---|---|---|
 | HECHO | **Aviso de reforma** | Al abrir una consulta, `GET /api/consultas/{id}/vigencia` compara cada artículo del BOE citado con su redacción actual. Si ha cambiado después de la consulta, se avisa y se propone volver a consultar |
 | HECHO | **Texto del BOE sin notas editoriales** | La «Redacción anterior», «Téngase en cuenta» y «Se modifica…» del BOE ya no forman parte del texto citable (`connectors/boe_models.py`, migración 0007). Antes, una cita copiada de la redacción derogada pasaba la verificación (p. ej. el LEC 250 mostraba «quince mil» y «seis mil euros») |
-| PENDIENTE (A) | Golden tests por materia a partir de la batería | Necesita una ejecución completa de los 30 casos (`benchmark/ejecutar.py`). Los casos que pasen quedarán como regresión |
+| HECHO | **Golden tests por materia** | 23 casos reales congelados (`tests/golden/test_bateria.py`) y 8 casos dorados adversariales del pipeline completo (`tests/golden/test_pipeline_dorado.py`, 04-11-2026) |
 | HECHO | **Corpus de jurisprudencia: importación guiada** | Biblioteca → «Jurisprudencia»: por materia, términos para CENDOJ, enlace al buscador, arrastrar PDF y recuento por materia. La descarga sigue siendo manual (art. 507 LOPJ) |
 | PENDIENTE (B) | Conector CURIA (TJUE) | Conector nuevo con su verificación; no se ha empezado |
 | PENDIENTE (B) | Convenios con modificaciones integradas y convenios provinciales (BOP) | Cada BOP publica de forma distinta, así que hay que diseñar el conector provincia a provincia |
 | PENDIENTE (B) | Normas autonómicas (Aragón, Navarra, País Vasco, Galicia, Baleares) | Hay que verificar en el BOE el identificador de cada norma antes de añadirla (regla 1 de `CLAUDE.md`) |
-| PENDIENTE (B) | Embeddings locales (ONNX) | Requiere añadir el modelo y un runtime nuevos; no se ha empezado |
+| HECHO | **Embeddings locales (ONNX)** | `LocalEmbedder` (fastembed, CPU), extra opcional `uv sync --extra embeddings` (04-11-2026) |
 | PENDIENTE (C) | Revisión por un abogado de `plazos.yaml`, `postulacion.yaml` y `hojas_de_ruta.yaml` | No la puede hacer el código. Las citas de la hoja de ruta ya se comprueban automáticamente contra el BOE |
 
 ## 2. Proceso del análisis

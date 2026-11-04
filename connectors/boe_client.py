@@ -8,10 +8,13 @@ import json
 import re
 import sqlite3
 import time
+from collections.abc import Sequence
+from dataclasses import dataclass
 from datetime import UTC, date, datetime, timedelta
 from typing import Any
 
 import httpx
+from lxml import etree
 
 from connectors.boe_models import (
     Bloque,
@@ -47,14 +50,21 @@ class BOEClient:
     async def aclose(self) -> None:
         await self._client.aclose()
 
-    async def _get(self, path: str, accept: str, params: dict[str, Any] | None = None) -> httpx.Response:
+    async def _get(
+        self, path: str, accept: str, params: dict[str, Any] | None = None, *, timeout: float | None = None
+    ) -> httpx.Response:
         async with self._lock:
             wait = self._interval - (time.monotonic() - self._last)
             if wait > 0:
                 await asyncio.sleep(wait)
             self._last = time.monotonic()
         try:
-            response = await self._client.get(path, headers={"Accept": accept}, params=params)
+            kwargs: dict[str, Any] = {"headers": {"Accept": accept}}
+            if params is not None:
+                kwargs["params"] = params
+            if timeout is not None:
+                kwargs["timeout"] = timeout
+            response = await self._client.get(path, **kwargs)
         except httpx.HTTPError as exc:
             raise BOEError(f"BOE no accesible: {exc}") from exc
         if response.status_code == 404:
@@ -101,15 +111,79 @@ class BOEClient:
         return [n for n in normas if not n.derogada]
 
     async def texto_completo(self, id_norma: str) -> list[Bloque]:
-        response = await self._get(f"/id/{id_norma}/texto", "application/xml")
+        """Todos los bloques de la norma, con todas sus versiones, en una sola petición (`/id/{id}/texto`).
+
+        SIN VERIFICAR EN VIVO (04-11-2026, entorno sin acceso al BOE): se asume que cada <bloque> tiene la misma forma
+        que la respuesta de `/texto/bloque/{id}`. Si la respuesta no trae bloques, se lanza BOEError y quien llama
+        descarga bloque a bloque (`indice` + `bloque`, verificados). Lo comprueba
+        `tests/contract/test_live_boe_corpus.py` (`-m live`)."""
+        response = await self._get(f"/id/{id_norma}/texto", "application/xml", timeout=180)
         try:
-            return parse_texto_xml(id_norma, response.content)
-        except ValueError as exc:
-            raise BOEError(str(exc)) from exc
+            bloques = parse_texto_xml(id_norma, response.content)
+        except (ValueError, etree.XMLSyntaxError) as exc:
+            raise BOEError(f"texto completo de {id_norma} ilegible: {exc}") from exc
+        if not bloques:
+            raise BOEError(f"el texto completo de {id_norma} no trae bloques")
+        return bloques
 
 
 def _iso(d: date | None) -> str | None:
     return d.isoformat() if d else None
+
+
+def _claves_identidad(id_norma: str) -> list[str]:
+    """Palabras que el título oficial debe contener (`titulo_boe_contiene` en config/catalogo_normas.json).
+
+    Solo las llevan las normas cuyo identificador no se ha podido verificar al añadirlas: así un identificador
+    equivocado nunca sirve el texto de otra ley, porque el BOE lo desmiente en tiempo real."""
+    from core.materias import normas  # import diferido: core.materias no depende de connectors
+
+    for meta in normas().values():
+        if meta.get("id") == id_norma:
+            return [fold(str(c)).lower() for c in meta.get("titulo_boe_contiene", [])]
+    return []
+
+
+@dataclass(frozen=True)
+class PreceptoEncontrado:
+    """Un precepto del corpus local en la versión vigente a la fecha pedida."""
+
+    id_norma: str
+    id_bloque: str
+    titulo: str
+    vigencia_desde: date
+    vigencia_hasta: date | None
+    inicio: str  # comienzo del texto de esa versión
+    ubicacion: str
+    score: float  # bm25: cuanto más negativo, más pertinente
+
+
+# Palabras vacías del español (sin tildes): en una consulta OR solo añaden ruido al BM25.
+_VACIAS = frozenset(
+    """
+    al algo algun alguna algunas alguno algunos ante antes aqui asi aun cada como con contra cual cuales cuando de del
+    desde donde durante el ella ellas ellos en entre era eran es esa esas ese eso esos esta estaba estado estan estar
+    estas este esto estos fue fueron ha habia han hasta hay he hemos la las le les lo los mas me mi mis mucho muy nada
+    ni no nos nosotros nuestra nuestro o os otra otras otro otros para pero poco por porque puede pueden puedo que
+    quien quiero se sea segun ser si sido sin sobre son su sus tambien te tengo tiene tienen todo todos tu tus un una
+    uno unos usted ya yo
+    """.split()
+)
+
+
+def consulta_fts_legal(texto: str, *, max_terminos: int = 24) -> str:
+    """Consulta FTS5 para buscar preceptos: términos sin palabras vacías y, en los largos, también su raíz como
+    prefijo («arrendamientos» -> "arrendamientos" OR "arrendamient"*), porque el índice no aplica lematización."""
+    vistos: list[str] = []
+    for t in "".join(c if c.isalnum() else " " for c in fold(texto).lower()).split():
+        if len(t) > 2 and not t.isdigit() and t not in _VACIAS and t not in vistos:
+            vistos.append(t)
+    partes: list[str] = []
+    for t in vistos[:max_terminos]:
+        partes.append(f'"{t}"')
+        if len(t) >= 7:
+            partes.append(f'"{t[: max(5, len(t) - 3)]}"*')
+    return " OR ".join(partes) or '""'
 
 
 class BOERepository:
@@ -120,6 +194,10 @@ class BOERepository:
         self._client = client
         self._ttl = timedelta(days=ttl_days)
         self._indices: dict[str, dict[str, str]] = {}
+
+    @property
+    def client(self) -> BOEClient:
+        return self._client
 
     async def resolve_bloque(self, id_norma: str, articulo: str) -> str:
         """Cada norma nombra sus bloques a su manera (LAU: 'a36'; Código Civil: 'art1561'; Ley 15/2022:
@@ -155,6 +233,13 @@ class BOERepository:
         if row and not self._expired(row[1]):
             return NormaMeta.from_api(json.loads(row[0]))
         meta = await self._client.metadatos(id_norma)
+        titulo = fold(meta.titulo).lower()
+        faltan = [c for c in _claves_identidad(id_norma) if c not in titulo]
+        if faltan:
+            raise BOEError(
+                f"{id_norma} no es la norma esperada: su título oficial («{meta.titulo}») no contiene "
+                f"«{', '.join(faltan)}»"
+            )
         self._con.execute(
             """INSERT INTO boe_normas(id_norma, titulo, rango, ambito, estado, fecha_actualizacion, metadatos_json)
                VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -180,14 +265,14 @@ class BOERepository:
         return now - datetime.fromisoformat(fetched_at) > self._ttl
 
     # ---------- bloques ----------
-    def _cached_bloque(self, id_norma: str, id_bloque: str) -> Bloque | None:
+    def _cached_bloque(self, id_norma: str, id_bloque: str, *, ignorar_caducidad: bool = False) -> Bloque | None:
         rows = self._con.execute(
             """SELECT titulo, version_vigencia_desde, version_vigencia_hasta, id_norma_modificadora,
                       texto_consolidado, cached_at
                FROM boe_bloques WHERE id_norma = ? AND id_bloque = ? ORDER BY version_vigencia_desde""",
             (id_norma, id_bloque),
         ).fetchall()
-        if not rows or self._expired(rows[-1][5]):
+        if not rows or (not ignorar_caducidad and self._expired(rows[-1][5])):
             return None
         return Bloque(
             id_norma=id_norma,
@@ -204,6 +289,20 @@ class BOERepository:
                 for r in rows
             ],
         )
+
+    def get_bloque_local(self, id_norma: str, id_bloque: str) -> Bloque | None:
+        """La copia local sin mirar su antigüedad (corpus descargado o caché caducada): respaldo cuando el BOE no
+        responde. Quien la use debe avisar de que el texto es el de la última descarga."""
+        return self._cached_bloque(id_norma, id_bloque, ignorar_caducidad=True)
+
+    def descargado_en(self, id_norma: str, id_bloque: str) -> str | None:
+        row = self._con.execute(
+            "SELECT MAX(cached_at) FROM boe_bloques WHERE id_norma = ? AND id_bloque = ?", (id_norma, id_bloque)
+        ).fetchone()
+        return str(row[0]) if row and row[0] else None
+
+    def store_bloque(self, bloque: Bloque) -> None:
+        self._store_bloque(bloque)
 
     def _store_bloque(self, bloque: Bloque) -> None:
         self._con.execute("BEGIN")
@@ -273,6 +372,65 @@ class BOERepository:
             (*params, limit),
         ).fetchall()
         return [{"id_norma": r[0], "id_bloque": r[1], "titulo": r[2], "snippet": r[3]} for r in rows]
+
+    def precepto_a_fecha(self, id_norma: str, id_bloque: str, fecha: date) -> PreceptoEncontrado | None:
+        """La versión de un precepto guardado vigente en `fecha` (None si no estaba en vigor o no está guardado)."""
+        f = fecha.isoformat()
+        r = self._con.execute(
+            """SELECT b.titulo, b.version_vigencia_desde, b.version_vigencia_hasta, substr(b.texto_consolidado, 1, 420),
+                      COALESCE(cb.ubicacion, '')
+               FROM boe_bloques b
+               LEFT JOIN boe_corpus_bloques cb ON cb.id_norma = b.id_norma AND cb.id_bloque = b.id_bloque
+               WHERE b.id_norma = ? AND b.id_bloque = ? AND b.version_vigencia_desde <= ?
+                 AND (b.version_vigencia_hasta IS NULL OR b.version_vigencia_hasta > ?)""",
+            (id_norma, id_bloque, f, f),
+        ).fetchone()
+        if r is None:
+            return None
+        return PreceptoEncontrado(
+            id_norma=id_norma,
+            id_bloque=id_bloque,
+            titulo=r[0] or "",
+            vigencia_desde=date.fromisoformat(r[1]),
+            vigencia_hasta=date.fromisoformat(r[2]) if r[2] else None,
+            inicio=r[3] or "",
+            ubicacion=r[4] or "",
+            score=0.0,
+        )
+
+    def buscar_a_fecha(
+        self, consulta: str, fecha: date, *, normas: Sequence[str] | None = None, limit: int = 20
+    ) -> list[PreceptoEncontrado]:
+        """BM25 sobre la versión de cada precepto VIGENTE EN `fecha` (desde <= fecha < hasta): un precepto reformado
+        después de los hechos devuelve su redacción anterior y uno introducido después no aparece. El título del
+        bloque pesa tres veces más que el texto."""
+        f = fecha.isoformat()
+        sql = """SELECT b.id_norma, b.id_bloque, b.titulo, b.version_vigencia_desde, b.version_vigencia_hasta,
+                        substr(b.texto_consolidado, 1, 420), COALESCE(cb.ubicacion, ''),
+                        bm25(boe_bloques_fts, 1.0, 3.0) AS score
+                 FROM boe_bloques_fts JOIN boe_bloques b ON b.id = boe_bloques_fts.rowid
+                 LEFT JOIN boe_corpus_bloques cb ON cb.id_norma = b.id_norma AND cb.id_bloque = b.id_bloque
+                 WHERE boe_bloques_fts MATCH ? AND b.version_vigencia_desde <= ?
+                   AND (b.version_vigencia_hasta IS NULL OR b.version_vigencia_hasta > ?)"""
+        params: list[object] = [consulta_fts_legal(consulta), f, f]
+        if normas:
+            sql += f" AND b.id_norma IN ({', '.join('?' * len(normas))})"
+            params.extend(normas)
+        sql += " ORDER BY score LIMIT ?"
+        params.append(limit)
+        return [
+            PreceptoEncontrado(
+                id_norma=r[0],
+                id_bloque=r[1],
+                titulo=r[2] or "",
+                vigencia_desde=date.fromisoformat(r[3]),
+                vigencia_hasta=date.fromisoformat(r[4]) if r[4] else None,
+                inicio=r[5] or "",
+                ubicacion=r[6] or "",
+                score=float(r[7]),
+            )
+            for r in self._con.execute(sql, params).fetchall()
+        ]
 
 
 _ORDINALES = [

@@ -408,3 +408,34 @@ def test_hoja_de_ruta_escrito_y_modo_profesional(page, server: Server) -> None: 
         page.keyboard.press("Escape")
     page.get_by_role("button", name="Modo profesional").click()
     page.get_by_role("region", name="Vista profesional").get_by_text("Esquema de escrito").wait_for()
+
+
+def test_cabecera_linea_temporal_arbol_y_word(page, server: Server) -> None:  # type: ignore[no-untyped-def]
+    """Informe profesional: plazo más urgente en la cabecera, línea temporal, árbol de argumentos y Word."""
+    _abrir(page, server)
+    _consultar_y_esperar_dictamen(page)
+    urgente = page.get_by_role("complementary", name="Plazo más urgente")
+    urgente.wait_for()
+    assert "Quedan" in urgente.inner_text()
+    assert page.get_by_text("Línea temporal").count() == 1
+    page.get_by_role("button", name="Árbol de argumentos").click()
+    arbol = page.get_by_role("list", name="Árbol de argumentos")
+    arbol.wait_for()
+    assert "Decisión: da la razón a tu posición" in arbol.inner_text()
+    assert arbol.get_by_text("Cita verificada").count() >= 1
+    assert _axe(page) == []
+    with page.expect_download() as descarga:
+        page.get_by_role("button", name="Descargar el dictamen en Word").click()
+    assert descarga.value.suggested_filename.endswith(".docx")
+
+
+def test_biblioteca_codigos_legales(page, server: Server) -> None:  # type: ignore[no-untyped-def]
+    """Biblioteca → Códigos legales: estado del núcleo, búsqueda accesible y axe sin errores graves."""
+    _abrir(page, server)
+    page.get_by_role("button", name="Biblioteca", exact=True).click()
+    page.get_by_role("heading", name="Códigos legales").wait_for()
+    assert page.get_by_text("Código Civil").count() >= 1 and page.get_by_text("Sin descargar").count() >= 1
+    page.get_by_label("Buscar en los códigos descargados").fill("fianza del arrendamiento")
+    page.get_by_role("search", name="Buscar en los códigos").get_by_role("button", name="Buscar").click()
+    page.get_by_text("Sin resultados en los códigos descargados").wait_for()
+    assert _axe(page) == []

@@ -275,15 +275,22 @@ class CalendarEngine:
 
         if rule.computo in (TipoComputo.MESES_FECHA_A_FECHA, TipoComputo.ANIOS_FECHA_A_FECHA):
             months = duracion * (12 if rule.computo == TipoComputo.ANIOS_FECHA_A_FECHA else 1)
-            fin = _add_months(fecha_inicio, months)
+            base = fecha_inicio
+            if not rule.agosto_habil and fecha_inicio.month == 8:
+                # Notificado en un agosto que no computa: el plazo empieza a correr el 1 de septiembre (como si se
+                # hubiera notificado el 31 de agosto). Antes se sumaba además un mes entero por ese agosto y una
+                # notificación del 15-08 vencía DESPUÉS que una del 01-09 (test_calendario_propiedades.py).
+                base = date(fecha_inicio.year, 8, 31)
+                avisos.append(
+                    "Notificado en agosto, que no computa en este plazo: el cómputo empieza el 1 de septiembre."
+                )
+            fin = _add_months(base, months)
             if not rule.agosto_habil:
                 # Agosto no computa (p. ej. art. 128.2 LJCA): se añade un mes por cada agosto atravesado.
                 contados_agosto: set[int] = set()
                 while True:
                     nuevos = {
-                        y
-                        for y in range(fecha_inicio.year, fin.year + 1)
-                        if date(y, 8, 1) <= fin and date(y, 8, 31) > fecha_inicio
+                        y for y in range(base.year, fin.year + 1) if date(y, 8, 1) <= fin and date(y, 8, 31) > base
                     } - contados_agosto
                     if not nuevos:
                         break

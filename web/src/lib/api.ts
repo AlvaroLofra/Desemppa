@@ -82,7 +82,40 @@ export interface ItemHistorial {
   invitado: boolean;
 }
 
+/** Dictamen en Word (.docx) generado por el servidor con el contenido verificado. */
+export async function dictamenWord(id: string): Promise<Blob> {
+  const path = `/api/consultas/${encodeURIComponent(id)}/dictamen.docx`;
+  const r = await fetch(path, { headers: { "X-Desemppa-Invitado": idInvitado() }, cache: "no-store" });
+  if (!r.ok) throw new ApiError(r.status, "GET", path, "no se pudo generar el documento Word");
+  return r.blob();
+}
+
+export interface NormaCorpus {
+  id_norma: string; alias: string; titulo: string;
+  estado: "pendiente" | "en_curso" | "completa" | "parcial" | "error";
+  preceptos: number; preceptos_ok: number; errores: number; ultimo_error?: string | null;
+  actualizado_en?: string | null; nucleo: boolean; verificado: boolean;
+}
+export interface EstadoCorpus {
+  normas: NormaCorpus[];
+  vectorial: boolean;
+  modelo_embeddings: string | null;
+  en_curso: { alias?: string; fase?: string; hechos?: number; de?: number; hechas: number; total: number } | null;
+  ultimo: { alias: string; descargados: number; errores: number; error?: string }[] | null;
+}
+export interface PreceptoEncontrado {
+  id_norma: string; alias: string | null; titulo: string; ubicacion: string; vigencia_desde: string;
+  vigencia_hasta: string | null; extracto: string; url: string; fuentes: string[];
+}
+
 export const api = {
+  corpus: () => request<EstadoCorpus>("/api/corpus"),
+  ingerirCorpus: (normas: string[] | null, forzar = false) =>
+    request<{ iniciado: boolean; normas: string[] }>("/api/corpus/ingerir", {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ normas, forzar }),
+    }, true),
+  buscarCorpus: (q: string, fecha?: string) =>
+    request<PreceptoEncontrado[]>(`/api/corpus/buscar?q=${encodeURIComponent(q)}${fecha ? `&fecha=${fecha}` : ""}`),
   estado: () => request<Record<string, any>>("/api/estado"),
   proveedores: () => request<Record<string, Proveedor>>("/api/proveedores"),
   detectar: (pid: string) =>

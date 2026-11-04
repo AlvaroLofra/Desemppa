@@ -18,14 +18,17 @@ Visión y criterio de alcance: [vision.md](vision.md). Plan en curso: [hoja_de_r
 * **Abogado, procurador y MASC LO 1/2025:** `core/postulacion_rules.py` (reglas en `config/postulacion.yaml`)
 * **Árbol determinista de trámites:** `core/hoja_de_ruta.py` (reglas en `config/hojas_de_ruta.yaml`)
 * **Router y resiliencia de modelos:** `core/router.py` (config en `config/profiles.toml` y `config/models.toml`)
-* **Prompts del sistema de los agentes:** `core/prompts/` (`magistrado.md`, `triaje.md`, `defensa.md`, `contraparte.md`)
+* **Prompts del sistema de los agentes:** `core/prompts/` (`magistrado.md`, `triaje.md`, `defensa.md`, `contraparte.md`, `cribado.md`)
+* **Descubrimiento de preceptos (lista cerrada):** `Orchestrator._descubrir_articulos` / `_fuente_boe` / `_sin_norma_verificable` en `core/orchestrator.py`; `limpiar_busquedas` e `indices_elegidos`; tests en `tests/unit/test_descubrimiento.py`
 * **Esquema de base de datos SQLite y migraciones:** `storage/database.py` y `storage/migrations/`
 
 ---
 
 ## 2. Conectores y Fuentes Oficiales
 
-* **BOE con vigencia temporal:** `connectors/boe_client.py` y `core/temporal_sync.py`
+* **BOE con vigencia temporal:** `connectors/boe_client.py` (`buscar_a_fecha`, guarda de identidad `titulo_boe_contiene`) y `core/temporal_sync.py`
+* **Corpus legal local (grandes códigos enteros, todas las versiones):** `connectors/corpus_legal.py`; descarga con `scripts/ingerir_corpus.py` o `POST /api/corpus/ingerir`; núcleo en `config/catalogo_normas.json` (`nucleo`); migración `0009`
+* **Búsqueda de preceptos a la fecha de los hechos (BM25 + vectores + RRF):** `connectors/recuperador_legislacion.py`; vectores en `storage/lance_schema.py::LegislacionStore`; embeddings locales ONNX en `connectors/embeddings.py::LocalEmbedder` (extra `embeddings`)
 * **Derecho de la Unión Europea (Cellar):** `connectors/eurlex_client.py`
 * **Convenios colectivos (FTS5):** `connectors/convenios_db.py` y `connectors/convenios_boe.py`
 * **Jurisprudencia y vector store:** `connectors/retriever.py`, `connectors/cendoj_fetcher.py`
@@ -46,7 +49,10 @@ Visión y criterio de alcance: [vision.md](vision.md). Plan en curso: [hoja_de_r
 * **Tipos globales:** `web/src/lib/types.ts`
 * **Cliente API y SSE:** `web/src/lib/api.ts`
 * **Generación determinista de escritos sin LLM:** `web/src/lib/escritos.ts`
-* **Vista principal y dictamen:** `web/src/components/Results.tsx`
+* **Vista principal y dictamen:** `web/src/components/Results.tsx` (cabecera `PlazoUrgente`, `LineaTemporal`, botón Word)
+* **Monitor del análisis y árbol de argumentos:** `web/src/components/Informe.tsx` (lógica pura en `web/src/lib/monitor.ts`, `arbol.ts`, `lineaTemporal.ts`, `plazos.ts`; tests en `interfaz2.test.ts` y `plazos.test.ts`)
+* **Dictamen en Word:** `core/exportar_docx.py` → `GET /api/consultas/{id}/dictamen.docx`
+* **Biblioteca → Códigos legales (descarga y búsqueda del corpus):** `web/src/components/CodigosLegales.tsx`
 * **Vista técnica procesal:** `web/src/components/VistaProfesional.tsx`
 * **Visor lateral de fuentes (drawer):** `web/src/components/SourceViewer.tsx`
 * **Preguntas aclaratorias (UI):** `Clarification` en `web/src/components/Results.tsx` + `web/src/lib/aclaraciones.ts`; backend `normalizar_pregunta` / `ya_preguntado` en `core/orchestrator.py`

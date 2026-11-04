@@ -10,6 +10,7 @@ import ctypes
 import logging
 import sys
 from ctypes import wintypes
+from typing import Any
 
 log = logging.getLogger(__name__)
 _DPAPI = b"DPAPI1:"
@@ -25,9 +26,14 @@ def _to_blob(data: bytes) -> _Blob:
     return _Blob(len(data), ctypes.cast(buf, ctypes.POINTER(ctypes.c_char)))
 
 
+def _windll() -> Any:
+    """`ctypes.windll` solo existe en Windows: leerlo así deja comprobar los tipos (mypy) en cualquier sistema."""
+    return vars(ctypes)["windll"]
+
+
 def _from_blob(blob: _Blob) -> bytes:
     out = ctypes.string_at(blob.pbData, blob.cbData)
-    ctypes.windll.kernel32.LocalFree(blob.pbData)
+    _windll().kernel32.LocalFree(blob.pbData)
     return out
 
 
@@ -37,7 +43,7 @@ def encrypt(text: str) -> bytes:
         log.warning("Cifrado DPAPI no disponible fuera de Windows: se guarda sin cifrar")
         return _PLAIN + data
     blob_in, blob_out = _to_blob(data), _Blob()
-    ok = ctypes.windll.crypt32.CryptProtectData(
+    ok = _windll().crypt32.CryptProtectData(
         ctypes.byref(blob_in), "iuris-ia", None, None, None, 0x01, ctypes.byref(blob_out)
     )
     if not ok:
@@ -51,7 +57,7 @@ def decrypt(data: bytes) -> str:
     if not data.startswith(_DPAPI):
         raise ValueError("formato cifrado desconocido")
     blob_in, blob_out = _to_blob(data[len(_DPAPI) :]), _Blob()
-    ok = ctypes.windll.crypt32.CryptUnprotectData(
+    ok = _windll().crypt32.CryptUnprotectData(
         ctypes.byref(blob_in), None, None, None, None, 0x01, ctypes.byref(blob_out)
     )
     if not ok:

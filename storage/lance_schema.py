@@ -99,3 +99,78 @@ class JurisprudenciaStore:
         if filters:
             query = query.where(" AND ".join(filters), prefilter=True)
         return list(query.limit(k).to_list())
+
+
+LEGISLACION_TABLE = "legislacion_chunks"
+
+
+def legislacion_schema(dim: int) -> pa.Schema:
+    """Un trozo por VERSIÓN de precepto: la búsqueda prefiltra por vigencia, como `BOERepository.buscar_a_fecha`."""
+    return pa.schema(
+        [
+            pa.field("chunk_id", pa.string(), nullable=False),
+            pa.field("id_norma", pa.string(), nullable=False),
+            pa.field("id_bloque", pa.string(), nullable=False),
+            pa.field("titulo", pa.string(), nullable=False),
+            pa.field("ubicacion", pa.string()),
+            pa.field("vigencia_desde", pa.date32(), nullable=False),
+            pa.field("vigencia_hasta", pa.date32()),  # null = versión actual; exclusiva
+            pa.field("chunk_text", pa.string(), nullable=False),
+            pa.field("texto_hash", pa.string(), nullable=False),
+            pa.field("vector", pa.list_(pa.float32(), dim), nullable=False),
+            pa.field("embedding_model", pa.string(), nullable=False),
+        ]
+    )
+
+
+def _sql_str(value: str) -> str:
+    return "'" + value.replace("'", "''") + "'"
+
+
+class LegislacionStore:
+    """Vectores del corpus legal (LanceDB). Una tabla por directorio; el directorio va por modelo de embeddings
+    (`directorio_por_modelo`) para no mezclar dimensiones ni espacios vectoriales."""
+
+    def __init__(self, directory: Path, dim: int) -> None:
+        directory.mkdir(parents=True, exist_ok=True)
+        self._db = lancedb.connect(str(directory))
+        self.dim = dim
+        self._table = self._db.create_table(LEGISLACION_TABLE, schema=legislacion_schema(dim), exist_ok=True)
+
+    def count(self) -> int:
+        return int(self._table.count_rows())
+
+    def hashes(self, id_norma: str) -> set[str]:
+        """`texto_hash` ya indexados de una norma (para no volver a calcular vectores de lo que no cambió)."""
+        if self.count() == 0:
+            return set()
+        rows = self._table.search().where(f"id_norma = {_sql_str(id_norma)}").select(["texto_hash"]).limit(10**7)
+        return {str(r["texto_hash"]) for r in rows.to_list()}
+
+    def delete_norma(self, id_norma: str, *, salvo_hashes: set[str] | None = None) -> None:
+        cond = f"id_norma = {_sql_str(id_norma)}"
+        if salvo_hashes:
+            cond += " AND texto_hash NOT IN (" + ", ".join(_sql_str(h) for h in sorted(salvo_hashes)) + ")"
+        self._table.delete(cond)
+
+    def add(self, rows: list[dict[str, Any]]) -> None:
+        for row in rows:
+            if len(row["vector"]) != self.dim:
+                raise ValueError("dimensión de embedding incorrecta")
+        if rows:
+            self._table.add(rows)
+
+    def search(
+        self, vector: list[float], *, fecha: date, normas: list[str] | None = None, k: int = 20
+    ) -> list[dict[str, Any]]:
+        f = fecha.isoformat()
+        filtros = [f"vigencia_desde <= date '{f}'", f"(vigencia_hasta IS NULL OR vigencia_hasta > date '{f}')"]
+        if normas:
+            filtros.append("id_norma IN (" + ", ".join(_sql_str(n) for n in normas) + ")")
+        query: Any = self._table.search(vector)
+        query = query.distance_type("cosine").where(" AND ".join(filtros), prefilter=True)
+        return list(query.limit(k).to_list())
+
+
+def directorio_por_modelo(base: Path, modelo: str, prefijo: str = "legislacion") -> Path:
+    return base / (f"{prefijo}_" + "".join(c if c.isalnum() else "_" for c in modelo.lower()))
