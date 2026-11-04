@@ -19,7 +19,9 @@ from rapidfuzz import fuzz
 from connectors.boe_client import BOEError, BOERepository
 from connectors.cendoj_fetcher import CendojRepository
 from connectors.convenios_db import ConveniosRepository
+from connectors.corpus_legal import CorpusLegal
 from connectors.eurlex_client import EURLexError, EURLexRepository
+from connectors.recuperador_legislacion import RecuperadorLegislacion
 from connectors.retriever import HybridRetriever
 from core.calendar_engine import CalendarEngine, PlazoError
 from core.errors import ProviderError
@@ -326,6 +328,8 @@ class Services:
     bus: EventBus
     today: Callable[[], date] = date.today
     eurlex: EURLexRepository | None = None  # Derecho de la UE (opcional)
+    corpus: CorpusLegal | None = None  # grandes códigos descargados enteros (scripts/ingerir_corpus.py)
+    legislacion: RecuperadorLegislacion | None = None  # búsqueda de preceptos a la fecha de los hechos
 
 
 @dataclass

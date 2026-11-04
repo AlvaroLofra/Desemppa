@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import sqlite3
 import sys
 from pathlib import Path
@@ -14,6 +15,9 @@ from config.settings import Catalog, load_catalog  # noqa: E402
 from storage.database import open_database  # noqa: E402
 
 FIXTURES = ROOT / "tests" / "fixtures"
+# Sin embeddings locales en las pruebas: herméticas, rápidas y sin descargar modelos (los tests que los necesitan
+# usan un embedder falso).
+os.environ.setdefault("IURIS_EMBEDDINGS", "no")
 
 
 @pytest.fixture(scope="session")

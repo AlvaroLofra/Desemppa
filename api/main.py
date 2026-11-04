@@ -44,17 +44,20 @@ from config.settings import (
 from connectors.boe_client import BOEClient, BOERepository
 from connectors.cendoj_fetcher import CendojRepository
 from connectors.convenios_db import ConveniosRepository
-from connectors.embeddings import Embedder, GeminiEmbedder
+from connectors.corpus_legal import CorpusLegal, ProgresoIngesta
+from connectors.embeddings import Embedder, GeminiEmbedder, crear_embedder
 from connectors.eurlex_client import EURLexError, EURLexRepository
 from connectors.pdf_extractor import extract_pdf
+from connectors.recuperador_legislacion import RecuperadorLegislacion
 from connectors.retriever import HybridRetriever
 from core.calendar_engine import CalendarEngine, CalendarioFestivos, PlazoError
 from core.circuit_breaker import CircuitBreaker
-from core.errors import ModelUnavailable, ProviderError
+from core.errors import ProviderError
 from core.gemini_client import GeminiClient
 from core.hoja_de_ruta import aplicables as pasos_aplicables
 from core.llm_types import LLMRequest, LLMResult
-from core.materias import submaterias
+from core.materias import alias_de, submaterias
+from core.materias import normas as normas_catalogo
 from core.normalize import fold
 from core.orchestrator import Orchestrator
 from core.orchestrator import Services as PipelineServices
@@ -65,7 +68,7 @@ from core.quota_ledger import QuotaLedger
 from core.router import ModelRouter
 from core.state import TERMINALES, ConsultaStore, Estado, EventBus
 from storage.database import open_database
-from storage.lance_schema import JurisprudenciaStore
+from storage.lance_schema import JurisprudenciaStore, LegislacionStore, directorio_por_modelo
 
 # IURIS_WEB_DIST permite servir otra copia del build (lo usan los tests E2E).
 WEB_DIST = Path(os.environ.get("IURIS_WEB_DIST") or Path(__file__).resolve().parents[1] / "web" / "dist")
@@ -135,6 +138,7 @@ class Services:
     key_store: ApiKeyStore | None = None
     pipeline: PipelineServices | None = None
     tasks: dict[str, asyncio.Task[None]] = field(default_factory=dict)
+    ingesta: dict[str, Any] = field(default_factory=dict)  # progreso de la descarga del corpus legal en curso
     token: str = field(default_factory=lambda: secrets.token_urlsafe(24))
 
 
@@ -186,19 +190,31 @@ def build_services(settings: Settings | None = None, catalog: Catalog | None = N
         catalog, settings, gemini=gemini, exe_overrides={"claude_cli": settings.claude_exe}, key_store=key_store
     )
     router = ModelRouter(catalog, providers=providers, breaker=breaker, ledger=ledger)
-    embedder: Embedder | None = None
-    store: JurisprudenciaStore | None = None
     emb_spec = catalog.models.get("gemini_embedding")
-    if gemini_key and emb_spec and emb_spec.model_id:
-        try:
-            embedder = GeminiEmbedder(gemini_key, model=emb_spec.model_id, dim=emb_spec.output_dimensionality or 768)
-            store = JurisprudenciaStore(settings.lancedb_dir, dim=embedder.dim)
-        except ModelUnavailable:
-            embedder = None
+    # Gemini si hay clave; si no, el modelo local ONNX (extra «embeddings»); si no, solo BM25.
+    embedder: Embedder | None = crear_embedder(
+        gemini_key,
+        gemini_model=emb_spec.model_id if emb_spec else None,
+        gemini_dim=(emb_spec.output_dimensionality if emb_spec else None) or 768,
+    )
+    store: JurisprudenciaStore | None = None
+    leg_store: LegislacionStore | None = None
+    if embedder is not None:
+        # Cada modelo en su directorio: dimensiones y espacios vectoriales distintos no se mezclan. La tabla de
+        # jurisprudencia de Gemini conserva su ruta de siempre.
+        jur_dir = (
+            settings.lancedb_dir
+            if isinstance(embedder, GeminiEmbedder)
+            else directorio_por_modelo(settings.lancedb_dir, embedder.model, "jurisprudencia")
+        )
+        store = JurisprudenciaStore(jur_dir, dim=embedder.dim)
+        leg_store = LegislacionStore(directorio_por_modelo(settings.lancedb_dir, embedder.model), embedder.dim)
     cendoj = CendojRepository(con, store=store, embedder=embedder)
+    boe_client = BOEClient()
+    boe = BOERepository(con, boe_client)
     pipeline = PipelineServices(
         router=router,
-        boe=BOERepository(con, BOEClient()),
+        boe=boe,
         retriever=HybridRetriever(con, store=store, embedder=embedder),
         cendoj=cendoj,
         convenios=ConveniosRepository(con),
@@ -206,6 +222,8 @@ def build_services(settings: Settings | None = None, catalog: Catalog | None = N
         store=ConsultaStore(con),
         bus=EventBus(con),
         eurlex=EURLexRepository(con),
+        corpus=CorpusLegal(con, boe, boe_client, store=leg_store, embedder=embedder),
+        legislacion=RecuperadorLegislacion(boe, store=leg_store, embedder=embedder),
     )
     local_token = _load_or_create_token(settings)
     return Services(
@@ -250,6 +268,11 @@ class Aclaraciones(BaseModel):
 class EdicionConsulta(BaseModel):
     titulo: str | None = Field(default=None, max_length=120)  # None o vacío: vuelve al texto de la consulta
     archivada: bool | None = None
+
+
+class IngestaCorpus(BaseModel):
+    normas: list[str] | None = Field(default=None, max_length=60)  # alias del catálogo; None = el núcleo
+    forzar: bool = False
 
 
 class ConfigurarProveedor(BaseModel):
@@ -1033,6 +1056,88 @@ def create_app(services_factory: Callable[[], Services] = build_services) -> Fas
                 for k, s in cat.items()
             ],
         }
+
+    # ---------- corpus legal (grandes códigos del BOE) ----------
+    def corpus_de(request: Request) -> CorpusLegal:
+        c = pipe(request).corpus
+        if c is None:
+            raise HTTPException(503, "corpus legal no inicializado")
+        return c
+
+    @app.get("/api/corpus", dependencies=[Depends(solo_dueno)])
+    def corpus_estado(request: Request) -> dict[str, Any]:
+        c = corpus_de(request)
+        s = svc(request)
+        tarea = s.tasks.get("corpus")
+        return {
+            "normas": c.estado(),
+            "vectorial": c.embedder is not None,
+            "modelo_embeddings": c.embedder.model if c.embedder is not None else None,
+            "en_curso": dict(s.ingesta) if tarea is not None and not tarea.done() else None,
+            "ultimo": s.ingesta.get("resultado") if tarea is None or tarea.done() else None,
+        }
+
+    @app.post("/api/corpus/ingerir", status_code=202, dependencies=[Depends(solo_dueno), Depends(require_token)])
+    async def corpus_ingerir(request: Request, body: IngestaCorpus) -> dict[str, Any]:
+        """Descarga (o actualiza, solo lo que cambió) los grandes códigos del BOE en segundo plano."""
+        c = corpus_de(request)
+        s = svc(request)
+        actual = s.tasks.get("corpus")
+        if actual is not None and not actual.done():
+            raise HTTPException(409, "ya hay una descarga del corpus en curso")
+        catalogo = {e["alias"] for e in c.estado()} | set(normas_catalogo())
+        aliases = body.normas or [e["alias"] for e in c.estado() if e["nucleo"]]
+        desconocidas = [a for a in aliases if a not in catalogo]
+        if desconocidas:
+            raise HTTPException(422, f"normas que no están en el catálogo: {', '.join(desconocidas)}")
+        s.ingesta.clear()
+        s.ingesta.update({"normas": aliases, "hechas": 0, "total": len(aliases)})
+
+        def progreso(p: ProgresoIngesta) -> None:
+            s.ingesta.update({"alias": p.alias, "fase": p.fase, "hechos": p.hechos, "de": p.total})
+
+        async def trabajo() -> None:
+            resultados = []
+            for alias in aliases:
+                try:
+                    r = await c.ingerir(alias, progreso=progreso, forzar=body.forzar)
+                    resultados.append({"alias": alias, "descargados": r.descargados, "errores": r.errores})
+                except Exception as exc:  # una norma no tumba la descarga de las demás
+                    log.exception("Fallo al descargar %s", alias)
+                    resultados.append({"alias": alias, "descargados": 0, "errores": 1, "error": str(exc)[:300]})
+                s.ingesta["hechas"] = int(s.ingesta.get("hechas", 0)) + 1
+            s.ingesta["resultado"] = resultados
+
+        s.tasks["corpus"] = asyncio.create_task(trabajo())
+        return {"iniciado": True, "normas": aliases}
+
+    @app.get("/api/corpus/buscar", dependencies=[Depends(solo_dueno)])
+    async def corpus_buscar(
+        request: Request, q: str = Query(min_length=3, max_length=300), fecha: date | None = None
+    ) -> list[dict[str, Any]]:
+        """Búsqueda directa en los códigos descargados, en la redacción vigente en `fecha` (hoy si se omite)."""
+        p = pipe(request)
+        if p.legislacion is None:
+            return []
+        en = fecha or p.today()
+        out = []
+        for cand in await p.legislacion.buscar([q], en, k=15):
+            pr = cand.precepto
+            alias = alias_de(pr.id_norma)
+            out.append(
+                {
+                    "id_norma": pr.id_norma,
+                    "alias": alias,
+                    "titulo": pr.titulo,
+                    "ubicacion": pr.ubicacion,
+                    "vigencia_desde": pr.vigencia_desde.isoformat(),
+                    "vigencia_hasta": pr.vigencia_hasta.isoformat() if pr.vigencia_hasta else None,
+                    "extracto": pr.inicio[:300],
+                    "url": f"https://www.boe.es/buscar/act.php?id={pr.id_norma}#{pr.id_bloque}",
+                    "fuentes": sorted(cand.fuentes),
+                }
+            )
+        return out
 
     # ---------- frontend ----------
     if (WEB_DIST / "index.html").exists():

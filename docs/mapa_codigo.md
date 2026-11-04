@@ -25,7 +25,9 @@ Visión y criterio de alcance: [vision.md](vision.md). Plan en curso: [hoja_de_r
 
 ## 2. Conectores y Fuentes Oficiales
 
-* **BOE con vigencia temporal:** `connectors/boe_client.py` y `core/temporal_sync.py`
+* **BOE con vigencia temporal:** `connectors/boe_client.py` (`buscar_a_fecha`, guarda de identidad `titulo_boe_contiene`) y `core/temporal_sync.py`
+* **Corpus legal local (grandes códigos enteros, todas las versiones):** `connectors/corpus_legal.py`; descarga con `scripts/ingerir_corpus.py` o `POST /api/corpus/ingerir`; núcleo en `config/catalogo_normas.json` (`nucleo`); migración `0009`
+* **Búsqueda de preceptos a la fecha de los hechos (BM25 + vectores + RRF):** `connectors/recuperador_legislacion.py`; vectores en `storage/lance_schema.py::LegislacionStore`; embeddings locales ONNX en `connectors/embeddings.py::LocalEmbedder` (extra `embeddings`)
 * **Derecho de la Unión Europea (Cellar):** `connectors/eurlex_client.py`
 * **Convenios colectivos (FTS5):** `connectors/convenios_db.py` y `connectors/convenios_boe.py`
 * **Jurisprudencia y vector store:** `connectors/retriever.py`, `connectors/cendoj_fetcher.py`

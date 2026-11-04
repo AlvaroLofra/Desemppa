@@ -26,6 +26,11 @@ dependencies = [
     "pillow>=13.0.0",
 ]
 
+[project.optional-dependencies]
+embeddings = [
+    "fastembed>=0.9.1",
+]
+
 [dependency-groups]
 dev = [
     "pytest",

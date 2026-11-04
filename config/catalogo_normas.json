@@ -1,11 +1,15 @@
 {
   "_meta": {
     "descripcion": "Normas núcleo. Identificadores verificados contra la API de Datos Abiertos del BOE (metadatos) el 2026-10-23.",
-    "fuente": "https://www.boe.es/datosabiertos/api/legislacion-consolidada/id/{id}/metadatos"
+    "fuente": "https://www.boe.es/datosabiertos/api/legislacion-consolidada/id/{id}/metadatos",
+    "nucleo": "Grandes cuerpos legales que scripts/ingerir_corpus.py descarga enteros (todas las versiones) para buscar a la fecha de los hechos.",
+    "verificado": "Una norma con \"verificado\": false se añadió sin poder consultar el BOE: su identificador se comprueba en tiempo real con titulo_boe_contiene (connectors/boe_client.py) y con scripts/verificar_catalogo.py."
   },
+  "nucleo": ["CE", "CC", "CCOM", "CP", "LEC", "LECRIM", "ET", "LRJS", "LGSS", "TRLC", "LSC", "LPAC", "LRJSP", "LJCA", "LAU", "TRLGDCU", "LGT"],
   "normas": {
     "CE":           {"id": "BOE-A-1978-31229", "titulo": "Constitución Española", "ambito": "estatal"},
     "CC":           {"id": "BOE-A-1889-4763",  "titulo": "Código Civil", "ambito": "estatal"},
+    "CCOM":         {"id": "BOE-A-1885-6627",  "titulo": "Código de Comercio (Real Decreto de 22 de agosto de 1885)", "ambito": "estatal", "verificado": false, "titulo_boe_contiene": ["codigo de comercio"]},
     "CP":           {"id": "BOE-A-1995-25444", "titulo": "Código Penal (LO 10/1995)", "ambito": "estatal"},
     "LEC":          {"id": "BOE-A-2000-323",   "titulo": "Ley 1/2000 de Enjuiciamiento Civil", "ambito": "estatal"},
     "LECRIM":       {"id": "BOE-A-1882-6036",  "titulo": "Ley de Enjuiciamiento Criminal", "ambito": "estatal"},
